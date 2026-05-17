@@ -1,0 +1,1028 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Peso e Medidas</title>
+    <!-- Chart.js para os gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding-bottom: 80px; /* Espaço para o menu inferior */
+            overflow-x: hidden;
+        }
+
+        /* Utilidades */
+        .container { padding: 16px; max-width: 800px; margin: 0 auto; }
+        .hidden { display: none !important; }
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .text-center { text-align: center; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 14px;
+            width: 100%;
+        }
+        .btn-primary { background: var(--accent); color: var(--bg-color); }
+        .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        
+        /* Typography */
+        h1, h2, h3 { margin-bottom: 12px; font-weight: 700; }
+        .label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        .value { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+        .small { font-size: 12px; }
+
+        /* Cores de Status */
+        .positive { color: var(--success); }
+        .negative { color: var(--danger); }
+        .neutral { color: var(--accent); }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        nav::-webkit-scrollbar { display: none; }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 10px;
+            min-width: 60px;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+        .nav-item.active { color: var(--accent); }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 2px; }
+
+        /* Forms */
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-size: 14px; color: var(--text-secondary); }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+        }
+        input:focus { border-color: var(--accent); outline: none; }
+
+        /* Tables */
+        .table-container { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { background: #334155; text-align: left; padding: 12px; color: var(--text-secondary); }
+        td { padding: 12px; border-bottom: 1px solid var(--border); background: var(--card-bg); }
+
+        /* Specific styles */
+        .dash-card { border-left: 4px solid var(--accent); }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        
+        /* Modal Simple */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000; padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div class="container">
+        <!-- Header Dinâmico -->
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 id="page-title">Dashboard</h2>
+            <div id="user-greeting" class="small" style="color: var(--text-secondary)"></div>
+        </header>
+
+        <!-- TELAS -->
+        
+        <!-- Dashboard -->
+        <section id="view-dashboard" class="view">
+            <div class="grid-2">
+                <div class="card dash-card"><div class="label">Peso Atual</div><div class="value" id="dash-peso-atual">--</div></div>
+                <div class="card dash-card"><div class="label">Meta de Hoje</div><div class="value" id="dash-meta-hoje">--</div></div>
+                <div class="card dash-card"><div class="label">Saldo</div><div class="value" id="dash-saldo">--</div></div>
+                <div class="card dash-card"><div class="label">Total Perdido</div><div class="value" id="dash-total-perdido">--</div></div>
+            </div>
+            <div class="card">
+                <div class="label">Situação Atual</div>
+                <div class="value" id="dash-status" style="margin-top: 5px;">--</div>
+                <div class="small" id="dash-info-meta" style="margin-top: 10px; color: var(--text-secondary)"></div>
+            </div>
+            <div class="grid-2">
+                <div class="card"><div class="label">Média/Dia</div><div class="value" id="dash-media-dia">--</div></div>
+                <div class="card"><div class="label">Faltam</div><div class="value" id="dash-falta-kg">--</div></div>
+            </div>
+            <div class="card">
+                <div class="label">Previsão para Meta</div>
+                <div class="value" id="dash-previsao">Calculando...</div>
+            </div>
+        </section>
+
+        <!-- Lançar Peso -->
+        <section id="view-peso" class="view hidden">
+            <div class="card">
+                <h3>Novo Registro</h3>
+                <form id="form-peso">
+                    <input type="hidden" id="edit-peso-id">
+                    <div class="form-group">
+                        <label>Data</label>
+                        <input type="date" id="peso-data" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Peso (kg)</label>
+                        <input type="number" step="0.1" id="peso-valor" placeholder="00.0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Observações</label>
+                        <textarea id="peso-obs" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salvar Registro</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Histórico Peso -->
+        <section id="view-historico" class="view hidden">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Real</th>
+                            <th>Meta</th>
+                            <th>Dif.</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-historico"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Medidas -->
+        <section id="view-medidas" class="view hidden">
+            <div class="card">
+                <button class="btn btn-outline" onclick="abrirModalMedida()">Nova Medição</button>
+            </div>
+            <div id="comparativo-medidas" class="grid-2"></div>
+            <div class="table-container" style="margin-top: 16px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Peso</th>
+                            <th>Cintura</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-medidas"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Metas -->
+        <section id="view-metas" class="view hidden">
+            <div class="card">
+                <label>Simular data específica</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="date" id="simula-data">
+                    <button class="btn btn-primary" style="width: auto;" onclick="simularMeta()">Ver</button>
+                </div>
+                <div id="res-simulacao" style="margin-top: 15px;"></div>
+            </div>
+            <div class="card">
+                <h3>Gerar Planejamento</h3>
+                <div class="grid-2">
+                    <button class="btn btn-outline" onclick="gerarTabelaMetas(30)">30 Dias</button>
+                    <button class="btn btn-outline" onclick="gerarTabelaMetas(90)">90 Dias</button>
+                </div>
+            </div>
+            <div id="container-tabela-metas" class="table-container hidden">
+                <table id="tabela-metas-futuras"></table>
+            </div>
+        </section>
+
+        <!-- Dezenal -->
+        <section id="view-dezenal" class="view hidden">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Meta</th>
+                            <th>Real</th>
+                            <th>Dif.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-dezenal"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Gráficos -->
+        <section id="view-graficos" class="view hidden">
+            <div class="card">
+                <h3>Peso x Meta</h3>
+                <div class="chart-container"><canvas id="chartPeso"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>Medidas Corporais</h3>
+                <div class="chart-container"><canvas id="chartMedidas"></canvas></div>
+            </div>
+        </section>
+
+        <!-- Configurações -->
+        <section id="view-configs" class="view hidden">
+            <div class="card">
+                <h3>Perfil e Metas</h3>
+                <form id="form-config">
+                    <div class="form-group"><label>Nome</label><input type="text" id="cfg-nome"></div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>Data Inicial</label><input type="date" id="cfg-data-init"></div>
+                        <div class="form-group"><label>Peso Inicial</label><input type="number" step="0.1" id="cfg-peso-init"></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>Peso Meta</label><input type="number" step="0.1" id="cfg-peso-meta"></div>
+                        <div class="form-group"><label>Meta kg/dia</label><input type="number" step="0.01" id="cfg-meta-dia"></div>
+                    </div>
+                    <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border);">
+                    <h3>Medidas Ideais</h3>
+                    <div class="grid-2">
+                        <div class="form-group"><label>Pescoço</label><input type="number" step="0.1" id="id-pescoco"></div>
+                        <div class="form-group"><label>Peito</label><input type="number" step="0.1" id="id-peito"></div>
+                        <div class="form-group"><label>Cintura</label><input type="number" step="0.1" id="id-cintura"></div>
+                        <div class="form-group"><label>Quadril</label><input type="number" step="0.1" id="id-quadril"></div>
+                        <div class="form-group"><label>Coxa</label><input type="number" step="0.1" id="id-coxa"></div>
+                        <div class="form-group"><label>Panturrilha</label><input type="number" step="0.1" id="id-panturrilha"></div>
+                        <div class="form-group"><label>Braço</label><input type="number" step="0.1" id="id-braco"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Backup -->
+        <section id="view-backup" class="view hidden">
+            <div class="card">
+                <h3>Gerenciar Dados</h3>
+                <p class="small" style="margin-bottom: 15px; color: var(--text-secondary)">Exporte seus dados para backup ou transfira para outro dispositivo.</p>
+                <div class="grid-2">
+                    <button class="btn btn-success" onclick="exportarBackup()">Exportar JSON</button>
+                    <label class="btn btn-outline" style="margin-bottom:0">
+                        Importar JSON
+                        <input type="file" id="input-import" class="hidden" accept=".json" onchange="importarBackup(event)">
+                    </label>
+                </div>
+                <button class="btn btn-danger" style="margin-top: 12px;" onclick="limparTudo()">Limpar Todo o App</button>
+                <div id="backup-info" class="small text-center" style="margin-top: 15px; color: var(--text-secondary)"></div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Navigation Bar -->
+<nav>
+    <a class="nav-item active" onclick="showView('dashboard', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Dashboard
+    </a>
+    <a class="nav-item" onclick="showView('peso', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+        Lançar
+    </a>
+    <a class="nav-item" onclick="showView('historico', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        Histórico
+    </a>
+    <a class="nav-item" onclick="showView('medidas', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        Medidas
+    </a>
+    <a class="nav-item" onclick="showView('metas', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Metas
+    </a>
+    <a class="nav-item" onclick="showView('dezenal', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        Dezenal
+    </a>
+    <a class="nav-item" onclick="showView('graficos', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+        Gráficos
+    </a>
+    <a class="nav-item" onclick="showView('configs', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Ajustes
+    </a>
+    <a class="nav-item" onclick="showView('backup', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Backup
+    </a>
+</nav>
+
+<!-- Modal Medidas -->
+<div id="modal-medida" class="modal hidden">
+    <div class="card" style="width: 100%; max-height: 90vh; overflow-y: auto;">
+        <h3 id="medida-modal-title">Nova Medição</h3>
+        <form id="form-medidas">
+            <input type="hidden" id="edit-medida-id">
+            <div class="form-group"><label>Data</label><input type="date" id="med-data" required></div>
+            <div class="form-group"><label>Peso (kg)</label><input type="number" step="0.1" id="med-peso" required></div>
+            <div class="grid-2">
+                <div class="form-group"><label>Pescoço</label><input type="number" step="0.1" id="med-pescoco"></div>
+                <div class="form-group"><label>Peito</label><input type="number" step="0.1" id="med-peito"></div>
+                <div class="form-group"><label>Cintura</label><input type="number" step="0.1" id="med-cintura"></div>
+                <div class="form-group"><label>Quadril</label><input type="number" step="0.1" id="med-quadril"></div>
+                <div class="form-group"><label>Coxa</label><input type="number" step="0.1" id="med-coxa"></div>
+                <div class="form-group"><label>Panturrilha</label><input type="number" step="0.1" id="med-panturrilha"></div>
+                <div class="form-group"><label>Braço</label><input type="number" step="0.1" id="med-braco"></div>
+            </div>
+            <div class="form-group"><label>Obs</label><input type="text" id="med-obs"></div>
+            <div class="grid-2">
+                <button type="submit" class="btn btn-primary">Salvar</button>
+                <button type="button" class="btn btn-outline" onclick="fecharModalMedida()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+/**
+ * CORE DATA MANAGEMENT
+ */
+let appData = {
+    config: {
+        nome: "",
+        dataInicial: "2025-01-01",
+        pesoInicial: 99.3,
+        pesoMeta: 60.0,
+        metaKgPorDia: -0.05,
+        medidasIdeais: {
+            pescoco: 37, peito: 97, cintura: 73, quadril: 88, coxa: 52, panturrilha: 35, braco: 35
+        }
+    },
+    pesos: [],
+    medidas: []
+};
+
+// Persistence
+function carregarDados() {
+    const saved = localStorage.getItem('peso_medidas_app_data');
+    if (saved) {
+        appData = JSON.parse(saved);
+        // Migração básica se campos novos forem adicionados
+        if(!appData.medidas) appData.medidas = [];
+    } else {
+        // Dados padrão para primeira vez
+        salvarDados();
+    }
+}
+
+function salvarDados() {
+    localStorage.setItem('peso_medidas_app_data', JSON.stringify(appData));
+    updateUI();
+}
+
+/**
+ * CALCULATIONS ENGINE
+ */
+function parseDate(dateStr) {
+    return new Date(dateStr + 'T12:00:00');
+}
+
+function diffDays(d1, d2) {
+    const t1 = parseDate(d1).getTime();
+    const t2 = parseDate(d2).getTime();
+    return Math.floor((t1 - t2) / (1000 * 60 * 60 * 24));
+}
+
+function formatBR(num) {
+    return Number(num).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+}
+
+function formatDateBR(iso) {
+    if(!iso) return '--';
+    const [y, m, d] = iso.split('-');
+    return `${d}/${m}/${y}`;
+}
+
+function calcularMetaDaData(dataAlvo) {
+    const dias = diffDays(dataAlvo, appData.config.dataInicial);
+    return appData.config.pesoInicial + (dias * appData.config.metaKgPorDia);
+}
+
+function obterPesoAtual() {
+    if (appData.pesos.length === 0) return appData.config.pesoInicial;
+    const sorted = [...appData.pesos].sort((a, b) => b.data.localeCompare(a.data));
+    return parseFloat(sorted[0].peso);
+}
+
+function calcularMediaRealDia() {
+    if (appData.pesos.length < 1) return 0;
+    const atual = obterPesoAtual();
+    const dias = diffDays(new Date().toISOString().split('T')[0], appData.config.dataInicial);
+    if (dias <= 0) return 0;
+    return (atual - appData.config.pesoInicial) / dias;
+}
+
+/**
+ * UI RENDERING
+ */
+function updateUI() {
+    renderDashboard();
+    renderHistoricoPeso();
+    renderMedidas();
+    renderDezenal();
+    renderGraficos();
+    
+    document.getElementById('user-greeting').innerText = appData.config.nome ? `Olá, ${appData.config.nome}` : "";
+    document.getElementById('backup-info').innerText = `Última alteração: ${new Date().toLocaleTimeString()}`;
+}
+
+function renderDashboard() {
+    const hoje = new Date().toISOString().split('T')[0];
+    const pesoAtual = obterPesoAtual();
+    const metaHoje = calcularMetaDaData(hoje);
+    const saldo = metaHoje - pesoAtual;
+    const totalPerdido = pesoAtual - appData.config.pesoInicial;
+    const falta = appData.config.pesoMeta - pesoAtual;
+    const media = calcularMediaRealDia();
+
+    document.getElementById('dash-peso-atual').innerText = formatBR(pesoAtual) + ' kg';
+    document.getElementById('dash-meta-hoje').innerText = formatBR(metaHoje) + ' kg';
+    
+    const elSaldo = document.getElementById('dash-saldo');
+    elSaldo.innerText = (saldo > 0 ? '+' : '') + formatBR(saldo) + ' kg';
+    elSaldo.className = 'value ' + (saldo >= 0 ? 'positive' : 'negative');
+
+    document.getElementById('dash-total-perdido').innerText = formatBR(totalPerdido) + ' kg';
+    document.getElementById('dash-media-dia').innerText = formatBR(media) + ' kg';
+    document.getElementById('dash-falta-kg').innerText = formatBR(Math.abs(falta)) + ' kg';
+
+    const statusEl = document.getElementById('dash-status');
+    if (saldo > 0.5) {
+        statusEl.innerText = "ABAIXO DA META ✅";
+        statusEl.className = "value positive";
+    } else if (saldo < -0.5) {
+        statusEl.innerText = "ACIMA DA META ⚠️";
+        statusEl.className = "value negative";
+    } else {
+        statusEl.innerText = "DENTRO DA META 🎯";
+        statusEl.className = "value neutral";
+    }
+
+    document.getElementById('dash-info-meta').innerText = `Meta final: ${formatBR(appData.config.pesoMeta)} kg | Ritmo: ${appData.config.metaKgPorDia} kg/dia`;
+
+    const previsaoEl = document.getElementById('dash-previsao');
+    if (media < 0 && pesoAtual > appData.config.pesoMeta) {
+        const diasRestantes = (appData.config.pesoMeta - pesoAtual) / media;
+        const dataPrevisao = new Date();
+        dataPrevisao.setDate(dataPrevisao.getDate() + diasRestantes);
+        previsaoEl.innerText = dataPrevisao.toLocaleDateString('pt-BR');
+    } else if (pesoAtual <= appData.config.pesoMeta) {
+        previsaoEl.innerText = "Meta Atingida!";
+    } else {
+        previsaoEl.innerText = "Sem previsão (ganhando peso)";
+    }
+}
+
+function renderHistoricoPeso() {
+    const lista = document.getElementById('lista-historico');
+    lista.innerHTML = "";
+    
+    const sorted = [...appData.pesos].sort((a, b) => b.data.localeCompare(a.data));
+    
+    sorted.forEach(p => {
+        const metaData = calcularMetaDaData(p.data);
+        const dif = metaData - p.peso;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${formatDateBR(p.data)}</td>
+            <td>${formatBR(p.peso)}</td>
+            <td>${formatBR(metaData)}</td>
+            <td class="${dif >= 0 ? 'positive' : 'negative'}">${dif > 0 ? '+' : ''}${formatBR(dif)}</td>
+            <td>
+                <button class="btn btn-outline" style="padding: 4px 8px; width: auto;" onclick="editarPeso('${p.id}')">✏️</button>
+                <button class="btn btn-outline" style="padding: 4px 8px; width: auto; border-color: var(--danger); color: var(--danger);" onclick="excluirPeso('${p.id}')">🗑️</button>
+            </td>
+        `;
+        lista.appendChild(row);
+    });
+}
+
+function renderMedidas() {
+    const containerComparativo = document.getElementById('comparativo-medidas');
+    containerComparativo.innerHTML = "";
+
+    const sorted = [...appData.medidas].sort((a, b) => b.data.localeCompare(a.data));
+    
+    if (sorted.length > 0) {
+        const atual = sorted[0];
+        const anterior = sorted[1] || atual;
+        const ideais = appData.config.medidasIdeais;
+
+        const campos = [
+            { label: 'Peso', key: 'peso', ideal: null },
+            { label: 'Pescoço', key: 'pescoco', ideal: ideais.pescoco },
+            { label: 'Peito', key: 'peito', ideal: ideais.peito },
+            { label: 'Cintura', key: 'cintura', ideal: ideais.cintura },
+            { label: 'Quadril', key: 'quadril', ideal: ideais.quadril },
+            { label: 'Coxa', key: 'coxa', ideal: ideais.coxa },
+            { label: 'Pant.', key: 'panturrilha', ideal: ideais.panturrilha },
+            { label: 'Braço', key: 'braco', ideal: ideais.braco }
+        ];
+
+        campos.forEach(c => {
+            const vAtual = parseFloat(atual[c.key] || 0);
+            const vAnterior = parseFloat(anterior[c.key] || 0);
+            const diff = vAtual - vAnterior;
+            const statusClass = diff < 0 ? 'positive' : (diff > 0 ? 'negative' : 'neutral');
+            
+            // Comparação com ideal
+            let idealTxt = "";
+            if(c.ideal) {
+                const diffIdeal = vAtual - c.ideal;
+                idealTxt = `<div class="small ${diffIdeal <= 0 ? 'positive' : 'negative'}">Ideal: ${c.ideal} (${diffIdeal > 0 ? '+' : ''}${formatBR(diffIdeal)})</div>`;
+            }
+
+            containerComparativo.innerHTML += `
+                <div class="card" style="padding: 10px;">
+                    <div class="label">${c.label}</div>
+                    <div class="value" style="font-size: 16px;">${formatBR(vAtual)}</div>
+                    <div class="small ${statusClass}">${diff > 0 ? '+' : ''}${formatBR(diff)} vs ant.</div>
+                    ${idealTxt}
+                </div>
+            `;
+        });
+    }
+
+    const lista = document.getElementById('lista-medidas');
+    lista.innerHTML = "";
+    sorted.forEach(m => {
+        lista.innerHTML += `
+            <tr>
+                <td>${formatDateBR(m.data)}</td>
+                <td>${formatBR(m.peso)}</td>
+                <td>${formatBR(m.cintura)}</td>
+                <td>
+                    <button class="btn btn-outline" style="padding: 4px 8px; width: auto;" onclick="editarMedida('${m.id}')">✏️</button>
+                    <button class="btn btn-outline" style="padding: 4px 8px; width: auto; border-color: var(--danger); color: var(--danger);" onclick="excluirMedida('${m.id}')">🗑️</button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function renderDezenal() {
+    const lista = document.getElementById('lista-dezenal');
+    lista.innerHTML = "";
+    
+    // Gerar datas: 10, 20 e último dia dos próximos 6 meses a partir da data inicial
+    let d = parseDate(appData.config.dataInicial);
+    const datas = [];
+    
+    for(let i=0; i<18; i++) {
+        let year = d.getFullYear();
+        let month = d.getMonth();
+        
+        // 10
+        datas.push(`${year}-${String(month+1).padStart(2,'0')}-10`);
+        // 20
+        datas.push(`${year}-${String(month+1).padStart(2,'0')}-20`);
+        // Ultimo dia
+        let lastDay = new Date(year, month + 1, 0).getDate();
+        datas.push(`${year}-${String(month+1).padStart(2,'0')}-${lastDay}`);
+        
+        d.setMonth(d.getMonth() + 1);
+    }
+
+    datas.sort().forEach(dt => {
+        const meta = calcularMetaDaData(dt);
+        const registro = appData.pesos.find(p => p.data === dt);
+        const real = registro ? parseFloat(registro.peso) : null;
+        const dif = real ? meta - real : null;
+
+        lista.innerHTML += `
+            <tr>
+                <td>${formatDateBR(dt)}</td>
+                <td>${formatBR(meta)}</td>
+                <td>${real ? formatBR(real) : '--'}</td>
+                <td class="${dif !== null ? (dif >= 0 ? 'positive' : 'negative') : ''}">
+                    ${dif !== null ? (dif > 0 ? '+' : '') + formatBR(dif) : '--'}
+                </td>
+            </tr>
+        `;
+    });
+}
+
+let chartPesoRef = null;
+let chartMedidasRef = null;
+
+function renderGraficos() {
+    const ctxPeso = document.getElementById('chartPeso').getContext('2d');
+    const ctxMedidas = document.getElementById('chartMedidas').getContext('2d');
+
+    const sortedPesos = [...appData.pesos].sort((a, b) => a.data.localeCompare(b.data));
+    const labels = sortedPesos.map(p => formatDateBR(p.data));
+    const dataReal = sortedPesos.map(p => p.peso);
+    const dataMeta = sortedPesos.map(p => calcularMetaDaData(p.data));
+
+    if(chartPesoRef) chartPesoRef.destroy();
+    chartPesoRef = new Chart(ctxPeso, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: 'Real', data: dataReal, borderColor: '#38bdf8', tension: 0.3 },
+                { label: 'Meta', data: dataMeta, borderColor: '#f59e0b', borderDash: [5, 5], tension: 0 }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: false } } }
+    });
+
+    const sortedMedidas = [...appData.medidas].sort((a, b) => a.data.localeCompare(b.data));
+    const labelsMed = sortedMedidas.map(m => formatDateBR(m.data));
+    
+    if(chartMedidasRef) chartMedidasRef.destroy();
+    chartMedidasRef = new Chart(ctxMedidas, {
+        type: 'line',
+        data: {
+            labels: labelsMed,
+            datasets: [
+                { label: 'Cintura', data: sortedMedidas.map(m => m.cintura), borderColor: '#ef4444' },
+                { label: 'Peito', data: sortedMedidas.map(m => m.peito), borderColor: '#22c55e' },
+                { label: 'Quadril', data: sortedMedidas.map(m => m.quadril), borderColor: '#38bdf8' }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+}
+
+/**
+ * ACTIONS & HANDLERS
+ */
+function showView(viewId, navEl) {
+    document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+    document.getElementById('view-' + viewId).classList.remove('hidden');
+    
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    navEl.classList.add('active');
+
+    const titles = {
+        dashboard: "Dashboard",
+        peso: "Lançar Peso",
+        historico: "Histórico",
+        medidas: "Medidas Corporais",
+        metas: "Metas e Simulador",
+        dezenal: "Acompanhamento Dezenal",
+        graficos: "Evolução",
+        configs: "Configurações",
+        backup: "Backup"
+    };
+    document.getElementById('page-title').innerText = titles[viewId];
+    
+    if(viewId === 'graficos') renderGraficos();
+}
+
+// Peso Form
+document.getElementById('form-peso').onsubmit = function(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-peso-id').value || Date.now().toString();
+    const data = document.getElementById('peso-data').value;
+    const peso = parseFloat(document.getElementById('peso-valor').value);
+    const obs = document.getElementById('peso-obs').value;
+
+    const index = appData.pesos.findIndex(p => p.id === id || p.data === data);
+    if(index > -1 && !document.getElementById('edit-peso-id').value) {
+        if(!confirm("Já existe um peso para esta data. Deseja substituir?")) return;
+        appData.pesos[index] = { id: appData.pesos[index].id, data, peso, observacoes: obs };
+    } else if (index > -1) {
+        appData.pesos[index] = { id, data, peso, observacoes: obs };
+    } else {
+        appData.pesos.push({ id, data, peso, observacoes: obs });
+    }
+
+    this.reset();
+    document.getElementById('edit-peso-id').value = "";
+    salvarDados();
+    showView('historico', document.querySelectorAll('.nav-item')[2]);
+};
+
+function editarPeso(id) {
+    const p = appData.pesos.find(x => x.id === id);
+    if(!p) return;
+    document.getElementById('edit-peso-id').value = p.id;
+    document.getElementById('peso-data').value = p.data;
+    document.getElementById('peso-valor').value = p.peso;
+    document.getElementById('peso-obs').value = p.observacoes;
+    showView('peso', document.querySelectorAll('.nav-item')[1]);
+}
+
+function excluirPeso(id) {
+    if(!confirm("Excluir este registro?")) return;
+    appData.pesos = appData.pesos.filter(x => x.id !== id);
+    salvarDados();
+}
+
+// Config Form
+document.getElementById('form-config').onsubmit = function(e) {
+    e.preventDefault();
+    appData.config.nome = document.getElementById('cfg-nome').value;
+    appData.config.dataInicial = document.getElementById('cfg-data-init').value;
+    appData.config.pesoInicial = parseFloat(document.getElementById('cfg-peso-init').value);
+    appData.config.pesoMeta = parseFloat(document.getElementById('cfg-peso-meta').value);
+    appData.config.metaKgPorDia = parseFloat(document.getElementById('cfg-meta-dia').value);
+
+    appData.config.medidasIdeais = {
+        pescoco: parseFloat(document.getElementById('id-pescoco').value),
+        peito: parseFloat(document.getElementById('id-peito').value),
+        cintura: parseFloat(document.getElementById('id-cintura').value),
+        quadril: parseFloat(document.getElementById('id-quadril').value),
+        coxa: parseFloat(document.getElementById('id-coxa').value),
+        panturrilha: parseFloat(document.getElementById('id-panturrilha').value),
+        braco: parseFloat(document.getElementById('id-braco').value)
+    };
+
+    salvarDados();
+    alert("Configurações salvas!");
+};
+
+// Medidas Modal & Form
+function abrirModalMedida() {
+    document.getElementById('modal-medida').classList.remove('hidden');
+    document.getElementById('med-data').value = new Date().toISOString().split('T')[0];
+    document.getElementById('med-peso').value = obterPesoAtual();
+}
+
+function fecharModalMedida() {
+    document.getElementById('modal-medida').classList.add('hidden');
+    document.getElementById('form-medidas').reset();
+    document.getElementById('edit-medida-id').value = "";
+}
+
+document.getElementById('form-medidas').onsubmit = function(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-medida-id').value || Date.now().toString();
+    const novaMed = {
+        id,
+        data: document.getElementById('med-data').value,
+        peso: parseFloat(document.getElementById('med-peso').value),
+        pescoco: parseFloat(document.getElementById('med-pescoco').value || 0),
+        peito: parseFloat(document.getElementById('med-peito').value || 0),
+        cintura: parseFloat(document.getElementById('med-cintura').value || 0),
+        quadril: parseFloat(document.getElementById('med-quadril').value || 0),
+        coxa: parseFloat(document.getElementById('med-coxa').value || 0),
+        panturrilha: parseFloat(document.getElementById('med-panturrilha').value || 0),
+        braco: parseFloat(document.getElementById('med-braco').value || 0),
+        observacoes: document.getElementById('med-obs').value
+    };
+
+    const idx = appData.medidas.findIndex(m => m.id === id);
+    if(idx > -1) appData.medidas[idx] = novaMed;
+    else appData.medidas.push(novaMed);
+
+    fecharModalMedida();
+    salvarDados();
+};
+
+function editarMedida(id) {
+    const m = appData.medidas.find(x => x.id === id);
+    if(!m) return;
+    abrirModalMedida();
+    document.getElementById('medida-modal-title').innerText = "Editar Medição";
+    document.getElementById('edit-medida-id').value = m.id;
+    document.getElementById('med-data').value = m.data;
+    document.getElementById('med-peso').value = m.peso;
+    document.getElementById('med-pescoco').value = m.pescoco;
+    document.getElementById('med-peito').value = m.peito;
+    document.getElementById('med-cintura').value = m.cintura;
+    document.getElementById('med-quadril').value = m.quadril;
+    document.getElementById('med-coxa').value = m.coxa;
+    document.getElementById('med-panturrilha').value = m.panturrilha;
+    document.getElementById('med-braco').value = m.braco;
+    document.getElementById('med-obs').value = m.observacoes;
+}
+
+function excluirMedida(id) {
+    if(!confirm("Excluir esta medição?")) return;
+    appData.medidas = appData.medidas.filter(x => x.id !== id);
+    salvarDados();
+}
+
+// Metas
+function simularMeta() {
+    const data = document.getElementById('simula-data').value;
+    if(!data) return;
+    const meta = calcularMetaDaData(data);
+    const media = calcularMediaRealDia();
+    const pesoAtual = obterPesoAtual();
+    const dias = diffDays(data, new Date().toISOString().split('T')[0]);
+    const previsao = pesoAtual + (dias * media);
+    
+    document.getElementById('res-simulacao').innerHTML = `
+        <div class="card" style="border-color: var(--accent); background: #0f172a;">
+            <div class="label">Resultados para ${formatDateBR(data)}</div>
+            <div class="grid-2" style="margin-top: 10px;">
+                <div><div class="small">Meta Planejada</div><div class="value">${formatBR(meta)} kg</div></div>
+                <div><div class="small">Previsão Real</div><div class="value">${formatBR(previsao)} kg</div></div>
+            </div>
+        </div>
+    `;
+}
+
+function gerarTabelaMetas(dias) {
+    const container = document.getElementById('container-tabela-metas');
+    const tabela = document.getElementById('tabela-metas-futuras');
+    container.classList.remove('hidden');
+    tabela.innerHTML = `<thead><tr><th>Data</th><th>Meta</th><th>Prev. Real</th></tr></thead><tbody></tbody>`;
+    
+    const media = calcularMediaRealDia();
+    const pesoAtual = obterPesoAtual();
+    const hoje = new Date();
+
+    for(let i=1; i<=dias; i++) {
+        let dt = new Date();
+        dt.setDate(hoje.getDate() + i);
+        let iso = dt.toISOString().split('T')[0];
+        
+        let meta = calcularMetaDaData(iso);
+        let prev = pesoAtual + (i * media);
+        
+        tabela.querySelector('tbody').innerHTML += `
+            <tr>
+                <td>${formatDateBR(iso)}</td>
+                <td>${formatBR(meta)}</td>
+                <td class="${prev <= meta ? 'positive' : 'negative'}">${formatBR(prev)}</td>
+            </tr>
+        `;
+    }
+}
+
+// Backup
+function exportarBackup() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "peso_medidas_backup_" + new Date().toISOString().split('T')[0] + ".json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+function importarBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const imported = JSON.parse(e.target.result);
+            if (imported.config && imported.pesos) {
+                appData = imported;
+                salvarDados();
+                alert("Backup importado com sucesso!");
+                location.reload();
+            } else {
+                alert("Arquivo de backup inválido.");
+            }
+        } catch (err) {
+            alert("Erro ao ler arquivo.");
+        }
+    };
+    reader.readAsText(file);
+}
+
+function limparTudo() {
+    if(confirm("ATENÇÃO: Isso apagará TODOS os dados permanentemente. Continuar?")) {
+        localStorage.removeItem('peso_medidas_app_data');
+        location.reload();
+    }
+}
+
+/**
+ * INITIALIZATION
+ */
+window.onload = function() {
+    carregarDados();
+    
+    // Fill config inputs
+    document.getElementById('cfg-nome').value = appData.config.nome;
+    document.getElementById('cfg-data-init').value = appData.config.dataInicial;
+    document.getElementById('cfg-peso-init').value = appData.config.pesoInicial;
+    document.getElementById('cfg-peso-meta').value = appData.config.pesoMeta;
+    document.getElementById('cfg-meta-dia').value = appData.config.metaKgPorDia;
+    
+    document.getElementById('id-pescoco').value = appData.config.medidasIdeais.pescoco;
+    document.getElementById('id-peito').value = appData.config.medidasIdeais.peito;
+    document.getElementById('id-cintura').value = appData.config.medidasIdeais.cintura;
+    document.getElementById('id-quadril').value = appData.config.medidasIdeais.quadril;
+    document.getElementById('id-coxa').value = appData.config.medidasIdeais.coxa;
+    document.getElementById('id-panturrilha').value = appData.config.medidasIdeais.panturrilha;
+    document.getElementById('id-braco').value = appData.config.medidasIdeais.braco;
+
+    updateUI();
+};
+
+/**
+ * PWA SETUP
+ */
+// Manifesto Dinâmico
+const manifest = {
+    "name": "Peso e Medidas",
+    "short_name": "Peso",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#0f172a",
+    "description": "Controle de Emagrecimento e Medidas",
+    "icons": [{
+        "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiMwZjE3MmEiLz48cGF0aCBkPSJNMjU2IDgwbDE2MCAzMjBIMTk2bC00MC04MGgtODBsLTQwIDgwaC02MEwyNTYgODB6IiBmaWxsPSIjMzhidGY4Ii8+PC9zdmc+",
+        "sizes": "512x512",
+        "type": "image/png"
+    }]
+};
+const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+const manifestURL = URL.createObjectURL(manifestBlob);
+const linkTag = document.createElement('link');
+linkTag.rel = 'manifest';
+linkTag.href = manifestURL;
+document.head.appendChild(linkTag);
+
+// Service Worker Inline
+if ('serviceWorker' in navigator) {
+    const swCode = `
+        const CACHE_NAME = 'peso-medidas-v1';
+        self.addEventListener('install', (e) => {
+            e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(['./'])));
+        });
+        self.addEventListener('fetch', (e) => {
+            e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
+        });
+    `;
+    const swBlob = new Blob([swCode], {type: 'application/javascript'});
+    const swURL = URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swURL);
+}
+</script>
+
+</body>
+</html>
