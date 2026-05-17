@@ -499,13 +499,15 @@
             <div class="grid-2">
                 <div class="card dash-card"><div class="label">Peso Atual</div><div class="value" id="dash-peso-atual">--</div></div>
                 <div class="card dash-card"><div class="label">Meta de Hoje</div><div class="value" id="dash-meta-hoje">--</div></div>
-                <div class="card dash-card"><div class="label">Média/Dia</div><div class="value" id="dash-media-dia">--</div></div>
-                <div class="card dash-card"><div class="label">Total Perdido</div><div class="value" id="dash-total-perdido">--</div></div>
             </div>
             <div class="card">
                 <div class="label">Situação Atual</div>
                 <div class="value" id="dash-status" style="margin-top: 5px;">--</div>
                 <div class="small" id="dash-info-meta" style="margin-top: 10px; color: var(--text-secondary)"></div>
+            </div>
+            <div class="grid-2">
+                <div class="card dash-card"><div class="label">Ritmo Atual</div><div class="value" id="dash-media-dia">--</div></div>
+                <div class="card dash-card"><div class="label">Total Perdido</div><div class="value" id="dash-total-perdido">--</div></div>
             </div>
             <div class="grid-2">
                 <div class="card"><div class="label">Saldo</div><div class="value" id="dash-saldo">--</div></div>
@@ -542,6 +544,9 @@
 
         <!-- Histórico Peso -->
         <section id="view-historico" class="view hidden">
+            <div class="card">
+                <button class="btn btn-primary" type="button" onclick="abrirTelaLancamentoPeso()">Lançar Peso</button>
+            </div>
             <div class="table-container compact-table">
                 <table>
                     <thead>
@@ -563,7 +568,8 @@
                 <button class="btn btn-outline" onclick="abrirModalMedida()">Nova Medição</button>
             </div>
             <div id="comparativo-medidas" class="grid-2"></div>
-            <div class="table-container compact-table" style="margin-top: 16px;">
+            <h3 style="margin: 18px 2px 10px;">Histórico</h3>
+            <div class="table-container compact-table" style="margin-top: 0;">
                 <table>
                     <thead>
                         <tr>
@@ -756,13 +762,9 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         Início
     </a>
-    <a class="nav-item" data-view="peso" onclick="showView('peso', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
-        Lançar
-    </a>
     <a class="nav-item" data-view="historico" onclick="showView('historico', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-        Histórico
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M7 12h10"></path><path d="M10 18h4"></path><path d="M12 3v18"></path></svg>
+        Peso
     </a>
     <a class="nav-item" data-view="medidas" onclick="showView('medidas', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
@@ -1446,7 +1448,7 @@ function renderHistoricoPeso() {
                 <td>${formatBR(p.peso)}</td>
                 <td class="${classePositivoNegativo(falta, true)}">${formatComSinal(falta)}</td>
                 <td class="actions-cell">
-                    <button class="btn btn-outline compact-action" title="Editar" onclick="editarPeso('${p.id}')">+</button>
+                    <button class="btn btn-outline compact-action" title="Editar" aria-label="Editar peso" onclick="editarPeso('${p.id}')">✎</button>
                     <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirPeso('${p.id}')">−</button>
                 </td>
             </tr>
@@ -1482,8 +1484,8 @@ function renderMedidas() {
 
             let idealTxt = "";
             if(idealNumero !== null) {
-                const diffIdeal = vAtual - idealNumero;
-                idealTxt = `<div class="small ${diffIdeal <= 0 ? 'positive' : 'negative'}">Ideal: ${formatBR(idealNumero)} (${formatComSinal(diffIdeal)})</div>`;
+                const diffIdeal = idealNumero - vAtual;
+                idealTxt = `<div class="small ${diffIdeal >= 0 ? 'positive' : 'negative'}">Ideal: ${formatBR(idealNumero)} (${formatComSinal(diffIdeal)})</div>`;
             }
 
             return `
@@ -1505,7 +1507,7 @@ function renderMedidas() {
             <td>${formatDateBR(m.data)}</td>
             <td>${formatBR(m.cintura)}</td>
             <td class="actions-cell">
-                <button class="btn btn-outline compact-action" title="Editar" onclick="editarMedida('${m.id}')">+</button>
+                <button class="btn btn-outline compact-action" title="Editar" aria-label="Editar medida" onclick="editarMedida('${m.id}')">✎</button>
                 <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirMedida('${m.id}')">−</button>
             </td>
         </tr>
@@ -1590,6 +1592,14 @@ function renderGraficos() {
 /**
  * ACTIONS & HANDLERS
  */
+function abrirTelaLancamentoPeso() {
+    const form = document.getElementById('form-peso');
+    if (form) form.reset();
+    document.getElementById('edit-peso-id').value = "";
+    document.getElementById('peso-data').value = hojeISO();
+    showView('peso', document.querySelector('[data-view="historico"]'));
+}
+
 function showView(viewId, navEl) {
     activeViewId = viewId;
     document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
@@ -1601,7 +1611,7 @@ function showView(viewId, navEl) {
     const titles = {
         dashboard: "Início",
         peso: "Lançar Peso",
-        historico: "Histórico",
+        historico: "Peso",
         medidas: "Medidas Corporais",
         metas: "Metas e Simulador",
         graficos: "Evolução",
@@ -1662,7 +1672,7 @@ document.getElementById('form-peso').onsubmit = function(e) {
     document.getElementById('peso-data').value = hojeISO();
     document.getElementById('edit-peso-id').value = "";
     salvarDados();
-    showView('historico', document.querySelectorAll('.nav-item')[2]);
+    showView('historico', document.querySelector('[data-view="historico"]'));
 };
 
 function editarPeso(id) {
@@ -1672,7 +1682,7 @@ function editarPeso(id) {
     document.getElementById('peso-data').value = p.data;
     document.getElementById('peso-valor').value = p.peso;
     document.getElementById('peso-obs').value = p.observacoes || '';
-    showView('peso', document.querySelectorAll('.nav-item')[1]);
+    showView('peso', document.querySelector('[data-view="historico"]'));
 }
 
 function excluirPeso(id) {
@@ -2087,6 +2097,7 @@ window.onload = function() {
 
 // Funções usadas por atributos onclick precisam ser expostas porque este script usa módulos ES.
 window.showView = showView;
+window.abrirTelaLancamentoPeso = abrirTelaLancamentoPeso;
 window.editarPeso = editarPeso;
 window.excluirPeso = excluirPeso;
 window.abrirModalMedida = abrirModalMedida;
