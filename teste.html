@@ -1,1720 +1,2204 @@
+
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Projeto Leve</title>
-<link rel="icon" href="https://projetoleve.kaioadriel.com.br/icone/icone.png"/>
-<link rel="apple-touch-icon" href="https://projetoleve.kaioadriel.com.br/icone/icone.png"/>
-<link rel="manifest" id="pwa-manifest"/>
-<meta name="theme-color" content="#0284c7"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-<meta name="apple-mobile-web-app-title" content="Projeto Leve"/>
-<style>
-  :root {
-    --primary: #0284c7;
-    --primary-dark: #0369a1;
-    --primary-light: #bae6fd;
-    --bg: #f0f9ff;
-    --bg2: #e0f2fe;
-    --card: #ffffff;
-    --text: #0f172a;
-    --text2: #475569;
-    --green: #16a34a;
-    --red: #dc2626;
-    --border: #e2e8f0;
-    --radius: 16px;
-    --shadow: 0 2px 12px rgba(2,132,199,0.10);
-    --nav-h: 64px;
-    --header-h: 56px;
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 15px; }
-  body { display: flex; flex-direction: column; min-height: 100vh; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Projeto Leve</title>
+    <!-- Chart.js será carregado sob demanda na aba Gráficos para acelerar a abertura do app -->
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --soft-bg: #e2e8f0;
+            --input-bg: #ffffff;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --border: #cbd5e1;
+            --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
 
-  /* ── TELA DE LOGIN ── */
-  #login-screen {
-    position: fixed; inset: 0; z-index: 1000;
-    background: linear-gradient(160deg, #e0f2fe 0%, #f0f9ff 60%, #bae6fd 100%);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 24px;
-  }
-  #login-screen.hidden { display: none; }
-  .login-box {
-    background: #fff; border-radius: 24px; padding: 36px 28px 28px;
-    box-shadow: 0 8px 40px rgba(2,132,199,0.15);
-    width: 100%; max-width: 380px; text-align: center;
-  }
-  .login-box img { width: 72px; height: 72px; border-radius: 16px; margin-bottom: 12px; }
-  .login-box h1 { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
-  .login-box p.sub { font-size: 0.85rem; color: var(--text2); margin-bottom: 24px; }
-  .login-tabs { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 20px; }
-  .login-tab { flex: 1; padding: 8px; font-size: 0.85rem; font-weight: 600; border: none; background: transparent; cursor: pointer; color: var(--text2); transition: all .2s; }
-  .login-tab.active { background: var(--primary); color: #fff; }
-  .login-form input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 0.95rem; margin-bottom: 12px; outline: none; transition: border .2s; }
-  .login-form input:focus { border-color: var(--primary); }
-  .btn-primary { width: 100%; padding: 13px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background .2s; }
-  .btn-primary:hover { background: var(--primary-dark); }
-  .divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; color: var(--text2); font-size: 0.8rem; }
-  .divider::before, .divider::after { content:''; flex:1; height:1px; background: var(--border); }
-  .btn-google { width: 100%; padding: 12px; border: 1.5px solid var(--border); background: #fff; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--text); transition: border-color .2s, box-shadow .2s; }
-  .btn-google:hover { border-color: var(--primary); box-shadow: 0 2px 8px rgba(2,132,199,.12); }
-  .btn-google svg { width: 20px; height: 20px; }
-  #login-msg { margin-top: 12px; font-size: 0.85rem; color: var(--red); min-height: 18px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-  /* ── HEADER ── */
-  #app-header {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    height: var(--header-h); background: var(--primary);
-    display: flex; align-items: center; padding: 0 16px; gap: 10px;
-    box-shadow: 0 2px 8px rgba(2,132,199,0.25);
-  }
-  #app-header img { width: 32px; height: 32px; border-radius: 8px; }
-  #app-header h1 { font-size: 1.1rem; font-weight: 700; color: #fff; flex: 1; }
-  #btn-install { display: none; padding: 6px 14px; background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.5); border-radius: 20px; color: #fff; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: background .2s; }
-  #btn-install:hover { background: rgba(255,255,255,0.35); }
-  #sync-indicator { font-size: 0.7rem; color: rgba(255,255,255,0.75); }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding-bottom: 80px; /* Espaço para o menu inferior */
+            overflow-x: hidden;
+        }
 
-  /* ── MAIN ── */
-  #app-main {
-    margin-top: var(--header-h);
-    padding-bottom: calc(var(--nav-h) + 8px);
-    flex: 1;
-  }
-  .view { display: none; padding: 16px; max-width: 920px; margin: 0 auto; }
-  .view.active { display: block; }
+        /* Utilidades */
+        .container { padding: 16px; max-width: 800px; margin: 0 auto; }
+        .hidden { display: none !important; }
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .text-center { text-align: center; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 14px;
+            width: 100%;
+        }
+        .btn-primary { background: var(--accent); color: var(--bg-color); }
+        .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        
+        /* Typography */
+        h1, h2, h3 { margin-bottom: 12px; font-weight: 700; }
+        .label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        .value { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+        .small { font-size: 12px; }
 
-  /* ── NAV INFERIOR ── */
-  #app-nav {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-    height: var(--nav-h); background: #fff;
-    border-top: 1px solid var(--border);
-    display: flex; overflow-x: auto; scrollbar-width: none;
-    box-shadow: 0 -2px 12px rgba(0,0,0,0.07);
-  }
-  #app-nav::-webkit-scrollbar { display: none; }
-  .nav-item {
-    flex: 0 0 auto; min-width: 56px; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; padding: 4px 6px;
-    cursor: pointer; border: none; background: transparent;
-    color: var(--text2); font-size: 0.6rem; font-weight: 500; gap: 2px;
-    transition: color .2s; white-space: nowrap;
-  }
-  .nav-item svg { width: 20px; height: 20px; transition: transform .2s; }
-  .nav-item.active { color: var(--primary); }
-  .nav-item.active svg { transform: translateY(-2px); }
+        /* Cores de Status */
+        .positive { color: var(--success); }
+        .negative { color: var(--danger); }
+        .neutral { color: var(--accent); }
 
-  /* ── CARDS ── */
-  .card { background: var(--card); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); margin-bottom: 14px; }
-  .card-title { font-size: 0.75rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
-  .card-value { font-size: 1.6rem; font-weight: 700; color: var(--text); line-height: 1.1; }
-  .card-sub { font-size: 0.78rem; color: var(--text2); margin-top: 3px; }
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-  .grid2 .card { margin-bottom: 0; }
-  .col-blue { color: var(--primary); }
-  .col-green { color: var(--green); }
-  .col-red { color: var(--red); }
+        /* Navigation */
+        nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        nav::-webkit-scrollbar { display: none; }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 10px;
+            min-width: 60px;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+        .nav-item.active { color: var(--accent); }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 2px; }
 
-  /* ── SITUATION CARD ── */
-  .situacao-card { border-left: 5px solid var(--primary); }
-  .situacao-card.em-dia { border-color: var(--green); }
-  .situacao-card.atrasado { border-color: var(--red); }
+        /* Forms */
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-size: 14px; color: var(--text-secondary); }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+        input:focus { border-color: var(--accent); outline: none; }
 
-  /* ── SECTION TITLE ── */
-  .section-title { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 12px; margin-top: 4px; }
+        /* Tables */
+        .table-container { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { background: var(--soft-bg); text-align: left; padding: 12px; color: var(--text-primary); }
+        td { padding: 12px; border-bottom: 1px solid var(--border); background: var(--card-bg); }
 
-  /* ── FORMULÁRIOS ── */
-  .form-group { margin-bottom: 14px; }
-  .form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
-  .form-group input, .form-group textarea, .form-group select {
-    width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
-    border-radius: 10px; font-size: 0.95rem; outline: none; background: #fff;
-    transition: border .2s; color: var(--text); font-family: inherit;
-  }
-  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary); }
-  .form-group textarea { resize: vertical; min-height: 70px; }
-  .btn { padding: 11px 22px; border-radius: 10px; border: none; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all .2s; }
-  .btn-blue { background: var(--primary); color: #fff; }
-  .btn-blue:hover { background: var(--primary-dark); }
-  .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
-  .btn-outline:hover { background: var(--primary); color: #fff; }
-  .btn-red { background: #fee2e2; color: var(--red); border: 1.5px solid #fca5a5; }
-  .btn-red:hover { background: #fca5a5; }
-  .btn-sm { padding: 5px 11px; font-size: 0.78rem; border-radius: 7px; }
-  .btn-full { width: 100%; }
+        /* Specific styles */
+        .dash-card { border-left: 4px solid var(--accent); }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        .filter-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+        .filter-row .btn { width: auto; padding: 9px 12px; min-height: 38px; font-size: 12px; }
+        .filter-row .btn.active-filter { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .compact-table table { table-layout: fixed; min-width: 0; }
+        .compact-table th, .compact-table td { padding: 7px 6px; font-size: 12px; vertical-align: middle; }
+        .compact-table .actions-cell { display: flex; gap: 4px; justify-content: center; align-items: center; }
+        .compact-action { width: 30px !important; min-height: 30px !important; height: 30px; padding: 0 !important; border-radius: 10px; font-size: 16px; font-weight: 900; }
+        .backup-danger-zone { margin-top: 14px; padding: 14px; border-radius: 18px; background: #fff7ed; border: 1px dashed rgba(217,119,6,.45); }
+        
+        /* Modal Simple */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.45);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000; padding: 20px;
+        }
 
-  /* ── TABELAS ── */
-  .tbl-wrap { overflow-x: auto; border-radius: 12px; box-shadow: var(--shadow); background: #fff; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-  th { background: var(--bg2); color: var(--primary); font-weight: 600; padding: 9px 10px; text-align: left; }
-  td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  .actions-cell { display: flex; gap: 5px; }
 
-  /* ── MODAL ── */
-  .modal-overlay {
-    position: fixed; inset: 0; z-index: 500; background: rgba(15,23,42,0.4);
-    display: flex; align-items: flex-end; justify-content: center;
-  }
-  .modal-overlay.hidden { display: none; }
-  .modal-box {
-    background: #fff; border-radius: 20px 20px 0 0; padding: 20px 18px 28px;
-    width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto;
-  }
-  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .modal-header h3 { font-size: 1rem; font-weight: 700; }
-  .modal-close { background: var(--bg2); border: none; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-size: 1.1rem; color: var(--text2); }
+        /* Bloqueio inicial de autenticação */
+        .auth-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background:
+                radial-gradient(circle at top, rgba(2,132,199,.16), transparent 34%),
+                var(--bg-color);
+        }
+        .auth-gate.hidden { display: none !important; }
+        .auth-gate-card {
+            width: 100%;
+            max-width: 430px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, .16);
+        }
+        .auth-logo {
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            background: rgba(2,132,199,.10);
+            color: var(--accent);
+            margin-bottom: 14px;
+            font-weight: 900;
+            font-size: 22px;
+        }
+        .auth-gate-actions { display: grid; gap: 10px; }
+        .btn-google {
+            background: #ffffff;
+            color: var(--text-primary);
+            border: 1px solid #e2e8f0;
+            gap: 10px;
+        }
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 14px 0;
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+        .auth-divider::before,
+        .auth-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        #auth-gate-message {
+            min-height: 20px;
+            margin-top: 12px;
+            color: var(--warning);
+            font-size: 13px;
+        }
 
-  /* ── GRÁFICOS ── */
-  .chart-container { position: relative; background: #fff; border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); margin-bottom: 16px; }
-  .chart-container canvas { max-height: 260px; }
+        /* Conta / Firebase */
+        .auth-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: var(--soft-bg);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .auth-status.online { color: var(--success); border-color: rgba(34,197,94,.55); }
+        .auth-status.offline { color: var(--warning); border-color: rgba(245,158,11,.55); }
+        .sync-box {
+            background: var(--soft-bg);
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 12px;
+        }
+    
 
-  /* ── BACKUP ── */
-  .backup-section { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
-  .backup-section:last-child { border-bottom: none; margin-bottom: 0; }
-  .backup-section h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+        /* Projeto Leve modernizado */
+        :root {
+            --bg-color: #edf7ff;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --soft-bg: #eaf4fb;
+            --input-bg: #ffffff;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --accent-soft: #dff3ff;
+            --text-primary: #0f172a;
+            --text-secondary: #5b6b7e;
+            --border: #d4e5f0;
+            --shadow: 0 18px 45px rgba(2, 132, 199, 0.11);
+        }
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(56,189,248,.24), transparent 34%),
+                radial-gradient(circle at top right, rgba(34,197,94,.13), transparent 30%),
+                linear-gradient(180deg, #f8fcff 0%, var(--bg-color) 42%, #f6fbff 100%);
+        }
+        .container { padding: 18px; max-width: 920px; }
+        .card {
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+        .feature-card { border-top: 4px solid rgba(2,132,199,.25); }
+        .btn { border-radius: 14px; min-height: 46px; }
+        .btn-primary { color: #fff; box-shadow: 0 12px 24px rgba(2,132,199,.18); }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+        .btn-outline { background: #fff; }
+        .btn-outline:hover { background: var(--accent-soft); transform: translateY(-1px); }
+        .ghost-danger { background: #fff; color: var(--danger); border: 1px solid rgba(220,38,38,.26); }
+        input, select, textarea {
+            border-radius: 14px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(2,132,199,.12);
+            outline: none;
+        }
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding: 14px;
+            border-radius: 24px;
+            background: rgba(255,255,255,.78);
+            border: 1px solid rgba(212,229,240,.9);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 10px;
+            z-index: 50;
+            backdrop-filter: blur(16px);
+        }
+        .app-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .app-brand-icon, .auth-login-icon { flex: 0 0 auto; display: grid; place-items: center; }
+        .app-brand-icon { width: 48px; height: 48px; }
+        .pl-icon-svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 12px 20px rgba(2,132,199,.22)); }
+        .app-brand-name {
+            font-size: 18px;
+            line-height: 1.1;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: -.03em;
+        }
+        .app-welcome { color: var(--text-secondary); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+        .page-heading {
+            font-size: 26px;
+            margin: 6px 2px 18px;
+            letter-spacing: -.04em;
+            color: var(--text-primary);
+        }
+        .install-app-btn {
+            border: 0;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 800;
+            border-radius: 999px;
+            padding: 10px 14px;
+            box-shadow: 0 10px 22px rgba(2,132,199,.20);
+        }
+        nav {
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            border-radius: 24px;
+            padding: 8px;
+            box-shadow: 0 18px 50px rgba(15,23,42,.18);
+        }
+        .nav-item {
+            min-width: 64px;
+            border-radius: 18px;
+            padding: 7px 6px;
+            font-weight: 700;
+        }
+        .nav-item.active { background: var(--accent-soft); color: var(--accent); }
+        .dash-card {
+            border-left: 0;
+            border-top: 4px solid var(--accent);
+            background: linear-gradient(180deg, #ffffff 0%, #f7fcff 100%);
+        }
+        th { background: #e8f4fb; color: #345064; }
+        td { background: rgba(255,255,255,.82); }
+        .table-container { border-radius: 18px; background: #fff; }
+        .auth-gate {
+            background:
+                radial-gradient(circle at 50% 4%, rgba(56,189,248,.28), transparent 34%),
+                linear-gradient(180deg, #f7fcff 0%, #eaf7ff 100%);
+        }
+        .auth-gate-card {
+            max-width: 440px;
+            border-radius: 30px;
+            padding: 28px;
+            text-align: center;
+            background: rgba(255,255,255,.92);
+            box-shadow: 0 28px 80px rgba(2, 132, 199, .18);
+        }
+        .auth-login-icon { width: 86px; height: 86px; margin: 0 auto 12px; }
+        .auth-title {
+            font-family: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+            color: var(--accent);
+            font-size: 34px;
+            line-height: 1;
+            letter-spacing: -.06em;
+            margin: 6px 0 8px;
+        }
+        .auth-subtitle {
+            color: var(--text-secondary);
+            margin: 0 auto 20px;
+            max-width: 320px;
+            font-size: 14px;
+        }
+        .auth-google-footer {
+            display: flex;
+            justify-content: center;
+            margin-top: 18px;
+        }
+        .auth-google-footer.compact { margin-top: 14px; }
+        .google-icon-button {
+            width: 52px;
+            height: 52px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            background: #fff;
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+            box-shadow: 0 10px 24px rgba(15,23,42,.08);
+            transition: transform .18s, box-shadow .18s;
+        }
+        .google-icon-button:hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(15,23,42,.13); }
+        #auth-gate-message { text-align: center; }
+        .inline-action-row { display: flex; gap: 10px; align-items: stretch; }
+        .planning-filter-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .muted-text { color: var(--text-secondary); margin-bottom: 12px; }
+        .custom-goals-list { display: grid; gap: 10px; margin-top: 12px; }
+        .custom-goal-item {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 14px;
+            box-shadow: 0 10px 24px rgba(15,23,42,.05);
+        }
+        .custom-goal-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+        .custom-goal-title { font-weight: 900; font-size: 16px; color: var(--text-primary); }
+        .custom-goal-date { color: var(--text-secondary); font-size: 12px; }
+        .custom-goal-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .custom-goal-metric { background: var(--soft-bg); border-radius: 14px; padding: 10px; }
+        .save-simulation-box {
+            margin-top: 14px;
+            padding: 14px;
+            border-radius: 18px;
+            background: var(--soft-bg);
+            border: 1px dashed var(--border);
+        }
+        @media (min-width: 760px) {
+            .planning-filter-grid { grid-template-columns: repeat(3, 1fr); }
+            .app-welcome { max-width: 320px; }
+        }
+        @media (max-width: 430px) {
+            .container { padding: 12px; }
+            .app-header { top: 8px; padding: 12px; }
+            .app-brand-icon { width: 42px; height: 42px; }
+            .app-brand-name { font-size: 16px; }
+            .auth-gate-card { padding: 22px; }
+            .auth-title { font-size: 31px; }
+            .inline-action-row { flex-direction: column; }
+        }
 
-  /* ── METAS ── */
-  .meta-resultado { background: var(--bg2); border-radius: 12px; padding: 14px; margin-top: 12px; }
-  .meta-resultado p { font-size: 0.88rem; margin-bottom: 4px; color: var(--text); }
-  .planejamento-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-
-  /* ── INFO BOX ── */
-  .info-box { background: var(--bg2); border-radius: 10px; padding: 12px 14px; font-size: 0.83rem; color: var(--primary-dark); margin-bottom: 14px; }
-
-  /* ── MEDIDAS CARDS ── */
-  .medidas-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-  .medida-card { background: #fff; border-radius: 12px; padding: 12px; box-shadow: var(--shadow); }
-  .medida-card .mc-label { font-size: 0.72rem; font-weight: 600; color: var(--text2); text-transform: uppercase; }
-  .medida-card .mc-val { font-size: 1.25rem; font-weight: 700; color: var(--text); }
-  .medida-card .mc-diff { font-size: 0.75rem; }
-  .medida-card .mc-ideal { font-size: 0.72rem; color: var(--text2); }
-
-  /* ── AJUSTES ── */
-  .settings-block { background: #fff; border-radius: var(--radius); padding: 18px 16px; box-shadow: var(--shadow); margin-bottom: 14px; }
-  .settings-block h4 { font-size: 0.88rem; font-weight: 700; color: var(--primary); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-
-  /* ── CONTA ── */
-  .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; }
-  .status-badge.online { background: #dcfce7; color: #166534; }
-  .status-badge.offline { background: #fee2e2; color: #991b1b; }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; }
-  .online .status-dot { background: var(--green); }
-  .offline .status-dot { background: var(--red); }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 480px) {
-    .grid2 { grid-template-columns: 1fr 1fr; }
-    .card-value { font-size: 1.3rem; }
-    .medidas-cards { grid-template-columns: 1fr 1fr; }
-  }
-  @media (min-width: 640px) {
-    .view { padding: 20px; }
-    .modal-overlay { align-items: center; }
-    .modal-box { border-radius: 20px; max-height: 80vh; }
-  }
-
-  .hidden { display: none !important; }
-  #app-header.hidden, #app-nav.hidden, #app-main.hidden { display: none !important; }
-
-  /* ── TOASTS ── */
-  #toast-container { position: fixed; top: calc(var(--header-h) + 8px); left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; gap: 6px; pointer-events: none; width: 92%; max-width: 400px; }
-  .toast { background: #1e293b; color: #fff; border-radius: 10px; padding: 11px 16px; font-size: 0.85rem; font-weight: 500; opacity: 0; animation: toastIn .3s forwards, toastOut .3s 2.7s forwards; pointer-events: none; text-align: center; }
-  .toast.success { background: #166534; }
-  .toast.error { background: #991b1b; }
-  @keyframes toastIn { to { opacity: 1; } }
-  @keyframes toastOut { to { opacity: 0; } }
-</style>
+    </style>
 </head>
 <body>
 
-<!-- TOAST -->
-<div id="toast-container"></div>
 
-<!-- TELA DE LOGIN -->
-<div id="login-screen">
-  <div class="login-box">
-    <img src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Projeto Leve"/>
-    <h1>Projeto Leve</h1>
-    <p class="sub">Controle seu peso, medidas e metas com leveza.</p>
-    <div class="login-tabs">
-      <button class="login-tab active" onclick="setLoginTab('entrar')">Entrar</button>
-      <button class="login-tab" onclick="setLoginTab('criar')">Criar Conta</button>
+
+<div id="auth-gate" class="auth-gate">
+    <div class="auth-gate-card">
+        <div class="auth-login-icon"><img class="pl-icon-svg" src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Projeto Leve"></div>
+        <h1 class="auth-title">Projeto Leve</h1>
+        <p class="auth-subtitle">
+            Entre para acessar seu controle de peso, metas e medidas com segurança.
+        </p>
+
+        <form id="form-auth-gate">
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" id="gate-auth-email" autocomplete="email" placeholder="seuemail@exemplo.com" required>
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" id="gate-auth-senha" autocomplete="current-password" placeholder="mínimo 6 caracteres" required>
+            </div>
+            <div class="grid-2">
+                <button type="button" class="btn btn-primary" id="btn-login-gate">Entrar</button>
+                <button type="button" class="btn btn-outline" id="btn-cadastro-gate">Criar conta</button>
+            </div>
+        </form>
+
+        <div id="auth-gate-message">Verificando sessão...</div>
+
+        <div class="auth-google-footer">
+            <button class="google-icon-button" id="btn-google-gate" type="button" aria-label="Entrar com Google" title="Entrar com Google">
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            </button>
+        </div>
     </div>
-    <div class="login-form">
-      <input type="email" id="login-email" placeholder="E-mail" autocomplete="email"/>
-      <input type="password" id="login-senha" placeholder="Senha" autocomplete="current-password"/>
-      <button class="btn-primary" id="btn-entrar" onclick="fazerLogin()">Entrar</button>
-    </div>
-    <div class="divider">ou</div>
-    <button class="btn-google" onclick="loginGoogle()">
-      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-      Continuar com Google
-    </button>
-    <p id="login-msg"></p>
-  </div>
 </div>
 
-<!-- HEADER -->
-<header id="app-header" class="hidden">
-  <img src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt=""/>
-  <h1>Projeto Leve</h1>
-  <span id="sync-indicator"></span>
-  <button id="btn-install" onclick="instalarPWA()">⬇ Instalar</button>
-</header>
+<div id="app" class="hidden">
+    <div class="container">
+        <!-- Header Dinâmico -->
+        <header class="app-header">
+            <div class="app-brand">
+                <div class="app-brand-icon"><img class="pl-icon-svg" src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Projeto Leve"></div>
+                <div>
+                    <div class="app-brand-name">Projeto Leve</div>
+                    <div id="user-greeting" class="app-welcome">Bem-vindo</div>
+                </div>
+            </div>
+            <button id="btn-install-app" class="install-app-btn hidden" type="button">Instalar</button>
+        </header>
+        <h2 id="page-title" class="page-heading">Início</h2>
 
-<!-- MAIN -->
-<main id="app-main" class="hidden">
+        <!-- TELAS -->
+        
+        <!-- Início -->
+        <section id="view-dashboard" class="view">
+            <div class="grid-2">
+                <div class="card dash-card"><div class="label">Peso Atual</div><div class="value" id="dash-peso-atual">--</div></div>
+                <div class="card dash-card"><div class="label">Meta de Hoje</div><div class="value" id="dash-meta-hoje">--</div></div>
+            </div>
+            <div class="card">
+                <div class="label">Situação Atual</div>
+                <div class="value" id="dash-status" style="margin-top: 5px;">--</div>
+                <div class="small" id="dash-info-meta" style="margin-top: 10px; color: var(--text-secondary)"></div>
+            </div>
+            <div class="grid-2">
+                <div class="card dash-card"><div class="label">Ritmo Atual</div><div class="value" id="dash-media-dia">--</div></div>
+                <div class="card dash-card"><div class="label">Total Perdido</div><div class="value" id="dash-total-perdido">--</div></div>
+            </div>
+            <div class="grid-2">
+                <div class="card"><div class="label">Saldo</div><div class="value" id="dash-saldo">--</div></div>
+                <div class="card"><div class="label">Faltam</div><div class="value" id="dash-falta-kg">--</div></div>
+            </div>
+            <div class="card">
+                <div class="label">Previsão para Meta</div>
+                <div class="value" id="dash-previsao">Calculando...</div>
+            </div>
+        </section>
 
-  <!-- ABA INÍCIO -->
-  <section id="view-inicio" class="view active">
-    <div id="inicio-aviso" class="info-box hidden">⚙️ Preencha suas configurações na aba <strong>Ajustes</strong> para ver os cálculos.</div>
-    <div class="grid2">
-      <div class="card">
-        <div class="card-title">Peso Atual</div>
-        <div class="card-value col-blue" id="card-peso-atual">--</div>
-        <div class="card-sub">kg</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Meta de Hoje</div>
-        <div class="card-value col-blue" id="card-meta-hoje">--</div>
-        <div class="card-sub">kg</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Média/Dia</div>
-        <div class="card-value" id="card-media-dia">--</div>
-        <div class="card-sub">kg/dia</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Total Perdido</div>
-        <div class="card-value" id="card-total-perdido">--</div>
-        <div class="card-sub">kg</div>
-      </div>
-    </div>
-    <div class="card situacao-card" id="card-situacao">
-      <div class="card-title">Situação Atual</div>
-      <div class="card-value" id="situacao-texto">--</div>
-      <div class="card-sub" id="situacao-info"></div>
-    </div>
-    <div class="grid2">
-      <div class="card">
-        <div class="card-title">Saldo</div>
-        <div class="card-value" id="card-saldo">--</div>
-        <div class="card-sub">kg</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Faltam</div>
-        <div class="card-value" id="card-faltam">--</div>
-        <div class="card-sub">kg</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">Previsão para Meta</div>
-      <div class="card-value col-blue" id="card-previsao">--</div>
-      <div class="card-sub" id="card-previsao-sub"></div>
-    </div>
-  </section>
+        <!-- Lançar Peso -->
+        <section id="view-peso" class="view hidden">
+            <div class="card">
+                <h3>Novo Registro</h3>
+                <form id="form-peso">
+                    <input type="hidden" id="edit-peso-id">
+                    <div class="form-group">
+                        <label>Data</label>
+                        <input type="date" id="peso-data" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Peso (kg)</label>
+                        <input type="number" step="0.1" id="peso-valor" placeholder="00.0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Observações</label>
+                        <textarea id="peso-obs" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salvar Registro</button>
+                </form>
+            </div>
+        </section>
 
-  <!-- ABA LANÇAR -->
-  <section id="view-lancar" class="view">
-    <div class="card">
-      <div class="section-title" id="lancar-titulo">Registrar Peso</div>
-      <div class="form-group">
-        <label>Data</label>
-        <input type="date" id="lancar-data"/>
-      </div>
-      <div class="form-group">
-        <label>Peso (kg)</label>
-        <input type="number" id="lancar-peso" step="0.1" placeholder="Ex: 82.5"/>
-      </div>
-      <div class="form-group">
-        <label>Observações</label>
-        <textarea id="lancar-obs" placeholder="Opcional..."></textarea>
-      </div>
-      <input type="hidden" id="lancar-id"/>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-blue btn-full" onclick="salvarPeso()">Salvar</button>
-        <button class="btn btn-outline" id="btn-cancelar-edicao" onclick="cancelarEdicaoPeso()" style="display:none">Cancelar</button>
-      </div>
-    </div>
-  </section>
+        <!-- Histórico Peso -->
+        <section id="view-historico" class="view hidden">
+            <div class="card">
+                <button class="btn btn-primary" type="button" onclick="abrirTelaLancamentoPeso()">Lançar Peso</button>
+            </div>
+            <div class="table-container compact-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Peso</th>
+                            <th>Falta</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-historico"></tbody>
+                </table>
+            </div>
+        </section>
 
-  <!-- ABA HISTÓRICO -->
-  <section id="view-historico" class="view">
-    <div class="section-title">Histórico de Pesos</div>
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr><th>Data</th><th>Peso</th><th>Falta</th><th>Ações</th></tr></thead>
-        <tbody id="historico-tbody"></tbody>
-      </table>
-    </div>
-    <div id="historico-vazio" class="info-box hidden" style="margin-top:12px;">Nenhum registro encontrado.</div>
-  </section>
+        <!-- Medidas -->
+        <section id="view-medidas" class="view hidden">
+            <div class="card">
+                <button class="btn btn-outline" onclick="abrirModalMedida()">Nova Medição</button>
+            </div>
+            <div id="comparativo-medidas" class="grid-2"></div>
+            <h3 style="margin: 18px 2px 10px;">Histórico</h3>
+            <div class="table-container compact-table" style="margin-top: 0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Barriga</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-medidas"></tbody>
+                </table>
+            </div>
+        </section>
 
-  <!-- ABA MEDIDAS -->
-  <section id="view-medidas" class="view">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <div class="section-title" style="margin-bottom:0">Medidas Corporais</div>
-      <button class="btn btn-blue btn-sm" onclick="abrirModalMedida()">+ Nova Medição</button>
-    </div>
-    <div class="medidas-cards" id="medidas-cards"></div>
-    <div class="section-title" style="font-size:.85rem;margin-bottom:8px;">Histórico</div>
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr><th>Data</th><th>Barriga</th><th>Ações</th></tr></thead>
-        <tbody id="medidas-tbody"></tbody>
-      </table>
-    </div>
-    <div id="medidas-vazio" class="info-box hidden" style="margin-top:12px;">Nenhuma medição registrada.</div>
-  </section>
+        <!-- Metas -->
+        <section id="view-metas" class="view hidden">
+            <div class="card feature-card">
+                <h3>Simulação de data</h3>
+                <label>Simular data específica</label>
+                <div class="inline-action-row">
+                    <input type="date" id="simula-data">
+                    <button class="btn btn-primary" style="width: auto;" onclick="simularMeta()">Ver</button>
+                    <button class="btn btn-outline" style="width: auto;" onclick="limparSimulacaoMeta()" type="button">Limpar</button>
+                </div>
+                <div id="res-simulacao" style="margin-top: 15px;"></div>
+            </div>
 
-  <!-- ABA METAS -->
-  <section id="view-metas" class="view">
-    <!-- Simulação -->
-    <div class="card">
-      <div class="card-title">Simulação de Data</div>
-      <div class="form-group" style="margin-bottom:10px;">
-        <input type="date" id="meta-data-simulacao"/>
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;">
-        <button class="btn btn-blue" onclick="simularMeta()">Ver</button>
-        <button class="btn btn-outline" onclick="limparSimulacaoMeta()">Limpar</button>
-      </div>
-      <div id="meta-simulacao-resultado" class="hidden">
-        <div class="meta-resultado" id="meta-resultado-box"></div>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-          <div class="form-group" style="flex:1;margin-bottom:0;">
-            <input type="text" id="meta-personalizada-titulo" placeholder="Nome (ex: Natal)"/>
-          </div>
-          <button class="btn btn-outline btn-sm" onclick="salvarMetaPersonalizada()" style="align-self:flex-end;white-space:nowrap;">Salvar Data</button>
-        </div>
-      </div>
-    </div>
+            <div class="card feature-card">
+                <h3>Datas personalizadas</h3>
+                <p class="small muted-text">Salve datas importantes, como Natal, aniversário ou consulta, junto com a meta e a previsão calculadas.</p>
+                <div id="lista-metas-personalizadas" class="custom-goals-list"></div>
+            </div>
 
-    <!-- Datas Personalizadas -->
-    <div class="card">
-      <div class="card-title">Datas Personalizadas</div>
-      <div id="metas-personalizadas-lista"></div>
-      <div id="metas-personalizadas-vazio" class="info-box">Nenhuma data salva ainda.</div>
-    </div>
+            <div class="card feature-card">
+                <h3>Gerar Planejamento</h3>
+                <div class="planning-filter-grid">
+                    <button class="btn btn-outline" onclick="gerarTabelaMetas('diario')">Diário</button>
+                    <button class="btn btn-outline" onclick="gerarTabelaMetas('semanal')">Semanal</button>
+                    <button class="btn btn-outline" onclick="gerarTabelaMetas('mensal')">Mensal</button>
+                    <button class="btn btn-outline" onclick="gerarTabelaMetas('anual')">Anual</button>
+                </div>
+                <button class="btn btn-danger ghost-danger" style="margin-top: 12px;" onclick="limparFiltroMetas()">Limpar Filtro</button>
+            </div>
+            <div id="container-tabela-metas" class="table-container hidden">
+                <table id="tabela-metas-futuras"></table>
+            </div>
+        </section>
 
-    <!-- Planejamento -->
-    <div class="card">
-      <div class="card-title">Gerar Planejamento</div>
-      <div class="planejamento-btns">
-        <button class="btn btn-outline btn-sm" onclick="gerarTabelaMetas('diario')">Diário</button>
-        <button class="btn btn-outline btn-sm" onclick="gerarTabelaMetas('semanal')">Semanal</button>
-        <button class="btn btn-outline btn-sm" onclick="gerarTabelaMetas('mensal')">Mensal</button>
-        <button class="btn btn-outline btn-sm" onclick="gerarTabelaMetas('anual')">Anual</button>
-        <button class="btn btn-sm" style="background:var(--bg2);color:var(--text2);" onclick="limparFiltroMetas()">Limpar</button>
-      </div>
-      <div id="planejamento-tabela-wrap" class="hidden">
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>Data</th><th>Meta (kg)</th></tr></thead>
-            <tbody id="planejamento-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </section>
+        <!-- Gráficos -->
+        <section id="view-graficos" class="view hidden">
+            <div class="card">
+                <h3>Filtros dos gráficos</h3>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="grafico-filtro-select">Período exibido</label>
+                    <select id="grafico-filtro-select" onchange="alterarFiltroGrafico(this.value)">
+                        <option value="inicio">Início</option>
+                        <option value="7d">7 dias</option>
+                        <option value="1m">1 mês</option>
+                        <option value="3m">3 meses</option>
+                        <option value="6m">6 meses</option>
+                        <option value="1a">1 ano</option>
+                        <option value="5a">5 anos</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Pesos registrados</h3>
+                <div class="chart-container"><canvas id="chartPeso"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>Medidas Corporais</h3>
+                <div class="chart-container"><canvas id="chartMedidas"></canvas></div>
+            </div>
+        </section>
 
-  <!-- ABA GRÁFICOS -->
-  <section id="view-graficos" class="view">
-    <div class="form-group">
-      <label>Período</label>
-      <select onchange="alterarFiltroGrafico(this.value)">
-        <option value="inicio">Desde o Início</option>
-        <option value="7d">7 dias</option>
-        <option value="1m">1 mês</option>
-        <option value="3m">3 meses</option>
-        <option value="6m">6 meses</option>
-        <option value="1a">1 ano</option>
-        <option value="5a">5 anos</option>
-      </select>
-    </div>
-    <div class="chart-container">
-      <div class="card-title">Pesos Registrados</div>
-      <canvas id="grafico-peso"></canvas>
-    </div>
-    <div class="chart-container">
-      <div class="card-title">Medidas Corporais</div>
-      <canvas id="grafico-medidas"></canvas>
-    </div>
-    <div id="graficos-loading" class="info-box">Carregando Chart.js...</div>
-    <div id="graficos-vazio" class="info-box hidden">Sem dados suficientes para exibir o gráfico.</div>
-  </section>
+        <!-- Configurações -->
+        <section id="view-configs" class="view hidden">
+            <div class="card">
+                <h3>Perfil e Metas</h3>
+                <form id="form-config">
+                    <div class="form-group"><label>Nome</label><input type="text" id="cfg-nome"></div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>Data Inicial</label><input type="date" id="cfg-data-init"></div>
+                        <div class="form-group"><label>Peso Inicial</label><input type="number" step="0.1" id="cfg-peso-init"></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>Peso Meta</label><input type="number" step="0.1" id="cfg-peso-meta"></div>
+                        <div class="form-group"><label>Meta kg/dia</label><input type="number" step="0.01" id="cfg-meta-dia"></div>
+                    </div>
+                    <button type="button" class="btn btn-outline" style="margin-bottom: 12px;" onclick="limparPerfilMetas()">Limpar Perfil e Metas</button>
+                    <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border);">
+                    <h3>Medidas Ideais</h3>
+                    <div class="grid-2">
+                        <div class="form-group"><label>Pescoço</label><input type="number" step="0.1" id="id-pescoco"></div>
+                        <div class="form-group"><label>Peito</label><input type="number" step="0.1" id="id-peito"></div>
+                        <div class="form-group"><label>Barriga</label><input type="number" step="0.1" id="id-cintura"></div>
+                        <div class="form-group"><label>Quadril</label><input type="number" step="0.1" id="id-quadril"></div>
+                        <div class="form-group"><label>Coxa</label><input type="number" step="0.1" id="id-coxa"></div>
+                        <div class="form-group"><label>Panturrilha</label><input type="number" step="0.1" id="id-panturrilha"></div>
+                        <div class="form-group"><label>Braço</label><input type="number" step="0.1" id="id-braco"></div>
+                    </div>
+                    <button type="button" class="btn btn-outline" style="margin-bottom: 12px;" onclick="limparMedidasIdeais()">Limpar Medidas Ideais</button>
+                    <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+                </form>
+            </div>
+        </section>
 
-  <!-- ABA AJUSTES -->
-  <section id="view-ajustes" class="view">
-    <div class="settings-block">
-      <h4>📋 Perfil e Metas</h4>
-      <div class="form-group"><label>Nome</label><input type="text" id="cfg-nome" placeholder="Seu nome"/></div>
-      <div class="form-group"><label>Data Inicial</label><input type="date" id="cfg-data-inicial"/></div>
-      <div class="form-group"><label>Peso Inicial (kg)</label><input type="number" id="cfg-peso-inicial" step="0.1" placeholder="Ex: 90.0"/></div>
-      <div class="form-group"><label>Peso Meta (kg)</label><input type="number" id="cfg-peso-meta" step="0.1" placeholder="Ex: 75.0"/></div>
-      <div class="form-group"><label>Meta kg/dia</label><input type="number" id="cfg-meta-dia" step="0.001" placeholder="Ex: -0.100"/></div>
-      <button class="btn btn-red btn-sm" onclick="limparPerfilMetas()" style="margin-bottom:8px;">🗑 Limpar Perfil e Metas</button>
-    </div>
-    <div class="settings-block">
-      <h4>📏 Medidas Ideais</h4>
-      <div class="form-group"><label>Pescoço (cm)</label><input type="number" id="cfg-pescoco" step="0.1"/></div>
-      <div class="form-group"><label>Peito (cm)</label><input type="number" id="cfg-peito" step="0.1"/></div>
-      <div class="form-group"><label>Barriga (cm)</label><input type="number" id="cfg-cintura" step="0.1"/></div>
-      <div class="form-group"><label>Quadril (cm)</label><input type="number" id="cfg-quadril" step="0.1"/></div>
-      <div class="form-group"><label>Coxa (cm)</label><input type="number" id="cfg-coxa" step="0.1"/></div>
-      <div class="form-group"><label>Panturrilha (cm)</label><input type="number" id="cfg-panturrilha" step="0.1"/></div>
-      <div class="form-group"><label>Braço (cm)</label><input type="number" id="cfg-braco" step="0.1"/></div>
-      <button class="btn btn-red btn-sm" onclick="limparMedidasIdeais()" style="margin-bottom:8px;">🗑 Limpar Medidas Ideais</button>
-    </div>
-    <button class="btn btn-blue btn-full" onclick="salvarConfig()">💾 Salvar Configurações</button>
-  </section>
 
-  <!-- ABA CONTA -->
-  <section id="view-conta" class="view">
-    <div class="card">
-      <div class="card-title">Status da Conta</div>
-      <div id="conta-status" style="margin-bottom:16px;"></div>
-      <div id="conta-deslogado">
-        <div class="login-tabs" style="margin-bottom:14px;">
-          <button class="login-tab active" onclick="setLoginTabConta('entrar')">Entrar</button>
-          <button class="login-tab" onclick="setLoginTabConta('criar')">Criar Conta</button>
-        </div>
-        <div class="form-group"><input type="email" id="conta-email" placeholder="E-mail"/></div>
-        <div class="form-group"><input type="password" id="conta-senha" placeholder="Senha"/></div>
-        <button class="btn btn-blue btn-full" id="btn-conta-entrar" onclick="fazerLoginConta()" style="margin-bottom:10px;">Entrar</button>
-        <div class="divider">ou</div>
-        <button class="btn-google" onclick="loginGoogle()" style="width:100%;margin-top:6px;">
-          <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Google
-        </button>
-        <p id="conta-msg" style="font-size:.85rem;color:var(--red);margin-top:10px;"></p>
-      </div>
-      <div id="conta-logado" class="hidden">
-        <p style="font-size:.9rem;margin-bottom:14px;" id="conta-email-exibido"></p>
-        <button class="btn btn-outline btn-full" onclick="enviarLocalParaNuvem()" style="margin-bottom:10px;">☁ Enviar local para nuvem</button>
-        <button class="btn btn-outline btn-full" onclick="baixarNuvem()" style="margin-bottom:10px;">⬇ Baixar nuvem</button>
-        <button class="btn btn-red btn-full" onclick="fazerLogout()">Sair da conta</button>
-        <div id="conta-sync-status" style="margin-top:12px;font-size:.8rem;color:var(--text2);"></div>
-      </div>
+        <!-- Conta / Firebase -->
+        <section id="view-conta" class="view hidden">
+            <div class="card">
+                <h3>Conta e Sincronização</h3>
+                <p class="small" style="margin-bottom: 15px; color: var(--text-secondary)">
+                    Entre com e-mail e senha para salvar seus dados na nuvem e sincronizar entre celular e notebook.
+                </p>
+                <div id="auth-status" class="auth-status offline">● Desconectado</div>
+                <div id="auth-user-info" class="sync-box">Nenhum usuário logado.</div>
+            </div>
+
+            <div id="auth-login-card" class="card">
+                <h3>Entrar ou criar conta</h3>
+                <form id="form-auth">
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="email" id="auth-email" autocomplete="email" placeholder="seuemail@exemplo.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" id="auth-senha" autocomplete="current-password" placeholder="mínimo 6 caracteres" required>
+                    </div>
+                    <div class="grid-2">
+                        <button type="button" class="btn btn-primary" id="btn-login">Entrar</button>
+                        <button type="button" class="btn btn-outline" id="btn-cadastro">Criar conta</button>
+                    </div>
+                </form>
+                <div class="auth-google-footer compact">
+                    <button class="google-icon-button" id="btn-google-conta" type="button" aria-label="Entrar com Google" title="Entrar com Google">
+                        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="auth-sync-card" class="card hidden">
+                <h3>Sincronização manual</h3>
+                <p class="small" style="margin-bottom: 15px; color: var(--text-secondary)">
+                    O app salva localmente e também envia para a nuvem quando você está logado. Use estes botões se quiser forçar uma direção.
+                </p>
+                <div class="grid-2">
+                    <button class="btn btn-success" id="btn-upload-cloud" type="button">Enviar local para nuvem</button>
+                    <button class="btn btn-outline" id="btn-download-cloud" type="button">Baixar nuvem</button>
+                </div>
+                <button class="btn btn-danger" id="btn-logout" type="button" style="margin-top: 12px;">Sair da conta</button>
+                <div id="sync-status" class="sync-box">Aguardando sincronização.</div>
+            </div>
+        </section>
+
+        <!-- Backup -->
+        <section id="view-backup" class="view hidden">
+            <div class="card">
+                <h3>Gerenciar Dados</h3>
+                <p class="small" style="margin-bottom: 15px; color: var(--text-secondary)">Exporte seus dados para backup ou transfira para outro dispositivo.</p>
+                <div class="grid-2">
+                    <button class="btn btn-success" onclick="exportarBackup()">Fazer Backup</button>
+                    <label class="btn btn-outline" style="margin-bottom:0">
+                        Restaurar Backup
+                        <input type="file" id="input-import" class="hidden" accept=".json" onchange="importarBackup(event)">
+                    </label>
+                </div>
+                <div class="grid-2" style="margin-top: 12px;">
+                    <button class="btn btn-outline" onclick="gerarRelatorioPDF()">Gerar PDF</button>
+                    <button class="btn btn-outline" onclick="gerarRelatorioCSV()">Gerar CSV</button>
+                </div>
+                <div class="backup-danger-zone">
+                    <h3>Limpeza por data</h3>
+                    <p class="small" style="margin-bottom: 10px; color: var(--text-secondary)">Exclui pesos, medidas e metas personalizadas da data escolhida e anteriores.</p>
+                    <div class="inline-action-row">
+                        <input type="date" id="limpar-ate-data">
+                        <button class="btn btn-danger" style="width: auto;" onclick="limparRegistrosAteData()">Limpar a Partir de</button>
+                    </div>
+                </div>
+                <button class="btn btn-danger" style="margin-top: 12px;" onclick="limparTudo()">Limpar Todo o App</button>
+                <div id="backup-info" class="small text-center" style="margin-top: 15px; color: var(--text-secondary)"></div>
+            </div>
+        </section>
     </div>
-  </section>
+</div>
 
-  <!-- ABA BACKUP -->
-  <section id="view-backup" class="view">
-    <div class="card">
-      <div class="backup-section">
-        <h4>📥 Fazer Backup</h4>
-        <p style="font-size:.83rem;color:var(--text2);margin-bottom:10px;">Exporta todos os dados em JSON.</p>
-        <button class="btn btn-blue" onclick="exportarBackup()">Fazer Backup</button>
-      </div>
-      <div class="backup-section">
-        <h4>📤 Restaurar Backup</h4>
-        <p style="font-size:.83rem;color:var(--text2);margin-bottom:10px;">Importa um arquivo JSON de backup.</p>
-        <input type="file" id="backup-file" accept=".json" onchange="importarBackup(this)" style="display:none"/>
-        <button class="btn btn-outline" onclick="document.getElementById('backup-file').click()">Restaurar Backup</button>
-      </div>
-      <div class="backup-section">
-        <h4>📄 Relatório PDF</h4>
-        <p style="font-size:.83rem;color:var(--text2);margin-bottom:10px;">Gera relatório para impressão/PDF.</p>
-        <button class="btn btn-outline" onclick="gerarRelatorioPDF()">Gerar PDF</button>
-      </div>
-      <div class="backup-section">
-        <h4>📊 Relatório CSV</h4>
-        <p style="font-size:.83rem;color:var(--text2);margin-bottom:10px;">Exporta pesos e medidas em CSV.</p>
-        <button class="btn btn-outline" onclick="gerarRelatorioCSV()">Gerar CSV</button>
-      </div>
-      <div class="backup-section">
-        <h4>🧹 Limpeza por Data</h4>
-        <p style="font-size:.83rem;color:var(--text2);margin-bottom:10px;">Remove registros até a data selecionada.</p>
-        <div class="form-group"><input type="date" id="limpeza-data"/></div>
-        <button class="btn btn-red" onclick="limparRegistrosAteData()">Limpar a Partir de</button>
-      </div>
-      <div class="backup-section">
-        <h4>⚠️ Limpar Todo o App</h4>
-        <p style="font-size:.83rem;color:var(--text2);margin-bottom:10px;">Apaga todos os dados locais.</p>
-        <button class="btn btn-red" onclick="limparTudo()">Limpar Tudo</button>
-      </div>
-    </div>
-  </section>
+<!-- Navigation Bar -->
+<nav id="bottom-nav" class="hidden">
+    <a class="nav-item active" data-view="dashboard" onclick="showView('dashboard', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Início
+    </a>
+    <a class="nav-item" data-view="historico" onclick="showView('historico', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M7 12h10"></path><path d="M10 18h4"></path><path d="M12 3v18"></path></svg>
+        Peso
+    </a>
+    <a class="nav-item" data-view="medidas" onclick="showView('medidas', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        Medidas
+    </a>
+    <a class="nav-item" data-view="metas" onclick="showView('metas', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Metas
+    </a>
+    <a class="nav-item" data-view="graficos" onclick="showView('graficos', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+        Gráficos
+    </a>
+    <a class="nav-item" data-view="configs" onclick="showView('configs', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Ajustes
+    </a>
 
-</main>
-
-<!-- NAV -->
-<nav id="app-nav" class="hidden">
-  <button class="nav-item active" onclick="showView('inicio')" data-view="inicio">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
-    Início
-  </button>
-  <button class="nav-item" onclick="showView('lancar')" data-view="lancar">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-    Lançar
-  </button>
-  <button class="nav-item" onclick="showView('historico')" data-view="historico">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-    Histórico
-  </button>
-  <button class="nav-item" onclick="showView('medidas')" data-view="medidas">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-    Medidas
-  </button>
-  <button class="nav-item" onclick="showView('metas')" data-view="metas">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-    Metas
-  </button>
-  <button class="nav-item" onclick="showView('graficos')" data-view="graficos">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
-    Gráficos
-  </button>
-  <button class="nav-item" onclick="showView('ajustes')" data-view="ajustes">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 00-14.14 0M4.93 19.07a10 10 0 0014.14 0M1 12h2M21 12h2M12 1v2M12 21v2"/></svg>
-    Ajustes
-  </button>
-  <button class="nav-item" onclick="showView('conta')" data-view="conta">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    Conta
-  </button>
-  <button class="nav-item" onclick="showView('backup')" data-view="backup">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21,15 21,19 3,19 3,15"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-    Backup
-  </button>
+    <a class="nav-item" data-view="conta" onclick="showView('conta', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Conta
+    </a>
+    <a class="nav-item" data-view="backup" onclick="showView('backup', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Backup
+    </a>
 </nav>
 
-<!-- MODAL MEDIDAS -->
-<div class="modal-overlay hidden" id="modal-medida">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3 id="modal-medida-titulo">Nova Medição</h3>
-      <button class="modal-close" onclick="fecharModalMedida()">✕</button>
+<!-- Modal Medidas -->
+<div id="modal-medida" class="modal hidden">
+    <div class="card" style="width: 100%; max-height: 90vh; overflow-y: auto;">
+        <h3 id="medida-modal-title">Nova Medição</h3>
+        <form id="form-medidas">
+            <input type="hidden" id="edit-medida-id">
+            <div class="form-group"><label>Data</label><input type="date" id="med-data" required></div>
+            <div class="form-group"><label>Peso (kg)</label><input type="number" step="0.1" id="med-peso" required></div>
+            <div class="grid-2">
+                <div class="form-group"><label>Pescoço</label><input type="number" step="0.1" id="med-pescoco"></div>
+                <div class="form-group"><label>Peito</label><input type="number" step="0.1" id="med-peito"></div>
+                <div class="form-group"><label>Barriga</label><input type="number" step="0.1" id="med-cintura"></div>
+                <div class="form-group"><label>Quadril</label><input type="number" step="0.1" id="med-quadril"></div>
+                <div class="form-group"><label>Coxa</label><input type="number" step="0.1" id="med-coxa"></div>
+                <div class="form-group"><label>Panturrilha</label><input type="number" step="0.1" id="med-panturrilha"></div>
+                <div class="form-group"><label>Braço</label><input type="number" step="0.1" id="med-braco"></div>
+            </div>
+            <div class="form-group"><label>Obs</label><input type="text" id="med-obs"></div>
+            <div class="grid-2">
+                <button type="submit" class="btn btn-primary">Salvar</button>
+                <button type="button" class="btn btn-outline" onclick="fecharModalMedida()">Cancelar</button>
+            </div>
+        </form>
     </div>
-    <div class="form-group"><label>Data</label><input type="date" id="med-data"/></div>
-    <div class="form-group"><label>Peso (kg)</label><input type="number" id="med-peso" step="0.1" placeholder="Ex: 82.5"/></div>
-    <div class="form-group"><label>Pescoço (cm)</label><input type="number" id="med-pescoco" step="0.1"/></div>
-    <div class="form-group"><label>Peito (cm)</label><input type="number" id="med-peito" step="0.1"/></div>
-    <div class="form-group"><label>Barriga (cm)</label><input type="number" id="med-cintura" step="0.1"/></div>
-    <div class="form-group"><label>Quadril (cm)</label><input type="number" id="med-quadril" step="0.1"/></div>
-    <div class="form-group"><label>Coxa (cm)</label><input type="number" id="med-coxa" step="0.1"/></div>
-    <div class="form-group"><label>Panturrilha (cm)</label><input type="number" id="med-panturrilha" step="0.1"/></div>
-    <div class="form-group"><label>Braço (cm)</label><input type="number" id="med-braco" step="0.1"/></div>
-    <div class="form-group"><label>Obs</label><textarea id="med-obs" placeholder="Opcional..."></textarea></div>
-    <input type="hidden" id="med-id"/>
-    <button class="btn btn-blue btn-full" onclick="salvarMedida()">Salvar Medição</button>
-  </div>
 </div>
 
-<!-- FIREBASE SDK -->
 <script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+    getAuth,
+    onAuthStateChanged,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInWithRedirect
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-  const firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyAqnNIG9di9PE6nUZWSOPAxScfwUqxNtlU",
     authDomain: "projetoleve-58fec.firebaseapp.com",
     projectId: "projetoleve-58fec",
     storageBucket: "projetoleve-58fec.firebasestorage.app",
     messagingSenderId: "863511363352",
     appId: "1:863511363352:web:4b959cf93635afacb3286d"
-  };
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const googleProvider = new GoogleAuthProvider();
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+let currentUser = null;
+let authInicializado = false;
+let salvamentoNuvemTimer = null;
+let carregandoDaNuvem = false;
+let ultimoStatusSync = "Aguardando login.";
+let activeViewId = "dashboard";
+let chartJsPromise = null;
+let filtroGraficoAtual = "inicio";
+const DATA_HOJE_INICIAL = new Date().toISOString().split("T")[0];
 
-  // ─── Expor para window ───
-  window._auth = auth;
-  window._db = db;
-  window._googleProvider = googleProvider;
-  window._fbSignIn = signInWithEmailAndPassword;
-  window._fbCreate = createUserWithEmailAndPassword;
-  window._fbPopup = signInWithPopup;
-  window._fbSignOut = signOut;
-  window._fbDoc = doc;
-  window._fbGetDoc = getDoc;
-  window._fbSetDoc = setDoc;
-  window._fbServerTimestamp = serverTimestamp;
-
-  onAuthStateChanged(auth, user => {
-    window._currentUser = user;
-    if (user) {
-      window.onUserLoggedIn(user);
-    } else {
-      window.onUserLoggedOut();
-    }
-  });
-</script>
-
-<script>
-// ══════════════════════════════════════════════════
-// DADOS
-// ══════════════════════════════════════════════════
-const STORAGE_KEY = 'peso_medidas_app_data';
-let appData = { config: {}, pesos: [], medidas: [], metasPersonalizadas: [] };
-let syncDebounceTimer = null;
-let _graficoFiltro = 'inicio';
-let _chartPeso = null, _chartMedidas = null;
-let _chartJsLoaded = false;
-let _deferredPrompt = null;
-let _metaSimulada = null;
-let _loginTabAtual = 'entrar';
-let _loginTabContaAtual = 'entrar';
-
-function dadosPadrao() {
-  return {
+/**
+ * CORE DATA MANAGEMENT
+ */
+let appData = {
     config: {
-      nome: '',
-      dataInicial: hojeISO(),
-      pesoInicial: '',
-      pesoMeta: '',
-      metaKgPorDia: '',
-      medidasIdeais: { pescoco:'',peito:'',cintura:'',quadril:'',coxa:'',panturrilha:'',braco:'' }
+        nome: "",
+        dataInicial: DATA_HOJE_INICIAL,
+        pesoInicial: "",
+        pesoMeta: "",
+        metaKgPorDia: "",
+        medidasIdeais: {
+            pescoco: "", peito: "", cintura: "", quadril: "", coxa: "", panturrilha: "", braco: ""
+        }
     },
     pesos: [],
     medidas: [],
     metasPersonalizadas: []
-  };
+};
+
+// Persistence
+function normalizarDados(raw) {
+    const padrao = {
+        config: {
+            nome: "",
+            dataInicial: DATA_HOJE_INICIAL,
+            pesoInicial: "",
+            pesoMeta: "",
+            metaKgPorDia: "",
+            medidasIdeais: {
+                pescoco: "", peito: "", cintura: "", quadril: "", coxa: "", panturrilha: "", braco: ""
+            }
+        },
+        pesos: [],
+        medidas: [],
+        metasPersonalizadas: []
+    };
+
+    const origem = raw && typeof raw === "object" ? raw : {};
+    return {
+        config: {
+            ...padrao.config,
+            ...(origem.config || {}),
+            medidasIdeais: {
+                ...padrao.config.medidasIdeais,
+                ...((origem.config && origem.config.medidasIdeais) || {})
+            }
+        },
+        pesos: Array.isArray(origem.pesos) ? origem.pesos : [],
+        medidas: Array.isArray(origem.medidas) ? origem.medidas : [],
+        metasPersonalizadas: Array.isArray(origem.metasPersonalizadas) ? origem.metasPersonalizadas : []
+    };
 }
 
-function carregarLocal() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      appData = normalizarDados(parsed);
+function preencherCamposConfig() {
+    document.getElementById('cfg-nome').value = appData.config.nome || "";
+    document.getElementById('cfg-data-init').value = appData.config.dataInicial || DATA_HOJE_INICIAL;
+    document.getElementById('cfg-peso-init').value = appData.config.pesoInicial ?? "";
+    document.getElementById('cfg-peso-meta').value = appData.config.pesoMeta ?? "";
+    document.getElementById('cfg-meta-dia').value = appData.config.metaKgPorDia ?? "";
+    document.getElementById('id-pescoco').value = appData.config.medidasIdeais.pescoco ?? "";
+    document.getElementById('id-peito').value = appData.config.medidasIdeais.peito ?? "";
+    document.getElementById('id-cintura').value = appData.config.medidasIdeais.cintura ?? "";
+    document.getElementById('id-quadril').value = appData.config.medidasIdeais.quadril ?? "";
+    document.getElementById('id-coxa').value = appData.config.medidasIdeais.coxa ?? "";
+    document.getElementById('id-panturrilha').value = appData.config.medidasIdeais.panturrilha ?? "";
+    document.getElementById('id-braco').value = appData.config.medidasIdeais.braco ?? "";
+}
+
+function carregarDados() {
+    const saved = localStorage.getItem('peso_medidas_app_data');
+    if (saved) {
+        try {
+            appData = normalizarDados(JSON.parse(saved));
+        } catch (error) {
+            console.error('Erro ao ler localStorage:', error);
+            appData = normalizarDados(appData);
+        }
     } else {
-      appData = dadosPadrao();
+        // Dados padrão para primeira vez
+        salvarDados(false);
     }
-  } catch(e) {
-    appData = dadosPadrao();
-  }
 }
 
-function normalizarDados(data) {
-  const pad = dadosPadrao();
-  data.config = Object.assign({}, pad.config, data.config || {});
-  if (!data.config.medidasIdeais) data.config.medidasIdeais = pad.config.medidasIdeais;
-  data.pesos = Array.isArray(data.pesos) ? data.pesos : [];
-  data.medidas = Array.isArray(data.medidas) ? data.medidas : [];
-  data.metasPersonalizadas = Array.isArray(data.metasPersonalizadas) ? data.metasPersonalizadas : [];
-  return data;
+function salvarDados(sincronizar = true) {
+    appData = normalizarDados(appData);
+    localStorage.setItem('peso_medidas_app_data', JSON.stringify(appData));
+    updateUI();
+
+    if (sincronizar && currentUser && !carregandoDaNuvem) {
+        agendarSalvarDadosNaNuvem();
+    }
 }
 
-function salvarLocal() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+
+
+/**
+ * FIREBASE AUTH + FIRESTORE
+ */
+function caminhoDocumentoUsuario() {
+    if (!currentUser) return null;
+    return doc(db, 'users', currentUser.uid, 'app', 'data');
 }
 
-function gerarId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+function definirStatusSync(msg) {
+    ultimoStatusSync = msg;
+    const el = document.getElementById('sync-status');
+    if (el) el.innerText = msg;
 }
 
-// ══════════════════════════════════════════════════
-// CÁLCULOS
-// ══════════════════════════════════════════════════
+function definirMensagemAuthGate(msg, tipo = 'info') {
+    const el = document.getElementById('auth-gate-message');
+    if (!el) return;
+    el.innerText = msg || '';
+    el.style.color = tipo === 'erro' ? 'var(--danger)' : (tipo === 'ok' ? 'var(--success)' : 'var(--warning)');
+}
+
+function alternarInterfaceAutenticada(logado) {
+    const gate = document.getElementById('auth-gate');
+    const app = document.getElementById('app');
+    const nav = document.getElementById('bottom-nav');
+
+    if (logado) {
+        gate?.classList.add('hidden');
+        app?.classList.remove('hidden');
+        nav?.classList.remove('hidden');
+        showView('dashboard', document.querySelector('[data-view="dashboard"]') || document.querySelectorAll('.nav-item')[0]);
+    } else {
+        gate?.classList.remove('hidden');
+        app?.classList.add('hidden');
+        nav?.classList.add('hidden');
+    }
+}
+
+function obterCredenciaisAuth(prefixo = '') {
+    const emailId = prefixo ? `${prefixo}-auth-email` : 'auth-email';
+    const senhaId = prefixo ? `${prefixo}-auth-senha` : 'auth-senha';
+    return {
+        email: document.getElementById(emailId)?.value.trim() || '',
+        senha: document.getElementById(senhaId)?.value || ''
+    };
+}
+
+function renderConta() {
+    const status = document.getElementById('auth-status');
+    const userInfo = document.getElementById('auth-user-info');
+    const loginCard = document.getElementById('auth-login-card');
+    const syncCard = document.getElementById('auth-sync-card');
+    if (!status || !userInfo || !loginCard || !syncCard) return;
+
+    if (currentUser) {
+        status.className = 'auth-status online';
+        status.innerText = '● Conectado';
+        userInfo.innerText = `Logado como: ${currentUser.email}`;
+        loginCard.classList.add('hidden');
+        syncCard.classList.remove('hidden');
+    } else {
+        status.className = 'auth-status offline';
+        status.innerText = '● Desconectado';
+        userInfo.innerText = 'Nenhum usuário logado. Seus dados ficam salvos apenas neste aparelho até você entrar.';
+        loginCard.classList.remove('hidden');
+        syncCard.classList.add('hidden');
+    }
+
+    definirStatusSync(ultimoStatusSync);
+}
+
+function obterPayloadNuvem() {
+    return {
+        config: appData.config,
+        pesos: appData.pesos,
+        medidas: appData.medidas,
+        metasPersonalizadas: appData.metasPersonalizadas,
+        updatedAt: new Date().toISOString(),
+        updatedAtServer: serverTimestamp()
+    };
+}
+
+async function salvarDadosNaNuvem(manual = false) {
+    if (!currentUser) {
+        definirStatusSync('Entre na conta para sincronizar com a nuvem.');
+        return;
+    }
+
+    try {
+        definirStatusSync('Enviando dados para a nuvem...');
+        await setDoc(caminhoDocumentoUsuario(), obterPayloadNuvem(), { merge: false });
+        definirStatusSync(`Sincronizado na nuvem às ${new Date().toLocaleTimeString('pt-BR')}.`);
+        if (manual) alert('Dados enviados para a nuvem.');
+    } catch (error) {
+        console.error(error);
+        definirStatusSync('Erro ao salvar na nuvem: ' + traduzirErroFirebase(error));
+        if (manual) alert('Erro ao enviar para a nuvem: ' + traduzirErroFirebase(error));
+    }
+}
+
+function agendarSalvarDadosNaNuvem() {
+    clearTimeout(salvamentoNuvemTimer);
+    salvamentoNuvemTimer = setTimeout(() => salvarDadosNaNuvem(false), 900);
+}
+
+async function carregarDadosDaNuvem(manual = false) {
+    if (!currentUser) {
+        definirStatusSync('Entre na conta para baixar dados da nuvem.');
+        return;
+    }
+
+    try {
+        definirStatusSync('Buscando dados na nuvem...');
+        const snap = await getDoc(caminhoDocumentoUsuario());
+
+        if (snap.exists()) {
+            carregandoDaNuvem = true;
+            const cloud = snap.data();
+            appData = normalizarDados({
+                config: cloud.config,
+                pesos: cloud.pesos,
+                medidas: cloud.medidas,
+                metasPersonalizadas: cloud.metasPersonalizadas
+            });
+            localStorage.setItem('peso_medidas_app_data', JSON.stringify(appData));
+            preencherCamposConfig();
+            updateUI();
+            carregandoDaNuvem = false;
+            definirStatusSync(`Dados baixados da nuvem às ${new Date().toLocaleTimeString('pt-BR')}.`);
+            if (manual) alert('Dados baixados da nuvem.');
+        } else {
+            definirStatusSync('Nenhum dado na nuvem ainda. Enviando os dados locais...');
+            await salvarDadosNaNuvem(false);
+        }
+    } catch (error) {
+        carregandoDaNuvem = false;
+        console.error(error);
+        definirStatusSync('Erro ao baixar da nuvem: ' + traduzirErroFirebase(error));
+        if (manual) alert('Erro ao baixar da nuvem: ' + traduzirErroFirebase(error));
+    }
+}
+
+async function entrarUsuario(origem = '') {
+    const { email, senha } = obterCredenciaisAuth(origem);
+    if (!email || !senha) {
+        definirMensagemAuthGate('Informe e-mail e senha.', 'erro');
+        return alert('Informe e-mail e senha.');
+    }
+
+    try {
+        definirStatusSync('Entrando...');
+        definirMensagemAuthGate('Entrando...', 'info');
+        await signInWithEmailAndPassword(auth, email, senha);
+    } catch (error) {
+        const msg = traduzirErroFirebase(error);
+        definirMensagemAuthGate('Erro ao entrar: ' + msg, 'erro');
+        alert('Erro ao entrar: ' + msg);
+        definirStatusSync('Falha ao entrar.');
+    }
+}
+
+async function cadastrarUsuario(origem = '') {
+    const { email, senha } = obterCredenciaisAuth(origem);
+    if (!email || !senha) {
+        definirMensagemAuthGate('Informe e-mail e senha.', 'erro');
+        return alert('Informe e-mail e senha.');
+    }
+    if (senha.length < 6) {
+        definirMensagemAuthGate('A senha precisa ter pelo menos 6 caracteres.', 'erro');
+        return alert('A senha precisa ter pelo menos 6 caracteres.');
+    }
+
+    try {
+        definirStatusSync('Criando conta...');
+        definirMensagemAuthGate('Criando conta...', 'info');
+        await createUserWithEmailAndPassword(auth, email, senha);
+        alert('Conta criada com sucesso. Seus dados locais serão enviados para a nuvem.');
+    } catch (error) {
+        const msg = traduzirErroFirebase(error);
+        definirMensagemAuthGate('Erro ao criar conta: ' + msg, 'erro');
+        alert('Erro ao criar conta: ' + msg);
+        definirStatusSync('Falha ao criar conta.');
+    }
+}
+
+async function entrarComGoogle() {
+    try {
+        definirStatusSync('Entrando com Google...');
+        definirMensagemAuthGate('Abrindo login do Google...', 'info');
+        await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+        const code = error && error.code ? error.code : '';
+        if (code === 'auth/popup-blocked' || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+            try {
+                definirMensagemAuthGate('Redirecionando para o Google...', 'info');
+                await signInWithRedirect(auth, googleProvider);
+                return;
+            } catch (redirectError) {
+                const msgRedirect = traduzirErroFirebase(redirectError);
+                definirMensagemAuthGate('Erro no login Google: ' + msgRedirect, 'erro');
+                alert('Erro no login Google: ' + msgRedirect);
+            }
+        } else {
+            const msg = traduzirErroFirebase(error);
+            definirMensagemAuthGate('Erro no login Google: ' + msg, 'erro');
+            alert('Erro no login Google: ' + msg);
+        }
+        definirStatusSync('Falha ao entrar com Google.');
+    }
+}
+
+async function sairUsuario() {
+    try {
+        await signOut(auth);
+        definirStatusSync('Você saiu da conta. Dados continuam salvos neste aparelho.');
+    } catch (error) {
+        alert('Erro ao sair: ' + traduzirErroFirebase(error));
+    }
+}
+
+function observarLogin() {
+    onAuthStateChanged(auth, async (user) => {
+        currentUser = user;
+        authInicializado = true;
+        alternarInterfaceAutenticada(!!user);
+        renderConta();
+
+        if (user) {
+            definirMensagemAuthGate('Sessão confirmada.', 'ok');
+            definirStatusSync('Login detectado. Sincronizando...');
+            await carregarDadosDaNuvem(false);
+        } else {
+            definirMensagemAuthGate('Faça login para abrir o app.', 'info');
+            definirStatusSync('Desconectado. A interface principal está bloqueada.');
+        }
+    });
+}
+
+function traduzirErroFirebase(error) {
+    const code = error && error.code ? error.code : '';
+    const mapa = {
+        'auth/invalid-email': 'e-mail inválido.',
+        'auth/user-not-found': 'usuário não encontrado.',
+        'auth/wrong-password': 'senha incorreta.',
+        'auth/invalid-credential': 'e-mail ou senha incorretos.',
+        'auth/email-already-in-use': 'este e-mail já está cadastrado.',
+        'auth/weak-password': 'senha fraca. Use pelo menos 6 caracteres.',
+        'auth/unauthorized-domain': 'domínio não autorizado no Firebase Authentication.',
+        'auth/popup-blocked': 'o navegador bloqueou o popup. Tentaremos redirecionar para o Google.',
+        'auth/popup-closed-by-user': 'a janela de login foi fechada antes de concluir.',
+        'auth/cancelled-popup-request': 'uma tentativa de login anterior foi cancelada.',
+        'permission-denied': 'permissão negada. Confira as regras do Firestore.'
+    };
+    return mapa[code] || (error && error.message ? error.message : 'erro desconhecido.');
+}
+
+/**
+ * CALCULATIONS ENGINE
+ */
 function hojeISO() {
-  const d = new Date();
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    return new Date().toISOString().split('T')[0];
 }
 
 function parseDate(dateStr) {
-  if (!dateStr) return null;
-  return new Date(dateStr + 'T12:00:00');
+    if (!dateStr) return new Date(hojeISO() + 'T12:00:00');
+    return new Date(dateStr + 'T12:00:00');
+}
+
+function addDiasISO(iso, dias) {
+    const dt = parseDate(iso);
+    dt.setDate(dt.getDate() + dias);
+    return dt.toISOString().split('T')[0];
+}
+
+function addMesesISO(iso, meses) {
+    const dt = parseDate(iso);
+    dt.setMonth(dt.getMonth() + meses);
+    return dt.toISOString().split('T')[0];
+}
+
+function addAnosISO(iso, anos) {
+    const dt = parseDate(iso);
+    dt.setFullYear(dt.getFullYear() + anos);
+    return dt.toISOString().split('T')[0];
 }
 
 function diffDays(d1, d2) {
-  return Math.round((d2 - d1) / 86400000);
+    const t1 = parseDate(d1).getTime();
+    const t2 = parseDate(d2).getTime();
+    return Math.floor((t1 - t2) / (1000 * 60 * 60 * 24));
 }
 
-function calcularMetaDaData(dataAlvo) {
-  const cfg = appData.config;
-  if (!cfg.dataInicial || cfg.pesoInicial === '' || cfg.pesoInicial === undefined || cfg.metaKgPorDia === '') return null;
-  const pi = parseFloat(cfg.pesoInicial);
-  const mkd = parseFloat(cfg.metaKgPorDia);
-  if (isNaN(pi) || isNaN(mkd)) return null;
-  const dias = diffDays(parseDate(cfg.dataInicial), parseDate(dataAlvo));
-  return pi + dias * mkd;
+function numeroValido(valor) {
+    const n = Number(valor);
+    return Number.isFinite(n) ? n : null;
 }
 
-function obterPesosValidosParaCalculo() {
-  const di = appData.config.dataInicial;
-  if (!di) return appData.pesos;
-  return appData.pesos.filter(p => p.data >= di);
+function numeroOuVazio(valor) {
+    if (valor === null || valor === undefined || valor === '') return '';
+    const n = Number(valor);
+    return Number.isFinite(n) ? n : '';
 }
 
-function obterMedidasValidasParaCalculo() {
-  const di = appData.config.dataInicial;
-  if (!di) return appData.medidas;
-  return appData.medidas.filter(m => m.data >= di);
+function temConfigCalculo() {
+    return !!appData.config.dataInicial &&
+        numeroValido(appData.config.pesoInicial) !== null &&
+        numeroValido(appData.config.pesoMeta) !== null &&
+        numeroValido(appData.config.metaKgPorDia) !== null;
 }
 
-function obterPesoAtual() {
-  const validos = obterPesosValidosParaCalculo();
-  if (!validos.length) {
-    const pi = parseFloat(appData.config.pesoInicial);
-    return isNaN(pi) ? null : pi;
-  }
-  const ord = [...validos].sort((a,b) => b.data.localeCompare(a.data));
-  return parseFloat(ord[0].peso);
-}
-
-function calcularMediaRealDia() {
-  const cfg = appData.config;
-  if (!cfg.dataInicial || cfg.pesoInicial === '') return 0;
-  const pi = parseFloat(cfg.pesoInicial);
-  if (isNaN(pi)) return 0;
-  const pa = obterPesoAtual();
-  if (pa === null) return 0;
-  const dias = diffDays(parseDate(cfg.dataInicial), parseDate(hojeISO()));
-  if (dias <= 0) return 0;
-  return (pa - pi) / dias;
-}
-
-function formatBR(num, casas) {
-  if (num === null || num === undefined || isNaN(num)) return '--';
-  const c = casas !== undefined ? casas : (Math.abs(num) >= 10 ? 1 : 2);
-  return num.toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c });
+function formatBR(num) {
+    const n = Number(num);
+    if (!Number.isFinite(n)) return '--';
+    return n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
 }
 
 function formatComSinal(num) {
-  if (num === null || num === undefined || isNaN(num)) return '--';
-  const s = formatBR(num);
-  return (num >= 0 ? '+' : '') + s;
+    const n = Number(num);
+    if (!Number.isFinite(n)) return '--';
+    return (n >= 0 ? '+' : '') + formatBR(n);
 }
 
-function formatData(iso) {
-  if (!iso) return '';
-  const [y,m,d] = iso.split('-');
-  return `${d}/${m}/${y}`;
+function classePositivoNegativo(num, positivoVerde = true) {
+    const n = Number(num);
+    if (!Number.isFinite(n) || n === 0) return 'neutral';
+    if (positivoVerde) return n > 0 ? 'positive' : 'negative';
+    return n < 0 ? 'positive' : 'negative';
 }
 
-function configValida() {
-  const cfg = appData.config;
-  return cfg.pesoInicial !== '' && cfg.pesoMeta !== '' && cfg.metaKgPorDia !== '' && cfg.dataInicial;
+function formatDateBR(iso) {
+    if(!iso) return '--';
+    const [y, m, d] = iso.split('-');
+    return `${d}/${m}/${y}`;
 }
 
-// ══════════════════════════════════════════════════
-// FIREBASE SYNC
-// ══════════════════════════════════════════════════
-function agendarSync() {
-  if (!window._currentUser) return;
-  clearTimeout(syncDebounceTimer);
-  syncDebounceTimer = setTimeout(enviarLocalParaNuvem, 900);
+function formatDateChart(iso) {
+    if(!iso) return '--';
+    const [y, m, d] = iso.split('-');
+    return filtroGraficoAtual === '5a' ? `${d}/${m}/${String(y).slice(2)}` : `${d}/${m}`;
 }
 
-window.enviarLocalParaNuvem = async function() {
-  const user = window._currentUser;
-  if (!user) { mostrarToast('Faça login para sincronizar.', 'error'); return; }
-  try {
-    setSyncStatus('Sincronizando...');
-    const ref = window._fbDoc(window._db, 'users', user.uid, 'app', 'data');
-    await window._fbSetDoc(ref, {
-      config: appData.config,
-      pesos: appData.pesos,
-      medidas: appData.medidas,
-      metasPersonalizadas: appData.metasPersonalizadas,
-      updatedAt: new Date().toISOString(),
-      updatedAtServer: window._fbServerTimestamp()
-    });
-    setSyncStatus('Sincronizado ✓ ' + new Date().toLocaleTimeString('pt-BR'));
-    mostrarToast('Dados enviados para a nuvem!', 'success');
-  } catch(e) {
-    setSyncStatus('Erro ao sincronizar.');
-    mostrarToast('Erro ao sincronizar: ' + e.message, 'error');
-  }
-};
+function calcularMetaDaData(dataAlvo) {
+    if (!temConfigCalculo()) return NaN;
+    const dias = diffDays(dataAlvo, appData.config.dataInicial);
+    return numeroValido(appData.config.pesoInicial) + (dias * numeroValido(appData.config.metaKgPorDia));
+}
 
-window.baixarNuvem = async function() {
-  const user = window._currentUser;
-  if (!user) { mostrarToast('Faça login para baixar dados.', 'error'); return; }
-  if (!confirm('Baixar dados da nuvem? Os dados locais serão substituídos.')) return;
-  try {
-    setSyncStatus('Baixando...');
-    const ref = window._fbDoc(window._db, 'users', user.uid, 'app', 'data');
-    const snap = await window._fbGetDoc(ref);
-    if (snap.exists()) {
-      appData = normalizarDados(snap.data());
-      salvarLocal();
-      renderizarTudo();
-      setSyncStatus('Baixado ✓');
-      mostrarToast('Dados da nuvem carregados!', 'success');
-    } else {
-      setSyncStatus('Sem dados na nuvem.');
-      mostrarToast('Nenhum dado encontrado na nuvem.', 'error');
+function obterPesosValidosParaCalculo() {
+    const dataInicial = appData.config.dataInicial || hojeISO();
+    return [...appData.pesos]
+        .filter(p => p && p.data && p.data >= dataInicial && Number.isFinite(Number(p.peso)))
+        .sort((a, b) => a.data.localeCompare(b.data));
+}
+
+function obterMedidasValidasParaCalculo() {
+    const dataInicial = appData.config.dataInicial || hojeISO();
+    return [...appData.medidas]
+        .filter(m => m && m.data && m.data >= dataInicial)
+        .sort((a, b) => a.data.localeCompare(b.data));
+}
+
+function obterPesoAtual() {
+    const pesoInicial = numeroValido(appData.config.pesoInicial);
+    const pesosValidos = obterPesosValidosParaCalculo();
+    if (pesosValidos.length === 0) return pesoInicial;
+    return parseFloat(pesosValidos[pesosValidos.length - 1].peso);
+}
+
+function calcularMediaRealDia() {
+    if (!temConfigCalculo()) return NaN;
+    const atual = obterPesoAtual();
+    if (!Number.isFinite(atual)) return NaN;
+    const dias = diffDays(hojeISO(), appData.config.dataInicial);
+    if (dias <= 0) return 0;
+    return (atual - numeroValido(appData.config.pesoInicial)) / dias;
+}
+
+function obterInicioFiltroGrafico() {
+    const hoje = hojeISO();
+    const dataInicial = appData.config.dataInicial || hoje;
+    let inicio = dataInicial;
+    if (filtroGraficoAtual === '7d') inicio = addDiasISO(hoje, -7);
+    if (filtroGraficoAtual === '1m') inicio = addMesesISO(hoje, -1);
+    if (filtroGraficoAtual === '3m') inicio = addMesesISO(hoje, -3);
+    if (filtroGraficoAtual === '6m') inicio = addMesesISO(hoje, -6);
+    if (filtroGraficoAtual === '1a') inicio = addAnosISO(hoje, -1);
+    if (filtroGraficoAtual === '5a') inicio = addAnosISO(hoje, -5);
+    return inicio > dataInicial ? inicio : dataInicial;
+}
+/**
+ * UI RENDERING
+ */
+function updateUI() {
+    renderDashboard();
+    renderHistoricoPeso();
+    renderMedidas();
+    renderMetasPersonalizadas();
+    if (activeViewId === 'graficos') renderGraficos();
+    renderConta();
+    
+    document.getElementById('user-greeting').innerText = appData.config.nome ? `Bem-vindo, ${appData.config.nome}` : 'Bem-vindo';
+    document.getElementById('backup-info').innerText = `Última alteração: ${new Date().toLocaleTimeString()}`;
+}
+
+function renderDashboard() {
+    const hoje = hojeISO();
+    const pesoAtual = obterPesoAtual();
+    const metaHoje = calcularMetaDaData(hoje);
+    const pesoInicial = numeroValido(appData.config.pesoInicial);
+    const pesoMeta = numeroValido(appData.config.pesoMeta);
+    const metaDia = numeroValido(appData.config.metaKgPorDia);
+
+    const elementos = ['dash-peso-atual','dash-meta-hoje','dash-saldo','dash-total-perdido','dash-media-dia','dash-falta-kg'];
+    if (!temConfigCalculo() || !Number.isFinite(pesoAtual)) {
+        elementos.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.innerText = '--'; el.className = 'value neutral'; }
+        });
+        document.getElementById('dash-status').innerText = 'CONFIGURE A META 🎯';
+        document.getElementById('dash-status').className = 'value neutral';
+        document.getElementById('dash-info-meta').innerText = 'Preencha Perfil e Metas na aba Ajustes para ativar os cálculos.';
+        document.getElementById('dash-previsao').innerText = '--';
+        return;
     }
-  } catch(e) {
-    setSyncStatus('Erro ao baixar.');
-    mostrarToast('Erro ao baixar: ' + e.message, 'error');
-  }
-};
 
-async function sincronizarAoLogin(user) {
-  try {
-    const ref = window._fbDoc(window._db, 'users', user.uid, 'app', 'data');
-    const snap = await window._fbGetDoc(ref);
-    if (snap.exists()) {
-      appData = normalizarDados(snap.data());
-      salvarLocal();
-      renderizarTudo();
-      setSyncStatus('Dados da nuvem carregados ✓');
-    } else {
-      await window._fbSetDoc(ref, {
-        config: appData.config, pesos: appData.pesos,
-        medidas: appData.medidas, metasPersonalizadas: appData.metasPersonalizadas,
-        updatedAt: new Date().toISOString(), updatedAtServer: window._fbServerTimestamp()
-      });
-      setSyncStatus('Dados locais enviados ✓');
-    }
-  } catch(e) { console.warn('Sync login error:', e); }
-}
+    const saldo = metaHoje - pesoAtual;
+    const totalPerdido = pesoAtual - pesoInicial;
+    const falta = pesoMeta - pesoAtual;
+    const media = calcularMediaRealDia();
 
-function setSyncStatus(msg) {
-  const el = document.getElementById('conta-sync-status');
-  if (el) el.textContent = msg;
-  const si = document.getElementById('sync-indicator');
-  if (si) si.textContent = msg.includes('✓') ? '☁✓' : '';
-}
+    const elPesoAtual = document.getElementById('dash-peso-atual');
+    elPesoAtual.innerText = formatBR(pesoAtual) + ' kg';
+    elPesoAtual.className = 'value neutral';
 
-// ══════════════════════════════════════════════════
-// AUTH
-// ══════════════════════════════════════════════════
-window.onUserLoggedIn = function(user) {
-  document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('app-header').classList.remove('hidden');
-  document.getElementById('app-main').classList.remove('hidden');
-  document.getElementById('app-nav').classList.remove('hidden');
-  atualizarContaUI(user);
-  sincronizarAoLogin(user);
-  renderizarTudo();
-};
+    document.getElementById('dash-meta-hoje').innerText = formatBR(metaHoje) + ' kg';
+    document.getElementById('dash-meta-hoje').className = 'value neutral';
+    
+    const elSaldo = document.getElementById('dash-saldo');
+    elSaldo.innerText = formatComSinal(saldo) + ' kg';
+    elSaldo.className = 'value ' + classePositivoNegativo(saldo, true);
 
-window.onUserLoggedOut = function() {
-  document.getElementById('login-screen').classList.remove('hidden');
-  document.getElementById('app-header').classList.add('hidden');
-  document.getElementById('app-main').classList.add('hidden');
-  document.getElementById('app-nav').classList.add('hidden');
-  atualizarContaUI(null);
-};
+    const elTotal = document.getElementById('dash-total-perdido');
+    elTotal.innerText = formatComSinal(totalPerdido) + ' kg';
+    elTotal.className = 'value ' + classePositivoNegativo(totalPerdido, false);
 
-function atualizarContaUI(user) {
-  const status = document.getElementById('conta-status');
-  const logado = document.getElementById('conta-logado');
-  const deslogado = document.getElementById('conta-deslogado');
-  const emailEl = document.getElementById('conta-email-exibido');
-  if (user) {
-    if (status) status.innerHTML = `<span class="status-badge online"><span class="status-dot"></span>Conectado</span>`;
-    if (logado) logado.classList.remove('hidden');
-    if (deslogado) deslogado.classList.add('hidden');
-    if (emailEl) emailEl.textContent = '📧 ' + user.email;
-  } else {
-    if (status) status.innerHTML = `<span class="status-badge offline"><span class="status-dot"></span>Desconectado</span>`;
-    if (logado) logado.classList.add('hidden');
-    if (deslogado) deslogado.classList.remove('hidden');
-  }
-}
+    const elMedia = document.getElementById('dash-media-dia');
+    elMedia.innerText = formatComSinal(media) + ' kg';
+    elMedia.className = 'value ' + classePositivoNegativo(media, false);
 
-function erroFirebase(code) {
-  const msgs = {
-    'auth/invalid-email': 'E-mail inválido.',
-    'auth/user-not-found': 'Usuário não encontrado.',
-    'auth/wrong-password': 'Senha incorreta.',
-    'auth/email-already-in-use': 'E-mail já cadastrado.',
-    'auth/weak-password': 'Senha muito fraca (mín. 6 caracteres).',
-    'auth/popup-closed-by-user': 'Login cancelado.',
-    'auth/too-many-requests': 'Muitas tentativas. Tente mais tarde.',
-    'auth/network-request-failed': 'Erro de conexão.',
-    'auth/invalid-credential': 'Credenciais inválidas.'
-  };
-  return msgs[code] || 'Erro: ' + code;
-}
+    const elFalta = document.getElementById('dash-falta-kg');
+    elFalta.innerText = formatComSinal(falta) + ' kg';
+    elFalta.className = 'value ' + classePositivoNegativo(falta, true);
 
-window.fazerLogin = async function() {
-  const email = document.getElementById('login-email').value.trim();
-  const senha = document.getElementById('login-senha').value;
-  const msg = document.getElementById('login-msg');
-  msg.textContent = '';
-  if (!email || !senha) { msg.textContent = 'Preencha e-mail e senha.'; return; }
-  try {
-    if (_loginTabAtual === 'entrar') {
-      await window._fbSignIn(window._auth, email, senha);
-    } else {
-      await window._fbCreate(window._auth, email, senha);
-    }
-  } catch(e) { msg.textContent = erroFirebase(e.code); }
-};
-
-window.loginGoogle = async function() {
-  try {
-    await window._fbPopup(window._auth, window._googleProvider);
-  } catch(e) {
-    const msg = document.getElementById('login-msg') || document.getElementById('conta-msg');
-    if (msg) msg.textContent = erroFirebase(e.code);
-  }
-};
-
-window.fazerLogout = async function() {
-  if (!confirm('Sair da conta?')) return;
-  await window._fbSignOut(window._auth);
-};
-
-window.fazerLoginConta = async function() {
-  const email = document.getElementById('conta-email').value.trim();
-  const senha = document.getElementById('conta-senha').value;
-  const msg = document.getElementById('conta-msg');
-  msg.textContent = '';
-  if (!email || !senha) { msg.textContent = 'Preencha e-mail e senha.'; return; }
-  try {
-    if (_loginTabContaAtual === 'entrar') {
-      await window._fbSignIn(window._auth, email, senha);
-    } else {
-      await window._fbCreate(window._auth, email, senha);
-    }
-  } catch(e) { msg.textContent = erroFirebase(e.code); }
-};
-
-window.setLoginTab = function(tab) {
-  _loginTabAtual = tab;
-  document.querySelectorAll('#login-screen .login-tab').forEach((b,i) => {
-    b.classList.toggle('active', (i===0 && tab==='entrar') || (i===1 && tab==='criar'));
-  });
-  const btn = document.getElementById('btn-entrar');
-  if (btn) btn.textContent = tab === 'entrar' ? 'Entrar' : 'Criar Conta';
-};
-
-window.setLoginTabConta = function(tab) {
-  _loginTabContaAtual = tab;
-  document.querySelectorAll('#conta-deslogado .login-tab').forEach((b,i) => {
-    b.classList.toggle('active', (i===0 && tab==='entrar') || (i===1 && tab==='criar'));
-  });
-  const btn = document.getElementById('btn-conta-entrar');
-  if (btn) btn.textContent = tab === 'entrar' ? 'Entrar' : 'Criar Conta';
-};
-
-// ══════════════════════════════════════════════════
-// NAVEGAÇÃO
-// ══════════════════════════════════════════════════
-window.showView = function(id) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const v = document.getElementById('view-'+id);
-  if (v) v.classList.add('active');
-  const ni = document.querySelector(`.nav-item[data-view="${id}"]`);
-  if (ni) ni.classList.add('active');
-  if (id === 'inicio') renderInicio();
-  if (id === 'historico') renderHistorico();
-  if (id === 'medidas') renderMedidas();
-  if (id === 'metas') renderMetasPersonalizadas();
-  if (id === 'graficos') { carregarChartJs(() => renderGraficos()); }
-  if (id === 'ajustes') preencherAjustes();
-  if (id === 'lancar') { resetarFormLancar(); }
-};
-
-// ══════════════════════════════════════════════════
-// RENDERIZAÇÃO INÍCIO
-// ══════════════════════════════════════════════════
-function renderInicio() {
-  const cfg = appData.config;
-  const aviso = document.getElementById('inicio-aviso');
-  if (!configValida()) {
-    aviso.classList.remove('hidden');
-    ['card-peso-atual','card-meta-hoje','card-media-dia','card-total-perdido','card-saldo','card-faltam','card-previsao'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = '--';
-    });
-    document.getElementById('situacao-texto').textContent = '--';
-    document.getElementById('situacao-info').textContent = '';
-    return;
-  }
-  aviso.classList.add('hidden');
-
-  const hoje = hojeISO();
-  const pa = obterPesoAtual();
-  const pm = parseFloat(cfg.pesoMeta);
-  const pi = parseFloat(cfg.pesoInicial);
-  const metaHoje = calcularMetaDaData(hoje);
-  const media = calcularMediaRealDia();
-  const totalPerdido = pa !== null ? pa - pi : null;
-  const saldo = (metaHoje !== null && pa !== null) ? metaHoje - pa : null;
-  const faltam = (pa !== null && !isNaN(pm)) ? pm - pa : null;
-
-  // Peso atual sempre azul
-  setCardVal('card-peso-atual', pa !== null ? formatBR(pa) : '--', '');
-
-  // Meta hoje azul
-  setCardVal('card-meta-hoje', metaHoje !== null ? formatBR(metaHoje) : '--', '');
-
-  // Média/dia
-  if (media !== null) {
-    const m = document.getElementById('card-media-dia');
-    m.textContent = formatComSinal(media);
-    m.className = 'card-value ' + (media <= 0 ? 'col-green' : 'col-red');
-  }
-
-  // Total perdido
-  if (totalPerdido !== null) {
-    const t = document.getElementById('card-total-perdido');
-    t.textContent = formatComSinal(totalPerdido);
-    t.className = 'card-value ' + (totalPerdido <= 0 ? 'col-green' : 'col-red');
-  }
-
-  // Saldo
-  if (saldo !== null) {
-    const s = document.getElementById('card-saldo');
-    s.textContent = formatComSinal(saldo);
-    s.className = 'card-value ' + (saldo >= 0 ? 'col-green' : 'col-red');
-  }
-
-  // Faltam
-  if (faltam !== null) {
-    const f = document.getElementById('card-faltam');
-    f.textContent = formatComSinal(faltam);
-    f.className = 'card-value ' + (faltam >= 0 ? 'col-green' : 'col-red');
-  }
-
-  // Situação
-  const situacaoCard = document.getElementById('card-situacao');
-  const situacaoTexto = document.getElementById('situacao-texto');
-  const situacaoInfo = document.getElementById('situacao-info');
-  situacaoCard.className = 'card situacao-card';
-  if (saldo !== null) {
+    const statusEl = document.getElementById('dash-status');
     if (saldo >= -0.5) {
-      situacaoTexto.textContent = '✅ META EM DIA';
-      situacaoTexto.className = 'card-value col-green';
-      situacaoCard.classList.add('em-dia');
+        statusEl.innerText = "META EM DIA ✅";
+        statusEl.className = "value positive";
     } else {
-      situacaoTexto.textContent = '⚠️ META EM ATRASO';
-      situacaoTexto.className = 'card-value col-red';
-      situacaoCard.classList.add('atrasado');
+        statusEl.innerText = "META EM ATRASO ⚠️";
+        statusEl.className = "value negative";
     }
-  }
-  situacaoInfo.textContent = `Meta final: ${formatBR(pm)} kg | Meta/Dia: ${formatBR(parseFloat(cfg.metaKgPorDia),3)} kg/dia`;
 
-  // Previsão
-  const prev = document.getElementById('card-previsao');
-  const prevSub = document.getElementById('card-previsao-sub');
-  if (pa !== null && !isNaN(pm) && pa <= pm) {
-    prev.textContent = '🎉 Meta Atingida!';
-    prev.className = 'card-value col-green';
-    prevSub.textContent = '';
-  } else if (media < 0 && pa !== null && !isNaN(pm)) {
-    const diasRestantes = Math.ceil((pm - pa) / media);
-    if (diasRestantes > 0) {
-      const dataPrevisao = new Date(parseDate(hoje));
-      dataPrevisao.setDate(dataPrevisao.getDate() + diasRestantes);
-      const iso = dataPrevisao.toISOString().split('T')[0];
-      prev.textContent = formatData(iso);
-      prev.className = 'card-value col-blue';
-      prevSub.textContent = `em ~${diasRestantes} dias`;
+    document.getElementById('dash-info-meta').innerText = `Meta final: ${formatBR(pesoMeta)} kg | Meta/Dia: ${metaDia} kg/dia`;
+
+    const previsaoEl = document.getElementById('dash-previsao');
+    if (Number.isFinite(media) && media < 0 && pesoAtual > pesoMeta) {
+        const diasRestantes = (pesoMeta - pesoAtual) / media;
+        const dataPrevisao = new Date();
+        dataPrevisao.setDate(dataPrevisao.getDate() + diasRestantes);
+        previsaoEl.innerText = dataPrevisao.toLocaleDateString('pt-BR');
+    } else if (pesoAtual <= pesoMeta) {
+        previsaoEl.innerText = "Meta Atingida!";
     } else {
-      prev.textContent = 'Sem previsão';
-      prev.className = 'card-value';
+        previsaoEl.innerText = "Sem previsão (ganhando peso)";
     }
-  } else {
-    prev.textContent = 'Sem previsão';
-    prev.className = 'card-value';
-    prevSub.textContent = '';
-  }
 }
 
-function setCardVal(id, val, cls) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = val;
-  el.className = 'card-value col-blue' + (cls ? ' '+cls : '');
+function renderHistoricoPeso() {
+    const lista = document.getElementById('lista-historico');
+    const sorted = [...appData.pesos].sort((a, b) => b.data.localeCompare(a.data));
+    const pesoMeta = numeroValido(appData.config.pesoMeta);
+
+    lista.innerHTML = sorted.map(p => {
+        const falta = Number.isFinite(pesoMeta) ? pesoMeta - Number(p.peso) : NaN;
+        return `
+            <tr>
+                <td>${formatDateBR(p.data)}</td>
+                <td>${formatBR(p.peso)}</td>
+                <td class="${classePositivoNegativo(falta, true)}">${formatComSinal(falta)}</td>
+                <td class="actions-cell">
+                    <button class="btn btn-outline compact-action" title="Editar" aria-label="Editar peso" onclick="editarPeso('${p.id}')">✎</button>
+                    <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirPeso('${p.id}')">−</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
-
-// ══════════════════════════════════════════════════
-// HISTÓRICO DE PESOS
-// ══════════════════════════════════════════════════
-function renderHistorico() {
-  const tbody = document.getElementById('historico-tbody');
-  const vazio = document.getElementById('historico-vazio');
-  const pesos = [...appData.pesos].sort((a,b) => b.data.localeCompare(a.data));
-  tbody.innerHTML = '';
-  if (!pesos.length) { vazio.classList.remove('hidden'); return; }
-  vazio.classList.add('hidden');
-  const pm = parseFloat(appData.config.pesoMeta);
-  pesos.forEach(p => {
-    const peso = parseFloat(p.peso);
-    const falta = !isNaN(pm) ? pm - peso : null;
-    const faltaStr = falta !== null ? formatComSinal(falta) : '--';
-    const faltaCls = falta !== null ? (falta >= 0 ? 'col-green' : 'col-red') : '';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${formatData(p.data)}</td>
-      <td>${formatBR(peso)} kg</td>
-      <td class="${faltaCls}">${faltaStr}</td>
-      <td><div class="actions-cell">
-        <button class="btn btn-outline btn-sm" onclick="editarPeso('${p.id}')">✏</button>
-        <button class="btn btn-red btn-sm" onclick="excluirPeso('${p.id}')">−</button>
-      </div></td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-window.editarPeso = function(id) {
-  const p = appData.pesos.find(x => x.id === id);
-  if (!p) return;
-  showView('lancar');
-  setTimeout(() => {
-    document.getElementById('lancar-data').value = p.data;
-    document.getElementById('lancar-peso').value = p.peso;
-    document.getElementById('lancar-obs').value = p.obs || '';
-    document.getElementById('lancar-id').value = p.id;
-    document.getElementById('lancar-titulo').textContent = 'Editar Registro';
-    document.getElementById('btn-cancelar-edicao').style.display = 'inline-flex';
-  }, 50);
-};
-
-window.excluirPeso = function(id) {
-  if (!confirm('Excluir este registro de peso?')) return;
-  appData.pesos = appData.pesos.filter(x => x.id !== id);
-  salvarLocal(); agendarSync(); renderHistorico(); mostrarToast('Registro excluído.');
-};
-
-window.salvarPeso = function() {
-  const data = document.getElementById('lancar-data').value;
-  const peso = parseFloat(document.getElementById('lancar-peso').value);
-  const obs = document.getElementById('lancar-obs').value.trim();
-  const id = document.getElementById('lancar-id').value;
-  if (!data) { mostrarToast('Informe a data.', 'error'); return; }
-  if (isNaN(peso) || peso <= 0) { mostrarToast('Informe um peso válido.', 'error'); return; }
-  if (id) {
-    const idx = appData.pesos.findIndex(x => x.id === id);
-    if (idx >= 0) { appData.pesos[idx] = { id, data, peso, obs }; }
-  } else {
-    appData.pesos.push({ id: gerarId(), data, peso, obs });
-  }
-  salvarLocal(); agendarSync();
-  resetarFormLancar();
-  showView('historico');
-  mostrarToast('Peso salvo!', 'success');
-};
-
-window.cancelarEdicaoPeso = function() { resetarFormLancar(); };
-
-function resetarFormLancar() {
-  document.getElementById('lancar-data').value = hojeISO();
-  document.getElementById('lancar-peso').value = '';
-  document.getElementById('lancar-obs').value = '';
-  document.getElementById('lancar-id').value = '';
-  document.getElementById('lancar-titulo').textContent = 'Registrar Peso';
-  document.getElementById('btn-cancelar-edicao').style.display = 'none';
-}
-
-// ══════════════════════════════════════════════════
-// MEDIDAS
-// ══════════════════════════════════════════════════
-const CAMPOS_MEDIDAS = ['pescoco','peito','cintura','quadril','coxa','panturrilha','braco'];
-const LABELS_MEDIDAS = { pescoco:'Pescoço', peito:'Peito', cintura:'Barriga', quadril:'Quadril', coxa:'Coxa', panturrilha:'Panturrilha', braco:'Braço' };
 
 function renderMedidas() {
-  renderMedidasCards();
-  renderMedidasTabela();
-}
+    const containerComparativo = document.getElementById('comparativo-medidas');
+    const sorted = [...appData.medidas].sort((a, b) => b.data.localeCompare(a.data));
 
-function renderMedidasCards() {
-  const container = document.getElementById('medidas-cards');
-  const medOrdenadas = [...appData.medidas].sort((a,b) => b.data.localeCompare(a.data));
-  const atual = medOrdenadas[0] || null;
-  const anterior = medOrdenadas[1] || null;
-  const ideais = appData.config.medidasIdeais || {};
+    if (sorted.length > 0) {
+        const atual = sorted[0];
+        const anterior = sorted[1] || atual;
+        const ideais = appData.config.medidasIdeais || {};
 
-  if (!atual) { container.innerHTML = '<div class="info-box" style="grid-column:1/-1">Nenhuma medição registrada.</div>'; return; }
+        const campos = [
+            { label: 'Pescoço', key: 'pescoco', ideal: ideais.pescoco },
+            { label: 'Peito', key: 'peito', ideal: ideais.peito },
+            { label: 'Barriga', key: 'cintura', ideal: ideais.cintura },
+            { label: 'Quadril', key: 'quadril', ideal: ideais.quadril },
+            { label: 'Coxa', key: 'coxa', ideal: ideais.coxa },
+            { label: 'Pant.', key: 'panturrilha', ideal: ideais.panturrilha },
+            { label: 'Braço', key: 'braco', ideal: ideais.braco }
+        ];
 
-  container.innerHTML = CAMPOS_MEDIDAS.map(campo => {
-    const val = parseFloat(atual[campo]);
-    const valAnt = anterior ? parseFloat(anterior[campo]) : null;
-    const ideal = parseFloat(ideais[campo]);
-    const diff = (!isNaN(val) && !isNaN(valAnt)) ? val - valAnt : null;
-    const diffIdeal = (!isNaN(val) && !isNaN(ideal)) ? val - ideal : null;
-    const diffStr = diff !== null ? `<span class="${diff<=0?'col-green':'col-red'}">${formatComSinal(diff)}</span>` : '';
-    const idealStr = !isNaN(ideal) ? `<span class="mc-ideal">Ideal: ${formatBR(ideal)} cm ${diffIdeal !== null ? (diffIdeal<=0?'✓':'↑'+formatBR(Math.abs(diffIdeal))) : ''}</span>` : '';
-    return `<div class="medida-card">
-      <div class="mc-label">${LABELS_MEDIDAS[campo]}</div>
-      <div class="mc-val">${!isNaN(val)?formatBR(val)+' cm':'--'}</div>
-      <div class="mc-diff">${diffStr}</div>
-      ${idealStr}
-    </div>`;
-  }).join('');
-}
+        containerComparativo.innerHTML = campos.map(c => {
+            const vAtual = parseFloat(atual[c.key] || 0);
+            const vAnterior = parseFloat(anterior[c.key] || 0);
+            const diff = vAtual - vAnterior;
+            const statusClass = diff < 0 ? 'positive' : (diff > 0 ? 'negative' : 'neutral');
+            const idealNumero = numeroValido(c.ideal);
 
-function renderMedidasTabela() {
-  const tbody = document.getElementById('medidas-tbody');
-  const vazio = document.getElementById('medidas-vazio');
-  const meds = [...appData.medidas].sort((a,b) => b.data.localeCompare(a.data));
-  tbody.innerHTML = '';
-  if (!meds.length) { vazio.classList.remove('hidden'); return; }
-  vazio.classList.add('hidden');
-  meds.forEach(m => {
-    const cintura = parseFloat(m.cintura);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${formatData(m.data)}</td>
-      <td>${!isNaN(cintura) ? formatBR(cintura)+' cm' : '--'}</td>
-      <td><div class="actions-cell">
-        <button class="btn btn-outline btn-sm" onclick="editarMedida('${m.id}')">✏</button>
-        <button class="btn btn-red btn-sm" onclick="excluirMedida('${m.id}')">−</button>
-      </div></td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+            let idealTxt = "";
+            if(idealNumero !== null) {
+                const diffIdeal = idealNumero - vAtual;
+                idealTxt = `<div class="small ${diffIdeal >= 0 ? 'positive' : 'negative'}">Ideal: ${formatBR(idealNumero)} (${formatComSinal(diffIdeal)})</div>`;
+            }
 
-window.abrirModalMedida = function(id) {
-  const modal = document.getElementById('modal-medida');
-  modal.classList.remove('hidden');
-  if (!id) {
-    document.getElementById('modal-medida-titulo').textContent = 'Nova Medição';
-    document.getElementById('med-id').value = '';
-    document.getElementById('med-data').value = hojeISO();
-    CAMPOS_MEDIDAS.forEach(c => document.getElementById('med-'+c).value = '');
-    document.getElementById('med-peso').value = '';
-    document.getElementById('med-obs').value = '';
-  }
-};
-
-window.editarMedida = function(id) {
-  const m = appData.medidas.find(x => x.id === id);
-  if (!m) return;
-  abrirModalMedida();
-  document.getElementById('modal-medida-titulo').textContent = 'Editar Medição';
-  document.getElementById('med-id').value = m.id;
-  document.getElementById('med-data').value = m.data;
-  document.getElementById('med-peso').value = m.peso || '';
-  document.getElementById('med-obs').value = m.obs || '';
-  CAMPOS_MEDIDAS.forEach(c => { document.getElementById('med-'+c).value = m[c] || ''; });
-};
-
-window.fecharModalMedida = function() {
-  document.getElementById('modal-medida').classList.add('hidden');
-};
-
-window.salvarMedida = function() {
-  const id = document.getElementById('med-id').value;
-  const data = document.getElementById('med-data').value;
-  if (!data) { mostrarToast('Informe a data.', 'error'); return; }
-  const reg = {
-    id: id || gerarId(), data,
-    peso: document.getElementById('med-peso').value,
-    obs: document.getElementById('med-obs').value.trim()
-  };
-  CAMPOS_MEDIDAS.forEach(c => { reg[c] = parseFloat(document.getElementById('med-'+c).value) || ''; });
-  if (id) {
-    const idx = appData.medidas.findIndex(x => x.id === id);
-    if (idx >= 0) appData.medidas[idx] = reg; else appData.medidas.push(reg);
-  } else {
-    appData.medidas.push(reg);
-  }
-  salvarLocal(); agendarSync();
-  fecharModalMedida(); renderMedidas();
-  mostrarToast('Medição salva!', 'success');
-};
-
-window.excluirMedida = function(id) {
-  if (!confirm('Excluir esta medição?')) return;
-  appData.medidas = appData.medidas.filter(x => x.id !== id);
-  salvarLocal(); agendarSync(); renderMedidas();
-  mostrarToast('Medição excluída.');
-};
-
-// ══════════════════════════════════════════════════
-// METAS
-// ══════════════════════════════════════════════════
-window.simularMeta = function() {
-  const data = document.getElementById('meta-data-simulacao').value;
-  if (!data) { mostrarToast('Escolha uma data.', 'error'); return; }
-  if (!configValida()) { mostrarToast('Configure seus dados em Ajustes.', 'error'); return; }
-  const meta = calcularMetaDaData(data);
-  const pa = obterPesoAtual();
-  const diff = (meta !== null && pa !== null) ? meta - pa : null;
-  _metaSimulada = { data, meta, pa, diff };
-  const box = document.getElementById('meta-resultado-box');
-  box.innerHTML = `
-    <p><strong>📅 Data:</strong> ${formatData(data)}</p>
-    <p><strong>🎯 Meta prevista:</strong> ${meta !== null ? formatBR(meta)+' kg' : '--'}</p>
-    <p><strong>⚖ Peso atual:</strong> ${pa !== null ? formatBR(pa)+' kg' : '--'}</p>
-    <p><strong>📊 Diferença:</strong> <span class="${diff!==null?(diff<=0?'col-green':'col-red'):''}">${diff !== null ? formatComSinal(diff)+' kg' : '--'}</span></p>
-  `;
-  document.getElementById('meta-simulacao-resultado').classList.remove('hidden');
-};
-
-window.limparSimulacaoMeta = function() {
-  _metaSimulada = null;
-  document.getElementById('meta-data-simulacao').value = '';
-  document.getElementById('meta-simulacao-resultado').classList.add('hidden');
-  document.getElementById('meta-personalizada-titulo').value = '';
-};
-
-window.salvarMetaPersonalizada = function() {
-  if (!_metaSimulada) { mostrarToast('Simule uma data primeiro.', 'error'); return; }
-  const titulo = document.getElementById('meta-personalizada-titulo').value.trim();
-  if (!titulo) { mostrarToast('Informe um nome para esta data.', 'error'); return; }
-  const nova = {
-    id: gerarId(), titulo, data: _metaSimulada.data,
-    metaCalculada: _metaSimulada.meta, pesoAtualNoMomento: _metaSimulada.pa,
-    diferenca: _metaSimulada.diff, criadoEm: new Date().toISOString()
-  };
-  appData.metasPersonalizadas.push(nova);
-  salvarLocal(); agendarSync();
-  renderMetasPersonalizadas();
-  limparSimulacaoMeta();
-  mostrarToast('Data salva!', 'success');
-};
-
-function renderMetasPersonalizadas() {
-  const lista = document.getElementById('metas-personalizadas-lista');
-  const vazio = document.getElementById('metas-personalizadas-vazio');
-  const metas = appData.metasPersonalizadas || [];
-  if (!metas.length) { lista.innerHTML = ''; vazio.classList.remove('hidden'); return; }
-  vazio.classList.add('hidden');
-  lista.innerHTML = metas.map(m => `
-    <div style="border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
-      <div>
-        <div style="font-weight:700;">${m.titulo}</div>
-        <div style="font-size:.8rem;color:var(--text2);">${formatData(m.data)}</div>
-        <div style="font-size:.82rem;">Meta: <strong>${m.metaCalculada !== null ? formatBR(m.metaCalculada)+' kg' : '--'}</strong>
-          | Dif: <span class="${m.diferenca!==null?(m.diferenca<=0?'col-green':'col-red'):''}">${m.diferenca !== null ? formatComSinal(m.diferenca)+' kg' : '--'}</span></div>
-      </div>
-      <button class="btn btn-red btn-sm" onclick="excluirMetaPersonalizada('${m.id}')">−</button>
-    </div>
-  `).join('');
-}
-
-window.excluirMetaPersonalizada = function(id) {
-  if (!confirm('Excluir esta data?')) return;
-  appData.metasPersonalizadas = appData.metasPersonalizadas.filter(x => x.id !== id);
-  salvarLocal(); agendarSync(); renderMetasPersonalizadas();
-};
-
-window.gerarTabelaMetas = function(tipo) {
-  if (!configValida()) { mostrarToast('Configure seus dados em Ajustes.', 'error'); return; }
-  const hoje = parseDate(hojeISO());
-  const linhas = [];
-
-  if (tipo === 'diario') {
-    for (let i = 0; i < 30; i++) {
-      const d = new Date(hoje); d.setDate(d.getDate() + i);
-      const iso = d.toISOString().split('T')[0];
-      linhas.push({ data: iso, meta: calcularMetaDaData(iso) });
+            return `
+                <div class="card" style="padding: 10px;">
+                    <div class="label">${c.label}</div>
+                    <div class="value" style="font-size: 16px;">${formatBR(vAtual)}</div>
+                    <div class="small ${statusClass}">${formatComSinal(diff)} vs ant.</div>
+                    ${idealTxt}
+                </div>
+            `;
+        }).join('');
+    } else {
+        containerComparativo.innerHTML = "";
     }
-  } else if (tipo === 'semanal') {
-    for (let i = 0; i < 30; i++) {
-      const d = new Date(hoje); d.setDate(d.getDate() + i*7);
-      const iso = d.toISOString().split('T')[0];
-      linhas.push({ data: iso, meta: calcularMetaDaData(iso) });
-    }
-  } else if (tipo === 'mensal') {
-    for (let i = 0; i < 30; i++) {
-      const d = new Date(hoje); d.setMonth(d.getMonth() + i);
-      const iso = d.toISOString().split('T')[0];
-      linhas.push({ data: iso, meta: calcularMetaDaData(iso) });
-    }
-  } else if (tipo === 'anual') {
-    for (let i = 0; i < 5; i++) {
-      const d = new Date(hoje); d.setFullYear(d.getFullYear() + i);
-      const iso = d.toISOString().split('T')[0];
-      linhas.push({ data: iso, meta: calcularMetaDaData(iso) });
-    }
-  }
 
-  const tbody = document.getElementById('planejamento-tbody');
-  tbody.innerHTML = linhas.map(l => `<tr><td>${formatData(l.data)}</td><td>${l.meta !== null ? formatBR(l.meta)+' kg' : '--'}</td></tr>`).join('');
-  document.getElementById('planejamento-tabela-wrap').classList.remove('hidden');
-};
-
-window.limparFiltroMetas = function() {
-  document.getElementById('planejamento-tbody').innerHTML = '';
-  document.getElementById('planejamento-tabela-wrap').classList.add('hidden');
-};
-
-// ══════════════════════════════════════════════════
-// GRÁFICOS
-// ══════════════════════════════════════════════════
-function carregarChartJs(cb) {
-  if (_chartJsLoaded) { cb(); return; }
-  const s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
-  s.onload = () => { _chartJsLoaded = true; cb(); };
-  document.head.appendChild(s);
+    const lista = document.getElementById('lista-medidas');
+    lista.innerHTML = sorted.map(m => `
+        <tr>
+            <td>${formatDateBR(m.data)}</td>
+            <td>${formatBR(m.cintura)}</td>
+            <td class="actions-cell">
+                <button class="btn btn-outline compact-action" title="Editar" aria-label="Editar medida" onclick="editarMedida('${m.id}')">✎</button>
+                <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirMedida('${m.id}')">−</button>
+            </td>
+        </tr>
+    `).join('');
 }
 
-window.alterarFiltroGrafico = function(val) {
-  _graficoFiltro = val;
-  if (_chartJsLoaded) renderGraficos();
-};
+let chartPesoRef = null;
+let chartMedidasRef = null;
 
-function filtrarPorPeriodo(registros, filtro) {
-  const di = appData.config.dataInicial || '1970-01-01';
-  let validos = registros.filter(r => r.data >= di);
-  if (filtro === 'inicio') return validos;
-  const hoje = new Date();
-  const limites = { '7d':7, '1m':30, '3m':90, '6m':180, '1a':365, '5a':1825 };
-  const dias = limites[filtro] || 99999;
-  const limite = new Date(hoje); limite.setDate(limite.getDate() - dias);
-  const limiteISO = limite.toISOString().split('T')[0];
-  return validos.filter(r => r.data >= limiteISO);
+function carregarChartJs() {
+    if (window.Chart) return Promise.resolve();
+    if (chartJsPromise) return chartJsPromise;
+
+    chartJsPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('Não foi possível carregar o Chart.js.'));
+        document.head.appendChild(script);
+    });
+
+    return chartJsPromise;
 }
 
-function formatDataGrafico(iso, filtro) {
-  const [y,m,d] = iso.split('-');
-  if (filtro === '5a') return `${d}/${m}/${y.slice(2)}`;
-  return `${d}/${m}`;
+function alterarFiltroGrafico(filtro) {
+    filtroGraficoAtual = filtro || 'inicio';
+    const select = document.getElementById('grafico-filtro-select');
+    if (select && select.value !== filtroGraficoAtual) select.value = filtroGraficoAtual;
+    renderGraficos();
 }
 
 function renderGraficos() {
-  const loading = document.getElementById('graficos-loading');
-  if (loading) loading.classList.add('hidden');
-  if (!window.Chart) return;
+    if (activeViewId !== 'graficos') return;
+    if (!window.Chart) {
+        carregarChartJs()
+            .then(() => renderGraficos())
+            .catch((error) => alert(error.message));
+        return;
+    }
 
-  // Peso
-  const pesosFiltrados = filtrarPorPeriodo(appData.pesos, _graficoFiltro).sort((a,b)=>a.data.localeCompare(b.data));
-  const pesoLabels = pesosFiltrados.map(p => formatDataGrafico(p.data, _graficoFiltro));
-  const pesoData = pesosFiltrados.map(p => parseFloat(p.peso));
+    const canvasPeso = document.getElementById('chartPeso');
+    const canvasMedidas = document.getElementById('chartMedidas');
+    if (!canvasPeso || !canvasMedidas) return;
+    const ctxPeso = canvasPeso.getContext('2d');
+    const ctxMedidas = canvasMedidas.getContext('2d');
+    const inicioFiltro = obterInicioFiltroGrafico();
 
-  if (_chartPeso) _chartPeso.destroy();
-  const ctx1 = document.getElementById('grafico-peso').getContext('2d');
-  _chartPeso = new Chart(ctx1, {
-    type: 'line',
-    data: {
-      labels: pesoLabels,
-      datasets: [{ label: 'Peso (kg)', data: pesoData, borderColor: '#0284c7', backgroundColor: 'rgba(2,132,199,0.1)', tension: 0.3, fill: true, pointRadius: 3 }]
-    },
-    options: { animation: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } }, responsive: true }
-  });
+    const sortedPesos = obterPesosValidosParaCalculo().filter(p => p.data >= inicioFiltro);
+    const labels = sortedPesos.map(p => formatDateChart(p.data));
+    const dataReal = sortedPesos.map(p => p.peso);
 
-  // Medidas
-  const medsFiltradas = filtrarPorPeriodo(appData.medidas, _graficoFiltro).sort((a,b)=>a.data.localeCompare(b.data));
-  const medLabels = medsFiltradas.map(m => formatDataGrafico(m.data, _graficoFiltro));
+    if(chartPesoRef) chartPesoRef.destroy();
+    chartPesoRef = new Chart(ctxPeso, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: 'Peso', data: dataReal, borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,.12)', tension: 0.3 }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, animation: false, normalized: true, scales: { y: { beginAtZero: false } } }
+    });
 
-  if (_chartMedidas) _chartMedidas.destroy();
-  const ctx2 = document.getElementById('grafico-medidas').getContext('2d');
-  _chartMedidas = new Chart(ctx2, {
-    type: 'line',
-    data: {
-      labels: medLabels,
-      datasets: [
-        { label: 'Barriga', data: medsFiltradas.map(m=>parseFloat(m.cintura)||null), borderColor: '#0284c7', tension: 0.3, pointRadius: 3 },
-        { label: 'Coxa', data: medsFiltradas.map(m=>parseFloat(m.coxa)||null), borderColor: '#16a34a', tension: 0.3, pointRadius: 3 },
-        { label: 'Quadril', data: medsFiltradas.map(m=>parseFloat(m.quadril)||null), borderColor: '#dc2626', tension: 0.3, pointRadius: 3 }
-      ]
-    },
-    options: { animation: false, responsive: true, scales: { y: { beginAtZero: false } } }
-  });
+    const sortedMedidas = obterMedidasValidasParaCalculo().filter(m => m.data >= inicioFiltro);
+    const labelsMed = sortedMedidas.map(m => formatDateChart(m.data));
+    
+    if(chartMedidasRef) chartMedidasRef.destroy();
+    chartMedidasRef = new Chart(ctxMedidas, {
+        type: 'line',
+        data: {
+            labels: labelsMed,
+            datasets: [
+                { label: 'Barriga', data: sortedMedidas.map(m => m.cintura), borderColor: '#ef4444' },
+                { label: 'Coxa', data: sortedMedidas.map(m => m.coxa), borderColor: '#22c55e' },
+                { label: 'Quadril', data: sortedMedidas.map(m => m.quadril), borderColor: '#38bdf8' }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, animation: false, normalized: true }
+    });
 }
 
-// ══════════════════════════════════════════════════
-// AJUSTES
-// ══════════════════════════════════════════════════
-function preencherAjustes() {
-  const cfg = appData.config;
-  document.getElementById('cfg-nome').value = cfg.nome || '';
-  document.getElementById('cfg-data-inicial').value = cfg.dataInicial || hojeISO();
-  document.getElementById('cfg-peso-inicial').value = cfg.pesoInicial || '';
-  document.getElementById('cfg-peso-meta').value = cfg.pesoMeta || '';
-  document.getElementById('cfg-meta-dia').value = cfg.metaKgPorDia || '';
-  const mi = cfg.medidasIdeais || {};
-  ['pescoco','peito','cintura','quadril','coxa','panturrilha','braco'].forEach(c => {
-    const el = document.getElementById('cfg-'+c);
-    if (el) el.value = mi[c] || '';
-  });
+/**
+ * ACTIONS & HANDLERS
+ */
+function abrirTelaLancamentoPeso() {
+    const form = document.getElementById('form-peso');
+    if (form) form.reset();
+    document.getElementById('edit-peso-id').value = "";
+    document.getElementById('peso-data').value = hojeISO();
+    showView('peso', document.querySelector('[data-view="historico"]'));
 }
 
-window.salvarConfig = function() {
-  appData.config.nome = document.getElementById('cfg-nome').value.trim();
-  appData.config.dataInicial = document.getElementById('cfg-data-inicial').value || hojeISO();
-  appData.config.pesoInicial = document.getElementById('cfg-peso-inicial').value;
-  appData.config.pesoMeta = document.getElementById('cfg-peso-meta').value;
-  appData.config.metaKgPorDia = document.getElementById('cfg-meta-dia').value;
-  if (!appData.config.medidasIdeais) appData.config.medidasIdeais = {};
-  ['pescoco','peito','cintura','quadril','coxa','panturrilha','braco'].forEach(c => {
-    const el = document.getElementById('cfg-'+c);
-    appData.config.medidasIdeais[c] = el ? el.value : '';
-  });
-  salvarLocal(); agendarSync();
-  mostrarToast('Configurações salvas!', 'success');
-};
+function showView(viewId, navEl) {
+    activeViewId = viewId;
+    document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+    document.getElementById('view-' + viewId).classList.remove('hidden');
+    
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (navEl) navEl.classList.add('active');
 
-window.limparPerfilMetas = function() {
-  if (!confirm('Limpar perfil e metas? Os registros de peso e medidas serão mantidos.')) return;
-  appData.config.nome = '';
-  appData.config.dataInicial = hojeISO();
-  appData.config.pesoInicial = '';
-  appData.config.pesoMeta = '';
-  appData.config.metaKgPorDia = '';
-  preencherAjustes(); salvarLocal(); agendarSync();
-  mostrarToast('Perfil e metas limpos.');
-};
+    const titles = {
+        dashboard: "Início",
+        peso: "Lançar Peso",
+        historico: "Peso",
+        medidas: "Medidas Corporais",
+        metas: "Metas e Simulador",
+        graficos: "Evolução",
+        configs: "Configurações",
+        conta: "Conta",
+        backup: "Backup"
+    };
+    document.getElementById('page-title').innerText = titles[viewId];
 
-window.limparMedidasIdeais = function() {
-  if (!confirm('Limpar medidas ideais?')) return;
-  appData.config.medidasIdeais = { pescoco:'',peito:'',cintura:'',quadril:'',coxa:'',panturrilha:'',braco:'' };
-  preencherAjustes(); salvarLocal(); agendarSync();
-  mostrarToast('Medidas ideais limpas.');
-};
-
-// ══════════════════════════════════════════════════
-// BACKUP
-// ══════════════════════════════════════════════════
-window.exportarBackup = function() {
-  const json = JSON.stringify(appData, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `projeto-leve-backup-${hojeISO()}.json`;
-  a.click(); URL.revokeObjectURL(url);
-  mostrarToast('Backup exportado!', 'success');
-};
-
-window.importarBackup = function(input) {
-  const file = input.files[0];
-  if (!file) return;
-  if (!confirm('Restaurar backup? Os dados atuais serão substituídos.')) { input.value=''; return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const parsed = JSON.parse(e.target.result);
-      appData = normalizarDados(parsed);
-      salvarLocal(); agendarSync(); renderizarTudo();
-      mostrarToast('Backup restaurado!', 'success');
-    } catch(err) { mostrarToast('Arquivo inválido.', 'error'); }
-    input.value = '';
-  };
-  reader.readAsText(file);
-};
-
-window.gerarRelatorioPDF = function() {
-  const cfg = appData.config;
-  const pesos = [...appData.pesos].sort((a,b) => b.data.localeCompare(a.data));
-  const meds = [...appData.medidas].sort((a,b) => b.data.localeCompare(a.data));
-  const linhasPeso = pesos.map(p => `<tr><td>${formatData(p.data)}</td><td>${formatBR(parseFloat(p.peso))} kg</td><td>${p.obs||''}</td></tr>`).join('');
-  const linhasMed = meds.map(m => `<tr><td>${formatData(m.data)}</td><td>${m.cintura||'--'}</td><td>${m.quadril||'--'}</td><td>${m.coxa||'--'}</td></tr>`).join('');
-  const win = window.open('','_blank');
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Projeto Leve - Relatório</title>
-  <style>body{font-family:Arial,sans-serif;padding:20px;color:#111;}h1{color:#0284c7;}table{width:100%;border-collapse:collapse;margin-bottom:20px;}th,td{border:1px solid #ccc;padding:6px 8px;font-size:12px;}th{background:#e0f2fe;}</style>
-  </head><body>
-  <h1>Projeto Leve — Relatório</h1>
-  <p>Gerado em: ${new Date().toLocaleString('pt-BR')}</p>
-  <h3>Configurações</h3>
-  <p>Nome: ${cfg.nome||'--'} | Data Inicial: ${formatData(cfg.dataInicial)} | Peso Inicial: ${cfg.pesoInicial||'--'} kg | Meta: ${cfg.pesoMeta||'--'} kg | Meta/Dia: ${cfg.metaKgPorDia||'--'} kg/dia</p>
-  <h3>Histórico de Pesos</h3>
-  <table><thead><tr><th>Data</th><th>Peso</th><th>Obs</th></tr></thead><tbody>${linhasPeso||'<tr><td colspan="3">Sem registros</td></tr>'}</tbody></table>
-  <h3>Histórico de Medidas</h3>
-  <table><thead><tr><th>Data</th><th>Barriga</th><th>Quadril</th><th>Coxa</th></tr></thead><tbody>${linhasMed||'<tr><td colspan="4">Sem registros</td></tr>'}</tbody></table>
-  <script>window.print();<\/script></body></html>`);
-  win.document.close();
-};
-
-window.gerarRelatorioCSV = function() {
-  let csv = 'sep=;\n';
-  csv += 'HISTÓRICO DE PESOS\n';
-  csv += 'Data;Peso (kg);Observação\n';
-  const pesos = [...appData.pesos].sort((a,b) => b.data.localeCompare(a.data));
-  pesos.forEach(p => { csv += `${formatData(p.data)};${p.peso};${(p.obs||'').replace(/;/g,' ')}\n`; });
-  csv += '\nHISTÓRICO DE MEDIDAS\n';
-  csv += 'Data;Barriga;Pescoço;Peito;Quadril;Coxa;Panturrilha;Braço;Obs\n';
-  const meds = [...appData.medidas].sort((a,b) => b.data.localeCompare(a.data));
-  meds.forEach(m => { csv += `${formatData(m.data)};${m.cintura||''};${m.pescoco||''};${m.peito||''};${m.quadril||''};${m.coxa||''};${m.panturrilha||''};${m.braco||''};${(m.obs||'').replace(/;/g,' ')}\n`; });
-  const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `projeto-leve-relatorio-${hojeISO()}.csv`;
-  a.click(); URL.revokeObjectURL(url);
-  mostrarToast('CSV gerado!', 'success');
-};
-
-window.limparRegistrosAteData = function() {
-  const data = document.getElementById('limpeza-data').value;
-  if (!data) { mostrarToast('Selecione uma data.', 'error'); return; }
-  if (!confirm(`Excluir todos os registros até ${formatData(data)}? Esta ação não pode ser desfeita.`)) return;
-  appData.pesos = appData.pesos.filter(p => p.data > data);
-  appData.medidas = appData.medidas.filter(m => m.data > data);
-  appData.metasPersonalizadas = appData.metasPersonalizadas.filter(m => m.data > data);
-  salvarLocal(); agendarSync(); renderizarTudo();
-  mostrarToast('Registros removidos.', 'success');
-};
-
-window.limparTudo = function() {
-  if (!confirm('⚠️ ATENÇÃO: Apagar TODOS os dados do app? Esta ação não pode ser desfeita!')) return;
-  if (!confirm('Tem certeza? Todos os pesos, medidas e configurações serão apagados.')) return;
-  appData = dadosPadrao();
-  salvarLocal(); agendarSync(); renderizarTudo();
-  mostrarToast('App restaurado ao padrão.');
-};
-
-// ══════════════════════════════════════════════════
-// RENDER GERAL
-// ══════════════════════════════════════════════════
-function renderizarTudo() {
-  renderInicio();
-  renderHistorico();
-  renderMedidas();
-  renderMetasPersonalizadas();
-  preencherAjustes();
-  atualizarContaUI(window._currentUser || null);
+    if (viewId === 'peso' && !document.getElementById('edit-peso-id').value) {
+        document.getElementById('peso-data').value = hojeISO();
+    }
+    if (viewId === 'graficos') renderGraficos();
 }
 
-// ══════════════════════════════════════════════════
-// TOAST
-// ══════════════════════════════════════════════════
-function mostrarToast(msg, tipo) {
-  const c = document.getElementById('toast-container');
-  const t = document.createElement('div');
-  t.className = 'toast' + (tipo ? ' '+tipo : '');
-  t.textContent = msg;
-  c.appendChild(t);
-  setTimeout(() => t.remove(), 3200);
-}
-
-// ══════════════════════════════════════════════════
-// PWA
-// ══════════════════════════════════════════════════
-(function setupPWA() {
-  // Manifest dinâmico
-  const manifest = {
-    name: 'Projeto Leve', short_name: 'Projeto Leve', start_url: '.', display: 'standalone',
-    background_color: '#edf7ff', theme_color: '#0284c7',
-    icons: [
-      { src: 'https://projetoleve.kaioadriel.com.br/icone/icone.png', sizes: '192x192', type: 'image/png' },
-      { src: 'https://projetoleve.kaioadriel.com.br/icone/icone.png', sizes: '512x512', type: 'image/png' }
-    ]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-  document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
-
-  // Service Worker inline
-  if ('serviceWorker' in navigator) {
-    const swCode = `
-      const CACHE = 'projeto-leve-v1';
-      self.addEventListener('install', e => { self.skipWaiting(); });
-      self.addEventListener('activate', e => { e.waitUntil(clients.claim()); });
-      self.addEventListener('fetch', e => {
-        if (e.request.method !== 'GET') return;
-        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-      });
-    `;
-    const swBlob = new Blob([swCode], { type: 'application/javascript' });
-    const swUrl = URL.createObjectURL(swBlob);
-    navigator.serviceWorker.register(swUrl).catch(()=>{});
-  }
-
-  window.addEventListener('beforeinstallprompt', e => {
+// Auth Form
+document.getElementById('btn-login').onclick = () => entrarUsuario('');
+document.getElementById('btn-cadastro').onclick = () => cadastrarUsuario('');
+document.getElementById('btn-google-conta').onclick = entrarComGoogle;
+document.getElementById('btn-login-gate').onclick = () => entrarUsuario('gate');
+document.getElementById('btn-cadastro-gate').onclick = () => cadastrarUsuario('gate');
+document.getElementById('btn-google-gate').onclick = entrarComGoogle;
+document.getElementById('btn-logout').onclick = sairUsuario;
+document.getElementById('btn-upload-cloud').onclick = () => salvarDadosNaNuvem(true);
+document.getElementById('btn-download-cloud').onclick = () => {
+    if (confirm('Baixar os dados da nuvem e substituir os dados locais deste aparelho?')) {
+        carregarDadosDaNuvem(true);
+    }
+};
+document.getElementById('form-auth').onsubmit = function(e) {
     e.preventDefault();
-    _deferredPrompt = e;
-    document.getElementById('btn-install').style.display = 'block';
-  });
-})();
-
-window.instalarPWA = function() {
-  if (_deferredPrompt) { _deferredPrompt.prompt(); _deferredPrompt = null; document.getElementById('btn-install').style.display = 'none'; }
+    entrarUsuario('');
+};
+document.getElementById('form-auth-gate').onsubmit = function(e) {
+    e.preventDefault();
+    entrarUsuario('gate');
 };
 
-// ══════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════
-carregarLocal();
-// A renderização completa só ocorre após login via onAuthStateChanged
+// Peso Form
+document.getElementById('form-peso').onsubmit = function(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-peso-id').value || Date.now().toString();
+    const data = document.getElementById('peso-data').value;
+    const peso = parseFloat(document.getElementById('peso-valor').value);
+    const obs = document.getElementById('peso-obs').value;
+
+    const index = appData.pesos.findIndex(p => p.id === id || p.data === data);
+    if(index > -1 && !document.getElementById('edit-peso-id').value) {
+        if(!confirm("Já existe um peso para esta data. Deseja substituir?")) return;
+        appData.pesos[index] = { id: appData.pesos[index].id, data, peso, observacoes: obs };
+    } else if (index > -1) {
+        appData.pesos[index] = { id, data, peso, observacoes: obs };
+    } else {
+        appData.pesos.push({ id, data, peso, observacoes: obs });
+    }
+
+    this.reset();
+    document.getElementById('peso-data').value = hojeISO();
+    document.getElementById('edit-peso-id').value = "";
+    salvarDados();
+    showView('historico', document.querySelector('[data-view="historico"]'));
+};
+
+function editarPeso(id) {
+    const p = appData.pesos.find(x => x.id === id);
+    if(!p) return;
+    document.getElementById('edit-peso-id').value = p.id;
+    document.getElementById('peso-data').value = p.data;
+    document.getElementById('peso-valor').value = p.peso;
+    document.getElementById('peso-obs').value = p.observacoes || '';
+    showView('peso', document.querySelector('[data-view="historico"]'));
+}
+
+function excluirPeso(id) {
+    if(!confirm("Excluir este registro?")) return;
+    appData.pesos = appData.pesos.filter(x => x.id !== id);
+    salvarDados();
+}
+
+// Config Form
+function limparPerfilMetas() {
+    document.getElementById('cfg-nome').value = '';
+    document.getElementById('cfg-data-init').value = hojeISO();
+    document.getElementById('cfg-peso-init').value = '';
+    document.getElementById('cfg-peso-meta').value = '';
+    document.getElementById('cfg-meta-dia').value = '';
+}
+
+function limparMedidasIdeais() {
+    ['id-pescoco','id-peito','id-cintura','id-quadril','id-coxa','id-panturrilha','id-braco'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+}
+
+document.getElementById('form-config').onsubmit = function(e) {
+    e.preventDefault();
+    appData.config.nome = document.getElementById('cfg-nome').value.trim();
+    appData.config.dataInicial = document.getElementById('cfg-data-init').value || hojeISO();
+    appData.config.pesoInicial = numeroOuVazio(document.getElementById('cfg-peso-init').value);
+    appData.config.pesoMeta = numeroOuVazio(document.getElementById('cfg-peso-meta').value);
+    appData.config.metaKgPorDia = numeroOuVazio(document.getElementById('cfg-meta-dia').value);
+
+    appData.config.medidasIdeais = {
+        pescoco: numeroOuVazio(document.getElementById('id-pescoco').value),
+        peito: numeroOuVazio(document.getElementById('id-peito').value),
+        cintura: numeroOuVazio(document.getElementById('id-cintura').value),
+        quadril: numeroOuVazio(document.getElementById('id-quadril').value),
+        coxa: numeroOuVazio(document.getElementById('id-coxa').value),
+        panturrilha: numeroOuVazio(document.getElementById('id-panturrilha').value),
+        braco: numeroOuVazio(document.getElementById('id-braco').value)
+    };
+
+    salvarDados();
+    alert("Configurações salvas!");
+};
+
+// Medidas Modal & Form
+function abrirModalMedida() {
+    document.getElementById('modal-medida').classList.remove('hidden');
+    document.getElementById('med-data').value = new Date().toISOString().split('T')[0];
+    document.getElementById('med-peso').value = obterPesoAtual();
+}
+
+function fecharModalMedida() {
+    document.getElementById('modal-medida').classList.add('hidden');
+    document.getElementById('form-medidas').reset();
+    document.getElementById('edit-medida-id').value = "";
+}
+
+document.getElementById('form-medidas').onsubmit = function(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-medida-id').value || Date.now().toString();
+    const novaMed = {
+        id,
+        data: document.getElementById('med-data').value,
+        peso: parseFloat(document.getElementById('med-peso').value),
+        pescoco: parseFloat(document.getElementById('med-pescoco').value || 0),
+        peito: parseFloat(document.getElementById('med-peito').value || 0),
+        cintura: parseFloat(document.getElementById('med-cintura').value || 0),
+        quadril: parseFloat(document.getElementById('med-quadril').value || 0),
+        coxa: parseFloat(document.getElementById('med-coxa').value || 0),
+        panturrilha: parseFloat(document.getElementById('med-panturrilha').value || 0),
+        braco: parseFloat(document.getElementById('med-braco').value || 0),
+        observacoes: document.getElementById('med-obs').value
+    };
+
+    const idx = appData.medidas.findIndex(m => m.id === id);
+    if(idx > -1) appData.medidas[idx] = novaMed;
+    else appData.medidas.push(novaMed);
+
+    fecharModalMedida();
+    salvarDados();
+};
+
+function editarMedida(id) {
+    const m = appData.medidas.find(x => x.id === id);
+    if(!m) return;
+    abrirModalMedida();
+    document.getElementById('medida-modal-title').innerText = "Editar Medição";
+    document.getElementById('edit-medida-id').value = m.id;
+    document.getElementById('med-data').value = m.data;
+    document.getElementById('med-peso').value = m.peso;
+    document.getElementById('med-pescoco').value = m.pescoco;
+    document.getElementById('med-peito').value = m.peito;
+    document.getElementById('med-cintura').value = m.cintura;
+    document.getElementById('med-quadril').value = m.quadril;
+    document.getElementById('med-coxa').value = m.coxa;
+    document.getElementById('med-panturrilha').value = m.panturrilha;
+    document.getElementById('med-braco').value = m.braco;
+    document.getElementById('med-obs').value = m.observacoes;
+}
+
+function excluirMedida(id) {
+    if(!confirm("Excluir esta medição?")) return;
+    appData.medidas = appData.medidas.filter(x => x.id !== id);
+    salvarDados();
+}
+
+// Metas
+
+let ultimaSimulacao = null;
+
+function simularMeta() {
+    const data = document.getElementById('simula-data').value;
+    if(!data) return;
+    const meta = calcularMetaDaData(data);
+    const media = calcularMediaRealDia();
+    const pesoAtual = obterPesoAtual();
+    const dias = diffDays(data, new Date().toISOString().split('T')[0]);
+    const previsao = pesoAtual + (dias * media);
+    ultimaSimulacao = { data, meta, previsao };
+
+    document.getElementById('res-simulacao').innerHTML = `
+        <div class="card" style="border-color: var(--accent); background: #f8fcff; box-shadow: none;">
+            <div class="label">Resultados para ${formatDateBR(data)}</div>
+            <div class="grid-2" style="margin-top: 10px;">
+                <div><div class="small">Meta Planejada</div><div class="value">${formatBR(meta)} kg</div></div>
+                <div><div class="small">Previsão Real</div><div class="value">${formatBR(previsao)} kg</div></div>
+            </div>
+            <div class="save-simulation-box">
+                <label>Salvar esta data como</label>
+                <div class="inline-action-row">
+                    <input type="text" id="nome-meta-personalizada" placeholder="Ex: Natal, Aniversário, Consulta...">
+                    <button class="btn btn-primary" style="width: auto;" onclick="salvarMetaPersonalizada()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function limparSimulacaoMeta() {
+    const input = document.getElementById('simula-data');
+    const resultado = document.getElementById('res-simulacao');
+    if (input) input.value = '';
+    if (resultado) resultado.innerHTML = '';
+    ultimaSimulacao = null;
+}
+
+function salvarMetaPersonalizada() {
+    if (!ultimaSimulacao) return alert('Faça uma simulação antes de salvar.');
+    const input = document.getElementById('nome-meta-personalizada');
+    const nome = input ? input.value.trim() : '';
+    if (!nome) return alert('Digite um nome para esta data.');
+
+    appData.metasPersonalizadas = Array.isArray(appData.metasPersonalizadas) ? appData.metasPersonalizadas : [];
+    appData.metasPersonalizadas.push({
+        id: Date.now().toString(),
+        nome,
+        data: ultimaSimulacao.data,
+        meta: Number(ultimaSimulacao.meta),
+        previsao: Number(ultimaSimulacao.previsao)
+    });
+    salvarDados();
+    if (input) input.value = '';
+    alert('Data personalizada salva.');
+}
+
+function excluirMetaPersonalizada(id) {
+    if (!confirm('Excluir esta data personalizada?')) return;
+    appData.metasPersonalizadas = (appData.metasPersonalizadas || []).filter(item => item.id !== id);
+    salvarDados();
+}
+
+function renderMetasPersonalizadas() {
+    const lista = document.getElementById('lista-metas-personalizadas');
+    if (!lista) return;
+    const metas = Array.isArray(appData.metasPersonalizadas) ? [...appData.metasPersonalizadas] : [];
+    metas.sort((a, b) => a.data.localeCompare(b.data));
+
+    if (!metas.length) {
+        lista.innerHTML = '<div class="sync-box">Nenhuma data personalizada salva ainda.</div>';
+        return;
+    }
+
+    lista.innerHTML = metas.map(item => `
+        <div class="custom-goal-item">
+            <div class="custom-goal-head">
+                <div>
+                    <div class="custom-goal-title">${escapeHtml(item.nome)}</div>
+                    <div class="custom-goal-date">${formatDateBR(item.data)}</div>
+                </div>
+                <button class="btn btn-outline" style="width:auto; padding: 7px 10px; border-color: var(--danger); color: var(--danger);" onclick="excluirMetaPersonalizada('${item.id}')">Excluir</button>
+            </div>
+            <div class="custom-goal-metrics">
+                <div class="custom-goal-metric"><div class="label">Meta</div><div class="value" style="font-size:16px;">${formatBR(item.meta)} kg</div></div>
+                <div class="custom-goal-metric"><div class="label">Previsão</div><div class="value" style="font-size:16px;">${formatBR(item.previsao)} kg</div></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+}
+
+function gerarTabelaMetas(tipo) {
+    const container = document.getElementById('container-tabela-metas');
+    const tabela = document.getElementById('tabela-metas-futuras');
+    container.classList.remove('hidden');
+    tabela.innerHTML = `<thead><tr><th>Data</th><th>Meta</th><th>Prev. Real</th></tr></thead><tbody></tbody>`;
+    
+    const media = calcularMediaRealDia();
+    const pesoAtual = obterPesoAtual();
+    const hoje = hojeISO();
+    const linhas = [];
+    const configuracoes = {
+        diario: { total: 30, titulo: 'Diário', proximaData: (i) => addDiasISO(hoje, i) },
+        semanal: { total: 30, titulo: 'Semanal', proximaData: (i) => addDiasISO(hoje, i * 7) },
+        mensal: { total: 30, titulo: 'Mensal', proximaData: (i) => addMesesISO(hoje, i) },
+        anual: { total: 5, titulo: 'Anual', proximaData: (i) => addAnosISO(hoje, i) }
+    };
+    const config = configuracoes[tipo] || configuracoes.diario;
+
+    for(let i = 1; i <= config.total; i++) {
+        const iso = config.proximaData(i);
+        const diasAteData = diffDays(iso, hoje);
+        const meta = calcularMetaDaData(iso);
+        const prev = Number.isFinite(media) && Number.isFinite(pesoAtual) ? pesoAtual + (diasAteData * media) : NaN;
+        
+        linhas.push(`
+            <tr>
+                <td>${formatDateBR(iso)}</td>
+                <td>${formatBR(meta)}</td>
+                <td class="${Number.isFinite(prev) && Number.isFinite(meta) && prev <= meta ? 'positive' : 'negative'}">${formatBR(prev)}</td>
+            </tr>
+        `);
+    }
+
+    tabela.querySelector('tbody').innerHTML = linhas.join('');
+}
+
+function limparFiltroMetas() {
+    const container = document.getElementById('container-tabela-metas');
+    const tabela = document.getElementById('tabela-metas-futuras');
+    if (tabela) tabela.innerHTML = '';
+    if (container) container.classList.add('hidden');
+}
+
+
+// Backup
+function baixarArquivo(nome, conteudo, tipo = 'text/plain;charset=utf-8') {
+    const blob = new Blob([conteudo], { type: tipo });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nome;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+function exportarBackup() {
+    baixarArquivo(
+        "peso_medidas_backup_" + hojeISO() + ".json",
+        JSON.stringify(appData, null, 2),
+        'application/json;charset=utf-8'
+    );
+}
+
+function importarBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const imported = JSON.parse(e.target.result);
+            if (imported.config && imported.pesos) {
+                appData = normalizarDados(imported);
+                salvarDados();
+                alert("Backup importado com sucesso!");
+                location.reload();
+            } else {
+                alert("Arquivo de backup inválido.");
+            }
+        } catch (err) {
+            alert("Erro ao ler arquivo.");
+        }
+    };
+    reader.readAsText(file);
+}
+
+function gerarRelatorioCSV() {
+    const linhas = [];
+    linhas.push(['Tipo','Data','Peso','Pescoço','Peito','Barriga','Quadril','Coxa','Panturrilha','Braço','Observações'].join(';'));
+
+    [...appData.pesos].sort((a, b) => a.data.localeCompare(b.data)).forEach(p => {
+        linhas.push(['Peso', formatDateBR(p.data), p.peso ?? '', '', '', '', '', '', '', '', p.observacoes || ''].map(campoCSV).join(';'));
+    });
+
+    [...appData.medidas].sort((a, b) => a.data.localeCompare(b.data)).forEach(m => {
+        linhas.push([
+            'Medida', formatDateBR(m.data), m.peso ?? '', m.pescoco ?? '', m.peito ?? '', m.cintura ?? '', m.quadril ?? '', m.coxa ?? '', m.panturrilha ?? '', m.braco ?? '', m.observacoes || ''
+        ].map(campoCSV).join(';'));
+    });
+
+    baixarArquivo('relatorio_projeto_leve_' + hojeISO() + '.csv', linhas.join('\n'), 'text/csv;charset=utf-8');
+}
+
+function campoCSV(valor) {
+    const texto = String(valor ?? '').replace(/"/g, '""');
+    return `"${texto}"`;
+}
+
+function gerarRelatorioPDF() {
+    const pesos = [...appData.pesos].sort((a, b) => a.data.localeCompare(b.data));
+    const medidas = [...appData.medidas].sort((a, b) => a.data.localeCompare(b.data));
+    const win = window.open('', '_blank');
+    if (!win) return alert('O navegador bloqueou a janela do relatório. Libere popups para gerar o PDF imprimível.');
+
+    const linhasPesos = pesos.map(p => `
+        <tr><td>${formatDateBR(p.data)}</td><td>${formatBR(p.peso)} kg</td><td>${escapeHtml(p.observacoes || '')}</td></tr>
+    `).join('') || '<tr><td colspan="3">Nenhum peso registrado.</td></tr>';
+
+    const linhasMedidas = medidas.map(m => `
+        <tr>
+            <td>${formatDateBR(m.data)}</td>
+            <td>${formatBR(m.peso)}</td>
+            <td>${formatBR(m.pescoco)}</td>
+            <td>${formatBR(m.peito)}</td>
+            <td>${formatBR(m.cintura)}</td>
+            <td>${formatBR(m.quadril)}</td>
+            <td>${formatBR(m.coxa)}</td>
+            <td>${formatBR(m.panturrilha)}</td>
+            <td>${formatBR(m.braco)}</td>
+            <td>${escapeHtml(m.observacoes || '')}</td>
+        </tr>
+    `).join('') || '<tr><td colspan="10">Nenhuma medida registrada.</td></tr>';
+
+    win.document.write(`
+        <!DOCTYPE html>
+        <html lang="pt-br">
+        <head>
+            <meta charset="UTF-8">
+            <title>Relatório Projeto Leve</title>
+            <style>
+                body { font-family: Arial, sans-serif; color: #0f172a; padding: 24px; }
+                h1 { color: #0284c7; margin-bottom: 4px; }
+                h2 { margin-top: 28px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+                th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: left; }
+                th { background: #eaf4fb; }
+                .muted { color: #64748b; font-size: 12px; }
+                @media print { button { display: none; } body { padding: 0; } }
+            </style>
+        </head>
+        <body>
+            <button onclick="window.print()" style="padding:10px 14px; margin-bottom:16px; border:0; border-radius:10px; background:#0284c7; color:white; font-weight:bold;">Imprimir / Salvar em PDF</button>
+            <h1>Projeto Leve</h1>
+            <div class="muted">Relatório gerado em ${new Date().toLocaleString('pt-BR')}</div>
+            <div class="muted">Data inicial dos cálculos: ${formatDateBR(appData.config.dataInicial)}</div>
+
+            <h2>Histórico de Pesos</h2>
+            <table>
+                <thead><tr><th>Data</th><th>Peso</th><th>Observações</th></tr></thead>
+                <tbody>${linhasPesos}</tbody>
+            </table>
+
+            <h2>Histórico de Medidas</h2>
+            <table>
+                <thead><tr><th>Data</th><th>Peso</th><th>Pescoço</th><th>Peito</th><th>Barriga</th><th>Quadril</th><th>Coxa</th><th>Panturrilha</th><th>Braço</th><th>Obs</th></tr></thead>
+                <tbody>${linhasMedidas}</tbody>
+            </table>
+        </body>
+        </html>
+    `);
+    win.document.close();
+    win.focus();
+}
+
+function limparRegistrosAteData() {
+    const data = document.getElementById('limpar-ate-data')?.value;
+    if (!data) return alert('Selecione uma data para limpar os registros.');
+    if(!confirm(`Excluir pesos, medidas e metas personalizadas de ${formatDateBR(data)} e datas anteriores?`)) return;
+
+    appData.pesos = appData.pesos.filter(item => !item.data || item.data > data);
+    appData.medidas = appData.medidas.filter(item => !item.data || item.data > data);
+    appData.metasPersonalizadas = (appData.metasPersonalizadas || []).filter(item => !item.data || item.data > data);
+    salvarDados();
+    alert('Registros removidos.');
+}
+
+function limparTudo() {
+    if(confirm("ATENÇÃO: Isso apagará TODOS os dados permanentemente. Continuar?")) {
+        localStorage.removeItem('peso_medidas_app_data');
+        location.reload();
+    }
+}
+
+/**
+ * INITIALIZATION
+ */
+window.onload = function() {
+    carregarDados();
+    preencherCamposConfig();
+    document.getElementById('peso-data').value = hojeISO();
+    const limparAteData = document.getElementById('limpar-ate-data');
+    if (limparAteData) limparAteData.value = hojeISO();
+    updateUI();
+    observarLogin();
+};
+
+// Funções usadas por atributos onclick precisam ser expostas porque este script usa módulos ES.
+window.showView = showView;
+window.abrirTelaLancamentoPeso = abrirTelaLancamentoPeso;
+window.editarPeso = editarPeso;
+window.excluirPeso = excluirPeso;
+window.abrirModalMedida = abrirModalMedida;
+window.fecharModalMedida = fecharModalMedida;
+window.editarMedida = editarMedida;
+window.excluirMedida = excluirMedida;
+window.simularMeta = simularMeta;
+window.limparSimulacaoMeta = limparSimulacaoMeta;
+window.salvarMetaPersonalizada = salvarMetaPersonalizada;
+window.excluirMetaPersonalizada = excluirMetaPersonalizada;
+window.gerarTabelaMetas = gerarTabelaMetas;
+window.limparFiltroMetas = limparFiltroMetas;
+window.alterarFiltroGrafico = alterarFiltroGrafico;
+window.limparPerfilMetas = limparPerfilMetas;
+window.limparMedidasIdeais = limparMedidasIdeais;
+window.exportarBackup = exportarBackup;
+window.importarBackup = importarBackup;
+window.gerarRelatorioPDF = gerarRelatorioPDF;
+window.gerarRelatorioCSV = gerarRelatorioCSV;
+window.limparRegistrosAteData = limparRegistrosAteData;
+window.limparTudo = limparTudo;
+
+/**
+ * PWA SETUP
+ */
+// Manifesto Dinâmico
+const APP_ICON_URL = "https://projetoleve.kaioadriel.com.br/icone/icone.png";
+const faviconLink = document.createElement('link');
+faviconLink.rel = 'icon';
+faviconLink.type = 'image/png';
+faviconLink.href = APP_ICON_URL;
+document.head.appendChild(faviconLink);
+
+const appleTouchIconLink = document.createElement('link');
+appleTouchIconLink.rel = 'apple-touch-icon';
+appleTouchIconLink.href = APP_ICON_URL;
+document.head.appendChild(appleTouchIconLink);
+
+const manifest = {
+    "name": "Projeto Leve",
+    "short_name": "Projeto Leve",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "display_override": ["standalone", "minimal-ui"],
+    "background_color": "#edf7ff",
+    "theme_color": "#0284c7",
+    "description": "Controle de emagrecimento, peso e medidas com sincronização Firebase",
+    "prefer_related_applications": false,
+    "icons": [
+        { "src": APP_ICON_URL, "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": APP_ICON_URL, "sizes": "512x512", "type": "image/png", "purpose": "any" }
+    ]
+};
+const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+const manifestURL = URL.createObjectURL(manifestBlob);
+const linkTag = document.createElement('link');
+linkTag.rel = 'manifest';
+linkTag.href = manifestURL;
+document.head.appendChild(linkTag);
+
+// Service Worker Inline
+if ('serviceWorker' in navigator) {
+    const swCode = `
+        const CACHE_NAME = 'projeto-leve-v5';
+        self.addEventListener('install', (e) => {
+            e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(['./'])));
+        });
+        self.addEventListener('fetch', (e) => {
+            e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
+        });
+    `;
+    const swBlob = new Blob([swCode], {type: 'application/javascript'});
+    const swURL = URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swURL);
+}
+
+
+// Botão de instalação para Chrome/Android quando o navegador disponibilizar o prompt.
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    const btn = document.getElementById('btn-install-app');
+    if (btn) btn.classList.remove('hidden');
+});
+
+document.getElementById('btn-install-app')?.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return alert('A opção de instalação ainda não foi liberada pelo navegador. Abra pelo Chrome em HTTPS e tente novamente.');
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    document.getElementById('btn-install-app')?.classList.add('hidden');
+});
+
+window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    document.getElementById('btn-install-app')?.classList.add('hidden');
+});
+
 </script>
+
 </body>
 </html>
