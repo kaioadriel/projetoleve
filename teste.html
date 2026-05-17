@@ -1,111 +1,2233 @@
-Perfeito, Kaio! 🚀  
-Aqui está o index.html completo do app Projeto Leve, com HTML, CSS e JavaScript integrados, pronto para uso como PWA.  
-
----
-
-📂 Entregas
-
-1. index.html (código abaixo).  
-2. index.txt → basta salvar o mesmo conteúdo em .txt.  
-3. .zip → coloque index.html e index.txt juntos em um .zip.  
-4. Resumo do que foi implementado:
-   - Autenticação Firebase (email/senha + Google).  
-   - Controle de sessão com onAuthStateChanged.  
-   - Estrutura de dados em localStorage + sincronização Firestore.  
-   - Interface mobile first com menu inferior fixo.  
-   - Abas: Início, Lançar, Histórico, Medidas, Metas, Gráficos, Ajustes, Conta, Backup.  
-   - Funções globais expostas em window.  
-   - Cálculos principais implementados (saldo, média/dia, previsão etc.).  
-   - Chart.js carregado sob demanda.  
-   - PWA com manifest dinâmico e service worker.  
-
-5. Testes manuais necessários:
-   - Login/cadastro/logout.  
-   - Sincronização local ↔ nuvem.  
-   - Inclusão/edição/exclusão de pesos e medidas.  
-   - Backup/restauração (JSON, CSV, PDF).  
-   - Gráficos com filtros.  
-   - Responsividade em celular e notebook.  
-   - Instalação como PWA.  
-
-6. Status PWA:  
-   - O app já possui manifest dinâmico e service worker.  
-   - Para instalação real, precisa rodar em HTTPS.  
-   - Ícones já configurados via URL.  
-
----
-
-📜 Código completo (index.html)
-
-`html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projeto Leve</title>
-  <link rel="icon" href="https://projetoleve.kaioadriel.com.br/icone/icone.png">
-  <link rel="apple-touch-icon" href="https://projetoleve.kaioadriel.com.br/icone/icone.png">
-  <style>
-    body { font-family: Arial, sans-serif; margin:0; background:#edf7ff; color:#333; }
-    header { background:#0284c7; color:#fff; padding:10px; text-align:center; }
-    header img { height:40px; vertical-align:middle; }
-    nav { position:fixed; bottom:0; left:0; right:0; background:#0284c7; display:flex; }
-    nav button { flex:1; padding:10px; border:none; background:#0284c7; color:#fff; font-size:14px; }
-    .view { display:none; padding:15px; max-width:920px; margin:auto; }
-    .active { display:block; }
-    .card { background:#fff; border-radius:10px; padding:15px; margin:10px 0; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-    .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    input, select, textarea, button { width:100%; padding:10px; margin:5px 0; border-radius:5px; border:1px solid #ccc; font-size:16px; }
-    button { background:#0284c7; color:#fff; border:none; cursor:pointer; }
-    button:hover { opacity:0.9; }
-    table { width:100%; border-collapse:collapse; margin-top:10px; }
-    th, td { border:1px solid #ccc; padding:8px; text-align:center; font-size:14px; }
-    .verde { color:green; font-weight:bold; }
-    .vermelho { color:red; font-weight:bold; }
-    .azul { color:#0284c7; font-weight:bold; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto Leve</title>
+    <link rel="icon" href="https://projetoleve.kaioadriel.com.br/icone/icone.png">
+    <link rel="apple-touch-icon" href="https://projetoleve.kaioadriel.com.br/icone/icone.png">
+    <meta name="theme-color" content="#0284c7">
+    <style>
+        :root {
+            --primary-color: #0284c7;
+            --background-color: #edf7ff;
+            --text-color: #333;
+            --card-background: #fff;
+            --card-border-radius: 12px;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 16px;
+            flex-grow: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 16px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header img {
+            height: 32px;
+            margin-right: 10px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--card-background);
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--shadow);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="date"],
+        .form-group input[type="email"],
+        .form-group input[type="password"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        .form-group input[type="submit"],
+        .button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .button.secondary {
+            background-color: #6c757d;
+        }
+
+        .button.danger {
+            background-color: #dc3545;
+        }
+
+        /* Navigation */
+        nav.bottom-nav {
+            background-color: var(--card-background);
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        nav.bottom-nav button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 0.8em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 0;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        nav.bottom-nav button.active {
+            color: var(--primary-color);
+        }
+
+        nav.bottom-nav button:hover {
+            color: var(--primary-color);
+        }
+
+        nav.bottom-nav button i {
+            font-size: 1.5em;
+            margin-bottom: 4px;
+        }
+
+        /* Utility classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .grid-2-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 768px) {
+            .container {
+                padding: 24px;
+            }
+
+            nav.bottom-nav {
+                justify-content: center;
+            }
+
+            nav.bottom-nav button {
+                padding: 6px 16px;
+            }
+        }
+
+        /* Specific styles for login screen */
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: var(--background-color);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #login-screen .login-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        #login-screen .login-card img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+        }
+
+        #login-screen .login-card h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        #login-screen .login-card p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        #login-screen .login-card .form-group {
+            text-align: left;
+        }
+
+        #login-screen .login-card .button-google {
+            background-color: #db4437;
+            margin-top: 10px;
+        }
+
+        #login-screen .login-card .button-google:hover {
+            background-color: #c33d2e;
+        }
+
+        #login-screen .login-card .toggle-auth-mode {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        /* Main app content */
+        #app-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .view-section {
+            flex-grow: 1;
+            padding: 16px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+
+        table th,
+        table td {
+            padding: 8px;
+            border: 1px solid #eee;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+
+        table.compact th,
+        table.compact td {
+            padding: 6px 4px;
+            font-size: 0.9em;
+        }
+
+        /* Colors for status */
+        .color-green {
+            color: #28a745;
+        }
+
+        .color-red {
+            color: #dc3545;
+        }
+
+        .color-blue {
+            color: var(--primary-color);
+        }
+
+        /* Modals */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1001; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-background);
+            margin: auto;
+            padding: 20px;
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--shadow);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+    </style>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 </head>
 <body>
-<header>
-  <img src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Ícone"> Projeto Leve
-  <button id="installBtn" style="float:right; background:#fff; color:#0284c7; border-radius:5px;">Instalar</button>
-</header>
+    <div id="login-screen">
+        <div class="login-card card">
+            <img src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Ícone Projeto Leve">
+            <h2>Projeto Leve</h2>
+            <p>Controle seu peso, metas e medidas corporais de forma simples e eficaz.</p>
+            <div id="auth-form">
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" placeholder="Sua senha">
+                </div>
+                <button class="button" id="auth-button">Entrar</button>
+                <button class="button button-google" id="google-auth-button">Entrar com Google</button>
+                <button class="toggle-auth-mode" id="toggle-auth-mode">Criar conta</button>
+                <p id="auth-error-message" class="color-red"></p>
+            </div>
+        </div>
+    </div>
 
-<!-- Views -->
-<div id="loginView" class="view active">
-  <div class="card">
-    <img src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Ícone" style="height:80px; display:block; margin:auto;">
-    <h2 style="text-align:center;">Projeto Leve</h2>
-    <p style="text-align:center;">Faça login para continuar</p>
-    <input id="email" type="email" placeholder="E-mail">
-    <input id="senha" type="password" placeholder="Senha">
-    <button onclick="loginEmail()">Entrar</button>
-    <button onclick="criarConta()">Criar Conta</button>
-    <button onclick="loginGoogle()">Login com Google</button>
-  </div>
-</div>
+    <div id="app-content" class="hidden">
+        <header>
+            <img src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Ícone Projeto Leve">
+            <h1>Projeto Leve</h1>
+        </header>
 
-<div id="inicioView" class="view">
-  <div class="grid">
-    <div class="card"><h3>Peso Atual</h3><p id="pesoAtual">--</p></div>
-    <div class="card"><h3>Meta de Hoje</h3><p id="metaHoje">--</p></div>
-    <div class="card"><h3>Média/Dia</h3><p id="mediaDia">--</p></div>
-    <div class="card"><h3>Total Perdido</h3><p id="totalPerdido">--</p></div>
-  </div>
-  <div class="card"><h3>Situação Atual</h3><p id="situacao">--</p></div>
-  <div class="grid">
-    <div class="card"><h3>Saldo</h3><p id="saldo">--</p></div>
-    <div class="card"><h3>Faltam</h3><p id="faltam">--</p></div>
-  </div>
-  <div class="card"><h3>Previsão para Meta</h3><p id="previsao">--</p></div>
-</div>
+        <main class="container">
+            <section id="view-inicio" class="view-section">
+                <h2>Início</h2>
+                <div class="grid-2-cols">
+                    <div class="card">
+                        <h2>Peso Atual</h2>
+                        <p id="peso-atual" class="text-center color-blue">-- kg</p>
+                    </div>
+                    <div class="card">
+                        <h2>Meta de Hoje</h2>
+                        <p id="meta-de-hoje" class="text-center color-blue">-- kg</p>
+                    </div>
+                    <div class="card">
+                        <h2>Média/Dia</h2>
+                        <p id="media-dia" class="text-center">-- kg/dia</p>
+                    </div>
+                    <div class="card">
+                        <h2>Total Perdido</h2>
+                        <p id="total-perdido" class="text-center">-- kg</p>
+                    </div>
+                </div>
 
-<!-- Outras views (Lançar, Histórico, Medidas, Metas, Gráficos, Ajustes, Conta, Backup) -->
-<div id="lancarView" class="view"><div class="card"><h3>Lançar Peso</h3><input id="dataPeso" type="date"><input id="valorPeso" type="number" step="0.1" placeholder="Peso (kg)"><textarea id="obsPeso" placeholder="Observações"></textarea><button onclick="salvarPeso()">Salvar</button></div></div>
-<div id="historicoView" class="view"><div class="card"><h3>Histórico</h3><table><thead><tr><th>Data</th><th>Peso</th><th>Falta</th><th>Ações</th></tr></thead><tbody id="historicoTabela"></tbody></table></div></div>
-<div id="medidasView" class="view"><div class="card"><h3>Medidas</h3><button onclick="abrirModalMedida()">Nova Medição</button><table><thead><tr><th>Data</th><th>Barriga</th><th>Ações</th></tr></thead><tbody id="medidasTabela"></tbody></table></div></div>
-<div id="metasView" class="view"><div class="card"><h3>Metas</h3><p>Simulação, datas personalizadas e planejamento...</p></div></div>
-<div id="graficosView" class="view"><div class="card"><h3>Gráficos</h3><select id="filtroGrafico" onchange="alterarFiltroGrafico()"><option>Início</option><option>7 dias</option><option>1 mês</option><option>3 meses</option><option>6 meses</option><option>1 ano</option><option>5 anos</option></select><canvas id="graficoPesos"></canvas><canvas id="graficoMedidas"></canvas></div></div>
-<div id="ajustesView" class="view"><div class="card"><h3>Ajustes</h3><input id="nomeConfig" placeholder="Nome"><input id="dataInicialConfig" type="date"><input id="pesoInicialConfig" type="number" step="0.1" placeholder="Peso Inicial"><input id="pesoMetaConfig" type="number" step="0.1" placeholder="Peso Meta"><input id="metaDiaConfig" type="number" step="0.01" placeholder="Meta kg/dia"><button onclick="salvarConfig()">Salvar Configurações</button><button onclick="limparPerfilMetas()">Limpar Perfil e Metas</button></div></div>
-<div id="contaView" class="view"><
+                <div class="card">
+                    <h2>Situação Atual</h2>
+                    <p id="situacao-atual" class="text-center">--</p>
+                    <p id="info-meta" class="text-center"></p>
+                </div>
+
+                <div class="grid-2-cols">
+                    <div class="card">
+                        <h2>Saldo</h2>
+                        <p id="saldo" class="text-center">-- kg</p>
+                    </div>
+                    <div class="card">
+                        <h2>Faltam</h2>
+                        <p id="faltam" class="text-center">-- kg</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Previsão para Meta</h2>
+                    <p id="previsao-meta" class="text-center">--</p>
+                </div>
+            </section>
+
+            <section id="view-lancar" class="view-section hidden">
+                <h2>Lançar Peso</h2>
+                <div class="card">
+                    <form id="form-lancar-peso" onsubmit="salvarPeso(event)">
+                        <input type="hidden" id="peso-id">
+                        <div class="form-group">
+                            <label for="peso-data">Data</label>
+                            <input type="date" id="peso-data" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="peso-valor">Peso (kg)</label>
+                            <input type="number" id="peso-valor" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="peso-obs">Observações</label>
+                            <textarea id="peso-obs" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="button">Salvar Peso</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="view-historico" class="view-section hidden">
+                <h2>Histórico de Pesos</h2>
+                <div class="card">
+                    <table id="historico-pesos-table" class="compact">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Peso</th>
+                                <th>Falta</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Pesos serão inseridos aqui pelo JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="view-medidas" class="view-section hidden">
+                <h2>Medidas Corporais</h2>
+                <div class="card">
+                    <button class="button" onclick="abrirModalMedida()">Nova Medição</button>
+                </div>
+
+                <div class="card">
+                    <h2>Comparativo de Medidas</h2>
+                    <div id="medidas-comparativo" class="grid-2-cols">
+                        <!-- Cards de comparação de medidas serão inseridos aqui -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Histórico de Medidas</h2>
+                    <table id="historico-medidas-table" class="compact">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Barriga</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Medidas serão inseridas aqui pelo JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal para Nova Medição -->
+                <div id="modal-medida" class="modal">
+                    <div class="modal-content">
+                        <span class="close-button" onclick="fecharModalMedida()">&times;</span>
+                        <h2>Registrar Medida</h2>
+                        <form id="form-medida" onsubmit="salvarMedida(event)">
+                            <input type="hidden" id="medida-id">
+                            <div class="form-group">
+                                <label for="medida-data">Data</label>
+                                <input type="date" id="medida-data" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="medida-peso">Peso (kg)</label>
+                                <input type="number" id="medida-peso" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="medida-pescoco">Pescoço (cm)</label>
+                                <input type="number" id="medida-pescoco" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="medida-peito">Peito (cm)</label>
+                                <input type="number" id="medida-peito" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="medida-cintura">Barriga (cm)</label>
+                                <input type="number" id="medida-cintura" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="medida-quadril">Quadril (cm)</label>
+                                <input type="number" id="medida-quadril" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="medida-coxa">Coxa (cm)</label>
+                                <input type="number" id="medida-coxa" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="medida-panturrilha">Panturrilha (cm)</label>
+                                <input type="number" id="medida-panturrilha" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="medida-braco">Braço (cm)</label>
+                                <input type="number" id="medida-braco" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="medida-obs">Observações</label>
+                                <textarea id="medida-obs" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="button">Salvar Medida</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-metas" class="view-section hidden">
+                <h2>Metas</h2>
+                <div class="card">
+                    <h2>Simulação de Data</h2>
+                    <div class="form-group">
+                        <label for="simular-data">Simular data específica</label>
+                        <input type="date" id="simular-data">
+                    </div>
+                    <button class="button" onclick="simularMeta()">Ver</button>
+                    <button class="button secondary" onclick="limparSimulacaoMeta()">Limpar</button>
+                    <div id="resultado-simulacao" style="margin-top: 15px;">
+                        <!-- Resultado da simulação será exibido aqui -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Datas Personalizadas</h2>
+                    <div id="metas-personalizadas-lista">
+                        <!-- Metas personalizadas serão listadas aqui -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Gerar Planejamento</h2>
+                    <div class="grid-2-cols">
+                        <button class="button" onclick="gerarTabelaMetas(\'diario\')">Diário</button>
+                        <button class="button" onclick="gerarTabelaMetas(\'semanal\')">Semanal</button>
+                        <button class="button" onclick="gerarTabelaMetas(\'mensal\')">Mensal</button>
+                        <button class="button" onclick="gerarTabelaMetas(\'anual\')">Anual</button>
+                    </div>
+                    <button class="button secondary" onclick="limparFiltroMetas()" style="margin-top: 10px;">Limpar Filtro</button>
+                    <div id="tabela-planejamento" style="margin-top: 15px;">
+                        <!-- Tabela de planejamento será exibida aqui -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-graficos" class="view-section hidden">
+                <h2>Gráficos</h2>
+                <div class="card">
+                    <h2>Filtro de Período</h2>
+                    <select id="filtro-grafico" onchange="alterarFiltroGrafico(this.value)">
+                        <option value="inicio">Desde o Início</option>
+                        <option value="7d">Últimos 7 dias</option>
+                        <option value="1m">Último Mês</option>
+                        <option value="3m">Últimos 3 Meses</option>
+                        <option value="6m">Últimos 6 Meses</option>
+                        <option value="1y">Último Ano</option>
+                        <option value="5y">Últimos 5 Anos</option>
+                    </select>
+                </div>
+
+                <div class="card">
+                    <h2>Pesos Registrados</h2>
+                    <canvas id="pesoChart"></canvas>
+                </div>
+
+                <div class="card">
+                    <h2>Medidas Corporais</h2>
+                    <canvas id="medidasChart"></canvas>
+                </div>
+            </section>
+
+            <section id="view-ajustes" class="view-section hidden">
+                <h2>Ajustes</h2>
+                <div class="card">
+                    <h2>Perfil e Metas</h2>
+                    <div class="form-group">
+                        <label for="config-nome">Nome</label>
+                        <input type="text" id="config-nome">
+                    </div>
+                    <div class="form-group">
+                        <label for="config-dataInicial">Data Inicial</label>
+                        <input type="date" id="config-dataInicial">
+                    </div>
+                    <div class="form-group">
+                        <label for="config-pesoInicial">Peso Inicial (kg)</label>
+                        <input type="number" id="config-pesoInicial" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="config-pesoMeta">Peso Meta (kg)</label>
+                        <input type="number" id="config-pesoMeta" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="config-metaKgPorDia">Meta kg/dia</label>
+                        <input type="number" id="config-metaKgPorDia" step="0.001">
+                    </div>
+                    <button class="button danger" onclick="limparPerfilMetas()">Limpar Perfil e Metas</button>
+                </div>
+
+                <div class="card">
+                    <h2>Medidas Ideais</h2>
+                    <div class="form-group">
+                        <label for="config-medida-pescoco">Pescoço (cm)</label>
+                        <input type="number" id="config-medida-pescoco" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="config-medida-peito">Peito (cm)</label>
+                        <input type="number" id="config-medida-peito" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="config-medida-cintura">Barriga (cm)</label>
+                        <input type="number" id="config-medida-cintura" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="config-medida-quadril">Quadril (cm)</label>
+                        <input type="number" id="config-medida-quadril" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="config-medida-coxa">Coxa (cm)</label>
+                        <input type="number" id="config-medida-coxa" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="config-medida-panturrilha">Panturrilha (cm)</label>
+                        <input type="number" id="config-medida-panturrilha" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="config-medida-braco">Braço (cm)</label>
+                        <input type="number" id="config-medida-braco" step="0.1">
+                    </div>
+                    <button class="button danger" onclick="limparMedidasIdeais()">Limpar Medidas Ideais</button>
+                </div>
+
+                <div class="card">
+                    <button class="button" onclick="salvarConfiguracoes()">Salvar Configurações</button>
+                </div>
+            </section>
+
+            <section id="view-conta" class="view-section hidden">
+                <h2>Minha Conta</h2>
+                <!-- Conteúdo da aba Conta -->
+            </section>
+
+            <section id="view-backup" class="view-section hidden">
+                <h2>Backup e Restauração</h2>
+                <div class="card">
+                    <h2>Fazer Backup</h2>
+                    <button class="button" onclick="exportarBackup()">Fazer Backup (JSON)</button>
+                </div>
+
+                <div class="card">
+                    <h2>Restaurar Backup</h2>
+                    <input type="file" id="import-backup-file" accept=".json">
+                    <button class="button" onclick="importarBackup()">Restaurar Backup (JSON)</button>
+                </div>
+
+                <div class="card">
+                    <h2>Relatórios</h2>
+                    <button class="button" onclick="gerarRelatorioPDF()">Gerar Relatório (PDF)</button>
+                    <button class="button" onclick="gerarRelatorioCSV()">Gerar Relatório (CSV)</button>
+                </div>
+
+                <div class="card">
+                    <h2>Limpeza de Dados</h2>
+                    <div class="form-group">
+                        <label for="limpar-data">Limpar registros até a data:</label>
+                        <input type="date" id="limpar-data">
+                    </div>
+                    <button class="button danger" onclick="limparRegistrosAteData()">Limpar a Partir de</button>
+                    <button class="button danger" onclick="limparTudo()" style="margin-top: 10px;">Limpar Todo o App</button>
+                </div>
+            </section>
+        </main>
+
+        <nav class="bottom-nav">
+            <button onclick="showView('inicio')" class="active"><i class="fas fa-home"></i> Início</button>
+            <button onclick="showView('lancar')"><i class="fas fa-plus-circle"></i> Lançar</button>
+            <button onclick="showView('historico')"><i class="fas fa-history"></i> Histórico</button>
+            <button onclick="showView('medidas')"><i class="fas fa-ruler-horizontal"></i> Medidas</button>
+            <button onclick="showView('metas')"><i class="fas fa-bullseye"></i> Metas</button>
+            <button onclick="showView('graficos')"><i class="fas fa-chart-line"></i> Gráficos</button>
+            <button onclick="showView('ajustes')"><i class="fas fa-cog"></i> Ajustes</button>
+            <button onclick="showView('conta')"><i class="fas fa-user"></i> Conta</button>
+            <button onclick="showView('backup')"><i class="fas fa-save"></i> Backup</button>
+        </nav>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAqnNIG9di9PE6nUZWSOPAxScfwUqxNtlU",
+            authDomain: "projetoleve-58fec.firebaseapp.com",
+            projectId: "projetoleve-58fec",
+            storageBucket: "projetoleve-58fec.firebasestorage.app",
+            messagingSenderId: "863511363352",
+            appId: "1:863511363352:web:4b959cf93635afacb3286d"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Global state
+        let appData = {
+            config: {
+                nome: "",
+                dataInicial: new Date().toISOString().split('T')[0],
+                pesoInicial: "",
+                pesoMeta: "",
+                metaKgPorDia: "",
+                medidasIdeais: {
+                    pescoco: "",
+                    peito: "",
+                    cintura: "",
+                    quadril: "",
+                    coxa: "",
+                    panturrilha: "",
+                    braco: ""
+                }
+            },
+            pesos: [],
+            medidas: [],
+            metasPersonalizadas: []
+        };
+
+        let currentUser = null;
+        let isCreatingAccount = false;
+
+        // DOM Elements
+        const loginScreen = document.getElementById('login-screen');
+        const appContent = document.getElementById('app-content');
+        const authForm = document.getElementById('auth-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const authButton = document.getElementById('auth-button');
+        const googleAuthButton = document.getElementById('google-auth-button');
+        const toggleAuthModeButton = document.getElementById('toggle-auth-mode');
+        const authErrorMessage = document.getElementById('auth-error-message');
+        const bottomNavButtons = document.querySelectorAll('.bottom-nav button');
+
+        // Utility Functions
+
+        function calcularMetaDaData(dataAlvo) {
+            const dataInicial = parseDate(appData.config.dataInicial);
+            const pesoInicial = parseFloat(appData.config.pesoInicial);
+            const metaKgPorDia = parseFloat(appData.config.metaKgPorDia);
+
+            if (isNaN(pesoInicial) || isNaN(metaKgPorDia) || !appData.config.dataInicial) {
+                return NaN;
+            }
+
+            const diasDecorridos = diffDays(dataAlvo, dataInicial);
+            return pesoInicial + diasDecorridos * metaKgPorDia;
+        }
+
+        function obterPesosValidosParaCalculo() {
+            const dataInicial = appData.config.dataInicial;
+            if (!dataInicial) return [];
+            return appData.pesos.filter(p => parseDate(p.data) >= parseDate(dataInicial));
+        }
+
+        function obterMedidasValidasParaCalculo() {
+            const dataInicial = appData.config.dataInicial;
+            if (!dataInicial) return [];
+            return appData.medidas.filter(m => parseDate(m.data) >= parseDate(dataInicial));
+        }
+
+        function obterPesoAtual() {
+            const pesosValidos = obterPesosValidosParaCalculo();
+            if (pesosValidos.length === 0) {
+                return parseFloat(appData.config.pesoInicial) || NaN;
+            }
+            // Sort by date descending and get the most recent
+            pesosValidos.sort((a, b) => new Date(b.data) - new Date(a.data));
+            return parseFloat(pesosValidos[0].peso);
+        }
+
+        function calcularMediaRealDia() {
+            const pesoAtual = obterPesoAtual();
+            const pesoInicial = parseFloat(appData.config.pesoInicial);
+            const dataInicial = parseDate(appData.config.dataInicial);
+
+            if (isNaN(pesoAtual) || isNaN(pesoInicial) || !appData.config.dataInicial) {
+                return NaN;
+            }
+
+            const diasDecorridosDesdeDataInicial = diffDays(parseDate(hojeISO()), dataInicial);
+
+            if (diasDecorridosDesdeDataInicial <= 0) {
+                return 0;
+            }
+
+            return (pesoAtual - pesoInicial) / diasDecorridosDesdeDataInicial;
+        }
+
+        // Update UI for \'Início\' tab
+        function updateInicioTab() {
+            const pesoAtual = obterPesoAtual();
+            const metaDeHoje = calcularMetaDaData(parseDate(hojeISO()));
+            const mediaDia = calcularMediaRealDia();
+            const pesoInicial = parseFloat(appData.config.pesoInicial);
+            const pesoMeta = parseFloat(appData.config.pesoMeta);
+            const metaKgPorDia = parseFloat(appData.config.metaKgPorDia);
+
+            document.getElementById("peso-atual").textContent = isNaN(pesoAtual) ? "-- kg" : `${formatBR(pesoAtual)} kg`;
+            document.getElementById("meta-de-hoje").textContent = isNaN(metaDeHoje) ? "-- kg" : `${formatBR(metaDeHoje)} kg`;
+
+            // Total Perdido
+            let totalPerdido = NaN;
+            if (!isNaN(pesoAtual) && !isNaN(pesoInicial)) {
+                totalPerdido = pesoAtual - pesoInicial;
+            }
+            const totalPerdidoElement = document.getElementById("total-perdido");
+            totalPerdidoElement.textContent = isNaN(totalPerdido) ? "-- kg" : `${formatComSinal(totalPerdido)} kg`;
+            totalPerdidoElement.className = "text-center";
+            if (!isNaN(totalPerdido)) {
+                if (totalPerdido < 0) totalPerdidoElement.classList.add("color-green");
+                else if (totalPerdido > 0) totalPerdidoElement.classList.add("color-red");
+            }
+
+            // Média/Dia
+            const mediaDiaElement = document.getElementById("media-dia");
+            mediaDiaElement.textContent = isNaN(mediaDia) ? "-- kg/dia" : `${formatComSinal(mediaDia)} kg/dia`;
+            mediaDiaElement.className = "text-center";
+            if (!isNaN(mediaDia)) {
+                if (mediaDia < 0) mediaDiaElement.classList.add("color-green");
+                else if (mediaDia > 0) mediaDiaElement.classList.add("color-red");
+            }
+
+            // Saldo
+            let saldo = NaN;
+            if (!isNaN(metaDeHoje) && !isNaN(pesoAtual)) {
+                saldo = metaDeHoje - pesoAtual;
+            }
+            const saldoElement = document.getElementById("saldo");
+            saldoElement.textContent = isNaN(saldo) ? "-- kg" : `${formatComSinal(saldo)} kg`;
+            saldoElement.className = "text-center";
+            if (!isNaN(saldo)) {
+                if (saldo >= 0) saldoElement.classList.add("color-green");
+                else if (saldo < 0) saldoElement.classList.add("color-red");
+            }
+
+            // Faltam
+            let faltam = NaN;
+            if (!isNaN(pesoMeta) && !isNaN(pesoAtual)) {
+                faltam = pesoMeta - pesoAtual;
+            }
+            const faltamElement = document.getElementById("faltam");
+            faltamElement.textContent = isNaN(faltam) ? "-- kg" : `${formatComSinal(faltam)} kg`;
+            faltamElement.className = "text-center";
+            if (!isNaN(faltam)) {
+                if (faltam >= 0) faltamElement.classList.add("color-green");
+                else if (faltam < 0) faltamElement.classList.add("color-red");
+            }
+
+            // Situação Atual
+            const situacaoAtualElement = document.getElementById("situacao-atual");
+            const infoMetaElement = document.getElementById("info-meta");
+            situacaoAtualElement.className = "text-center";
+            infoMetaElement.textContent = "";
+
+            if (isNaN(pesoInicial) || isNaN(pesoMeta) || isNaN(metaKgPorDia) || !appData.config.dataInicial) {
+                situacaoAtualElement.textContent = "Preencha os Ajustes para ver a situação.";
+                situacaoAtualElement.classList.add("color-blue");
+            } else if (!isNaN(saldo) && saldo >= -0.5 && pesoAtual <= metaDeHoje) {
+                situacaoAtualElement.textContent = "META EM DIA";
+                situacaoAtualElement.classList.add("color-green");
+            } else if (!isNaN(saldo) && pesoAtual > metaDeHoje) {
+                situacaoAtualElement.textContent = "META EM ATRASO";
+                situacaoAtualElement.classList.add("color-red");
+            } else {
+                situacaoAtualElement.textContent = "DENTRO DA META";
+                situacaoAtualElement.classList.add("color-blue");
+            }
+
+            if (!isNaN(pesoMeta) && !isNaN(metaKgPorDia)) {
+                infoMetaElement.textContent = `Meta final: ${formatBR(pesoMeta)} kg | Meta/Dia: ${formatBR(metaKgPorDia)} kg/dia`;
+            }
+
+            // Previsão para Meta
+            const previsaoMetaElement = document.getElementById("previsao-meta");
+            if (!isNaN(mediaDia) && mediaDia < 0 && pesoAtual > pesoMeta) {
+                const diasRestantes = (pesoAtual - pesoMeta) / Math.abs(mediaDia);
+                const dataPrevisao = new Date();
+                dataPrevisao.setDate(dataPrevisao.getDate() + diasRestantes);
+                previsaoMetaElement.textContent = `Previsão: ${dataPrevisao.toLocaleDateString("pt-BR")}`;
+            } else if (pesoAtual <= pesoMeta) {
+                previsaoMetaElement.textContent = "Meta Atingida!";
+            } else {
+                previsaoMetaElement.textContent = "Sem previsão";
+            }
+        }
+        function hojeISO() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function parseDate(dateStr) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day, 12, 0, 0);
+        }
+
+        function diffDays(date1, date2) {
+            const oneDay = 1000 * 60 * 60 * 24;
+            const diffTime = Math.abs(date1.getTime() - date2.getTime());
+            return Math.ceil(diffTime / oneDay);
+        }
+
+        function formatBR(num) {
+            if (typeof num !== 'number' || isNaN(num)) return '--';
+            return num.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+        }
+
+        function formatComSinal(num) {
+            if (typeof num !== 'number' || isNaN(num)) return '--';
+            return (num > 0 ? '+' : '') + formatBR(num);
+        }
+
+        // Local Storage
+        const LOCAL_STORAGE_KEY = 'peso_medidas_app_data';
+
+        function loadLocalData() {
+            const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (data) {
+                appData = JSON.parse(data);
+            }
+        }
+
+        function saveLocalData() {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(appData));
+        }
+
+        // Firebase Firestore Synchronization (debounce)
+        let syncTimeout = null;
+        function debounceSyncFirestore() {
+            if (currentUser) {
+                clearTimeout(syncTimeout);
+                syncTimeout = setTimeout(syncLocalToFirestore, 900);
+            }
+        }
+
+        async function syncLocalToFirestore() {
+            if (!currentUser) return;
+            console.log('Sincronizando dados locais para o Firestore...');
+            try {
+                const userDocRef = db.collection('users').doc(currentUser.uid).collection('app').doc('data');
+                const dataToSave = { ...appData, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+                await userDocRef.set(dataToSave);
+                console.log('Dados sincronizados com sucesso!');
+                // Update sync status message
+            } catch (error) {
+                console.error('Erro ao sincronizar dados para o Firestore:', error);
+                // Show error message
+            }
+        }
+
+        async function syncFirestoreToLocal() {
+            if (!currentUser) return;
+            console.log('Sincronizando dados do Firestore para o local...');
+            try {
+                const userDocRef = db.collection('users').doc(currentUser.uid).collection('app').doc('data');
+                const doc = await userDocRef.get();
+                if (doc.exists) {
+                    const firestoreData = doc.data();
+                    // Merge or replace logic: for now, replace local with cloud if cloud exists
+                    appData = { ...appData, ...firestoreData };
+                    saveLocalData();
+                    console.log('Dados do Firestore baixados com sucesso!');
+                    // Update UI after loading data
+                    updateUI();
+                } else {
+                    console.log('Nenhum dado encontrado no Firestore, enviando dados locais...');
+                    await syncLocalToFirestore();
+                }
+            } catch (error) {
+                console.error('Erro ao baixar dados do Firestore:', error);
+                // Show error message
+            }
+        }
+
+        // Authentication UI/Logic
+        toggleAuthModeButton.addEventListener('click', () => {
+            isCreatingAccount = !isCreatingAccount;
+            authButton.textContent = isCreatingAccount ? 'Criar Conta' : 'Entrar';
+            toggleAuthModeButton.textContent = isCreatingAccount ? 'Já tenho conta' : 'Criar conta';
+            authErrorMessage.textContent = '';
+        });
+
+        authButton.addEventListener('click', async () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            authErrorMessage.textContent = '';
+
+            if (!email || !password) {
+                authErrorMessage.textContent = 'Por favor, preencha e-mail e senha.';
+                return;
+            }
+
+            try {
+                if (isCreatingAccount) {
+                    await auth.createUserWithEmailAndPassword(email, password);
+                } else {
+                    await auth.signInWithEmailAndPassword(email, password);
+                }
+            } catch (error) {
+                console.error('Erro de autenticação:', error);
+                let message = 'Ocorreu um erro na autenticação.';
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        message = 'Este e-mail já está em uso.';
+                        break;
+                    case 'auth/invalid-email':
+                        message = 'E-mail inválido.';
+                        break;
+                    case 'auth/weak-password':
+                        message = 'A senha deve ter pelo menos 6 caracteres.';
+                        break;
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                        message = 'E-mail ou senha incorretos.';
+                        break;
+                    case 'auth/popup-closed-by-user':
+                        message = 'Login com Google cancelado.';
+                        break;
+                    case 'auth/cancelled-popup-request':
+                        message = 'Você já abriu uma janela de login.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        message = 'Login com e-mail/senha não está habilitado.';
+                        break;
+                }
+                authErrorMessage.textContent = message;
+            }
+        });
+
+        googleAuthButton.addEventListener('click', async () => {
+            authErrorMessage.textContent = '';
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                console.error('Erro de autenticação Google:', error);
+                let message = 'Erro ao fazer login com Google.';
+                if (error.code === 'auth/popup-closed-by-user') {
+                    message = 'Login com Google cancelado.';
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                    message = 'Você já abriu uma janela de login.';
+                }
+                authErrorMessage.textContent = message;
+            }
+        });
+
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            if (user) {
+                loginScreen.classList.add('hidden');
+                appContent.classList.remove('hidden');
+                loadLocalData(); // Load local data first
+                await syncFirestoreToLocal(); // Then sync with Firestore
+                updateUI(); // Update UI after all data is loaded/synced
+            } else {
+                loginScreen.classList.remove('hidden');
+                appContent.classList.add('hidden');
+                // Clear appData or reset to default if user logs out
+                appData = {
+                    config: {
+                        nome: "",
+                        dataInicial: new Date().toISOString().split('T')[0],
+                        pesoInicial: "",
+                        pesoMeta: "",
+                        metaKgPorDia: "",
+                        medidasIdeais: {
+                            pescoco: "",
+                            peito: "",
+                            cintura: "",
+                            quadril: "",
+                            coxa: "",
+                            panturrilha: "",
+                            braco: ""
+                        }
+                    },
+                    pesos: [],
+                    medidas: [],
+                    metasPersonalizadas: []
+                };
+                saveLocalData();
+                authErrorMessage.textContent = '';
+                emailInput.value = '';
+                passwordInput.value = '';
+            }
+        });
+
+        // View management
+        function showView(viewId) {
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+
+            bottomNavButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelector(`.bottom-nav button[onclick="showView('${viewId}')"]`).classList.add('active');
+
+            // Specific actions for views
+            if (viewId === 'graficos') {
+                loadChartJsAndRenderCharts();
+            } else {
+                // Destroy charts if not on graphics tab to save memory
+                // (Implementation for destroying charts will go here)
+            }
+            updateUI(); // Update UI for the new view
+        }
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Font Awesome for icons
+            const fontAwesomeLink = document.createElement('link');
+            fontAwesomeLink.rel = 'stylesheet';
+            fontAwesomeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
+            document.head.appendChild(fontAwesomeLink);
+
+            loadLocalData();
+            // The onAuthStateChanged listener will handle showing login or app content
+        });
+
+        // Placeholder for updateUI function (will be expanded)
+        function updateUI() {
+            // This function will be responsible for updating all dynamic parts of the UI
+            // based on the current appData and currentUser state.
+            console.log("UI Updated. Current appData:", appData);
+            // Update \'Início\' tab
+            updateInicioTab();
+            renderHistoricoTable();
+            renderMedidasTab();
+            renderMetasTab();
+            // Gráficos são renderizados sob demanda ao abrir a aba
+            renderAjustesTab();
+            renderBackupTab();
+            // Ensure correct view is shown on UI update if already logged in
+            const currentView = document.querySelector(".view-section:not(.hidden)");
+            if (currentView) {
+                const viewId = currentView.id.replace("view-", "");
+                showView(viewId);
+            } else {
+                showView("inicio"); // Default to inicio if no view is active
+            }
+
+            // Update \'Conta\' tab
+            const userEmailDisplay = document.getElementById("user-email-display");
+            const loggedInSection = document.getElementById("logged-in-section");
+            const loggedOutSection = document.getElementById("logged-out-section");
+            const syncStatus = document.getElementById("sync-status");
+
+            if (currentUser) {
+                if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email;
+                if (loggedInSection) loggedInSection.classList.remove("hidden");
+                if (loggedOutSection) loggedOutSection.classList.add("hidden");
+                if (syncStatus) syncStatus.textContent = "Sincronizado"; // Default status
+            } else {
+                if (loggedInSection) loggedInSection.classList.add("hidden");
+                if (loggedOutSection) loggedOutSection.classList.remove("hidden");
+            }
+
+            // Update \'Lançar\' tab date
+            document.getElementById("peso-data").value = hojeISO();
+        }
+
+        async function logout() {
+            try {
+                await auth.signOut();
+                console.log("Usuário desconectado.");
+                // appData is reset in onAuthStateChanged listener
+                // UI is updated in onAuthStateChanged listener
+            } catch (error) {
+                console.error("Erro ao desconectar:", error);
+                alert("Erro ao sair da conta. Tente novamente.");
+            }
+        }
+
+        async function salvarPeso(event) {
+            event.preventDefault();
+
+            const id = document.getElementById("peso-id").value;
+            const data = document.getElementById("peso-data").value;
+            const peso = parseFloat(document.getElementById("peso-valor").value);
+            const obs = document.getElementById("peso-obs").value;
+
+            if (isNaN(peso) || !data) {
+                alert("Por favor, preencha a data e o peso corretamente.");
+                return;
+            }
+
+            const novoRegistro = {
+                id: id || Date.now().toString(), // Use timestamp as ID if new record
+                data: data,
+                peso: peso,
+                obs: obs
+            };
+
+            if (id) {
+                // Editing existing record
+                const index = appData.pesos.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    appData.pesos[index] = novoRegistro;
+                }
+            } else {
+                // Adding new record
+                appData.pesos.push(novoRegistro);
+            }
+
+            // Sort pesos by date descending
+            appData.pesos.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            saveLocalData();
+            debounceSyncFirestore();
+            updateUI();
+
+            // Clear form
+            document.getElementById("form-lancar-peso").reset();
+            document.getElementById("peso-id").value = "";
+            document.getElementById("peso-data").value = hojeISO();
+
+            alert("Peso salvo com sucesso!");
+            showView("historico"); // Go to history tab after saving
+        }
+
+        function renderHistoricoTable() {
+            const tableBody = document.querySelector("#historico-pesos-table tbody");
+            tableBody.innerHTML = ""; // Clear existing rows
+
+            appData.pesos.forEach(pesoRecord => {
+                const row = tableBody.insertRow();
+                const dataCell = row.insertCell();
+                const pesoCell = row.insertCell();
+                const faltaCell = row.insertCell();
+                const acoesCell = row.insertCell();
+
+                const pesoMeta = parseFloat(appData.config.pesoMeta);
+                let falta = NaN;
+                if (!isNaN(pesoMeta) && !isNaN(pesoRecord.peso)) {
+                    falta = pesoMeta - pesoRecord.peso;
+                }
+
+                dataCell.textContent = new Date(pesoRecord.data + "T12:00:00").toLocaleDateString("pt-BR");
+                pesoCell.textContent = `${formatBR(pesoRecord.peso)} kg`;
+                faltaCell.textContent = isNaN(falta) ? "-- kg" : `${formatComSinal(falta)} kg`;
+                if (!isNaN(falta)) {
+                    if (falta >= 0) faltaCell.classList.add("color-green");
+                    else if (falta < 0) faltaCell.classList.add("color-red");
+                }
+
+                acoesCell.innerHTML = `
+                    <button class="button small" onclick="editarPeso(\'${pesoRecord.id}\')"><i class="fas fa-edit"></i></button>
+                    <button class="button small danger" onclick="excluirPeso(\'${pesoRecord.id}\')"><i class="fas fa-trash"></i></button>
+                `;
+            });
+        }
+
+        function editarPeso(id) {
+            const pesoRecord = appData.pesos.find(p => p.id === id);
+            if (pesoRecord) {
+                document.getElementById("peso-id").value = pesoRecord.id;
+                document.getElementById("peso-data").value = pesoRecord.data;
+                document.getElementById("peso-valor").value = pesoRecord.peso;
+                document.getElementById("peso-obs").value = pesoRecord.obs;
+                showView("lancar");
+            }
+        }
+
+        function excluirPeso(id) {
+            if (confirm("Tem certeza que deseja excluir este registro de peso?")) {
+                appData.pesos = appData.pesos.filter(p => p.id !== id);
+                saveLocalData();
+                debounceSyncFirestore();
+                updateUI();
+            }
+        }
+
+        // Medidas Functions
+        function abrirModalMedida(id = null) {
+            document.getElementById("form-medida").reset();
+            document.getElementById("medida-id").value = "";
+            document.getElementById("medida-data").value = hojeISO();
+
+            if (id) {
+                const medidaRecord = appData.medidas.find(m => m.id === id);
+                if (medidaRecord) {
+                    document.getElementById("medida-id").value = medidaRecord.id;
+                    document.getElementById("medida-data").value = medidaRecord.data;
+                    document.getElementById("medida-peso").value = medidaRecord.peso;
+                    document.getElementById("medida-pescoco").value = medidaRecord.pescoco;
+                    document.getElementById("medida-peito").value = medidaRecord.peito;
+                    document.getElementById("medida-cintura").value = medidaRecord.cintura;
+                    document.getElementById("medida-quadril").value = medidaRecord.quadril;
+                    document.getElementById("medida-coxa").value = medidaRecord.coxa;
+                    document.getElementById("medida-panturrilha").value = medidaRecord.panturrilha;
+                    document.getElementById("medida-braco").value = medidaRecord.braco;
+                    document.getElementById("medida-obs").value = medidaRecord.obs;
+                }
+            }
+            document.getElementById("modal-medida").style.display = "flex";
+        }
+
+        function fecharModalMedida() {
+            document.getElementById("modal-medida").style.display = "none";
+        }
+
+        async function salvarMedida(event) {
+            event.preventDefault();
+
+            const id = document.getElementById("medida-id").value;
+            const data = document.getElementById("medida-data").value;
+            const peso = parseFloat(document.getElementById("medida-peso").value) || 0;
+            const pescoco = parseFloat(document.getElementById("medida-pescoco").value) || 0;
+            const peito = parseFloat(document.getElementById("medida-peito").value) || 0;
+            const cintura = parseFloat(document.getElementById("medida-cintura").value) || 0;
+            const quadril = parseFloat(document.getElementById("medida-quadril").value) || 0;
+            const coxa = parseFloat(document.getElementById("medida-coxa").value) || 0;
+            const panturrilha = parseFloat(document.getElementById("medida-panturrilha").value) || 0;
+            const braco = parseFloat(document.getElementById("medida-braco").value) || 0;
+            const obs = document.getElementById("medida-obs").value;
+
+            if (!data) {
+                alert("Por favor, preencha a data corretamente.");
+                return;
+            }
+
+            const novoRegistro = {
+                id: id || Date.now().toString(),
+                data: data,
+                peso: peso,
+                pescoco: pescoco,
+                peito: peito,
+                cintura: cintura,
+                quadril: quadril,
+                coxa: coxa,
+                panturrilha: panturrilha,
+                braco: braco,
+                obs: obs
+            };
+
+            if (id) {
+                const index = appData.medidas.findIndex(m => m.id === id);
+                if (index !== -1) {
+                    appData.medidas[index] = novoRegistro;
+                }
+            } else {
+                appData.medidas.push(novoRegistro);
+            }
+
+            appData.medidas.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            saveLocalData();
+            debounceSyncFirestore();
+            updateUI();
+            fecharModalMedida();
+            alert("Medida salva com sucesso!");
+        }
+
+        function editarMedida(id) {
+            abrirModalMedida(id);
+        }
+
+        function excluirMedida(id) {
+            if (confirm("Tem certeza que deseja excluir este registro de medida?")) {
+                appData.medidas = appData.medidas.filter(m => m.id !== id);
+                saveLocalData();
+                debounceSyncFirestore();
+                updateUI();
+            }
+        }
+
+        function renderMedidasTab() {
+            const comparativoDiv = document.getElementById("medidas-comparativo");
+            comparativoDiv.innerHTML = "";
+            const tableBody = document.querySelector("#historico-medidas-table tbody");
+            tableBody.innerHTML = "";
+
+            const medidasValidas = obterMedidasValidasParaCalculo();
+            const medidasOrdenadas = [...medidasValidas].sort((a, b) => new Date(a.data) - new Date(b.data));
+
+            // Render comparativo cards
+            if (medidasOrdenadas.length > 0) {
+                const ultimaMedida = medidasOrdenadas[medidasOrdenadas.length - 1];
+                const penultimaMedida = medidasOrdenadas.length > 1 ? medidasOrdenadas[medidasOrdenadas.length - 2] : null;
+
+                const camposMedida = ["pescoco", "peito", "cintura", "quadril", "coxa", "panturrilha", "braco"];
+                const nomesMedida = {
+                    pescoco: "Pescoço",
+                    peito: "Peito",
+                    cintura: "Barriga",
+                    quadril: "Quadril",
+                    coxa: "Coxa",
+                    panturrilha: "Panturrilha",
+                    braco: "Braço"
+                };
+
+                camposMedida.forEach(campo => {
+                    const valorAtual = ultimaMedida[campo];
+                    const valorAnterior = penultimaMedida ? penultimaMedida[campo] : null;
+                    const medidaIdeal = parseFloat(appData.config.medidasIdeais[campo]);
+
+                    let diffAnterior = null;
+                    if (valorAnterior !== null) {
+                        diffAnterior = valorAtual - valorAnterior;
+                    }
+
+                    let diffIdeal = null;
+                    if (!isNaN(medidaIdeal) && medidaIdeal > 0) {
+                        diffIdeal = valorAtual - medidaIdeal;
+                    }
+
+                    let content = `<p>Atual: ${formatBR(valorAtual)} cm</p>`;
+                    if (diffAnterior !== null) {
+                        content += `<p>Desde a última: <span class="${diffAnterior < 0 ? "color-green" : diffAnterior > 0 ? "color-red" : ""}">${formatComSinal(diffAnterior)} cm</span></p>`;
+                    }
+                    if (diffIdeal !== null) {
+                        content += `<p>Da meta: <span class="${diffIdeal < 0 ? "color-green" : diffIdeal > 0 ? "color-red" : ""}">${formatComSinal(diffIdeal)} cm</span></p>`;
+                    }
+
+                    comparativoDiv.innerHTML += `
+                        <div class="card">
+                            <h2>${nomesMedida[campo]}</h2>
+                            ${content}
+                        </div>
+                    `;
+                });
+            }
+
+            // Render histórico table
+            appData.medidas.forEach(medidaRecord => {
+                const row = tableBody.insertRow();
+                const dataCell = row.insertCell();
+                const barrigaCell = row.insertCell();
+                const acoesCell = row.insertCell();
+
+                dataCell.textContent = new Date(medidaRecord.data + "T12:00:00").toLocaleDateString("pt-BR");
+                barrigaCell.textContent = isNaN(medidaRecord.cintura) ? "-- cm" : `${formatBR(medidaRecord.cintura)} cm`;
+
+                acoesCell.innerHTML = `
+                    <button class="button small" onclick="editarMedida(\'${medidaRecord.id}\')"><i class="fas fa-edit"></i></button>
+                    <button class="button small danger" onclick="excluirMedida(\'${medidaRecord.id}\')"><i class="fas fa-trash"></i></button>
+                `;
+            });
+        }
+
+        // Metas Functions
+        let simulacaoMetaAtual = null;
+
+        function simularMeta() {
+            const dataInput = document.getElementById("simular-data").value;
+            const resultadoDiv = document.getElementById("resultado-simulacao");
+            resultadoDiv.innerHTML = "";
+
+            if (!dataInput) {
+                resultadoDiv.innerHTML = "<p class=\"color-red\">Por favor, selecione uma data para simular.</p>";
+                return;
+            }
+
+            const dataAlvo = parseDate(dataInput);
+            const metaPrevista = calcularMetaDaData(dataAlvo);
+            const pesoAtual = obterPesoAtual();
+
+            if (isNaN(metaPrevista) || isNaN(pesoAtual)) {
+                resultadoDiv.innerHTML = "<p class=\"color-red\">Preencha as configurações de peso inicial e meta nos Ajustes.</p>";
+                return;
+            }
+
+            const diferenca = metaPrevista - pesoAtual;
+
+            simulacaoMetaAtual = {
+                id: Date.now().toString(),
+                titulo: `Meta para ${new Date(dataAlvo).toLocaleDateString("pt-BR")}`,
+                data: dataInput,
+                metaCalculada: metaPrevista,
+                pesoAtualNoMomento: pesoAtual,
+                diferenca: diferenca,
+                criadoEm: hojeISO()
+            };
+
+            resultadoDiv.innerHTML = `
+                <p><strong>Data Simulada:</strong> ${new Date(dataAlvo).toLocaleDateString("pt-BR")}</p>
+                <p><strong>Meta Prevista:</strong> ${formatBR(metaPrevista)} kg</p>
+                <p><strong>Peso Atual:</strong> ${formatBR(pesoAtual)} kg</p>
+                <p><strong>Diferença:</strong> <span class="${diferenca < 0 ? "color-green" : diferenca > 0 ? "color-red" : ""}">${formatComSinal(diferenca)} kg</span></p>
+                <button class="button" onclick="salvarMetaPersonalizada()">Salvar como Meta Personalizada</button>
+            `;
+        }
+
+        function limparSimulacaoMeta() {
+            document.getElementById("simular-data").value = "";
+            document.getElementById("resultado-simulacao").innerHTML = "";
+            simulacaoMetaAtual = null;
+        }
+
+        function salvarMetaPersonalizada() {
+            if (simulacaoMetaAtual) {
+                appData.metasPersonalizadas.push(simulacaoMetaAtual);
+                saveLocalData();
+                debounceSyncFirestore();
+                updateUI();
+                limparSimulacaoMeta();
+                alert("Meta personalizada salva com sucesso!");
+            }
+        }
+
+        function excluirMetaPersonalizada(id) {
+            if (confirm("Tem certeza que deseja excluir esta meta personalizada?")) {
+                appData.metasPersonalizadas = appData.metasPersonalizadas.filter(m => m.id !== id);
+                saveLocalData();
+                debounceSyncFirestore();
+                updateUI();
+            }
+        }
+
+        function renderMetasTab() {
+            const metasListaDiv = document.getElementById("metas-personalizadas-lista");
+            metasListaDiv.innerHTML = "";
+
+            if (appData.metasPersonalizadas.length === 0) {
+                metasListaDiv.innerHTML = "<p>Nenhuma meta personalizada salva ainda.</p>";
+                return;
+            }
+
+            appData.metasPersonalizadas.forEach(meta => {
+                metasListaDiv.innerHTML += `
+                    <div class="card" style="margin-bottom: 10px;">
+                        <h3>${meta.titulo}</h3>
+                        <p>Data: ${new Date(meta.data).toLocaleDateString("pt-BR")}</p>
+                        <p>Meta Calculada: ${formatBR(meta.metaCalculada)} kg</p>
+                        <p>Diferença do Peso Atual: <span class="${meta.diferenca < 0 ? "color-green" : meta.diferenca > 0 ? "color-red" : ""}">${formatComSinal(meta.diferenca)} kg</span></p>
+                        <button class="button small danger" onclick="excluirMetaPersonalizada(\'${meta.id}\')">Excluir</button>
+                    </div>
+                `;
+            });
+
+            // Clear planning table
+            document.getElementById("tabela-planejamento").innerHTML = "";
+        }
+
+        function gerarTabelaMetas(periodo) {
+            const tabelaPlanejamentoDiv = document.getElementById("tabela-planejamento");
+            tabelaPlanejamentoDiv.innerHTML = "";
+
+            const pesoInicial = parseFloat(appData.config.pesoInicial);
+            const metaKgPorDia = parseFloat(appData.config.metaKgPorDia);
+            const dataInicial = parseDate(appData.config.dataInicial);
+
+            if (isNaN(pesoInicial) || isNaN(metaKgPorDia) || !appData.config.dataInicial) {
+                tabelaPlanejamentoDiv.innerHTML = "<p class=\"color-red\">Preencha as configurações de peso inicial e meta nos Ajustes para gerar o planejamento.</p>";
+                return;
+            }
+
+            let datas = [];
+            let numIteracoes = 0;
+            let intervaloDias = 1;
+
+            switch (periodo) {
+                case "diario":
+                    numIteracoes = 30;
+                    intervaloDias = 1;
+                    break;
+                case "semanal":
+                    numIteracoes = 30;
+                    intervaloDias = 7;
+                    break;
+                case "mensal":
+                    numIteracoes = 30;
+                    intervaloDias = 30; // Aproximação
+                    break;
+                case "anual":
+                    numIteracoes = 5;
+                    intervaloDias = 365; // Aproximação
+                    break;
+            }
+
+            let currentDate = new Date(dataInicial);
+            for (let i = 0; i < numIteracoes; i++) {
+                datas.push(new Date(currentDate));
+                currentDate.setDate(currentDate.getDate() + intervaloDias);
+            }
+
+            let tableHtml = `
+                <table class="compact">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Meta</th>
+                            <th>Diferença</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            const pesoAtual = obterPesoAtual();
+
+            datas.forEach(data => {
+                const metaCalculada = calcularMetaDaData(data);
+                const diferenca = metaCalculada - pesoAtual;
+                const dataFormatada = data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: (periodo === "anual" ? "numeric" : undefined) });
+
+                tableHtml += `
+                    <tr>
+                        <td>${dataFormatada}</td>
+                        <td>${isNaN(metaCalculada) ? "--" : formatBR(metaCalculada)} kg</td>
+                        <td><span class="${diferenca < 0 ? "color-green" : diferenca > 0 ? "color-red" : ""}">${isNaN(diferenca) ? "--" : formatComSinal(diferenca)} kg</span></td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `
+                    </tbody>
+                </table>
+            `;
+            tabelaPlanejamentoDiv.innerHTML = tableHtml;
+        }
+
+        function limparFiltroMetas() {
+            document.getElementById("tabela-planejamento").innerHTML = "";
+        }
+            event.preventDefault();
+
+            const id = document.getElementById("peso-id").value;
+            const data = document.getElementById("peso-data").value;
+            const peso = parseFloat(document.getElementById("peso-valor").value);
+            const obs = document.getElementById("peso-obs").value;
+
+            if (isNaN(peso) || !data) {
+                alert("Por favor, preencha a data e o peso corretamente.");
+                return;
+            }
+
+            const novoRegistro = {
+                id: id || Date.now().toString(), // Use timestamp as ID if new record
+                data: data,
+                peso: peso,
+                obs: obs
+            };
+
+            if (id) {
+                // Editing existing record
+                const index = appData.pesos.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    appData.pesos[index] = novoRegistro;
+                }
+            } else {
+                // Adding new record
+                appData.pesos.push(novoRegistro);
+            }
+
+            // Sort pesos by date descending
+            appData.pesos.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            saveLocalData();
+            debounceSyncFirestore();
+            updateUI();
+
+            // Clear form
+            document.getElementById("form-lancar-peso").reset();
+            document.getElementById("peso-id").value = "";
+            document.getElementById("peso-data").value = hojeISO();
+
+            alert("Peso salvo com sucesso!");
+            showView("historico"); // Go to history tab after saving
+        }
+
+        // Placeholder for Chart.js loading and rendering
+        let chartJsLoaded = false;
+        let pesoChartInstance = null;
+        let medidasChartInstance = null;
+        let currentChartFilter = "inicio";
+
+        async function loadChartJsAndRenderCharts() {
+            if (!chartJsLoaded) {
+                const script = document.createElement("script");
+                script.src = "https://cdn.jsdelivr.net/npm/chart.js";
+                script.onload = () => {
+                    chartJsLoaded = true;
+                    console.log("Chart.js carregado.");
+                    renderCharts();
+                };
+                document.head.appendChild(script);
+            } else {
+                renderCharts();
+            }
+        }
+
+        function alterarFiltroGrafico(filtro) {
+            currentChartFilter = filtro;
+            renderCharts();
+        }
+
+        function getFilteredData(dataArray) {
+            const dataInicial = parseDate(appData.config.dataInicial);
+            let filteredData = dataArray.filter(item => parseDate(item.data) >= dataInicial);
+
+            const hoje = new Date();
+            let dataLimite = new Date(hoje);
+
+            switch (currentChartFilter) {
+                case "7d":
+                    dataLimite.setDate(hoje.getDate() - 7);
+                    break;
+                case "1m":
+                    dataLimite.setMonth(hoje.getMonth() - 1);
+                    break;
+                case "3m":
+                    dataLimite.setMonth(hoje.getMonth() - 3);
+                    break;
+                case "6m":
+                    dataLimite.setMonth(hoje.getMonth() - 6);
+                    break;
+                case "1y":
+                    dataLimite.setFullYear(hoje.getFullYear() - 1);
+                    break;
+                case "5y":
+                    dataLimite.setFullYear(hoje.getFullYear() - 5);
+                    break;
+                case "inicio":
+                default:
+                    dataLimite = dataInicial; // Use dataInicial as the lower bound
+                    break;
+            }
+            
+            // Ensure dataLimite is not after dataInicial if filter is 'inicio'
+            if (currentChartFilter === 'inicio' && dataLimite > dataInicial) {
+                dataLimite = dataInicial;
+            }
+
+            filteredData = filteredData.filter(item => parseDate(item.data) >= dataLimite);
+            return filteredData.sort((a, b) => new Date(a.data) - new Date(b.data));
+        }
+
+        function renderAjustesTab() {
+            document.getElementById("config-nome").value = appData.config.nome;
+            document.getElementById("config-dataInicial").value = appData.config.dataInicial;
+            document.getElementById("config-pesoInicial").value = appData.config.pesoInicial;
+            document.getElementById("config-pesoMeta").value = appData.config.pesoMeta;
+            document.getElementById("config-metaKgPorDia").value = appData.config.metaKgPorDia;
+
+            document.getElementById("config-medida-pescoco").value = appData.config.medidasIdeais.pescoco;
+            document.getElementById("config-medida-peito").value = appData.config.medidasIdeais.peito;
+            document.getElementById("config-medida-cintura").value = appData.config.medidasIdeais.cintura;
+            document.getElementById("config-medida-quadril").value = appData.config.medidasIdeais.quadril;
+            document.getElementById("config-medida-coxa").value = appData.config.medidasIdeais.coxa;
+            document.getElementById("config-medida-panturrilha").value = appData.config.medidasIdeais.panturrilha;
+            document.getElementById("config-medida-braco").value = appData.config.medidasIdeais.braco;
+        }
+
+        function limparPerfilMetas() {
+            if (confirm("Tem certeza que deseja limpar as configurações de Perfil e Metas?")) {
+                appData.config.nome = "";
+                appData.config.dataInicial = hojeISO();
+                appData.config.pesoInicial = "";
+                appData.config.pesoMeta = "";
+                appData.config.metaKgPorDia = "";
+                saveLocalData();
+                debounceSyncFirestore();
+                updateUI();
+                alert("Perfil e Metas limpos com sucesso!");
+            }
+        }
+
+        function limparMedidasIdeais() {
+            if (confirm("Tem certeza que deseja limpar as Medidas Ideais?")) {
+                appData.config.medidasIdeais = {
+                    pescoco: "", peito: "", cintura: "", quadril: "", coxa: "", panturrilha: "", braco: ""
+                };
+                saveLocalData();
+                debounceSyncFirestore();
+                updateUI();
+                alert("Medidas Ideais limpas com sucesso!");
+            }
+        }
+
+        function salvarConfiguracoes() {
+            appData.config.nome = document.getElementById("config-nome").value;
+            appData.config.dataInicial = document.getElementById("config-dataInicial").value;
+            appData.config.pesoInicial = document.getElementById("config-pesoInicial").value;
+            appData.config.pesoMeta = document.getElementById("config-pesoMeta").value;
+            appData.config.metaKgPorDia = document.getElementById("config-metaKgPorDia").value;
+
+            appData.config.medidasIdeais.pescoco = document.getElementById("config-medida-pescoco").value;
+            appData.config.medidasIdeais.peito = document.getElementById("config-medida-peito").value;
+            appData.config.medidasIdeais.cintura = document.getElementById("config-medida-cintura").value;
+            appData.config.medidasIdeais.quadril = document.getElementById("config-medida-quadril").value;
+            appData.config.medidasIdeais.coxa = document.getElementById("config-medida-coxa").value;
+            appData.config.medidasIdeais.panturrilha = document.getElementById("config-medida-panturrilha").value;
+            appData.config.medidasIdeais.braco = document.getElementById("config-medida-braco").value;
+
+            saveLocalData();
+            debounceSyncFirestore();
+            updateUI();
+            alert("Configurações salvas com sucesso!");
+        }
+
+        // Backup and Restore Functions
+        function exportarBackup() {
+            const dataStr = JSON.stringify(appData, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `projeto-leve-backup-${hojeISO()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert("Backup gerado com sucesso!");
+        }
+
+        function importarBackup() {
+            const fileInput = document.getElementById("import-backup-file");
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Por favor, selecione um arquivo JSON para importar.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    // Basic validation for structure
+                    if (importedData.config && importedData.pesos && importedData.medidas && importedData.metasPersonalizadas) {
+                        if (confirm("Tem certeza que deseja restaurar o backup? Isso substituirá seus dados atuais.")) {
+                            appData = importedData;
+                            saveLocalData();
+                            debounceSyncFirestore();
+                            updateUI();
+                            alert("Backup restaurado com sucesso!");
+                        }
+                    } else {
+                        alert("Estrutura do arquivo de backup inválida.");
+                    }
+                } catch (error) {
+                    console.error("Erro ao ler ou parsear arquivo de backup:", error);
+                    alert("Erro ao importar backup. Verifique se o arquivo é um JSON válido.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function gerarRelatorioPDF() {
+            const printWindow = window.open("");
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                <head>
+                    <title>Relatório Projeto Leve</title>
+                    <style>
+                        body { font-family: sans-serif; margin: 20px; }
+                        h1 { color: #0284c7; text-align: center; }
+                        h2 { border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        .grid-2-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+                        .card { border: 1px solid #eee; padding: 10px; border-radius: 8px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Relatório Projeto Leve</h1>
+                    <p><strong>Data de Geração:</strong> ${new Date().toLocaleDateString("pt-BR")}</p>
+
+                    <h2>Configurações Principais</h2>
+                    <div class="grid-2-cols">
+                        <div class="card"><p><strong>Nome:</strong> ${appData.config.nome || "--"}</p></div>
+                        <div class="card"><p><strong>Data Inicial:</strong> ${appData.config.dataInicial ? new Date(appData.config.dataInicial).toLocaleDateString("pt-BR") : "--"}</p></div>
+                        <div class="card"><p><strong>Peso Inicial:</strong> ${appData.config.pesoInicial || "--"} kg</p></div>
+                        <div class="card"><p><strong>Peso Meta:</strong> ${appData.config.pesoMeta || "--"} kg</p></div>
+                        <div class="card"><p><strong>Meta kg/dia:</strong> ${appData.config.metaKgPorDia || "--"} kg/dia</p></div>
+                    </div>
+
+                    <h2>Histórico de Pesos</h2>
+                    <table>
+                        <thead><tr><th>Data</th><th>Peso (kg)</th><th>Observações</th></tr></thead>
+                        <tbody>
+                            ${appData.pesos.map(p => `<tr><td>${new Date(p.data).toLocaleDateString("pt-BR")}</td><td>${p.peso}</td><td>${p.obs || ""}</td></tr>`).join("")}
+                        </tbody>
+                    </table>
+
+                    <h2>Histórico de Medidas</h2>
+                    <table>
+                        <thead><tr><th>Data</th><th>Pescoço (cm)</th><th>Peito (cm)</th><th>Barriga (cm)</th><th>Quadril (cm)</th><th>Coxa (cm)</th><th>Panturrilha (cm)</th><th>Braço (cm)</th><th>Observações</th></tr></thead>
+                        <tbody>
+                            ${appData.medidas.map(m => `<tr>
+                                <td>${new Date(m.data).toLocaleDateString("pt-BR")}</td>
+                                <td>${m.pescoco || ""}</td>
+                                <td>${m.peito || ""}</td>
+                                <td>${m.cintura || ""}</td>
+                                <td>${m.quadril || ""}</td>
+                                <td>${m.coxa || ""}</td>
+                                <td>${m.panturrilha || ""}</td>
+                                <td>${m.braco || ""}</td>
+                                <td>${m.obs || ""}</td>
+                            </tr>`).join("")}
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function gerarRelatorioCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+
+            // Pesos
+            csvContent += "Histórico de Pesos\n";
+            csvContent += "Data;Peso (kg);Observações\n";
+            appData.pesos.forEach(p => {
+                csvContent += `${new Date(p.data).toLocaleDateString("pt-BR")};${p.peso};${p.obs || ""}\n`;
+            });
+            csvContent += "\n";
+
+            // Medidas
+            csvContent += "Histórico de Medidas\n";
+            csvContent += "Data;Pescoço (cm);Peito (cm);Barriga (cm);Quadril (cm);Coxa (cm);Panturrilha (cm);Braço (cm);Observações\n";
+            appData.medidas.forEach(m => {
+                csvContent += `${new Date(m.data).toLocaleDateString("pt-BR")};${m.pescoco || ""};${m.peito || ""};${m.cintura || ""};${m.quadril || ""};${m.coxa || ""};${m.panturrilha || ""};${m.braco || ""};${m.obs || ""}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `projeto-leve-relatorio-${hojeISO()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            alert("Relatório CSV gerado com sucesso!");
+        }
+
+        function limparRegistrosAteData() {
+            const dataLimiteStr = document.getElementById("limpar-data").value;
+            if (!dataLimiteStr) {
+                alert("Por favor, selecione uma data limite para a limpeza.");
+                return;
+            }
+
+            if (confirm(`Tem certeza que deseja excluir todos os registros (pesos, medidas, metas personalizadas) com data igual ou anterior a ${new Date(dataLimiteStr).toLocaleDateString("pt-BR")}? Esta ação é irreversível.`)) {
+                const dataLimite = parseDate(dataLimiteStr);
+
+                appData.pesos = appData.pesos.filter(p => parseDate(p.data) > dataLimite);
+                appData.medidas = appData.medidas.filter(m => parseDate(m.data) > dataLimite);
+                appData.metasPersonalizadas = appData.metasPersonalizadas.filter(m => parseDate(m.data) > dataLimite);
+
+                saveLocalData();
+                debounceSyncFirestore();
+                updateUI();
+                alert("Registros limpos com sucesso!");
+            }
+        }
+
+        function limparTudo() {
+            if (confirm("ATENÇÃO: Tem certeza que deseja limpar TODOS os dados do aplicativo? Isso apagará todas as suas configurações, pesos, medidas e metas. Esta ação é irreversível.")) {
+                appData = {
+                    config: {
+                        nome: "",
+                        dataInicial: hojeISO(),
+                        pesoInicial: "",
+                        pesoMeta: "",
+                        metaKgPorDia: "",
+                        medidasIdeais: {
+                            pescoco: "", peito: "", cintura: "", quadril: "", coxa: "", panturrilha: "", braco: ""
+                        }
+                    },
+                    pesos: [],
+                    medidas: [],
+                    metasPersonalizadas: []
+                };
+                saveLocalData();
+                debounceSyncFirestore();
+                updateUI();
+                alert("Todos os dados do aplicativo foram limpos.");
+            }
+        }
+
+        function renderCharts() {
+            if (!chartJsLoaded) return;
+
+            // Peso Chart
+            const pesosFiltrados = getFilteredData(appData.pesos);
+            const pesoLabels = pesosFiltrados.map(p => new Date(p.data + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: (currentChartFilter === "5y" ? "numeric" : undefined) }));
+            const pesoData = pesosFiltrados.map(p => p.peso);
+
+            if (pesoChartInstance) {
+                pesoChartInstance.destroy();
+            }
+            const pesoCtx = document.getElementById("pesoChart").getContext("2d");
+            pesoChartInstance = new Chart(pesoCtx, {
+                type: "line",
+                data: {
+                    labels: pesoLabels,
+                    datasets: [{
+                        label: "Peso",
+                        data: pesoData,
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color'),
+                        backgroundColor: "rgba(2, 132, 199, 0.2)",
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "Pesos Registrados"
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: "category",
+                            labels: pesoLabels
+                        },
+                        y: {
+                            beginAtZero: false
+                        }
+                    },
+                    animation: false // Desativar animações
+                }
+            });
+
+            // Medidas Chart
+            const medidasFiltradas = getFilteredData(appData.medidas);
+            const medidasLabels = medidasFiltradas.map(m => new Date(m.data + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: (currentChartFilter === "5y" ? "numeric" : undefined) }));
+
+            const barrigaData = medidasFiltradas.map(m => m.cintura);
+            const coxaData = medidasFiltradas.map(m => m.coxa);
+            const quadrilData = medidasFiltradas.map(m => m.quadril);
+
+            if (medidasChartInstance) {
+                medidasChartInstance.destroy();
+            }
+            const medidasCtx = document.getElementById("medidasChart").getContext("2d");
+            medidasChartInstance = new Chart(medidasCtx, {
+                type: "line",
+                data: {
+                    labels: medidasLabels,
+                    datasets: [
+                        {
+                            label: "Barriga",
+                            data: barrigaData,
+                            borderColor: "#ff6384",
+                            backgroundColor: "rgba(255, 99, 132, 0.2)",
+                            fill: false,
+                            tension: 0.1
+                        },
+                        {
+                            label: "Coxa",
+                            data: coxaData,
+                            borderColor: "#36a2eb",
+                            backgroundColor: "rgba(54, 162, 235, 0.2)",
+                            fill: false,
+                            tension: 0.1
+                        },
+                        {
+                            label: "Quadril",
+                            data: quadrilData,
+                            borderColor: "#cc65fe",
+                            backgroundColor: "rgba(204, 101, 254, 0.2)",
+                            fill: false,
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "Medidas Corporais"
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: "category",
+                            labels: medidasLabels
+                        },
+                        y: {
+                            beginAtZero: false
+                        }
+                    },
+                    animation: false // Desativar animações
+                }
+            });
+        }
+
+        // Expose global functions for onclick attributes
+        window.showView = showView;
+        window.logout = logout;
+        window.salvarPeso = salvarPeso;
+        window.editarPeso = editarPeso;
+        window.excluirPeso = excluirPeso;
+        window.abrirModalMedida = abrirModalMedida;
+        window.fecharModalMedida = fecharModalMedida;
+        window.salvarMedida = salvarMedida;
+        window.editarMedida = editarMedida;
+        window.excluirMedida = excluirMedida;
+        window.simularMeta = simularMeta;
+        window.limparSimulacaoMeta = limparSimulacaoMeta;
+        window.gerarTabelaMetas = gerarTabelaMetas;
+        window.limparFiltroMetas = limparFiltroMetas;
+        window.alterarFiltroGrafico = alterarFiltroGrafico;
+        window.limparPerfilMetas = limparPerfilMetas;
+        window.limparMedidasIdeais = limparMedidasIdeais;
+        window.salvarConfiguracoes = salvarConfiguracoes;
+        // More global functions will be added here as needed
+
+        // Initial setup and event listeners
+        document.addEventListener("DOMContentLoaded", () => {
+            // Set default date for peso-data and medida-data inputs
+            document.getElementById("peso-data").value = hojeISO();
+            document.getElementById("medida-data").value = hojeISO();
+            document.getElementById("config-dataInicial").value = hojeISO();
+
+            // Event listeners for bottom navigation
+            document.getElementById("nav-inicio").addEventListener("click", () => showView("inicio"));
+            document.getElementById("nav-lancar").addEventListener("click", () => showView("lancar"));
+            document.getElementById("nav-historico").addEventListener("click", () => showView("historico"));
+            document.getElementById("nav-medidas").addEventListener("click", () => showView("medidas"));
+            document.getElementById("nav-metas").addEventListener("click", () => showView("metas"));
+            document.getElementById("nav-graficos").addEventListener("click", () => showView("graficos"));
+            document.getElementById("nav-ajustes").addEventListener("click", () => showView("ajustes"));
+            document.getElementById("nav-backup").addEventListener("click", () => showView("backup"));
+            document.getElementById("nav-conta").addEventListener("click", () => showView("conta"));
+
+            // Initial view
+            showView("inicio");
+
+            // Firebase Auth State Listener
+            firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    currentUser = user;
+                    document.getElementById("login-screen").classList.add("hidden");
+                    document.getElementById("app-content").classList.remove("hidden");
+                    loadLocalData();
+                    syncFirestoreToLocal();
+                    updateUI();
+                } else {
+                    currentUser = null;
+                    document.getElementById("login-screen").classList.remove("hidden");
+                    document.getElementById("app-content").classList.add("hidden");
+                    // Clear appData when logged out
+                    appData = {
+                        config: {
+                            nome: "",
+                            dataInicial: hojeISO(),
+                            pesoInicial: "",
+                            pesoMeta: "",
+                            metaKgPorDia: "",
+                            medidasIdeais: {
+                                pescoco: "", peito: "", cintura: "", quadril: "", coxa: "", panturrilha: "", braco: ""
+                            }
+                        },
+                        pesos: [],
+                        medidas: [],
+                        metasPersonalizadas: []
+                    };
+                    saveLocalData();
+                    updateUI();
+                }
+            });
+        });
+
+        // Function to show/hide views
+        function showView(viewId) {
+            const views = document.querySelectorAll(".view-section");
+            views.forEach(view => view.classList.add("hidden"));
+            document.getElementById(`view-${viewId}`).classList.remove("hidden");
+
+            const navButtons = document.querySelectorAll(".bottom-nav button");
+            navButtons.forEach(button => button.classList.remove("active"));
+            document.getElementById(`nav-${viewId}`).classList.add("active");
+
+            // Special handling for charts tab
+            if (viewId === "graficos") {
+                loadChartJsAndRenderCharts();
+            }
+        }
+
+    </script>
+</body>
+</html>
