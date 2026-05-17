@@ -8,16 +8,19 @@
     <!-- Chart.js será carregado sob demanda na aba Gráficos para acelerar a abertura do app -->
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent: #38bdf8;
-            --accent-hover: #0ea5e9;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --success: #22c55e;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --border: #334155;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --soft-bg: #e2e8f0;
+            --input-bg: #ffffff;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --border: #cbd5e1;
+            --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
         }
 
         * {
@@ -45,7 +48,7 @@
             padding: 16px;
             margin-bottom: 16px;
             border: 1px solid var(--border);
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            box-shadow: var(--shadow);
         }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .text-center { text-align: center; }
@@ -114,10 +117,10 @@
         input, select, textarea {
             width: 100%;
             padding: 12px;
-            background: #0f172a;
+            background: var(--input-bg);
             border: 1px solid var(--border);
             border-radius: 8px;
-            color: white;
+            color: var(--text-primary);
             font-size: 16px;
         }
         input:focus { border-color: var(--accent); outline: none; }
@@ -125,7 +128,7 @@
         /* Tables */
         .table-container { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th { background: #334155; text-align: left; padding: 12px; color: var(--text-secondary); }
+        th { background: var(--soft-bg); text-align: left; padding: 12px; color: var(--text-primary); }
         td { padding: 12px; border-bottom: 1px solid var(--border); background: var(--card-bg); }
 
         /* Specific styles */
@@ -136,7 +139,7 @@
         .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(15, 23, 42, 0.45);
             display: flex; align-items: center; justify-content: center;
             z-index: 2000; padding: 20px;
         }
@@ -152,7 +155,7 @@
             justify-content: center;
             padding: 18px;
             background:
-                radial-gradient(circle at top, rgba(56,189,248,.18), transparent 34%),
+                radial-gradient(circle at top, rgba(2,132,199,.16), transparent 34%),
                 var(--bg-color);
         }
         .auth-gate.hidden { display: none !important; }
@@ -163,7 +166,7 @@
             border: 1px solid var(--border);
             border-radius: 22px;
             padding: 22px;
-            box-shadow: 0 20px 60px rgba(0,0,0,.35);
+            box-shadow: 0 20px 60px rgba(15, 23, 42, .16);
         }
         .auth-logo {
             width: 54px;
@@ -171,7 +174,7 @@
             border-radius: 18px;
             display: grid;
             place-items: center;
-            background: rgba(56,189,248,.14);
+            background: rgba(2,132,199,.10);
             color: var(--accent);
             margin-bottom: 14px;
             font-weight: 900;
@@ -179,8 +182,8 @@
         }
         .auth-gate-actions { display: grid; gap: 10px; }
         .btn-google {
-            background: #fff;
-            color: #0f172a;
+            background: #ffffff;
+            color: var(--text-primary);
             border: 1px solid #e2e8f0;
             gap: 10px;
         }
@@ -215,7 +218,7 @@
             gap: 8px;
             padding: 8px 10px;
             border-radius: 999px;
-            background: #0f172a;
+            background: var(--soft-bg);
             border: 1px solid var(--border);
             color: var(--text-secondary);
             font-size: 12px;
@@ -224,7 +227,7 @@
         .auth-status.online { color: var(--success); border-color: rgba(34,197,94,.55); }
         .auth-status.offline { color: var(--warning); border-color: rgba(245,158,11,.55); }
         .sync-box {
-            background: #0f172a;
+            background: var(--soft-bg);
             border: 1px dashed var(--border);
             border-radius: 12px;
             padding: 12px;
@@ -390,23 +393,6 @@
             </div>
         </section>
 
-        <!-- Dezenal -->
-        <section id="view-dezenal" class="view hidden">
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Meta</th>
-                            <th>Real</th>
-                            <th>Dif.</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lista-dezenal"></tbody>
-                </table>
-            </div>
-        </section>
-
         <!-- Gráficos -->
         <section id="view-graficos" class="view hidden">
             <div class="card">
@@ -538,10 +524,6 @@
     <a class="nav-item" onclick="showView('metas', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
         Metas
-    </a>
-    <a class="nav-item" onclick="showView('dezenal', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-        Dezenal
     </a>
     <a class="nav-item" onclick="showView('graficos', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
@@ -1024,7 +1006,6 @@ function updateUI() {
     renderDashboard();
     renderHistoricoPeso();
     renderMedidas();
-    renderDezenal();
     if (activeViewId === 'graficos') renderGraficos();
     renderConta();
     
@@ -1160,44 +1141,6 @@ function renderMedidas() {
     `).join('');
 }
 
-function renderDezenal() {
-    const lista = document.getElementById('lista-dezenal');
-
-    // Gerar datas: 10, 20 e último dia dos próximos 18 meses a partir da data inicial
-    let d = parseDate(appData.config.dataInicial);
-    const datas = [];
-
-    for(let i=0; i<18; i++) {
-        let year = d.getFullYear();
-        let month = d.getMonth();
-
-        datas.push(`${year}-${String(month+1).padStart(2,'0')}-10`);
-        datas.push(`${year}-${String(month+1).padStart(2,'0')}-20`);
-        let lastDay = new Date(year, month + 1, 0).getDate();
-        datas.push(`${year}-${String(month+1).padStart(2,'0')}-${lastDay}`);
-
-        d.setMonth(d.getMonth() + 1);
-    }
-
-    lista.innerHTML = datas.sort().map(dt => {
-        const meta = calcularMetaDaData(dt);
-        const registro = appData.pesos.find(p => p.data === dt);
-        const real = registro ? parseFloat(registro.peso) : null;
-        const dif = real ? meta - real : null;
-
-        return `
-            <tr>
-                <td>${formatDateBR(dt)}</td>
-                <td>${formatBR(meta)}</td>
-                <td>${real ? formatBR(real) : '--'}</td>
-                <td class="${dif !== null ? (dif >= 0 ? 'positive' : 'negative') : ''}">
-                    ${dif !== null ? (dif > 0 ? '+' : '') + formatBR(dif) : '--'}
-                </td>
-            </tr>
-        `;
-    }).join('');
-}
-
 let chartPesoRef = null;
 let chartMedidasRef = null;
 
@@ -1284,7 +1227,6 @@ function showView(viewId, navEl) {
         historico: "Histórico",
         medidas: "Medidas Corporais",
         metas: "Metas e Simulador",
-        dezenal: "Acompanhamento Dezenal",
         graficos: "Evolução",
         configs: "Configurações",
         conta: "Conta",
@@ -1454,7 +1396,7 @@ function simularMeta() {
     const previsao = pesoAtual + (dias * media);
     
     document.getElementById('res-simulacao').innerHTML = `
-        <div class="card" style="border-color: var(--accent); background: #0f172a;">
+        <div class="card" style="border-color: var(--accent); background: var(--soft-bg);">
             <div class="label">Resultados para ${formatDateBR(data)}</div>
             <div class="grid-2" style="margin-top: 10px;">
                 <div><div class="small">Meta Planejada</div><div class="value">${formatBR(meta)} kg</div></div>
@@ -1567,8 +1509,8 @@ const manifest = {
     "short_name": "ProjetoLeve",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0f172a",
-    "theme_color": "#0f172a",
+    "background_color": "#f1f5f9",
+    "theme_color": "#f1f5f9",
     "description": "Controle de emagrecimento, peso e medidas com sincronização Firebase",
     "icons": [{
         "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiMwZjE3MmEiLz48cGF0aCBkPSJNMjU2IDgwbDE2MCAzMjBIMTk2bC00MC04MGgtODBsLTQwIDgwaC02MEwyNTYgODB6IiBmaWxsPSIjMzhidGY4Ii8+PC9zdmc+",
