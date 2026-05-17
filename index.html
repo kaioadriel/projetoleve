@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Peso e Medidas</title>
-    <!-- Chart.js para os gráficos -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js será carregado sob demanda na aba Gráficos para acelerar a abertura do app -->
     <style>
         :root {
             --bg-color: #0f172a;
@@ -143,6 +142,72 @@
         }
 
 
+        /* Bloqueio inicial de autenticação */
+        .auth-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background:
+                radial-gradient(circle at top, rgba(56,189,248,.18), transparent 34%),
+                var(--bg-color);
+        }
+        .auth-gate.hidden { display: none !important; }
+        .auth-gate-card {
+            width: 100%;
+            max-width: 430px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.35);
+        }
+        .auth-logo {
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            background: rgba(56,189,248,.14);
+            color: var(--accent);
+            margin-bottom: 14px;
+            font-weight: 900;
+            font-size: 22px;
+        }
+        .auth-gate-actions { display: grid; gap: 10px; }
+        .btn-google {
+            background: #fff;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            gap: 10px;
+        }
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 14px 0;
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+        .auth-divider::before,
+        .auth-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        #auth-gate-message {
+            min-height: 20px;
+            margin-top: 12px;
+            color: var(--warning);
+            font-size: 13px;
+        }
+
         /* Conta / Firebase */
         .auth-status {
             display: inline-flex;
@@ -171,7 +236,44 @@
 </head>
 <body>
 
-<div id="app">
+
+<div id="auth-gate" class="auth-gate">
+    <div class="auth-gate-card">
+        <div class="auth-logo">PL</div>
+        <h2 style="margin-bottom: 6px;">ProjetoLeve</h2>
+        <p class="small" style="color: var(--text-secondary); margin-bottom: 18px;">
+            Entre para acessar seus dados. A interface principal fica bloqueada até a autenticação.
+        </p>
+
+        <div class="auth-gate-actions">
+            <button class="btn btn-google" id="btn-google-gate" type="button">
+                <span aria-hidden="true">G</span>
+                Entrar com Google
+            </button>
+        </div>
+
+        <div class="auth-divider">ou</div>
+
+        <form id="form-auth-gate">
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" id="gate-auth-email" autocomplete="email" placeholder="seuemail@exemplo.com" required>
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" id="gate-auth-senha" autocomplete="current-password" placeholder="mínimo 6 caracteres" required>
+            </div>
+            <div class="grid-2">
+                <button type="button" class="btn btn-primary" id="btn-login-gate">Entrar</button>
+                <button type="button" class="btn btn-outline" id="btn-cadastro-gate">Criar conta</button>
+            </div>
+        </form>
+
+        <div id="auth-gate-message">Verificando sessão...</div>
+    </div>
+</div>
+
+<div id="app" class="hidden">
     <div class="container">
         <!-- Header Dinâmico -->
         <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -361,6 +463,11 @@
 
             <div id="auth-login-card" class="card">
                 <h3>Entrar ou criar conta</h3>
+                <button class="btn btn-google" id="btn-google-conta" type="button" style="margin-bottom: 14px;">
+                    <span aria-hidden="true">G</span>
+                    Entrar com Google
+                </button>
+                <div class="auth-divider">ou</div>
                 <form id="form-auth">
                     <div class="form-group">
                         <label>E-mail</label>
@@ -411,7 +518,7 @@
 </div>
 
 <!-- Navigation Bar -->
-<nav>
+<nav id="bottom-nav" class="hidden">
     <a class="nav-item active" onclick="showView('dashboard', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         Dashboard
@@ -488,7 +595,10 @@ import {
     onAuthStateChanged,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    signOut
+    signOut,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInWithRedirect
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
     getFirestore,
@@ -510,10 +620,15 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
 let currentUser = null;
+let authInicializado = false;
 let salvamentoNuvemTimer = null;
 let carregandoDaNuvem = false;
 let ultimoStatusSync = "Aguardando login.";
+let activeViewId = "dashboard";
+let chartJsPromise = null;
 
 /**
  * CORE DATA MANAGEMENT
@@ -621,6 +736,38 @@ function definirStatusSync(msg) {
     if (el) el.innerText = msg;
 }
 
+function definirMensagemAuthGate(msg, tipo = 'info') {
+    const el = document.getElementById('auth-gate-message');
+    if (!el) return;
+    el.innerText = msg || '';
+    el.style.color = tipo === 'erro' ? 'var(--danger)' : (tipo === 'ok' ? 'var(--success)' : 'var(--warning)');
+}
+
+function alternarInterfaceAutenticada(logado) {
+    const gate = document.getElementById('auth-gate');
+    const app = document.getElementById('app');
+    const nav = document.getElementById('bottom-nav');
+
+    if (logado) {
+        gate?.classList.add('hidden');
+        app?.classList.remove('hidden');
+        nav?.classList.remove('hidden');
+    } else {
+        gate?.classList.remove('hidden');
+        app?.classList.add('hidden');
+        nav?.classList.add('hidden');
+    }
+}
+
+function obterCredenciaisAuth(prefixo = '') {
+    const emailId = prefixo ? `${prefixo}-auth-email` : 'auth-email';
+    const senhaId = prefixo ? `${prefixo}-auth-senha` : 'auth-senha';
+    return {
+        email: document.getElementById(emailId)?.value.trim() || '',
+        senha: document.getElementById(senhaId)?.value || ''
+    };
+}
+
 function renderConta() {
     const status = document.getElementById('auth-status');
     const userInfo = document.getElementById('auth-user-info');
@@ -714,33 +861,72 @@ async function carregarDadosDaNuvem(manual = false) {
     }
 }
 
-async function entrarUsuario() {
-    const email = document.getElementById('auth-email').value.trim();
-    const senha = document.getElementById('auth-senha').value;
-    if (!email || !senha) return alert('Informe e-mail e senha.');
+async function entrarUsuario(origem = '') {
+    const { email, senha } = obterCredenciaisAuth(origem);
+    if (!email || !senha) {
+        definirMensagemAuthGate('Informe e-mail e senha.', 'erro');
+        return alert('Informe e-mail e senha.');
+    }
 
     try {
         definirStatusSync('Entrando...');
+        definirMensagemAuthGate('Entrando...', 'info');
         await signInWithEmailAndPassword(auth, email, senha);
     } catch (error) {
-        alert('Erro ao entrar: ' + traduzirErroFirebase(error));
+        const msg = traduzirErroFirebase(error);
+        definirMensagemAuthGate('Erro ao entrar: ' + msg, 'erro');
+        alert('Erro ao entrar: ' + msg);
         definirStatusSync('Falha ao entrar.');
     }
 }
 
-async function cadastrarUsuario() {
-    const email = document.getElementById('auth-email').value.trim();
-    const senha = document.getElementById('auth-senha').value;
-    if (!email || !senha) return alert('Informe e-mail e senha.');
-    if (senha.length < 6) return alert('A senha precisa ter pelo menos 6 caracteres.');
+async function cadastrarUsuario(origem = '') {
+    const { email, senha } = obterCredenciaisAuth(origem);
+    if (!email || !senha) {
+        definirMensagemAuthGate('Informe e-mail e senha.', 'erro');
+        return alert('Informe e-mail e senha.');
+    }
+    if (senha.length < 6) {
+        definirMensagemAuthGate('A senha precisa ter pelo menos 6 caracteres.', 'erro');
+        return alert('A senha precisa ter pelo menos 6 caracteres.');
+    }
 
     try {
         definirStatusSync('Criando conta...');
+        definirMensagemAuthGate('Criando conta...', 'info');
         await createUserWithEmailAndPassword(auth, email, senha);
         alert('Conta criada com sucesso. Seus dados locais serão enviados para a nuvem.');
     } catch (error) {
-        alert('Erro ao criar conta: ' + traduzirErroFirebase(error));
+        const msg = traduzirErroFirebase(error);
+        definirMensagemAuthGate('Erro ao criar conta: ' + msg, 'erro');
+        alert('Erro ao criar conta: ' + msg);
         definirStatusSync('Falha ao criar conta.');
+    }
+}
+
+async function entrarComGoogle() {
+    try {
+        definirStatusSync('Entrando com Google...');
+        definirMensagemAuthGate('Abrindo login do Google...', 'info');
+        await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+        const code = error && error.code ? error.code : '';
+        if (code === 'auth/popup-blocked' || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+            try {
+                definirMensagemAuthGate('Redirecionando para o Google...', 'info');
+                await signInWithRedirect(auth, googleProvider);
+                return;
+            } catch (redirectError) {
+                const msgRedirect = traduzirErroFirebase(redirectError);
+                definirMensagemAuthGate('Erro no login Google: ' + msgRedirect, 'erro');
+                alert('Erro no login Google: ' + msgRedirect);
+            }
+        } else {
+            const msg = traduzirErroFirebase(error);
+            definirMensagemAuthGate('Erro no login Google: ' + msg, 'erro');
+            alert('Erro no login Google: ' + msg);
+        }
+        definirStatusSync('Falha ao entrar com Google.');
     }
 }
 
@@ -756,13 +942,17 @@ async function sairUsuario() {
 function observarLogin() {
     onAuthStateChanged(auth, async (user) => {
         currentUser = user;
+        authInicializado = true;
+        alternarInterfaceAutenticada(!!user);
         renderConta();
 
         if (user) {
+            definirMensagemAuthGate('Sessão confirmada.', 'ok');
             definirStatusSync('Login detectado. Sincronizando...');
             await carregarDadosDaNuvem(false);
         } else {
-            definirStatusSync('Desconectado. Salvamento apenas local.');
+            definirMensagemAuthGate('Faça login para abrir o app.', 'info');
+            definirStatusSync('Desconectado. A interface principal está bloqueada.');
         }
     });
 }
@@ -777,6 +967,9 @@ function traduzirErroFirebase(error) {
         'auth/email-already-in-use': 'este e-mail já está cadastrado.',
         'auth/weak-password': 'senha fraca. Use pelo menos 6 caracteres.',
         'auth/unauthorized-domain': 'domínio não autorizado no Firebase Authentication.',
+        'auth/popup-blocked': 'o navegador bloqueou o popup. Tentaremos redirecionar para o Google.',
+        'auth/popup-closed-by-user': 'a janela de login foi fechada antes de concluir.',
+        'auth/cancelled-popup-request': 'uma tentativa de login anterior foi cancelada.',
         'permission-denied': 'permissão negada. Confira as regras do Firestore.'
     };
     return mapa[code] || (error && error.message ? error.message : 'erro desconhecido.');
@@ -832,7 +1025,7 @@ function updateUI() {
     renderHistoricoPeso();
     renderMedidas();
     renderDezenal();
-    renderGraficos();
+    if (activeViewId === 'graficos') renderGraficos();
     renderConta();
     
     document.getElementById('user-greeting').innerText = appData.config.nome ? `Olá, ${appData.config.nome}` : "";
@@ -888,34 +1081,30 @@ function renderDashboard() {
 
 function renderHistoricoPeso() {
     const lista = document.getElementById('lista-historico');
-    lista.innerHTML = "";
-    
     const sorted = [...appData.pesos].sort((a, b) => b.data.localeCompare(a.data));
-    
-    sorted.forEach(p => {
+
+    lista.innerHTML = sorted.map(p => {
         const metaData = calcularMetaDaData(p.data);
         const dif = metaData - p.peso;
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${formatDateBR(p.data)}</td>
-            <td>${formatBR(p.peso)}</td>
-            <td>${formatBR(metaData)}</td>
-            <td class="${dif >= 0 ? 'positive' : 'negative'}">${dif > 0 ? '+' : ''}${formatBR(dif)}</td>
-            <td>
-                <button class="btn btn-outline" style="padding: 4px 8px; width: auto;" onclick="editarPeso('${p.id}')">✏️</button>
-                <button class="btn btn-outline" style="padding: 4px 8px; width: auto; border-color: var(--danger); color: var(--danger);" onclick="excluirPeso('${p.id}')">🗑️</button>
-            </td>
+        return `
+            <tr>
+                <td>${formatDateBR(p.data)}</td>
+                <td>${formatBR(p.peso)}</td>
+                <td>${formatBR(metaData)}</td>
+                <td class="${dif >= 0 ? 'positive' : 'negative'}">${dif > 0 ? '+' : ''}${formatBR(dif)}</td>
+                <td>
+                    <button class="btn btn-outline" style="padding: 4px 8px; width: auto;" onclick="editarPeso('${p.id}')">✏️</button>
+                    <button class="btn btn-outline" style="padding: 4px 8px; width: auto; border-color: var(--danger); color: var(--danger);" onclick="excluirPeso('${p.id}')">🗑️</button>
+                </td>
+            </tr>
         `;
-        lista.appendChild(row);
-    });
+    }).join('');
 }
 
 function renderMedidas() {
     const containerComparativo = document.getElementById('comparativo-medidas');
-    containerComparativo.innerHTML = "";
-
     const sorted = [...appData.medidas].sort((a, b) => b.data.localeCompare(a.data));
-    
+
     if (sorted.length > 0) {
         const atual = sorted[0];
         const anterior = sorted[1] || atual;
@@ -932,20 +1121,19 @@ function renderMedidas() {
             { label: 'Braço', key: 'braco', ideal: ideais.braco }
         ];
 
-        campos.forEach(c => {
+        containerComparativo.innerHTML = campos.map(c => {
             const vAtual = parseFloat(atual[c.key] || 0);
             const vAnterior = parseFloat(anterior[c.key] || 0);
             const diff = vAtual - vAnterior;
             const statusClass = diff < 0 ? 'positive' : (diff > 0 ? 'negative' : 'neutral');
-            
-            // Comparação com ideal
+
             let idealTxt = "";
             if(c.ideal) {
                 const diffIdeal = vAtual - c.ideal;
                 idealTxt = `<div class="small ${diffIdeal <= 0 ? 'positive' : 'negative'}">Ideal: ${c.ideal} (${diffIdeal > 0 ? '+' : ''}${formatBR(diffIdeal)})</div>`;
             }
 
-            containerComparativo.innerHTML += `
+            return `
                 <div class="card" style="padding: 10px;">
                     <div class="label">${c.label}</div>
                     <div class="value" style="font-size: 16px;">${formatBR(vAtual)}</div>
@@ -953,56 +1141,51 @@ function renderMedidas() {
                     ${idealTxt}
                 </div>
             `;
-        });
+        }).join('');
+    } else {
+        containerComparativo.innerHTML = "";
     }
 
     const lista = document.getElementById('lista-medidas');
-    lista.innerHTML = "";
-    sorted.forEach(m => {
-        lista.innerHTML += `
-            <tr>
-                <td>${formatDateBR(m.data)}</td>
-                <td>${formatBR(m.peso)}</td>
-                <td>${formatBR(m.cintura)}</td>
-                <td>
-                    <button class="btn btn-outline" style="padding: 4px 8px; width: auto;" onclick="editarMedida('${m.id}')">✏️</button>
-                    <button class="btn btn-outline" style="padding: 4px 8px; width: auto; border-color: var(--danger); color: var(--danger);" onclick="excluirMedida('${m.id}')">🗑️</button>
-                </td>
-            </tr>
-        `;
-    });
+    lista.innerHTML = sorted.map(m => `
+        <tr>
+            <td>${formatDateBR(m.data)}</td>
+            <td>${formatBR(m.peso)}</td>
+            <td>${formatBR(m.cintura)}</td>
+            <td>
+                <button class="btn btn-outline" style="padding: 4px 8px; width: auto;" onclick="editarMedida('${m.id}')">✏️</button>
+                <button class="btn btn-outline" style="padding: 4px 8px; width: auto; border-color: var(--danger); color: var(--danger);" onclick="excluirMedida('${m.id}')">🗑️</button>
+            </td>
+        </tr>
+    `).join('');
 }
 
 function renderDezenal() {
     const lista = document.getElementById('lista-dezenal');
-    lista.innerHTML = "";
-    
-    // Gerar datas: 10, 20 e último dia dos próximos 6 meses a partir da data inicial
+
+    // Gerar datas: 10, 20 e último dia dos próximos 18 meses a partir da data inicial
     let d = parseDate(appData.config.dataInicial);
     const datas = [];
-    
+
     for(let i=0; i<18; i++) {
         let year = d.getFullYear();
         let month = d.getMonth();
-        
-        // 10
+
         datas.push(`${year}-${String(month+1).padStart(2,'0')}-10`);
-        // 20
         datas.push(`${year}-${String(month+1).padStart(2,'0')}-20`);
-        // Ultimo dia
         let lastDay = new Date(year, month + 1, 0).getDate();
         datas.push(`${year}-${String(month+1).padStart(2,'0')}-${lastDay}`);
-        
+
         d.setMonth(d.getMonth() + 1);
     }
 
-    datas.sort().forEach(dt => {
+    lista.innerHTML = datas.sort().map(dt => {
         const meta = calcularMetaDaData(dt);
         const registro = appData.pesos.find(p => p.data === dt);
         const real = registro ? parseFloat(registro.peso) : null;
         const dif = real ? meta - real : null;
 
-        lista.innerHTML += `
+        return `
             <tr>
                 <td>${formatDateBR(dt)}</td>
                 <td>${formatBR(meta)}</td>
@@ -1012,15 +1195,41 @@ function renderDezenal() {
                 </td>
             </tr>
         `;
-    });
+    }).join('');
 }
 
 let chartPesoRef = null;
 let chartMedidasRef = null;
 
+function carregarChartJs() {
+    if (window.Chart) return Promise.resolve();
+    if (chartJsPromise) return chartJsPromise;
+
+    chartJsPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('Não foi possível carregar o Chart.js.'));
+        document.head.appendChild(script);
+    });
+
+    return chartJsPromise;
+}
+
 function renderGraficos() {
-    const ctxPeso = document.getElementById('chartPeso').getContext('2d');
-    const ctxMedidas = document.getElementById('chartMedidas').getContext('2d');
+    if (activeViewId !== 'graficos') return;
+    if (!window.Chart) {
+        carregarChartJs()
+            .then(() => renderGraficos())
+            .catch((error) => alert(error.message));
+        return;
+    }
+
+    const canvasPeso = document.getElementById('chartPeso');
+    const canvasMedidas = document.getElementById('chartMedidas');
+    if (!canvasPeso || !canvasMedidas) return;
+    const ctxPeso = canvasPeso.getContext('2d');
+    const ctxMedidas = canvasMedidas.getContext('2d');
 
     const sortedPesos = [...appData.pesos].sort((a, b) => a.data.localeCompare(b.data));
     const labels = sortedPesos.map(p => formatDateBR(p.data));
@@ -1037,7 +1246,7 @@ function renderGraficos() {
                 { label: 'Meta', data: dataMeta, borderColor: '#f59e0b', borderDash: [5, 5], tension: 0 }
             ]
         },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: false } } }
+        options: { responsive: true, maintainAspectRatio: false, animation: false, normalized: true, scales: { y: { beginAtZero: false } } }
     });
 
     const sortedMedidas = [...appData.medidas].sort((a, b) => a.data.localeCompare(b.data));
@@ -1054,7 +1263,7 @@ function renderGraficos() {
                 { label: 'Quadril', data: sortedMedidas.map(m => m.quadril), borderColor: '#38bdf8' }
             ]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: { responsive: true, maintainAspectRatio: false, animation: false, normalized: true }
     });
 }
 
@@ -1062,11 +1271,12 @@ function renderGraficos() {
  * ACTIONS & HANDLERS
  */
 function showView(viewId, navEl) {
+    activeViewId = viewId;
     document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
     document.getElementById('view-' + viewId).classList.remove('hidden');
     
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    navEl.classList.add('active');
+    if (navEl) navEl.classList.add('active');
 
     const titles = {
         dashboard: "Dashboard",
@@ -1086,8 +1296,12 @@ function showView(viewId, navEl) {
 }
 
 // Auth Form
-document.getElementById('btn-login').onclick = entrarUsuario;
-document.getElementById('btn-cadastro').onclick = cadastrarUsuario;
+document.getElementById('btn-login').onclick = () => entrarUsuario('');
+document.getElementById('btn-cadastro').onclick = () => cadastrarUsuario('');
+document.getElementById('btn-google-conta').onclick = entrarComGoogle;
+document.getElementById('btn-login-gate').onclick = () => entrarUsuario('gate');
+document.getElementById('btn-cadastro-gate').onclick = () => cadastrarUsuario('gate');
+document.getElementById('btn-google-gate').onclick = entrarComGoogle;
 document.getElementById('btn-logout').onclick = sairUsuario;
 document.getElementById('btn-upload-cloud').onclick = () => salvarDadosNaNuvem(true);
 document.getElementById('btn-download-cloud').onclick = () => {
@@ -1097,7 +1311,11 @@ document.getElementById('btn-download-cloud').onclick = () => {
 };
 document.getElementById('form-auth').onsubmit = function(e) {
     e.preventDefault();
-    entrarUsuario();
+    entrarUsuario('');
+};
+document.getElementById('form-auth-gate').onsubmit = function(e) {
+    e.preventDefault();
+    entrarUsuario('gate');
 };
 
 // Peso Form
@@ -1250,28 +1468,30 @@ function gerarTabelaMetas(dias) {
     const container = document.getElementById('container-tabela-metas');
     const tabela = document.getElementById('tabela-metas-futuras');
     container.classList.remove('hidden');
-    tabela.innerHTML = `<thead><tr><th>Data</th><th>Meta</th><th>Prev. Real</th></tr></thead><tbody></tbody>`;
-    
+
     const media = calcularMediaRealDia();
     const pesoAtual = obterPesoAtual();
     const hoje = new Date();
+    const linhas = [];
 
     for(let i=1; i<=dias; i++) {
         let dt = new Date();
         dt.setDate(hoje.getDate() + i);
         let iso = dt.toISOString().split('T')[0];
-        
+
         let meta = calcularMetaDaData(iso);
         let prev = pesoAtual + (i * media);
-        
-        tabela.querySelector('tbody').innerHTML += `
+
+        linhas.push(`
             <tr>
                 <td>${formatDateBR(iso)}</td>
                 <td>${formatBR(meta)}</td>
                 <td class="${prev <= meta ? 'positive' : 'negative'}">${formatBR(prev)}</td>
             </tr>
-        `;
+        `);
     }
+
+    tabela.innerHTML = `<thead><tr><th>Data</th><th>Meta</th><th>Prev. Real</th></tr></thead><tbody>${linhas.join('')}</tbody>`;
 }
 
 // Backup
