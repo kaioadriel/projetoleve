@@ -134,6 +134,14 @@
         /* Specific styles */
         .dash-card { border-left: 4px solid var(--accent); }
         .chart-container { position: relative; height: 300px; width: 100%; }
+        .filter-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+        .filter-row .btn { width: auto; padding: 9px 12px; min-height: 38px; font-size: 12px; }
+        .filter-row .btn.active-filter { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .compact-table table { table-layout: fixed; min-width: 0; }
+        .compact-table th, .compact-table td { padding: 7px 6px; font-size: 12px; vertical-align: middle; }
+        .compact-table .actions-cell { display: flex; gap: 4px; justify-content: center; align-items: center; }
+        .compact-action { width: 30px !important; min-height: 30px !important; height: 30px; padding: 0 !important; border-radius: 10px; font-size: 16px; font-weight: 900; }
+        .backup-danger-zone { margin-top: 14px; padding: 14px; border-radius: 18px; background: #fff7ed; border: 1px dashed rgba(217,119,6,.45); }
         
         /* Modal Simple */
         .modal {
@@ -491,7 +499,7 @@
             <div class="grid-2">
                 <div class="card dash-card"><div class="label">Peso Atual</div><div class="value" id="dash-peso-atual">--</div></div>
                 <div class="card dash-card"><div class="label">Meta de Hoje</div><div class="value" id="dash-meta-hoje">--</div></div>
-                <div class="card dash-card"><div class="label">Saldo</div><div class="value" id="dash-saldo">--</div></div>
+                <div class="card dash-card"><div class="label">Média/Dia</div><div class="value" id="dash-media-dia">--</div></div>
                 <div class="card dash-card"><div class="label">Total Perdido</div><div class="value" id="dash-total-perdido">--</div></div>
             </div>
             <div class="card">
@@ -500,7 +508,7 @@
                 <div class="small" id="dash-info-meta" style="margin-top: 10px; color: var(--text-secondary)"></div>
             </div>
             <div class="grid-2">
-                <div class="card"><div class="label">Média/Dia</div><div class="value" id="dash-media-dia">--</div></div>
+                <div class="card"><div class="label">Saldo</div><div class="value" id="dash-saldo">--</div></div>
                 <div class="card"><div class="label">Faltam</div><div class="value" id="dash-falta-kg">--</div></div>
             </div>
             <div class="card">
@@ -534,14 +542,13 @@
 
         <!-- Histórico Peso -->
         <section id="view-historico" class="view hidden">
-            <div class="table-container">
+            <div class="table-container compact-table">
                 <table>
                     <thead>
                         <tr>
                             <th>Data</th>
-                            <th>Real</th>
-                            <th>Meta</th>
-                            <th>Dif.</th>
+                            <th>Peso</th>
+                            <th>Falta</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -556,13 +563,13 @@
                 <button class="btn btn-outline" onclick="abrirModalMedida()">Nova Medição</button>
             </div>
             <div id="comparativo-medidas" class="grid-2"></div>
-            <div class="table-container" style="margin-top: 16px;">
+            <div class="table-container compact-table" style="margin-top: 16px;">
                 <table>
                     <thead>
                         <tr>
                             <th>Data</th>
                             <th>Peso</th>
-                            <th>Cintura</th>
+                            <th>Barriga</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -592,12 +599,10 @@
             <div class="card feature-card">
                 <h3>Gerar Planejamento</h3>
                 <div class="planning-filter-grid">
-                    <button class="btn btn-outline" onclick="gerarTabelaMetas(7)">7 dias</button>
-                    <button class="btn btn-outline" onclick="gerarTabelaMetas(15)">15 dias</button>
-                    <button class="btn btn-outline" onclick="gerarTabelaMetas(30)">30 dias</button>
-                    <button class="btn btn-outline" onclick="gerarTabelaMetas(90)">3 meses</button>
-                    <button class="btn btn-outline" onclick="gerarTabelaMetas(180)">6 meses</button>
-                    <button class="btn btn-outline" onclick="gerarTabelaMetas(365)">1 ano</button>
+                    <button class="btn btn-outline" onclick="gerarTabelaMetas('diario')">Diário</button>
+                    <button class="btn btn-outline" onclick="gerarTabelaMetas('semanal')">Semanal</button>
+                    <button class="btn btn-outline" onclick="gerarTabelaMetas('mensal')">Mensal</button>
+                    <button class="btn btn-outline" onclick="gerarTabelaMetas('anual')">Anual</button>
                 </div>
                 <button class="btn btn-danger ghost-danger" style="margin-top: 12px;" onclick="limparFiltroMetas()">Limpar Filtro</button>
             </div>
@@ -609,7 +614,19 @@
         <!-- Gráficos -->
         <section id="view-graficos" class="view hidden">
             <div class="card">
-                <h3>Peso x Meta</h3>
+                <h3>Filtros dos gráficos</h3>
+                <div class="filter-row" id="grafico-filtros">
+                    <button type="button" class="btn btn-outline active-filter" onclick="alterarFiltroGrafico('inicio', this)">Início</button>
+                    <button type="button" class="btn btn-outline" onclick="alterarFiltroGrafico('7d', this)">7 dias</button>
+                    <button type="button" class="btn btn-outline" onclick="alterarFiltroGrafico('1m', this)">1 mês</button>
+                    <button type="button" class="btn btn-outline" onclick="alterarFiltroGrafico('3m', this)">3 meses</button>
+                    <button type="button" class="btn btn-outline" onclick="alterarFiltroGrafico('6m', this)">6 meses</button>
+                    <button type="button" class="btn btn-outline" onclick="alterarFiltroGrafico('1a', this)">1 ano</button>
+                    <button type="button" class="btn btn-outline" onclick="alterarFiltroGrafico('5a', this)">5 anos</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Pesos registrados</h3>
                 <div class="chart-container"><canvas id="chartPeso"></canvas></div>
             </div>
             <div class="card">
@@ -637,13 +654,17 @@
                     <div class="grid-2">
                         <div class="form-group"><label>Pescoço</label><input type="number" step="0.1" id="id-pescoco"></div>
                         <div class="form-group"><label>Peito</label><input type="number" step="0.1" id="id-peito"></div>
-                        <div class="form-group"><label>Cintura</label><input type="number" step="0.1" id="id-cintura"></div>
+                        <div class="form-group"><label>Barriga</label><input type="number" step="0.1" id="id-cintura"></div>
                         <div class="form-group"><label>Quadril</label><input type="number" step="0.1" id="id-quadril"></div>
                         <div class="form-group"><label>Coxa</label><input type="number" step="0.1" id="id-coxa"></div>
                         <div class="form-group"><label>Panturrilha</label><input type="number" step="0.1" id="id-panturrilha"></div>
                         <div class="form-group"><label>Braço</label><input type="number" step="0.1" id="id-braco"></div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+                    <button type="button" class="btn btn-outline" style="margin-bottom: 12px;" onclick="limparMedidasIdeais()">Limpar Medidas Ideais</button>
+                    <div class="grid-2">
+                        <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+                        <button type="button" class="btn btn-outline" onclick="limparPerfilMetas()">Limpar Perfil e Metas</button>
+                    </div>
                 </form>
             </div>
         </section>
@@ -709,6 +730,18 @@
                         <input type="file" id="input-import" class="hidden" accept=".json" onchange="importarBackup(event)">
                     </label>
                 </div>
+                <div class="grid-2" style="margin-top: 12px;">
+                    <button class="btn btn-outline" onclick="gerarRelatorioPDF()">Gerar PDF</button>
+                    <button class="btn btn-outline" onclick="gerarRelatorioCSV()">Gerar CSV</button>
+                </div>
+                <div class="backup-danger-zone">
+                    <h3>Limpeza por data</h3>
+                    <p class="small" style="margin-bottom: 10px; color: var(--text-secondary)">Exclui pesos, medidas e metas personalizadas da data escolhida e anteriores.</p>
+                    <div class="inline-action-row">
+                        <input type="date" id="limpar-ate-data">
+                        <button class="btn btn-danger" style="width: auto;" onclick="limparRegistrosAteData()">Limpar a Partir de</button>
+                    </div>
+                </div>
                 <button class="btn btn-danger" style="margin-top: 12px;" onclick="limparTudo()">Limpar Todo o App</button>
                 <div id="backup-info" class="small text-center" style="margin-top: 15px; color: var(--text-secondary)"></div>
             </div>
@@ -768,7 +801,7 @@
             <div class="grid-2">
                 <div class="form-group"><label>Pescoço</label><input type="number" step="0.1" id="med-pescoco"></div>
                 <div class="form-group"><label>Peito</label><input type="number" step="0.1" id="med-peito"></div>
-                <div class="form-group"><label>Cintura</label><input type="number" step="0.1" id="med-cintura"></div>
+                <div class="form-group"><label>Barriga</label><input type="number" step="0.1" id="med-cintura"></div>
                 <div class="form-group"><label>Quadril</label><input type="number" step="0.1" id="med-quadril"></div>
                 <div class="form-group"><label>Coxa</label><input type="number" step="0.1" id="med-coxa"></div>
                 <div class="form-group"><label>Panturrilha</label><input type="number" step="0.1" id="med-panturrilha"></div>
@@ -824,6 +857,8 @@ let carregandoDaNuvem = false;
 let ultimoStatusSync = "Aguardando login.";
 let activeViewId = "dashboard";
 let chartJsPromise = null;
+let filtroGraficoAtual = "inicio";
+const DATA_HOJE_INICIAL = new Date().toISOString().split("T")[0];
 
 /**
  * CORE DATA MANAGEMENT
@@ -831,12 +866,12 @@ let chartJsPromise = null;
 let appData = {
     config: {
         nome: "",
-        dataInicial: "2025-01-01",
-        pesoInicial: 99.3,
-        pesoMeta: 60.0,
-        metaKgPorDia: -0.05,
+        dataInicial: DATA_HOJE_INICIAL,
+        pesoInicial: "",
+        pesoMeta: "",
+        metaKgPorDia: "",
         medidasIdeais: {
-            pescoco: 37, peito: 97, cintura: 73, quadril: 88, coxa: 52, panturrilha: 35, braco: 35
+            pescoco: "", peito: "", cintura: "", quadril: "", coxa: "", panturrilha: "", braco: ""
         }
     },
     pesos: [],
@@ -849,12 +884,12 @@ function normalizarDados(raw) {
     const padrao = {
         config: {
             nome: "",
-            dataInicial: "2025-01-01",
-            pesoInicial: 99.3,
-            pesoMeta: 60.0,
-            metaKgPorDia: -0.05,
+            dataInicial: DATA_HOJE_INICIAL,
+            pesoInicial: "",
+            pesoMeta: "",
+            metaKgPorDia: "",
             medidasIdeais: {
-                pescoco: 37, peito: 97, cintura: 73, quadril: 88, coxa: 52, panturrilha: 35, braco: 35
+                pescoco: "", peito: "", cintura: "", quadril: "", coxa: "", panturrilha: "", braco: ""
             }
         },
         pesos: [],
@@ -880,7 +915,7 @@ function normalizarDados(raw) {
 
 function preencherCamposConfig() {
     document.getElementById('cfg-nome').value = appData.config.nome || "";
-    document.getElementById('cfg-data-init').value = appData.config.dataInicial || "2025-01-01";
+    document.getElementById('cfg-data-init').value = appData.config.dataInicial || DATA_HOJE_INICIAL;
     document.getElementById('cfg-peso-init').value = appData.config.pesoInicial ?? "";
     document.getElementById('cfg-peso-meta').value = appData.config.pesoMeta ?? "";
     document.getElementById('cfg-meta-dia').value = appData.config.metaKgPorDia ?? "";
@@ -1179,8 +1214,31 @@ function traduzirErroFirebase(error) {
 /**
  * CALCULATIONS ENGINE
  */
+function hojeISO() {
+    return new Date().toISOString().split('T')[0];
+}
+
 function parseDate(dateStr) {
+    if (!dateStr) return new Date(hojeISO() + 'T12:00:00');
     return new Date(dateStr + 'T12:00:00');
+}
+
+function addDiasISO(iso, dias) {
+    const dt = parseDate(iso);
+    dt.setDate(dt.getDate() + dias);
+    return dt.toISOString().split('T')[0];
+}
+
+function addMesesISO(iso, meses) {
+    const dt = parseDate(iso);
+    dt.setMonth(dt.getMonth() + meses);
+    return dt.toISOString().split('T')[0];
+}
+
+function addAnosISO(iso, anos) {
+    const dt = parseDate(iso);
+    dt.setFullYear(dt.getFullYear() + anos);
+    return dt.toISOString().split('T')[0];
 }
 
 function diffDays(d1, d2) {
@@ -1189,8 +1247,41 @@ function diffDays(d1, d2) {
     return Math.floor((t1 - t2) / (1000 * 60 * 60 * 24));
 }
 
+function numeroValido(valor) {
+    const n = Number(valor);
+    return Number.isFinite(n) ? n : null;
+}
+
+function numeroOuVazio(valor) {
+    if (valor === null || valor === undefined || valor === '') return '';
+    const n = Number(valor);
+    return Number.isFinite(n) ? n : '';
+}
+
+function temConfigCalculo() {
+    return !!appData.config.dataInicial &&
+        numeroValido(appData.config.pesoInicial) !== null &&
+        numeroValido(appData.config.pesoMeta) !== null &&
+        numeroValido(appData.config.metaKgPorDia) !== null;
+}
+
 function formatBR(num) {
-    return Number(num).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+    const n = Number(num);
+    if (!Number.isFinite(n)) return '--';
+    return n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+}
+
+function formatComSinal(num) {
+    const n = Number(num);
+    if (!Number.isFinite(n)) return '--';
+    return (n >= 0 ? '+' : '') + formatBR(n);
+}
+
+function classePositivoNegativo(num, positivoVerde = true) {
+    const n = Number(num);
+    if (!Number.isFinite(n) || n === 0) return 'neutral';
+    if (positivoVerde) return n > 0 ? 'positive' : 'negative';
+    return n < 0 ? 'positive' : 'negative';
 }
 
 function formatDateBR(iso) {
@@ -1199,25 +1290,60 @@ function formatDateBR(iso) {
     return `${d}/${m}/${y}`;
 }
 
+function formatDateChart(iso) {
+    if(!iso) return '--';
+    const [y, m, d] = iso.split('-');
+    return filtroGraficoAtual === '5a' ? `${d}/${m}/${String(y).slice(2)}` : `${d}/${m}`;
+}
+
 function calcularMetaDaData(dataAlvo) {
+    if (!temConfigCalculo()) return NaN;
     const dias = diffDays(dataAlvo, appData.config.dataInicial);
-    return appData.config.pesoInicial + (dias * appData.config.metaKgPorDia);
+    return numeroValido(appData.config.pesoInicial) + (dias * numeroValido(appData.config.metaKgPorDia));
+}
+
+function obterPesosValidosParaCalculo() {
+    const dataInicial = appData.config.dataInicial || hojeISO();
+    return [...appData.pesos]
+        .filter(p => p && p.data && p.data >= dataInicial && Number.isFinite(Number(p.peso)))
+        .sort((a, b) => a.data.localeCompare(b.data));
+}
+
+function obterMedidasValidasParaCalculo() {
+    const dataInicial = appData.config.dataInicial || hojeISO();
+    return [...appData.medidas]
+        .filter(m => m && m.data && m.data >= dataInicial)
+        .sort((a, b) => a.data.localeCompare(b.data));
 }
 
 function obterPesoAtual() {
-    if (appData.pesos.length === 0) return appData.config.pesoInicial;
-    const sorted = [...appData.pesos].sort((a, b) => b.data.localeCompare(a.data));
-    return parseFloat(sorted[0].peso);
+    const pesoInicial = numeroValido(appData.config.pesoInicial);
+    const pesosValidos = obterPesosValidosParaCalculo();
+    if (pesosValidos.length === 0) return pesoInicial;
+    return parseFloat(pesosValidos[pesosValidos.length - 1].peso);
 }
 
 function calcularMediaRealDia() {
-    if (appData.pesos.length < 1) return 0;
+    if (!temConfigCalculo()) return NaN;
     const atual = obterPesoAtual();
-    const dias = diffDays(new Date().toISOString().split('T')[0], appData.config.dataInicial);
+    if (!Number.isFinite(atual)) return NaN;
+    const dias = diffDays(hojeISO(), appData.config.dataInicial);
     if (dias <= 0) return 0;
-    return (atual - appData.config.pesoInicial) / dias;
+    return (atual - numeroValido(appData.config.pesoInicial)) / dias;
 }
 
+function obterInicioFiltroGrafico() {
+    const hoje = hojeISO();
+    const dataInicial = appData.config.dataInicial || hoje;
+    let inicio = dataInicial;
+    if (filtroGraficoAtual === '7d') inicio = addDiasISO(hoje, -7);
+    if (filtroGraficoAtual === '1m') inicio = addMesesISO(hoje, -1);
+    if (filtroGraficoAtual === '3m') inicio = addMesesISO(hoje, -3);
+    if (filtroGraficoAtual === '6m') inicio = addMesesISO(hoje, -6);
+    if (filtroGraficoAtual === '1a') inicio = addAnosISO(hoje, -1);
+    if (filtroGraficoAtual === '5a') inicio = addAnosISO(hoje, -5);
+    return inicio > dataInicial ? inicio : dataInicial;
+}
 /**
  * UI RENDERING
  */
@@ -1225,6 +1351,7 @@ function updateUI() {
     renderDashboard();
     renderHistoricoPeso();
     renderMedidas();
+    renderMetasPersonalizadas();
     if (activeViewId === 'graficos') renderGraficos();
     renderConta();
     
@@ -1233,46 +1360,72 @@ function updateUI() {
 }
 
 function renderDashboard() {
-    const hoje = new Date().toISOString().split('T')[0];
+    const hoje = hojeISO();
     const pesoAtual = obterPesoAtual();
     const metaHoje = calcularMetaDaData(hoje);
-    const saldo = metaHoje - pesoAtual;
-    const totalPerdido = pesoAtual - appData.config.pesoInicial;
-    const falta = appData.config.pesoMeta - pesoAtual;
-    const media = calcularMediaRealDia();
+    const pesoInicial = numeroValido(appData.config.pesoInicial);
+    const pesoMeta = numeroValido(appData.config.pesoMeta);
+    const metaDia = numeroValido(appData.config.metaKgPorDia);
 
-    document.getElementById('dash-peso-atual').innerText = formatBR(pesoAtual) + ' kg';
-    document.getElementById('dash-meta-hoje').innerText = formatBR(metaHoje) + ' kg';
-    
-    const elSaldo = document.getElementById('dash-saldo');
-    elSaldo.innerText = (saldo > 0 ? '+' : '') + formatBR(saldo) + ' kg';
-    elSaldo.className = 'value ' + (saldo >= 0 ? 'positive' : 'negative');
-
-    document.getElementById('dash-total-perdido').innerText = formatBR(totalPerdido) + ' kg';
-    document.getElementById('dash-media-dia').innerText = formatBR(media) + ' kg';
-    document.getElementById('dash-falta-kg').innerText = formatBR(Math.abs(falta)) + ' kg';
-
-    const statusEl = document.getElementById('dash-status');
-    if (saldo > 0.5) {
-        statusEl.innerText = "ABAIXO DA META ✅";
-        statusEl.className = "value positive";
-    } else if (saldo < -0.5) {
-        statusEl.innerText = "ACIMA DA META ⚠️";
-        statusEl.className = "value negative";
-    } else {
-        statusEl.innerText = "DENTRO DA META 🎯";
-        statusEl.className = "value neutral";
+    const elementos = ['dash-peso-atual','dash-meta-hoje','dash-saldo','dash-total-perdido','dash-media-dia','dash-falta-kg'];
+    if (!temConfigCalculo() || !Number.isFinite(pesoAtual)) {
+        elementos.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.innerText = '--'; el.className = 'value neutral'; }
+        });
+        document.getElementById('dash-status').innerText = 'CONFIGURE A META 🎯';
+        document.getElementById('dash-status').className = 'value neutral';
+        document.getElementById('dash-info-meta').innerText = 'Preencha Perfil e Metas na aba Ajustes para ativar os cálculos.';
+        document.getElementById('dash-previsao').innerText = '--';
+        return;
     }
 
-    document.getElementById('dash-info-meta').innerText = `Meta final: ${formatBR(appData.config.pesoMeta)} kg | Ritmo: ${appData.config.metaKgPorDia} kg/dia`;
+    const saldo = metaHoje - pesoAtual;
+    const totalPerdido = pesoAtual - pesoInicial;
+    const falta = pesoMeta - pesoAtual;
+    const media = calcularMediaRealDia();
+
+    const elPesoAtual = document.getElementById('dash-peso-atual');
+    elPesoAtual.innerText = formatBR(pesoAtual) + ' kg';
+    elPesoAtual.className = 'value ' + (pesoAtual <= metaHoje ? 'positive' : 'negative');
+
+    document.getElementById('dash-meta-hoje').innerText = formatBR(metaHoje) + ' kg';
+    document.getElementById('dash-meta-hoje').className = 'value neutral';
+    
+    const elSaldo = document.getElementById('dash-saldo');
+    elSaldo.innerText = formatComSinal(saldo) + ' kg';
+    elSaldo.className = 'value ' + classePositivoNegativo(saldo, true);
+
+    const elTotal = document.getElementById('dash-total-perdido');
+    elTotal.innerText = formatComSinal(totalPerdido) + ' kg';
+    elTotal.className = 'value ' + classePositivoNegativo(totalPerdido, false);
+
+    const elMedia = document.getElementById('dash-media-dia');
+    elMedia.innerText = formatComSinal(media) + ' kg';
+    elMedia.className = 'value ' + classePositivoNegativo(media, false);
+
+    const elFalta = document.getElementById('dash-falta-kg');
+    elFalta.innerText = formatComSinal(falta) + ' kg';
+    elFalta.className = 'value ' + classePositivoNegativo(falta, true);
+
+    const statusEl = document.getElementById('dash-status');
+    if (saldo >= -0.5) {
+        statusEl.innerText = "META EM DIA ✅";
+        statusEl.className = "value positive";
+    } else {
+        statusEl.innerText = "META EM ATRASO ⚠️";
+        statusEl.className = "value negative";
+    }
+
+    document.getElementById('dash-info-meta').innerText = `Meta final: ${formatBR(pesoMeta)} kg | Meta/Dia: ${metaDia} kg/dia`;
 
     const previsaoEl = document.getElementById('dash-previsao');
-    if (media < 0 && pesoAtual > appData.config.pesoMeta) {
-        const diasRestantes = (appData.config.pesoMeta - pesoAtual) / media;
+    if (Number.isFinite(media) && media < 0 && pesoAtual > pesoMeta) {
+        const diasRestantes = (pesoMeta - pesoAtual) / media;
         const dataPrevisao = new Date();
         dataPrevisao.setDate(dataPrevisao.getDate() + diasRestantes);
         previsaoEl.innerText = dataPrevisao.toLocaleDateString('pt-BR');
-    } else if (pesoAtual <= appData.config.pesoMeta) {
+    } else if (pesoAtual <= pesoMeta) {
         previsaoEl.innerText = "Meta Atingida!";
     } else {
         previsaoEl.innerText = "Sem previsão (ganhando peso)";
@@ -1282,19 +1435,18 @@ function renderDashboard() {
 function renderHistoricoPeso() {
     const lista = document.getElementById('lista-historico');
     const sorted = [...appData.pesos].sort((a, b) => b.data.localeCompare(a.data));
+    const pesoMeta = numeroValido(appData.config.pesoMeta);
 
     lista.innerHTML = sorted.map(p => {
-        const metaData = calcularMetaDaData(p.data);
-        const dif = metaData - p.peso;
+        const falta = Number.isFinite(pesoMeta) ? pesoMeta - Number(p.peso) : NaN;
         return `
             <tr>
                 <td>${formatDateBR(p.data)}</td>
                 <td>${formatBR(p.peso)}</td>
-                <td>${formatBR(metaData)}</td>
-                <td class="${dif >= 0 ? 'positive' : 'negative'}">${dif > 0 ? '+' : ''}${formatBR(dif)}</td>
-                <td>
-                    <button class="btn btn-outline" style="padding: 4px 8px; width: auto;" onclick="editarPeso('${p.id}')">✏️</button>
-                    <button class="btn btn-outline" style="padding: 4px 8px; width: auto; border-color: var(--danger); color: var(--danger);" onclick="excluirPeso('${p.id}')">🗑️</button>
+                <td class="${classePositivoNegativo(falta, true)}">${formatComSinal(falta)}</td>
+                <td class="actions-cell">
+                    <button class="btn btn-outline compact-action" title="Editar" onclick="editarPeso('${p.id}')">+</button>
+                    <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirPeso('${p.id}')">−</button>
                 </td>
             </tr>
         `;
@@ -1308,13 +1460,13 @@ function renderMedidas() {
     if (sorted.length > 0) {
         const atual = sorted[0];
         const anterior = sorted[1] || atual;
-        const ideais = appData.config.medidasIdeais;
+        const ideais = appData.config.medidasIdeais || {};
 
         const campos = [
             { label: 'Peso', key: 'peso', ideal: null },
             { label: 'Pescoço', key: 'pescoco', ideal: ideais.pescoco },
             { label: 'Peito', key: 'peito', ideal: ideais.peito },
-            { label: 'Cintura', key: 'cintura', ideal: ideais.cintura },
+            { label: 'Barriga', key: 'cintura', ideal: ideais.cintura },
             { label: 'Quadril', key: 'quadril', ideal: ideais.quadril },
             { label: 'Coxa', key: 'coxa', ideal: ideais.coxa },
             { label: 'Pant.', key: 'panturrilha', ideal: ideais.panturrilha },
@@ -1326,18 +1478,19 @@ function renderMedidas() {
             const vAnterior = parseFloat(anterior[c.key] || 0);
             const diff = vAtual - vAnterior;
             const statusClass = diff < 0 ? 'positive' : (diff > 0 ? 'negative' : 'neutral');
+            const idealNumero = numeroValido(c.ideal);
 
             let idealTxt = "";
-            if(c.ideal) {
-                const diffIdeal = vAtual - c.ideal;
-                idealTxt = `<div class="small ${diffIdeal <= 0 ? 'positive' : 'negative'}">Ideal: ${c.ideal} (${diffIdeal > 0 ? '+' : ''}${formatBR(diffIdeal)})</div>`;
+            if(idealNumero !== null) {
+                const diffIdeal = vAtual - idealNumero;
+                idealTxt = `<div class="small ${diffIdeal <= 0 ? 'positive' : 'negative'}">Ideal: ${formatBR(idealNumero)} (${formatComSinal(diffIdeal)})</div>`;
             }
 
             return `
                 <div class="card" style="padding: 10px;">
                     <div class="label">${c.label}</div>
                     <div class="value" style="font-size: 16px;">${formatBR(vAtual)}</div>
-                    <div class="small ${statusClass}">${diff > 0 ? '+' : ''}${formatBR(diff)} vs ant.</div>
+                    <div class="small ${statusClass}">${formatComSinal(diff)} vs ant.</div>
                     ${idealTxt}
                 </div>
             `;
@@ -1352,9 +1505,9 @@ function renderMedidas() {
             <td>${formatDateBR(m.data)}</td>
             <td>${formatBR(m.peso)}</td>
             <td>${formatBR(m.cintura)}</td>
-            <td>
-                <button class="btn btn-outline" style="padding: 4px 8px; width: auto;" onclick="editarMedida('${m.id}')">✏️</button>
-                <button class="btn btn-outline" style="padding: 4px 8px; width: auto; border-color: var(--danger); color: var(--danger);" onclick="excluirMedida('${m.id}')">🗑️</button>
+            <td class="actions-cell">
+                <button class="btn btn-outline compact-action" title="Editar" onclick="editarMedida('${m.id}')">+</button>
+                <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirMedida('${m.id}')">−</button>
             </td>
         </tr>
     `).join('');
@@ -1378,6 +1531,13 @@ function carregarChartJs() {
     return chartJsPromise;
 }
 
+function alterarFiltroGrafico(filtro, btn) {
+    filtroGraficoAtual = filtro;
+    document.querySelectorAll('#grafico-filtros .btn').forEach(b => b.classList.remove('active-filter'));
+    if (btn) btn.classList.add('active-filter');
+    renderGraficos();
+}
+
 function renderGraficos() {
     if (activeViewId !== 'graficos') return;
     if (!window.Chart) {
@@ -1392,11 +1552,11 @@ function renderGraficos() {
     if (!canvasPeso || !canvasMedidas) return;
     const ctxPeso = canvasPeso.getContext('2d');
     const ctxMedidas = canvasMedidas.getContext('2d');
+    const inicioFiltro = obterInicioFiltroGrafico();
 
-    const sortedPesos = [...appData.pesos].sort((a, b) => a.data.localeCompare(b.data));
-    const labels = sortedPesos.map(p => formatDateBR(p.data));
+    const sortedPesos = obterPesosValidosParaCalculo().filter(p => p.data >= inicioFiltro);
+    const labels = sortedPesos.map(p => formatDateChart(p.data));
     const dataReal = sortedPesos.map(p => p.peso);
-    const dataMeta = sortedPesos.map(p => calcularMetaDaData(p.data));
 
     if(chartPesoRef) chartPesoRef.destroy();
     chartPesoRef = new Chart(ctxPeso, {
@@ -1404,15 +1564,14 @@ function renderGraficos() {
         data: {
             labels: labels,
             datasets: [
-                { label: 'Real', data: dataReal, borderColor: '#38bdf8', tension: 0.3 },
-                { label: 'Meta', data: dataMeta, borderColor: '#f59e0b', borderDash: [5, 5], tension: 0 }
+                { label: 'Peso', data: dataReal, borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,.12)', tension: 0.3 }
             ]
         },
         options: { responsive: true, maintainAspectRatio: false, animation: false, normalized: true, scales: { y: { beginAtZero: false } } }
     });
 
-    const sortedMedidas = [...appData.medidas].sort((a, b) => a.data.localeCompare(b.data));
-    const labelsMed = sortedMedidas.map(m => formatDateBR(m.data));
+    const sortedMedidas = obterMedidasValidasParaCalculo().filter(m => m.data >= inicioFiltro);
+    const labelsMed = sortedMedidas.map(m => formatDateChart(m.data));
     
     if(chartMedidasRef) chartMedidasRef.destroy();
     chartMedidasRef = new Chart(ctxMedidas, {
@@ -1420,8 +1579,8 @@ function renderGraficos() {
         data: {
             labels: labelsMed,
             datasets: [
-                { label: 'Cintura', data: sortedMedidas.map(m => m.cintura), borderColor: '#ef4444' },
-                { label: 'Peito', data: sortedMedidas.map(m => m.peito), borderColor: '#22c55e' },
+                { label: 'Barriga', data: sortedMedidas.map(m => m.cintura), borderColor: '#ef4444' },
+                { label: 'Coxa', data: sortedMedidas.map(m => m.coxa), borderColor: '#22c55e' },
                 { label: 'Quadril', data: sortedMedidas.map(m => m.quadril), borderColor: '#38bdf8' }
             ]
         },
@@ -1452,8 +1611,11 @@ function showView(viewId, navEl) {
         backup: "Backup"
     };
     document.getElementById('page-title').innerText = titles[viewId];
-    
-    if(viewId === 'graficos') renderGraficos();
+
+    if (viewId === 'peso' && !document.getElementById('edit-peso-id').value) {
+        document.getElementById('peso-data').value = hojeISO();
+    }
+    if (viewId === 'graficos') renderGraficos();
 }
 
 // Auth Form
@@ -1498,6 +1660,7 @@ document.getElementById('form-peso').onsubmit = function(e) {
     }
 
     this.reset();
+    document.getElementById('peso-data').value = hojeISO();
     document.getElementById('edit-peso-id').value = "";
     salvarDados();
     showView('historico', document.querySelectorAll('.nav-item')[2]);
@@ -1509,7 +1672,7 @@ function editarPeso(id) {
     document.getElementById('edit-peso-id').value = p.id;
     document.getElementById('peso-data').value = p.data;
     document.getElementById('peso-valor').value = p.peso;
-    document.getElementById('peso-obs').value = p.observacoes;
+    document.getElementById('peso-obs').value = p.observacoes || '';
     showView('peso', document.querySelectorAll('.nav-item')[1]);
 }
 
@@ -1520,22 +1683,37 @@ function excluirPeso(id) {
 }
 
 // Config Form
+function limparPerfilMetas() {
+    document.getElementById('cfg-nome').value = '';
+    document.getElementById('cfg-data-init').value = hojeISO();
+    document.getElementById('cfg-peso-init').value = '';
+    document.getElementById('cfg-peso-meta').value = '';
+    document.getElementById('cfg-meta-dia').value = '';
+}
+
+function limparMedidasIdeais() {
+    ['id-pescoco','id-peito','id-cintura','id-quadril','id-coxa','id-panturrilha','id-braco'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+}
+
 document.getElementById('form-config').onsubmit = function(e) {
     e.preventDefault();
-    appData.config.nome = document.getElementById('cfg-nome').value;
-    appData.config.dataInicial = document.getElementById('cfg-data-init').value;
-    appData.config.pesoInicial = parseFloat(document.getElementById('cfg-peso-init').value);
-    appData.config.pesoMeta = parseFloat(document.getElementById('cfg-peso-meta').value);
-    appData.config.metaKgPorDia = parseFloat(document.getElementById('cfg-meta-dia').value);
+    appData.config.nome = document.getElementById('cfg-nome').value.trim();
+    appData.config.dataInicial = document.getElementById('cfg-data-init').value || hojeISO();
+    appData.config.pesoInicial = numeroOuVazio(document.getElementById('cfg-peso-init').value);
+    appData.config.pesoMeta = numeroOuVazio(document.getElementById('cfg-peso-meta').value);
+    appData.config.metaKgPorDia = numeroOuVazio(document.getElementById('cfg-meta-dia').value);
 
     appData.config.medidasIdeais = {
-        pescoco: parseFloat(document.getElementById('id-pescoco').value),
-        peito: parseFloat(document.getElementById('id-peito').value),
-        cintura: parseFloat(document.getElementById('id-cintura').value),
-        quadril: parseFloat(document.getElementById('id-quadril').value),
-        coxa: parseFloat(document.getElementById('id-coxa').value),
-        panturrilha: parseFloat(document.getElementById('id-panturrilha').value),
-        braco: parseFloat(document.getElementById('id-braco').value)
+        pescoco: numeroOuVazio(document.getElementById('id-pescoco').value),
+        peito: numeroOuVazio(document.getElementById('id-peito').value),
+        cintura: numeroOuVazio(document.getElementById('id-cintura').value),
+        quadril: numeroOuVazio(document.getElementById('id-quadril').value),
+        coxa: numeroOuVazio(document.getElementById('id-coxa').value),
+        panturrilha: numeroOuVazio(document.getElementById('id-panturrilha').value),
+        braco: numeroOuVazio(document.getElementById('id-braco').value)
     };
 
     salvarDados();
@@ -1693,7 +1871,7 @@ function escapeHtml(str) {
     return String(str || '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 }
 
-function gerarTabelaMetas(dias) {
+function gerarTabelaMetas(tipo) {
     const container = document.getElementById('container-tabela-metas');
     const tabela = document.getElementById('tabela-metas-futuras');
     container.classList.remove('hidden');
@@ -1701,22 +1879,27 @@ function gerarTabelaMetas(dias) {
     
     const media = calcularMediaRealDia();
     const pesoAtual = obterPesoAtual();
-    const hoje = new Date();
+    const hoje = hojeISO();
     const linhas = [];
+    const configuracoes = {
+        diario: { total: 30, titulo: 'Diário', proximaData: (i) => addDiasISO(hoje, i) },
+        semanal: { total: 30, titulo: 'Semanal', proximaData: (i) => addDiasISO(hoje, i * 7) },
+        mensal: { total: 30, titulo: 'Mensal', proximaData: (i) => addMesesISO(hoje, i) },
+        anual: { total: 5, titulo: 'Anual', proximaData: (i) => addAnosISO(hoje, i) }
+    };
+    const config = configuracoes[tipo] || configuracoes.diario;
 
-    for(let i=1; i<=dias; i++) {
-        let dt = new Date();
-        dt.setDate(hoje.getDate() + i);
-        let iso = dt.toISOString().split('T')[0];
-        
-        let meta = calcularMetaDaData(iso);
-        let prev = pesoAtual + (i * media);
+    for(let i = 1; i <= config.total; i++) {
+        const iso = config.proximaData(i);
+        const diasAteData = diffDays(iso, hoje);
+        const meta = calcularMetaDaData(iso);
+        const prev = Number.isFinite(media) && Number.isFinite(pesoAtual) ? pesoAtual + (diasAteData * media) : NaN;
         
         linhas.push(`
             <tr>
                 <td>${formatDateBR(iso)}</td>
                 <td>${formatBR(meta)}</td>
-                <td class="${prev <= meta ? 'positive' : 'negative'}">${formatBR(prev)}</td>
+                <td class="${Number.isFinite(prev) && Number.isFinite(meta) && prev <= meta ? 'positive' : 'negative'}">${formatBR(prev)}</td>
             </tr>
         `);
     }
@@ -1733,14 +1916,24 @@ function limparFiltroMetas() {
 
 
 // Backup
+function baixarArquivo(nome, conteudo, tipo = 'text/plain;charset=utf-8') {
+    const blob = new Blob([conteudo], { type: tipo });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nome;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
 function exportarBackup() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "peso_medidas_backup_" + new Date().toISOString().split('T')[0] + ".json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+    baixarArquivo(
+        "peso_medidas_backup_" + hojeISO() + ".json",
+        JSON.stringify(appData, null, 2),
+        'application/json;charset=utf-8'
+    );
 }
 
 function importarBackup(event) {
@@ -1751,7 +1944,7 @@ function importarBackup(event) {
         try {
             const imported = JSON.parse(e.target.result);
             if (imported.config && imported.pesos) {
-                appData = imported;
+                appData = normalizarDados(imported);
                 salvarDados();
                 alert("Backup importado com sucesso!");
                 location.reload();
@@ -1763,6 +1956,106 @@ function importarBackup(event) {
         }
     };
     reader.readAsText(file);
+}
+
+function gerarRelatorioCSV() {
+    const linhas = [];
+    linhas.push(['Tipo','Data','Peso','Pescoço','Peito','Barriga','Quadril','Coxa','Panturrilha','Braço','Observações'].join(';'));
+
+    [...appData.pesos].sort((a, b) => a.data.localeCompare(b.data)).forEach(p => {
+        linhas.push(['Peso', formatDateBR(p.data), p.peso ?? '', '', '', '', '', '', '', '', p.observacoes || ''].map(campoCSV).join(';'));
+    });
+
+    [...appData.medidas].sort((a, b) => a.data.localeCompare(b.data)).forEach(m => {
+        linhas.push([
+            'Medida', formatDateBR(m.data), m.peso ?? '', m.pescoco ?? '', m.peito ?? '', m.cintura ?? '', m.quadril ?? '', m.coxa ?? '', m.panturrilha ?? '', m.braco ?? '', m.observacoes || ''
+        ].map(campoCSV).join(';'));
+    });
+
+    baixarArquivo('relatorio_projeto_leve_' + hojeISO() + '.csv', linhas.join('\n'), 'text/csv;charset=utf-8');
+}
+
+function campoCSV(valor) {
+    const texto = String(valor ?? '').replace(/"/g, '""');
+    return `"${texto}"`;
+}
+
+function gerarRelatorioPDF() {
+    const pesos = [...appData.pesos].sort((a, b) => a.data.localeCompare(b.data));
+    const medidas = [...appData.medidas].sort((a, b) => a.data.localeCompare(b.data));
+    const win = window.open('', '_blank');
+    if (!win) return alert('O navegador bloqueou a janela do relatório. Libere popups para gerar o PDF imprimível.');
+
+    const linhasPesos = pesos.map(p => `
+        <tr><td>${formatDateBR(p.data)}</td><td>${formatBR(p.peso)} kg</td><td>${escapeHtml(p.observacoes || '')}</td></tr>
+    `).join('') || '<tr><td colspan="3">Nenhum peso registrado.</td></tr>';
+
+    const linhasMedidas = medidas.map(m => `
+        <tr>
+            <td>${formatDateBR(m.data)}</td>
+            <td>${formatBR(m.peso)}</td>
+            <td>${formatBR(m.pescoco)}</td>
+            <td>${formatBR(m.peito)}</td>
+            <td>${formatBR(m.cintura)}</td>
+            <td>${formatBR(m.quadril)}</td>
+            <td>${formatBR(m.coxa)}</td>
+            <td>${formatBR(m.panturrilha)}</td>
+            <td>${formatBR(m.braco)}</td>
+            <td>${escapeHtml(m.observacoes || '')}</td>
+        </tr>
+    `).join('') || '<tr><td colspan="10">Nenhuma medida registrada.</td></tr>';
+
+    win.document.write(`
+        <!DOCTYPE html>
+        <html lang="pt-br">
+        <head>
+            <meta charset="UTF-8">
+            <title>Relatório Projeto Leve</title>
+            <style>
+                body { font-family: Arial, sans-serif; color: #0f172a; padding: 24px; }
+                h1 { color: #0284c7; margin-bottom: 4px; }
+                h2 { margin-top: 28px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+                th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: left; }
+                th { background: #eaf4fb; }
+                .muted { color: #64748b; font-size: 12px; }
+                @media print { button { display: none; } body { padding: 0; } }
+            </style>
+        </head>
+        <body>
+            <button onclick="window.print()" style="padding:10px 14px; margin-bottom:16px; border:0; border-radius:10px; background:#0284c7; color:white; font-weight:bold;">Imprimir / Salvar em PDF</button>
+            <h1>Projeto Leve</h1>
+            <div class="muted">Relatório gerado em ${new Date().toLocaleString('pt-BR')}</div>
+            <div class="muted">Data inicial dos cálculos: ${formatDateBR(appData.config.dataInicial)}</div>
+
+            <h2>Histórico de Pesos</h2>
+            <table>
+                <thead><tr><th>Data</th><th>Peso</th><th>Observações</th></tr></thead>
+                <tbody>${linhasPesos}</tbody>
+            </table>
+
+            <h2>Histórico de Medidas</h2>
+            <table>
+                <thead><tr><th>Data</th><th>Peso</th><th>Pescoço</th><th>Peito</th><th>Barriga</th><th>Quadril</th><th>Coxa</th><th>Panturrilha</th><th>Braço</th><th>Obs</th></tr></thead>
+                <tbody>${linhasMedidas}</tbody>
+            </table>
+        </body>
+        </html>
+    `);
+    win.document.close();
+    win.focus();
+}
+
+function limparRegistrosAteData() {
+    const data = document.getElementById('limpar-ate-data')?.value;
+    if (!data) return alert('Selecione uma data para limpar os registros.');
+    if(!confirm(`Excluir pesos, medidas e metas personalizadas de ${formatDateBR(data)} e datas anteriores?`)) return;
+
+    appData.pesos = appData.pesos.filter(item => !item.data || item.data > data);
+    appData.medidas = appData.medidas.filter(item => !item.data || item.data > data);
+    appData.metasPersonalizadas = (appData.metasPersonalizadas || []).filter(item => !item.data || item.data > data);
+    salvarDados();
+    alert('Registros removidos.');
 }
 
 function limparTudo() {
@@ -1778,6 +2071,9 @@ function limparTudo() {
 window.onload = function() {
     carregarDados();
     preencherCamposConfig();
+    document.getElementById('peso-data').value = hojeISO();
+    const limparAteData = document.getElementById('limpar-ate-data');
+    if (limparAteData) limparAteData.value = hojeISO();
     updateUI();
     observarLogin();
 };
@@ -1795,8 +2091,14 @@ window.salvarMetaPersonalizada = salvarMetaPersonalizada;
 window.excluirMetaPersonalizada = excluirMetaPersonalizada;
 window.gerarTabelaMetas = gerarTabelaMetas;
 window.limparFiltroMetas = limparFiltroMetas;
+window.alterarFiltroGrafico = alterarFiltroGrafico;
+window.limparPerfilMetas = limparPerfilMetas;
+window.limparMedidasIdeais = limparMedidasIdeais;
 window.exportarBackup = exportarBackup;
 window.importarBackup = importarBackup;
+window.gerarRelatorioPDF = gerarRelatorioPDF;
+window.gerarRelatorioCSV = gerarRelatorioCSV;
+window.limparRegistrosAteData = limparRegistrosAteData;
 window.limparTudo = limparTudo;
 
 /**
