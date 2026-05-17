@@ -141,6 +141,32 @@
             display: flex; align-items: center; justify-content: center;
             z-index: 2000; padding: 20px;
         }
+
+
+        /* Conta / Firebase */
+        .auth-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .auth-status.online { color: var(--success); border-color: rgba(34,197,94,.55); }
+        .auth-status.offline { color: var(--warning); border-color: rgba(245,158,11,.55); }
+        .sync-box {
+            background: #0f172a;
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 12px;
+        }
     </style>
 </head>
 <body>
@@ -321,6 +347,50 @@
             </div>
         </section>
 
+
+        <!-- Conta / Firebase -->
+        <section id="view-conta" class="view hidden">
+            <div class="card">
+                <h3>Conta e Sincronização</h3>
+                <p class="small" style="margin-bottom: 15px; color: var(--text-secondary)">
+                    Entre com e-mail e senha para salvar seus dados na nuvem e sincronizar entre celular e notebook.
+                </p>
+                <div id="auth-status" class="auth-status offline">● Desconectado</div>
+                <div id="auth-user-info" class="sync-box">Nenhum usuário logado.</div>
+            </div>
+
+            <div id="auth-login-card" class="card">
+                <h3>Entrar ou criar conta</h3>
+                <form id="form-auth">
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="email" id="auth-email" autocomplete="email" placeholder="seuemail@exemplo.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" id="auth-senha" autocomplete="current-password" placeholder="mínimo 6 caracteres" required>
+                    </div>
+                    <div class="grid-2">
+                        <button type="button" class="btn btn-primary" id="btn-login">Entrar</button>
+                        <button type="button" class="btn btn-outline" id="btn-cadastro">Criar conta</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="auth-sync-card" class="card hidden">
+                <h3>Sincronização manual</h3>
+                <p class="small" style="margin-bottom: 15px; color: var(--text-secondary)">
+                    O app salva localmente e também envia para a nuvem quando você está logado. Use estes botões se quiser forçar uma direção.
+                </p>
+                <div class="grid-2">
+                    <button class="btn btn-success" id="btn-upload-cloud" type="button">Enviar local para nuvem</button>
+                    <button class="btn btn-outline" id="btn-download-cloud" type="button">Baixar nuvem</button>
+                </div>
+                <button class="btn btn-danger" id="btn-logout" type="button" style="margin-top: 12px;">Sair da conta</button>
+                <div id="sync-status" class="sync-box">Aguardando sincronização.</div>
+            </div>
+        </section>
+
         <!-- Backup -->
         <section id="view-backup" class="view hidden">
             <div class="card">
@@ -374,6 +444,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         Ajustes
     </a>
+
+    <a class="nav-item" onclick="showView('conta', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Conta
+    </a>
     <a class="nav-item" onclick="showView('backup', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         Backup
@@ -406,7 +481,40 @@
     </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+    getAuth,
+    onAuthStateChanged,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAqnNIG9di9PE6nUZWSOPAxScfwUqxNtlU",
+    authDomain: "projetoleve-58fec.firebaseapp.com",
+    projectId: "projetoleve-58fec",
+    storageBucket: "projetoleve-58fec.firebasestorage.app",
+    messagingSenderId: "863511363352",
+    appId: "1:863511363352:web:4b959cf93635afacb3286d"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+let currentUser = null;
+let salvamentoNuvemTimer = null;
+let carregandoDaNuvem = false;
+let ultimoStatusSync = "Aguardando login.";
+
 /**
  * CORE DATA MANAGEMENT
  */
@@ -426,21 +534,252 @@ let appData = {
 };
 
 // Persistence
+function normalizarDados(raw) {
+    const padrao = {
+        config: {
+            nome: "",
+            dataInicial: "2025-01-01",
+            pesoInicial: 99.3,
+            pesoMeta: 60.0,
+            metaKgPorDia: -0.05,
+            medidasIdeais: {
+                pescoco: 37, peito: 97, cintura: 73, quadril: 88, coxa: 52, panturrilha: 35, braco: 35
+            }
+        },
+        pesos: [],
+        medidas: []
+    };
+
+    const origem = raw && typeof raw === "object" ? raw : {};
+    return {
+        config: {
+            ...padrao.config,
+            ...(origem.config || {}),
+            medidasIdeais: {
+                ...padrao.config.medidasIdeais,
+                ...((origem.config && origem.config.medidasIdeais) || {})
+            }
+        },
+        pesos: Array.isArray(origem.pesos) ? origem.pesos : [],
+        medidas: Array.isArray(origem.medidas) ? origem.medidas : []
+    };
+}
+
+function preencherCamposConfig() {
+    document.getElementById('cfg-nome').value = appData.config.nome || "";
+    document.getElementById('cfg-data-init').value = appData.config.dataInicial || "2025-01-01";
+    document.getElementById('cfg-peso-init').value = appData.config.pesoInicial ?? "";
+    document.getElementById('cfg-peso-meta').value = appData.config.pesoMeta ?? "";
+    document.getElementById('cfg-meta-dia').value = appData.config.metaKgPorDia ?? "";
+    document.getElementById('id-pescoco').value = appData.config.medidasIdeais.pescoco ?? "";
+    document.getElementById('id-peito').value = appData.config.medidasIdeais.peito ?? "";
+    document.getElementById('id-cintura').value = appData.config.medidasIdeais.cintura ?? "";
+    document.getElementById('id-quadril').value = appData.config.medidasIdeais.quadril ?? "";
+    document.getElementById('id-coxa').value = appData.config.medidasIdeais.coxa ?? "";
+    document.getElementById('id-panturrilha').value = appData.config.medidasIdeais.panturrilha ?? "";
+    document.getElementById('id-braco').value = appData.config.medidasIdeais.braco ?? "";
+}
+
 function carregarDados() {
     const saved = localStorage.getItem('peso_medidas_app_data');
     if (saved) {
-        appData = JSON.parse(saved);
-        // Migração básica se campos novos forem adicionados
-        if(!appData.medidas) appData.medidas = [];
+        try {
+            appData = normalizarDados(JSON.parse(saved));
+        } catch (error) {
+            console.error('Erro ao ler localStorage:', error);
+            appData = normalizarDados(appData);
+        }
     } else {
         // Dados padrão para primeira vez
-        salvarDados();
+        salvarDados(false);
     }
 }
 
-function salvarDados() {
+function salvarDados(sincronizar = true) {
+    appData = normalizarDados(appData);
     localStorage.setItem('peso_medidas_app_data', JSON.stringify(appData));
     updateUI();
+
+    if (sincronizar && currentUser && !carregandoDaNuvem) {
+        agendarSalvarDadosNaNuvem();
+    }
+}
+
+
+
+/**
+ * FIREBASE AUTH + FIRESTORE
+ */
+function caminhoDocumentoUsuario() {
+    if (!currentUser) return null;
+    return doc(db, 'users', currentUser.uid, 'app', 'data');
+}
+
+function definirStatusSync(msg) {
+    ultimoStatusSync = msg;
+    const el = document.getElementById('sync-status');
+    if (el) el.innerText = msg;
+}
+
+function renderConta() {
+    const status = document.getElementById('auth-status');
+    const userInfo = document.getElementById('auth-user-info');
+    const loginCard = document.getElementById('auth-login-card');
+    const syncCard = document.getElementById('auth-sync-card');
+    if (!status || !userInfo || !loginCard || !syncCard) return;
+
+    if (currentUser) {
+        status.className = 'auth-status online';
+        status.innerText = '● Conectado';
+        userInfo.innerText = `Logado como: ${currentUser.email}`;
+        loginCard.classList.add('hidden');
+        syncCard.classList.remove('hidden');
+    } else {
+        status.className = 'auth-status offline';
+        status.innerText = '● Desconectado';
+        userInfo.innerText = 'Nenhum usuário logado. Seus dados ficam salvos apenas neste aparelho até você entrar.';
+        loginCard.classList.remove('hidden');
+        syncCard.classList.add('hidden');
+    }
+
+    definirStatusSync(ultimoStatusSync);
+}
+
+function obterPayloadNuvem() {
+    return {
+        config: appData.config,
+        pesos: appData.pesos,
+        medidas: appData.medidas,
+        updatedAt: new Date().toISOString(),
+        updatedAtServer: serverTimestamp()
+    };
+}
+
+async function salvarDadosNaNuvem(manual = false) {
+    if (!currentUser) {
+        definirStatusSync('Entre na conta para sincronizar com a nuvem.');
+        return;
+    }
+
+    try {
+        definirStatusSync('Enviando dados para a nuvem...');
+        await setDoc(caminhoDocumentoUsuario(), obterPayloadNuvem(), { merge: false });
+        definirStatusSync(`Sincronizado na nuvem às ${new Date().toLocaleTimeString('pt-BR')}.`);
+        if (manual) alert('Dados enviados para a nuvem.');
+    } catch (error) {
+        console.error(error);
+        definirStatusSync('Erro ao salvar na nuvem: ' + traduzirErroFirebase(error));
+        if (manual) alert('Erro ao enviar para a nuvem: ' + traduzirErroFirebase(error));
+    }
+}
+
+function agendarSalvarDadosNaNuvem() {
+    clearTimeout(salvamentoNuvemTimer);
+    salvamentoNuvemTimer = setTimeout(() => salvarDadosNaNuvem(false), 900);
+}
+
+async function carregarDadosDaNuvem(manual = false) {
+    if (!currentUser) {
+        definirStatusSync('Entre na conta para baixar dados da nuvem.');
+        return;
+    }
+
+    try {
+        definirStatusSync('Buscando dados na nuvem...');
+        const snap = await getDoc(caminhoDocumentoUsuario());
+
+        if (snap.exists()) {
+            carregandoDaNuvem = true;
+            const cloud = snap.data();
+            appData = normalizarDados({
+                config: cloud.config,
+                pesos: cloud.pesos,
+                medidas: cloud.medidas
+            });
+            localStorage.setItem('peso_medidas_app_data', JSON.stringify(appData));
+            preencherCamposConfig();
+            updateUI();
+            carregandoDaNuvem = false;
+            definirStatusSync(`Dados baixados da nuvem às ${new Date().toLocaleTimeString('pt-BR')}.`);
+            if (manual) alert('Dados baixados da nuvem.');
+        } else {
+            definirStatusSync('Nenhum dado na nuvem ainda. Enviando os dados locais...');
+            await salvarDadosNaNuvem(false);
+        }
+    } catch (error) {
+        carregandoDaNuvem = false;
+        console.error(error);
+        definirStatusSync('Erro ao baixar da nuvem: ' + traduzirErroFirebase(error));
+        if (manual) alert('Erro ao baixar da nuvem: ' + traduzirErroFirebase(error));
+    }
+}
+
+async function entrarUsuario() {
+    const email = document.getElementById('auth-email').value.trim();
+    const senha = document.getElementById('auth-senha').value;
+    if (!email || !senha) return alert('Informe e-mail e senha.');
+
+    try {
+        definirStatusSync('Entrando...');
+        await signInWithEmailAndPassword(auth, email, senha);
+    } catch (error) {
+        alert('Erro ao entrar: ' + traduzirErroFirebase(error));
+        definirStatusSync('Falha ao entrar.');
+    }
+}
+
+async function cadastrarUsuario() {
+    const email = document.getElementById('auth-email').value.trim();
+    const senha = document.getElementById('auth-senha').value;
+    if (!email || !senha) return alert('Informe e-mail e senha.');
+    if (senha.length < 6) return alert('A senha precisa ter pelo menos 6 caracteres.');
+
+    try {
+        definirStatusSync('Criando conta...');
+        await createUserWithEmailAndPassword(auth, email, senha);
+        alert('Conta criada com sucesso. Seus dados locais serão enviados para a nuvem.');
+    } catch (error) {
+        alert('Erro ao criar conta: ' + traduzirErroFirebase(error));
+        definirStatusSync('Falha ao criar conta.');
+    }
+}
+
+async function sairUsuario() {
+    try {
+        await signOut(auth);
+        definirStatusSync('Você saiu da conta. Dados continuam salvos neste aparelho.');
+    } catch (error) {
+        alert('Erro ao sair: ' + traduzirErroFirebase(error));
+    }
+}
+
+function observarLogin() {
+    onAuthStateChanged(auth, async (user) => {
+        currentUser = user;
+        renderConta();
+
+        if (user) {
+            definirStatusSync('Login detectado. Sincronizando...');
+            await carregarDadosDaNuvem(false);
+        } else {
+            definirStatusSync('Desconectado. Salvamento apenas local.');
+        }
+    });
+}
+
+function traduzirErroFirebase(error) {
+    const code = error && error.code ? error.code : '';
+    const mapa = {
+        'auth/invalid-email': 'e-mail inválido.',
+        'auth/user-not-found': 'usuário não encontrado.',
+        'auth/wrong-password': 'senha incorreta.',
+        'auth/invalid-credential': 'e-mail ou senha incorretos.',
+        'auth/email-already-in-use': 'este e-mail já está cadastrado.',
+        'auth/weak-password': 'senha fraca. Use pelo menos 6 caracteres.',
+        'auth/unauthorized-domain': 'domínio não autorizado no Firebase Authentication.',
+        'permission-denied': 'permissão negada. Confira as regras do Firestore.'
+    };
+    return mapa[code] || (error && error.message ? error.message : 'erro desconhecido.');
 }
 
 /**
@@ -494,6 +833,7 @@ function updateUI() {
     renderMedidas();
     renderDezenal();
     renderGraficos();
+    renderConta();
     
     document.getElementById('user-greeting').innerText = appData.config.nome ? `Olá, ${appData.config.nome}` : "";
     document.getElementById('backup-info').innerText = `Última alteração: ${new Date().toLocaleTimeString()}`;
@@ -737,12 +1077,28 @@ function showView(viewId, navEl) {
         dezenal: "Acompanhamento Dezenal",
         graficos: "Evolução",
         configs: "Configurações",
+        conta: "Conta",
         backup: "Backup"
     };
     document.getElementById('page-title').innerText = titles[viewId];
     
     if(viewId === 'graficos') renderGraficos();
 }
+
+// Auth Form
+document.getElementById('btn-login').onclick = entrarUsuario;
+document.getElementById('btn-cadastro').onclick = cadastrarUsuario;
+document.getElementById('btn-logout').onclick = sairUsuario;
+document.getElementById('btn-upload-cloud').onclick = () => salvarDadosNaNuvem(true);
+document.getElementById('btn-download-cloud').onclick = () => {
+    if (confirm('Baixar os dados da nuvem e substituir os dados locais deste aparelho?')) {
+        carregarDadosDaNuvem(true);
+    }
+};
+document.getElementById('form-auth').onsubmit = function(e) {
+    e.preventDefault();
+    entrarUsuario();
+};
 
 // Peso Form
 document.getElementById('form-peso').onsubmit = function(e) {
@@ -963,37 +1319,37 @@ function limparTudo() {
  */
 window.onload = function() {
     carregarDados();
-    
-    // Fill config inputs
-    document.getElementById('cfg-nome').value = appData.config.nome;
-    document.getElementById('cfg-data-init').value = appData.config.dataInicial;
-    document.getElementById('cfg-peso-init').value = appData.config.pesoInicial;
-    document.getElementById('cfg-peso-meta').value = appData.config.pesoMeta;
-    document.getElementById('cfg-meta-dia').value = appData.config.metaKgPorDia;
-    
-    document.getElementById('id-pescoco').value = appData.config.medidasIdeais.pescoco;
-    document.getElementById('id-peito').value = appData.config.medidasIdeais.peito;
-    document.getElementById('id-cintura').value = appData.config.medidasIdeais.cintura;
-    document.getElementById('id-quadril').value = appData.config.medidasIdeais.quadril;
-    document.getElementById('id-coxa').value = appData.config.medidasIdeais.coxa;
-    document.getElementById('id-panturrilha').value = appData.config.medidasIdeais.panturrilha;
-    document.getElementById('id-braco').value = appData.config.medidasIdeais.braco;
-
+    preencherCamposConfig();
     updateUI();
+    observarLogin();
 };
+
+// Funções usadas por atributos onclick precisam ser expostas porque este script usa módulos ES.
+window.showView = showView;
+window.editarPeso = editarPeso;
+window.excluirPeso = excluirPeso;
+window.abrirModalMedida = abrirModalMedida;
+window.fecharModalMedida = fecharModalMedida;
+window.editarMedida = editarMedida;
+window.excluirMedida = excluirMedida;
+window.simularMeta = simularMeta;
+window.gerarTabelaMetas = gerarTabelaMetas;
+window.exportarBackup = exportarBackup;
+window.importarBackup = importarBackup;
+window.limparTudo = limparTudo;
 
 /**
  * PWA SETUP
  */
 // Manifesto Dinâmico
 const manifest = {
-    "name": "Peso e Medidas",
-    "short_name": "Peso",
+    "name": "ProjetoLeve",
+    "short_name": "ProjetoLeve",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0f172a",
     "theme_color": "#0f172a",
-    "description": "Controle de Emagrecimento e Medidas",
+    "description": "Controle de emagrecimento, peso e medidas com sincronização Firebase",
     "icons": [{
         "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiMwZjE3MmEiLz48cGF0aCBkPSJNMjU2IDgwbDE2MCAzMjBIMTk2bC00MC04MGgtODBsLTQwIDgwaC02MEwyNTYgODB6IiBmaWxsPSIjMzhidGY4Ii8+PC9zdmc+",
         "sizes": "512x512",
