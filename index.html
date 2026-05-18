@@ -2727,11 +2727,16 @@ function gerarTabelaMetas(tipo) {
     const container = document.getElementById('container-tabela-metas');
     const tabela = document.getElementById('tabela-metas-futuras');
     container.classList.remove('hidden');
-    tabela.innerHTML = `<thead><tr><th>Data</th><th>Meta</th><th>Prev. Real</th></tr></thead><tbody></tbody>`;
+    tabela.innerHTML = `<thead><tr><th>Data</th><th>Meta</th><th>Previsão</th></tr></thead><tbody></tbody>`;
     
     const media = calcularMediaRealDia();
     const pesoAtual = obterPesoAtual();
     const hoje = hojeISO();
+    const pesoMetaAjustes = parseFloat(appData.config.pesoMeta);
+    const classeComparacaoMetaAjustes = (valor) => {
+        if (!Number.isFinite(valor) || !Number.isFinite(pesoMetaAjustes)) return '';
+        return valor <= pesoMetaAjustes ? 'positive' : 'negative';
+    };
     const linhas = [];
     const configuracoes = {
         diario: { total: 30, titulo: 'Diário', proximaData: (i) => addDiasISO(hoje, i) },
@@ -2741,7 +2746,7 @@ function gerarTabelaMetas(tipo) {
     };
     const config = configuracoes[tipo] || configuracoes.diario;
 
-    for(let i = 1; i <= config.total; i++) {
+    for(let i = 0; i < config.total; i++) {
         const iso = config.proximaData(i);
         const diasAteData = diffDays(iso, hoje);
         const meta = calcularMetaDaData(iso);
@@ -2750,8 +2755,8 @@ function gerarTabelaMetas(tipo) {
         linhas.push(`
             <tr>
                 <td>${formatDateBR(iso)}</td>
-                <td>${formatBR(meta)}</td>
-                <td class="${Number.isFinite(prev) && Number.isFinite(meta) && prev <= meta ? 'positive' : 'negative'}">${formatBR(prev)}</td>
+                <td class="${classeComparacaoMetaAjustes(meta)}">${formatBR(meta)}</td>
+                <td class="${classeComparacaoMetaAjustes(prev)}">${formatBR(prev)}</td>
             </tr>
         `);
     }
