@@ -35,7 +35,7 @@
             background-color: var(--bg-color);
             color: var(--text-primary);
             line-height: 1.5;
-            padding-bottom: 80px; /* Espaço para o menu inferior */
+            padding-bottom: 112px; /* Espaço para o menu inferior */
             overflow-x: hidden;
         }
 
@@ -90,21 +90,24 @@
             background: var(--card-bg);
             border-top: 1px solid var(--border);
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             padding: 8px 0;
             z-index: 1000;
-            overflow-x: auto;
+            overflow: hidden;
             scrollbar-width: none;
         }
         nav::-webkit-scrollbar { display: none; }
         .nav-item {
             display: flex;
+            flex: 1 1 20%;
+            min-width: 0;
+            max-width: 20%;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             color: var(--text-secondary);
             text-decoration: none;
             font-size: 10px;
-            min-width: 60px;
             transition: color 0.2s;
             cursor: pointer;
         }
@@ -339,10 +342,14 @@
             box-shadow: 0 18px 50px rgba(15,23,42,.18);
         }
         .nav-item {
-            min-width: 64px;
+            min-width: 0;
+            max-width: 20%;
             border-radius: 18px;
-            padding: 7px 6px;
+            padding: 7px 4px;
             font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .nav-item.active { background: var(--accent-soft); color: var(--accent); }
         .dash-card {
@@ -350,6 +357,118 @@
             border-top: 4px solid var(--accent);
             background: linear-gradient(180deg, #ffffff 0%, #f7fcff 100%);
         }
+        .dashboard-bordered-card {
+            border-top: 4px solid var(--accent);
+            background: linear-gradient(180deg, #ffffff 0%, #f7fcff 100%);
+        }
+        .dashboard-bordered-card:has(.value.positive) { border-top-color: var(--success); }
+        .dashboard-bordered-card:has(.value.negative) { border-top-color: var(--danger); }
+        .dashboard-bordered-card:has(.value.neutral) { border-top-color: var(--accent); }
+        .dashboard-bordered-card.previsao-card { border-top-color: var(--accent); }
+        .important-dates-table-wrap {
+            overflow-x: hidden;
+            width: 100%;
+        }
+        .important-dates-table {
+            width: 100%;
+            min-width: 0;
+            table-layout: fixed;
+        }
+        .important-dates-table th,
+        .important-dates-table td {
+            padding: 9px 8px;
+            font-size: 12px;
+            vertical-align: middle;
+            overflow-wrap: normal;
+            word-break: normal;
+        }
+        .important-dates-table .col-data { width: 24%; }
+        .important-dates-table .col-descricao { width: 39%; }
+        .important-dates-table .col-meta { width: 15%; }
+        .important-dates-table .col-previsao { width: 22%; }
+        .important-dates-table th.col-meta,
+        .important-dates-table th.col-previsao,
+        .important-dates-table td.col-meta,
+        .important-dates-table td.col-previsao {
+            text-align: right;
+            padding-left: 4px;
+        }
+        .important-dates-table th.col-descricao,
+        .important-dates-table td.col-descricao {
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+        .important-dates-table th.col-previsao {
+            font-size: 10.5px;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            overflow-wrap: normal;
+            word-break: keep-all;
+            hyphens: none;
+        }
+        .important-dates-table td.col-data { white-space: nowrap; }
+        @media (max-width: 390px) {
+            .important-dates-table th,
+            .important-dates-table td {
+                padding: 8px 6px;
+                font-size: 11px;
+            }
+            .important-dates-table .col-data { width: 25%; }
+            .important-dates-table .col-descricao { width: 37%; }
+            .important-dates-table .col-meta { width: 15%; }
+            .important-dates-table .col-previsao { width: 23%; }
+            .important-dates-table th.col-previsao { font-size: 9.8px; }
+        }
+
+        .app-footer-note {
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.45;
+            color: var(--text-secondary);
+            margin: 14px auto 4px;
+            padding: 2px 12px;
+        }
+        .settings-action-row,
+        .profile-action-row {
+            display: grid;
+            grid-template-columns: 42px minmax(0, 1fr) minmax(0, 1fr);
+            gap: 10px;
+            align-items: stretch;
+            margin: 4px 0 14px;
+            width: 100%;
+        }
+        .settings-action-row .btn,
+        .profile-action-row .btn { min-height: 44px; padding: 10px 8px; }
+        .btn-undo {
+            width: 42px !important;
+            min-width: 42px;
+            min-height: 42px !important;
+            height: 42px;
+            padding: 0 !important;
+            border-radius: 14px;
+            background: #fff7ed;
+            border: 1px solid rgba(217,119,6,.58);
+            color: var(--warning);
+            font-size: 22px;
+            font-weight: 900;
+            line-height: 1;
+        }
+        .btn-undo:disabled {
+            opacity: .35;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .btn-clear-outline {
+            background: #fff;
+            color: var(--danger);
+            border: 1px solid rgba(220,38,38,.42);
+        }
+        .btn-clear-outline:hover { background: #fff1f2; }
+        .full-row-action { margin: 10px 0 12px; }
+        .important-dates-table .status-good { color: var(--success); font-weight: 800; }
+        .important-dates-table .status-bad { color: var(--danger); font-weight: 800; }
+        .important-dates-table .status-neutral { color: var(--text-secondary); font-weight: 800; }
         th { background: #e8f4fb; color: #345064; }
         td { background: rgba(255,255,255,.82); }
         .table-container { border-radius: 18px; background: #fff; }
@@ -404,7 +523,45 @@
         .inline-action-row { display: flex; gap: 10px; align-items: stretch; }
         .planning-filter-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .muted-text { color: var(--text-secondary); margin-bottom: 12px; }
-        .custom-goals-list { display: grid; gap: 10px; margin-top: 12px; }
+        .custom-goals-list {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            padding: 2px 2px 10px;
+        }
+        .custom-goals-list::-webkit-scrollbar { display: none; }
+        .custom-goals-list { scrollbar-width: none; }
+        .custom-goals-indicators {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 18px;
+            margin-top: 4px;
+        }
+        .custom-goal-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            border: 0;
+            padding: 0;
+            background: rgba(91, 107, 126, .28);
+            cursor: pointer;
+            transition: width .22s ease, background .22s ease, transform .22s ease;
+        }
+        .custom-goal-dot.active {
+            width: 22px;
+            background: var(--accent);
+        }
+        .custom-goal-dot:focus-visible {
+            outline: 3px solid rgba(2,132,199,.22);
+            outline-offset: 3px;
+        }
         .custom-goal-item {
             background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
             border: 1px solid var(--border);
@@ -424,11 +581,85 @@
             background: var(--soft-bg);
             border: 1px dashed var(--border);
         }
+
+        .header-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+        .header-icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--accent);
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+            box-shadow: 0 10px 22px rgba(15,23,42,.08);
+        }
+        .header-icon-btn svg { width: 22px; height: 22px; }
+        .header-icon-btn.active-header { background: var(--accent-soft); color: var(--accent-hover); border-color: rgba(2,132,199,.35); }
+        .section-title { margin: 18px 2px 10px; font-size: 18px; font-weight: 900; color: var(--text-primary); }
+        .primary-action-card { padding: 12px; }
+        .primary-action-card .btn { min-height: 50px; font-size: 15px; }
+        .peso-summary-card { padding: 10px; }
+        .sim-actions-row { display: grid; grid-template-columns: 1fr 78px 78px; gap: 8px; align-items: end; }
+        .simulation-result-mini {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            background: #f8fcff;
+        }
+        .simulation-result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: stretch; }
+        .simulation-result-grid .value { font-size: 17px; }
+        .simulation-save-row { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: 10px; }
+        .simulation-save-form { margin-top: 10px; }
+        .custom-goal-item.compact {
+            padding: 16px;
+            border-radius: 22px;
+            box-shadow: 0 10px 24px rgba(15,23,42,.05);
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+        }
+        .custom-goal-line { font-weight: 900; font-size: 16px; margin-bottom: 4px; color: var(--text-primary); }
+        .custom-goal-metrics.compact { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-items: stretch; }
+        .custom-goal-metric.compact { padding: 12px; border-radius: 16px; text-align: left; }
+        .custom-goal-metric.compact .value { font-size: 18px; }
+        .custom-goal-actions { display: flex; gap: 6px; justify-content: flex-end; align-items: center; }
+        .profile-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
+        .profile-info-pill { background: var(--soft-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px; }
+        .profile-account-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+        .google-mini-icon { width: 28px; height: 28px; display: inline-grid; place-items: center; border-radius: 10px; background: #fff; border: 1px solid var(--border); }
+        .imc-card { overflow: hidden; position: relative; }
+        .imc-card.ok { border-color: rgba(22,163,74,.35); background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%); }
+        .imc-card.alert { border-color: rgba(220,38,38,.30); background: linear-gradient(180deg, #ffffff 0%, #fff1f2 100%); }
+        .imc-card.neutral { background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%); }
+        .imc-main { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; margin-top: 10px; }
+        .imc-badge { width: 84px; height: 84px; border-radius: 26px; display: grid; place-items: center; font-size: 24px; font-weight: 950; background: #fff; box-shadow: 0 12px 28px rgba(15,23,42,.08); }
+        .imc-card.ok .imc-badge { color: var(--success); }
+        .imc-card.alert .imc-badge { color: var(--danger); }
+        .imc-caption { font-size: 13px; color: var(--text-secondary); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .imc-main .value { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .imc-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+        .imc-detail-pill { background: rgba(255,255,255,.76); border: 1px solid var(--border); border-radius: 16px; padding: 10px; }
+        .imc-detail-pill .value { font-size: 15px; margin-top: 3px; }
+        .imc-detail-wide { grid-column: 1 / -1; }
+        .imc-target-line { margin-top: 12px; padding: 11px 12px; border-radius: 16px; background: rgba(255,255,255,.72); border: 1px solid var(--border); font-size: 13px; font-weight: 800; }
+        .backup-button-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+        .backup-action-btn { min-height: 56px; gap: 8px; font-size: 14px; }
+        .backup-action-btn svg { width: 20px; height: 20px; flex: 0 0 auto; }
+
         @media (min-width: 760px) {
             .planning-filter-grid { grid-template-columns: repeat(3, 1fr); }
             .app-welcome { max-width: 320px; }
         }
+        @media (max-width: 620px) {
+            .sim-actions-row { grid-template-columns: 1fr 1fr; }
+            .sim-actions-row > div { grid-column: 1 / -1; }
+            .backup-button-grid { grid-template-columns: 1fr 1fr; }
+        }
         @media (max-width: 430px) {
+            .nav-item { font-size: 9px; padding-left: 2px; padding-right: 2px; }
+            .nav-item svg { width: 22px; height: 22px; }
             .container { padding: 12px; }
             .app-header { top: 8px; padding: 12px; }
             .app-brand-icon { width: 42px; height: 42px; }
@@ -436,6 +667,9 @@
             .auth-gate-card { padding: 22px; }
             .auth-title { font-size: 31px; }
             .inline-action-row { flex-direction: column; }
+            .settings-action-row, .profile-action-row { gap: 8px; grid-template-columns: 42px minmax(0, 1fr) minmax(0, 1fr); }
+            .settings-action-row .btn, .profile-action-row .btn { font-size: 13px; padding-left: 6px; padding-right: 6px; }
+            .imc-detail-grid { grid-template-columns: 1fr; }
         }
 
     </style>
@@ -488,7 +722,15 @@
                     <div id="user-greeting" class="app-welcome">Bem-vindo</div>
                 </div>
             </div>
-            <button id="btn-install-app" class="install-app-btn hidden" type="button">Instalar</button>
+            <div class="header-actions">
+                <button id="btn-install-app" class="install-app-btn hidden" type="button">Instalar</button>
+                <button id="btn-profile-open" class="header-icon-btn" type="button" aria-label="Abrir conta" title="Conta">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </button>
+                <button id="btn-settings-open" class="header-icon-btn" type="button" aria-label="Abrir ajustes" title="Ajustes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.35 1.1V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.1-.35H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 0 .35-1.1V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.18.34.43.63.75.84.32.21.7.32 1.1.32H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"></path></svg>
+                </button>
+            </div>
         </header>
         <h2 id="page-title" class="page-heading">Início</h2>
 
@@ -497,26 +739,53 @@
         <!-- Início -->
         <section id="view-dashboard" class="view">
             <div class="grid-2">
-                <div class="card dash-card"><div class="label">Peso Atual</div><div class="value" id="dash-peso-atual">--</div></div>
-                <div class="card dash-card"><div class="label">Meta de Hoje</div><div class="value" id="dash-meta-hoje">--</div></div>
+                <div class="card dash-card dashboard-bordered-card"><div class="label">Peso Atual</div><div class="value" id="dash-peso-atual">--</div></div>
+                <div class="card dash-card dashboard-bordered-card"><div class="label">Meta de Hoje</div><div class="value" id="dash-meta-hoje">--</div></div>
             </div>
-            <div class="card">
+            <div class="card dashboard-bordered-card">
                 <div class="label">Situação Atual</div>
                 <div class="value" id="dash-status" style="margin-top: 5px;">--</div>
                 <div class="small" id="dash-info-meta" style="margin-top: 10px; color: var(--text-secondary)"></div>
             </div>
             <div class="grid-2">
-                <div class="card dash-card"><div class="label">Ritmo Atual</div><div class="value" id="dash-media-dia">--</div></div>
-                <div class="card dash-card"><div class="label">Total Perdido</div><div class="value" id="dash-total-perdido">--</div></div>
+                <div class="card dash-card dashboard-bordered-card"><div class="label">Ritmo por Dia</div><div class="value" id="dash-media-dia">--</div></div>
+                <div class="card dash-card dashboard-bordered-card"><div class="label">Total Perdido</div><div class="value" id="dash-total-perdido">--</div></div>
             </div>
             <div class="grid-2">
-                <div class="card"><div class="label">Saldo</div><div class="value" id="dash-saldo">--</div></div>
-                <div class="card"><div class="label">Faltam</div><div class="value" id="dash-falta-kg">--</div></div>
+                <div class="card dashboard-bordered-card"><div class="label">Saldo</div><div class="value" id="dash-saldo">--</div></div>
+                <div class="card dashboard-bordered-card"><div class="label">Faltam</div><div class="value" id="dash-falta-kg">--</div></div>
             </div>
-            <div class="card">
+            <div class="card dashboard-bordered-card previsao-card">
                 <div class="label">Previsão para Meta</div>
                 <div class="value" id="dash-previsao">Calculando...</div>
             </div>
+            <div class="card dashboard-bordered-card previsao-card">
+                <h3>Datas Importantes</h3>
+                <div class="table-container important-dates-table-wrap">
+                    <table class="important-dates-table">
+                        <colgroup>
+                            <col class="col-data">
+                            <col class="col-descricao">
+                            <col class="col-meta">
+                            <col class="col-previsao">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th class="col-data">Data</th>
+                                <th class="col-descricao">Descrição</th>
+                                <th class="col-meta">Meta</th>
+                                <th class="col-previsao">Previsão</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-datas-importantes-dashboard"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="imc-dashboard-card" class="card imc-card neutral">
+                <div class="label">IMC</div>
+                <div id="imc-dashboard-content" class="small" style="margin-top: 8px; color: var(--text-secondary)">Preencha altura, idade e gênero no perfil para calcular.</div>
+            </div>
+            <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
         <!-- Lançar Peso -->
@@ -534,19 +803,30 @@
                         <input type="number" step="0.1" id="peso-valor" placeholder="00.0" required>
                     </div>
                     <div class="form-group">
+                        <label>Meta (kg)</label>
+                        <input type="number" step="0.1" id="peso-meta" placeholder="Meta atual" required>
+                    </div>
+                    <div class="form-group">
                         <label>Observações</label>
                         <textarea id="peso-obs" rows="2"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Salvar Registro</button>
+                    <button type="button" class="btn btn-clear-outline" style="margin-bottom: 10px;" onclick="limparFormularioPeso()">Limpar</button>
+                    <div class="grid-2">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <button type="button" class="btn btn-outline" onclick="fecharLancamentoPeso()">Cancelar</button>
+                    </div>
                 </form>
             </div>
+            <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
-        <!-- Histórico Peso -->
+        <!-- Peso -->
         <section id="view-historico" class="view hidden">
-            <div class="card">
-                <button class="btn btn-primary" type="button" onclick="abrirTelaLancamentoPeso()">Lançar Peso</button>
+            <div class="card primary-action-card">
+                <button class="btn btn-primary" onclick="abrirLancamentoPeso()">Lançar Peso</button>
             </div>
+            <div id="resumo-peso-atual" class="grid-2"></div>
+            <h3 class="section-title">Histórico</h3>
             <div class="table-container compact-table">
                 <table>
                     <thead>
@@ -560,16 +840,17 @@
                     <tbody id="lista-historico"></tbody>
                 </table>
             </div>
+            <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
         <!-- Medidas -->
         <section id="view-medidas" class="view hidden">
-            <div class="card">
-                <button class="btn btn-outline" onclick="abrirModalMedida()">Nova Medição</button>
+            <div class="card primary-action-card">
+                <button class="btn btn-primary" onclick="abrirModalMedida()">Lançar Medição</button>
             </div>
             <div id="comparativo-medidas" class="grid-2"></div>
-            <h3 style="margin: 18px 2px 10px;">Histórico</h3>
-            <div class="table-container compact-table" style="margin-top: 0;">
+            <h3 class="section-title">Histórico</h3>
+            <div class="table-container compact-table" style="margin-top: 10px;">
                 <table>
                     <thead>
                         <tr>
@@ -581,25 +862,28 @@
                     <tbody id="lista-medidas"></tbody>
                 </table>
             </div>
+            <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
         <!-- Metas -->
         <section id="view-metas" class="view hidden">
             <div class="card feature-card">
-                <h3>Simulação de data</h3>
-                <label>Simular data específica</label>
-                <div class="inline-action-row">
-                    <input type="date" id="simula-data">
-                    <button class="btn btn-primary" style="width: auto;" onclick="simularMeta()">Ver</button>
-                    <button class="btn btn-outline" style="width: auto;" onclick="limparSimulacaoMeta()" type="button">Limpar</button>
+                <h3>Simulador</h3>
+                <div class="sim-actions-row">
+                    <div>
+                        <label>Simular data específica</label>
+                        <input type="date" id="simula-data">
+                    </div>
+                    <button class="btn btn-primary" onclick="simularMeta()">Ver</button>
+                    <button class="btn btn-danger ghost-danger" onclick="limparSimulacaoMeta()" type="button">Limpar</button>
                 </div>
                 <div id="res-simulacao" style="margin-top: 15px;"></div>
             </div>
 
             <div class="card feature-card">
-                <h3>Datas personalizadas</h3>
-                <p class="small muted-text">Salve datas importantes, como Natal, aniversário ou consulta, junto com a meta e a previsão calculadas.</p>
-                <div id="lista-metas-personalizadas" class="custom-goals-list"></div>
+                <h3>Datas Personalizadas</h3>
+                <div id="lista-metas-personalizadas" class="custom-goals-list" aria-label="Datas personalizadas em carrossel"></div>
+                <div id="metas-personalizadas-indicadores" class="custom-goals-indicators" aria-label="Indicadores das datas personalizadas"></div>
             </div>
 
             <div class="card feature-card">
@@ -615,14 +899,14 @@
             <div id="container-tabela-metas" class="table-container hidden">
                 <table id="tabela-metas-futuras"></table>
             </div>
+            <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
         <!-- Gráficos -->
         <section id="view-graficos" class="view hidden">
             <div class="card">
-                <h3>Filtros dos gráficos</h3>
+                <h3>Filtrar Gráficos</h3>
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label for="grafico-filtro-select">Período exibido</label>
                     <select id="grafico-filtro-select" onchange="alterarFiltroGrafico(this.value)">
                         <option value="inicio">Início</option>
                         <option value="7d">7 dias</option>
@@ -635,21 +919,21 @@
                 </div>
             </div>
             <div class="card">
-                <h3>Pesos registrados</h3>
+                <h3>Pesos Registrados</h3>
                 <div class="chart-container"><canvas id="chartPeso"></canvas></div>
             </div>
             <div class="card">
                 <h3>Medidas Corporais</h3>
                 <div class="chart-container"><canvas id="chartMedidas"></canvas></div>
             </div>
+            <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
-        <!-- Configurações -->
+        <!-- Ajustes -->
         <section id="view-configs" class="view hidden">
             <div class="card">
-                <h3>Perfil e Metas</h3>
+                <h3>Metas de Peso</h3>
                 <form id="form-config">
-                    <div class="form-group"><label>Nome</label><input type="text" id="cfg-nome"></div>
                     <div class="grid-2">
                         <div class="form-group"><label>Data Inicial</label><input type="date" id="cfg-data-init"></div>
                         <div class="form-group"><label>Peso Inicial</label><input type="number" step="0.1" id="cfg-peso-init"></div>
@@ -658,7 +942,11 @@
                         <div class="form-group"><label>Peso Meta</label><input type="number" step="0.1" id="cfg-peso-meta"></div>
                         <div class="form-group"><label>Meta kg/dia</label><input type="number" step="0.01" id="cfg-meta-dia"></div>
                     </div>
-                    <button type="button" class="btn btn-outline" style="margin-bottom: 12px;" onclick="limparPerfilMetas()">Limpar Perfil e Metas</button>
+                    <div class="settings-action-row">
+                        <button type="button" id="btn-desfazer-metas" class="btn btn-undo" onclick="desfazerMetasPeso()" aria-label="Desfazer Metas de Peso" title="Desfazer">↶</button>
+                        <button type="button" class="btn btn-clear-outline" onclick="limparPerfilMetas()">Limpar</button>
+                        <button type="button" class="btn btn-outline" onclick="voltarInicio()">Voltar</button>
+                    </div>
                     <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border);">
                     <h3>Medidas Ideais</h3>
                     <div class="grid-2">
@@ -670,89 +958,91 @@
                         <div class="form-group"><label>Panturrilha</label><input type="number" step="0.1" id="id-panturrilha"></div>
                         <div class="form-group"><label>Braço</label><input type="number" step="0.1" id="id-braco"></div>
                     </div>
-                    <button type="button" class="btn btn-outline" style="margin-bottom: 12px;" onclick="limparMedidasIdeais()">Limpar Medidas Ideais</button>
-                    <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+                    <div class="settings-action-row">
+                        <button type="button" id="btn-desfazer-medidas" class="btn btn-undo" onclick="desfazerMedidasIdeais()" aria-label="Desfazer Medidas Ideais" title="Desfazer">↶</button>
+                        <button type="button" class="btn btn-clear-outline" onclick="limparMedidasIdeais()">Limpar</button>
+                        <button type="button" class="btn btn-outline" onclick="voltarInicio()">Voltar</button>
+                    </div>
                 </form>
             </div>
+            <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
-
-        <!-- Conta / Firebase -->
+        <!-- Conta -->
         <section id="view-conta" class="view hidden">
             <div class="card">
-                <h3>Conta e Sincronização</h3>
-                <p class="small" style="margin-bottom: 15px; color: var(--text-secondary)">
-                    Entre com e-mail e senha para salvar seus dados na nuvem e sincronizar entre celular e notebook.
-                </p>
-                <div id="auth-status" class="auth-status offline">● Desconectado</div>
-                <div id="auth-user-info" class="sync-box">Nenhum usuário logado.</div>
-            </div>
-
-            <div id="auth-login-card" class="card">
-                <h3>Entrar ou criar conta</h3>
-                <form id="form-auth">
-                    <div class="form-group">
-                        <label>E-mail</label>
-                        <input type="email" id="auth-email" autocomplete="email" placeholder="seuemail@exemplo.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Senha</label>
-                        <input type="password" id="auth-senha" autocomplete="current-password" placeholder="mínimo 6 caracteres" required>
+                <h3>Perfil e Conta</h3>
+                <form id="form-perfil">
+                    <div class="form-group"><label>Nome</label><input type="text" id="perfil-nome" placeholder="Seu nome"></div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>Data de nascimento</label><input type="date" id="perfil-nascimento"></div>
+                        <div class="form-group"><label>Idade</label><input type="text" id="perfil-idade" readonly placeholder="Calculada"></div>
                     </div>
                     <div class="grid-2">
-                        <button type="button" class="btn btn-primary" id="btn-login">Entrar</button>
-                        <button type="button" class="btn btn-outline" id="btn-cadastro">Criar conta</button>
+                        <div class="form-group"><label>Gênero</label><select id="perfil-genero"><option value="">Selecione</option><option value="Homem">Homem</option><option value="Mulher">Mulher</option></select></div>
+                        <div class="form-group"><label>Altura (cm)</label><input type="number" step="0.1" id="perfil-altura" placeholder="Ex: 165"></div>
                     </div>
+                    <div class="profile-action-row">
+                        <button type="button" id="btn-desfazer-perfil" class="btn btn-undo" onclick="desfazerPerfilConta()" aria-label="Desfazer Perfil e Conta" title="Desfazer">↶</button>
+                        <button type="button" class="btn btn-clear-outline" onclick="limparPerfilConta()">Limpar</button>
+                        <button type="button" class="btn btn-outline" onclick="fecharPerfil()">Voltar</button>
+                    </div>
+                    <button type="button" class="btn btn-danger hidden" id="btn-logout-perfil" style="margin-top: 12px;">Sair da conta</button>
                 </form>
-                <div class="auth-google-footer compact">
-                    <button class="google-icon-button" id="btn-google-conta" type="button" aria-label="Entrar com Google" title="Entrar com Google">
-                        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                    </button>
-                </div>
             </div>
-
-            <div id="auth-sync-card" class="card hidden">
-                <h3>Sincronização manual</h3>
-                <p class="small" style="margin-bottom: 15px; color: var(--text-secondary)">
-                    O app salva localmente e também envia para a nuvem quando você está logado. Use estes botões se quiser forçar uma direção.
-                </p>
-                <div class="grid-2">
-                    <button class="btn btn-success" id="btn-upload-cloud" type="button">Enviar local para nuvem</button>
-                    <button class="btn btn-outline" id="btn-download-cloud" type="button">Baixar nuvem</button>
-                </div>
-                <button class="btn btn-danger" id="btn-logout" type="button" style="margin-top: 12px;">Sair da conta</button>
-                <div id="sync-status" class="sync-box">Aguardando sincronização.</div>
-            </div>
-        </section>
-
-        <!-- Backup -->
-        <section id="view-backup" class="view hidden">
             <div class="card">
-                <h3>Gerenciar Dados</h3>
-                <p class="small" style="margin-bottom: 15px; color: var(--text-secondary)">Exporte seus dados para backup ou transfira para outro dispositivo.</p>
-                <div class="grid-2">
-                    <button class="btn btn-success" onclick="exportarBackup()">Fazer Backup</button>
-                    <label class="btn btn-outline" style="margin-bottom:0">
-                        Restaurar Backup
+                <h3>Conta Conectada</h3>
+                <div class="sync-box" style="margin-top: 0;">
+                    <div class="label">Conta conectada</div>
+                    <div id="perfil-email">--</div>
+                    <div id="perfil-google-info" class="profile-account-row"></div>
+                    <div class="label" style="margin-top: 10px;">Sincronização</div>
+                    <div id="sync-status">Aguardando login.</div>
+                    <div class="grid-2" style="margin-top: 12px;">
+                        <button type="button" class="btn btn-outline" id="btn-upload-cloud">Enviar para nuvem</button>
+                        <button type="button" class="btn btn-outline" id="btn-download-cloud">Baixar da nuvem</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Backup e Relatórios</h3>
+                <p class="small" style="margin-bottom: 8px; color: var(--text-secondary)">Exporte seus dados, restaure backups ou gere relatórios para guardar fora do app.</p>
+                <div class="backup-button-grid">
+                    <button class="btn btn-outline backup-action-btn" onclick="exportarBackup()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Backup
+                    </button>
+                    <label class="btn btn-outline backup-action-btn" style="margin-bottom:0">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Restaurar
                         <input type="file" id="input-import" class="hidden" accept=".json" onchange="importarBackup(event)">
                     </label>
+                    <button class="btn btn-outline backup-action-btn" onclick="gerarRelatorioPDF()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                        Gerar PDF
+                    </button>
+                    <button class="btn btn-outline backup-action-btn" onclick="gerarRelatorioCSV()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"></path><path d="M4 9h16"></path><path d="M9 4v16"></path></svg>
+                        Gerar CSV
+                    </button>
                 </div>
-                <div class="grid-2" style="margin-top: 12px;">
-                    <button class="btn btn-outline" onclick="gerarRelatorioPDF()">Gerar PDF</button>
-                    <button class="btn btn-outline" onclick="gerarRelatorioCSV()">Gerar CSV</button>
-                </div>
-                <div class="backup-danger-zone">
-                    <h3>Limpeza por data</h3>
-                    <p class="small" style="margin-bottom: 10px; color: var(--text-secondary)">Exclui pesos, medidas e metas personalizadas da data escolhida e anteriores.</p>
+                <div id="backup-info" class="small text-center" style="margin-top: 15px; color: var(--text-secondary)"></div>
+            </div>
+            <div class="card">
+                <h3>Limpeza por Data</h3>
+                <p class="small" style="margin-bottom: 10px; color: var(--text-secondary)">Exclui pesos, medidas e metas personalizadas da data escolhida e anteriores.</p>
+                <div class="backup-danger-zone" style="margin-top: 0;">
                     <div class="inline-action-row">
                         <input type="date" id="limpar-ate-data">
                         <button class="btn btn-danger" style="width: auto;" onclick="limparRegistrosAteData()">Limpar a Partir de</button>
                     </div>
                 </div>
                 <button class="btn btn-danger" style="margin-top: 12px;" onclick="limparTudo()">Limpar Todo o App</button>
-                <div id="backup-info" class="small text-center" style="margin-top: 15px; color: var(--text-secondary)"></div>
+                <button class="btn btn-outline" style="margin-top: 12px;" onclick="voltarInicio()">Voltar</button>
             </div>
+            <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
+
     </div>
 </div>
 
@@ -763,7 +1053,7 @@
         Início
     </a>
     <a class="nav-item" data-view="historico" onclick="showView('historico', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M7 12h10"></path><path d="M10 18h4"></path><path d="M12 3v18"></path></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12"></path><path d="M6 21h12"></path><path d="M8 3c0 5 8 5 8 10s-8 5-8 8"></path><path d="M16 3c0 5-8 5-8 10s8 5 8 8"></path></svg>
         Peso
     </a>
     <a class="nav-item" data-view="medidas" onclick="showView('medidas', this)">
@@ -772,24 +1062,11 @@
     </a>
     <a class="nav-item" data-view="metas" onclick="showView('metas', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        Metas
+        Simular
     </a>
     <a class="nav-item" data-view="graficos" onclick="showView('graficos', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
         Gráficos
-    </a>
-    <a class="nav-item" data-view="configs" onclick="showView('configs', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        Ajustes
-    </a>
-
-    <a class="nav-item" data-view="conta" onclick="showView('conta', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        Conta
-    </a>
-    <a class="nav-item" data-view="backup" onclick="showView('backup', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        Backup
     </a>
 </nav>
 
@@ -811,6 +1088,7 @@
                 <div class="form-group"><label>Braço</label><input type="number" step="0.1" id="med-braco"></div>
             </div>
             <div class="form-group"><label>Obs</label><input type="text" id="med-obs"></div>
+            <button type="button" class="btn btn-clear-outline" style="margin-bottom: 10px;" onclick="limparFormularioMedidas()">Limpar</button>
             <div class="grid-2">
                 <button type="submit" class="btn btn-primary">Salvar</button>
                 <button type="button" class="btn btn-outline" onclick="fecharModalMedida()">Cancelar</button>
@@ -818,6 +1096,7 @@
         </form>
     </div>
 </div>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -869,6 +1148,9 @@ const DATA_HOJE_INICIAL = new Date().toISOString().split("T")[0];
 let appData = {
     config: {
         nome: "",
+        nascimento: "",
+        genero: "",
+        altura: "",
         dataInicial: DATA_HOJE_INICIAL,
         pesoInicial: "",
         pesoMeta: "",
@@ -887,6 +1169,9 @@ function normalizarDados(raw) {
     const padrao = {
         config: {
             nome: "",
+            nascimento: "",
+            genero: "",
+            altura: "",
             dataInicial: DATA_HOJE_INICIAL,
             pesoInicial: "",
             pesoMeta: "",
@@ -917,7 +1202,7 @@ function normalizarDados(raw) {
 }
 
 function preencherCamposConfig() {
-    document.getElementById('cfg-nome').value = appData.config.nome || "";
+    preencherCamposPerfil();
     document.getElementById('cfg-data-init').value = appData.config.dataInicial || DATA_HOJE_INICIAL;
     document.getElementById('cfg-peso-init').value = appData.config.pesoInicial ?? "";
     document.getElementById('cfg-peso-meta').value = appData.config.pesoMeta ?? "";
@@ -929,6 +1214,62 @@ function preencherCamposConfig() {
     document.getElementById('id-coxa').value = appData.config.medidasIdeais.coxa ?? "";
     document.getElementById('id-panturrilha').value = appData.config.medidasIdeais.panturrilha ?? "";
     document.getElementById('id-braco').value = appData.config.medidasIdeais.braco ?? "";
+}
+
+
+function calcularIdade(dataNascimento) {
+    if (!dataNascimento) return '';
+    const nasc = parseDate(dataNascimento);
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - nasc.getFullYear();
+    const mes = hoje.getMonth() - nasc.getMonth();
+    if (mes < 0 || (mes === 0 && hoje.getDate() < nasc.getDate())) idade--;
+    return idade >= 0 ? idade : '';
+}
+
+function preencherCamposPerfil() {
+    const nome = document.getElementById('perfil-nome');
+    if (!nome) return;
+    nome.value = appData.config.nome || '';
+    document.getElementById('perfil-nascimento').value = appData.config.nascimento || '';
+    atualizarIdadePerfil();
+    document.getElementById('perfil-genero').value = appData.config.genero || '';
+    document.getElementById('perfil-altura').value = appData.config.altura ?? '';
+}
+
+function atualizarIdadePerfil() {
+    const nascimento = document.getElementById('perfil-nascimento')?.value || '';
+    const idadeEl = document.getElementById('perfil-idade');
+    if (idadeEl) idadeEl.value = calcularIdade(nascimento) || '';
+}
+
+function abrirPerfil() {
+    preencherCamposPerfil();
+    renderConta();
+    showView('conta', document.getElementById('btn-profile-open'));
+}
+
+function abrirAjustes() {
+    preencherCamposConfig();
+    showView('configs', document.getElementById('btn-settings-open'));
+}
+
+function fecharPerfil() {
+    showView('dashboard', document.querySelector('[data-view="dashboard"]'));
+}
+
+function salvarPerfilUsuario() {
+    appData.config.nome = document.getElementById('perfil-nome')?.value.trim() || '';
+    appData.config.nascimento = document.getElementById('perfil-nascimento')?.value || '';
+    appData.config.genero = document.getElementById('perfil-genero')?.value || '';
+    appData.config.altura = numeroOuVazio(document.getElementById('perfil-altura')?.value);
+    salvarDados();
+    preencherCamposConfig();
+    fecharPerfil();
+}
+
+function usuarioUsaGoogle() {
+    return !!(currentUser && Array.isArray(currentUser.providerData) && currentUser.providerData.some(p => p.providerId === 'google.com'));
 }
 
 function carregarDados() {
@@ -955,6 +1296,7 @@ function salvarDados(sincronizar = true) {
         agendarSalvarDadosNaNuvem();
     }
 }
+
 
 
 
@@ -1006,26 +1348,28 @@ function obterCredenciaisAuth(prefixo = '') {
 }
 
 function renderConta() {
-    const status = document.getElementById('auth-status');
-    const userInfo = document.getElementById('auth-user-info');
-    const loginCard = document.getElementById('auth-login-card');
-    const syncCard = document.getElementById('auth-sync-card');
-    if (!status || !userInfo || !loginCard || !syncCard) return;
+    const emailEl = document.getElementById('perfil-email');
+    const googleEl = document.getElementById('perfil-google-info');
+    const logoutPerfil = document.getElementById('btn-logout-perfil');
 
-    if (currentUser) {
-        status.className = 'auth-status online';
-        status.innerText = '● Conectado';
-        userInfo.innerText = `Logado como: ${currentUser.email}`;
-        loginCard.classList.add('hidden');
-        syncCard.classList.remove('hidden');
-    } else {
-        status.className = 'auth-status offline';
-        status.innerText = '● Desconectado';
-        userInfo.innerText = 'Nenhum usuário logado. Seus dados ficam salvos apenas neste aparelho até você entrar.';
-        loginCard.classList.remove('hidden');
-        syncCard.classList.add('hidden');
+    if (emailEl) {
+        emailEl.innerText = currentUser?.email || 'Nenhum e-mail identificado.';
     }
 
+    if (googleEl) {
+        if (usuarioUsaGoogle()) {
+            googleEl.innerHTML = `<span class="google-mini-icon"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg></span><span>Login conectado com Google.</span>`;
+        } else if (currentUser) {
+            googleEl.innerHTML = '<span>Login por e-mail e senha.</span>';
+        } else {
+            googleEl.innerHTML = '<span>Faça login para sincronizar seus dados.</span>';
+        }
+    }
+
+    if (logoutPerfil) {
+        logoutPerfil.classList.toggle('hidden', !currentUser);
+        logoutPerfil.disabled = !currentUser;
+    }
     definirStatusSync(ultimoStatusSync);
 }
 
@@ -1189,6 +1533,7 @@ function observarLogin() {
             definirMensagemAuthGate('Sessão confirmada.', 'ok');
             definirStatusSync('Login detectado. Sincronizando...');
             await carregarDadosDaNuvem(false);
+            renderConta();
         } else {
             definirMensagemAuthGate('Faça login para abrir o app.', 'info');
             definirStatusSync('Desconectado. A interface principal está bloqueada.');
@@ -1213,6 +1558,7 @@ function traduzirErroFirebase(error) {
     };
     return mapa[code] || (error && error.message ? error.message : 'erro desconhecido.');
 }
+
 
 /**
  * CALCULATIONS ENGINE
@@ -1272,6 +1618,12 @@ function formatBR(num) {
     const n = Number(num);
     if (!Number.isFinite(n)) return '--';
     return n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+}
+
+function formatBR2(num) {
+    const n = Number(num);
+    if (!Number.isFinite(n)) return '--';
+    return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function formatComSinal(num) {
@@ -1352,14 +1704,54 @@ function obterInicioFiltroGrafico() {
  */
 function updateUI() {
     renderDashboard();
+    renderDatasImportantesDashboard();
+    renderResumoPesoAtual();
+    renderIMCDashboard();
     renderHistoricoPeso();
     renderMedidas();
     renderMetasPersonalizadas();
     if (activeViewId === 'graficos') renderGraficos();
     renderConta();
+    atualizarEstadoBotoesDesfazer();
     
     document.getElementById('user-greeting').innerText = appData.config.nome ? `Bem-vindo, ${appData.config.nome}` : 'Bem-vindo';
     document.getElementById('backup-info').innerText = `Última alteração: ${new Date().toLocaleTimeString()}`;
+}
+
+function classeMetaComparadaAoPesoMeta(valor) {
+    const n = Number(valor);
+    const pesoMeta = numeroValido(appData.config.pesoMeta);
+    if (!Number.isFinite(n) || pesoMeta === null) return 'status-neutral';
+    return n > pesoMeta ? 'status-bad' : 'status-good';
+}
+
+function renderDatasImportantesDashboard() {
+    const tbody = document.getElementById('lista-datas-importantes-dashboard');
+    if (!tbody) return;
+
+    const metas = ordenarMetasPorProximidade(Array.isArray(appData.metasPersonalizadas) ? appData.metasPersonalizadas : []);
+
+    if (!metas.length) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-secondary);">Nenhuma data personalizada salva ainda.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = metas.map(item => {
+        const metaNumero = Number(item.meta);
+        const previsaoNumero = Number(item.previsao);
+        return `
+            <tr>
+                <td class="col-data">${formatDateBR(item.data)}</td>
+                <td class="col-descricao">${escapeHtml(item.nome || '')}</td>
+                <td class="col-meta ${classeMetaComparadaAoPesoMeta(metaNumero)}">${Number.isFinite(metaNumero) ? formatBR(metaNumero) : '--'}</td>
+                <td class="col-previsao ${classeMetaComparadaAoPesoMeta(previsaoNumero)}">${Number.isFinite(previsaoNumero) ? formatBR(previsaoNumero) : '--'}</td>
+            </tr>
+        `;
+    }).join('');
 }
 
 function renderDashboard() {
@@ -1379,7 +1771,7 @@ function renderDashboard() {
         document.getElementById('dash-status').innerText = 'CONFIGURE A META 🎯';
         document.getElementById('dash-status').className = 'value neutral';
         document.getElementById('dash-info-meta').innerText = 'Preencha Perfil e Metas na aba Ajustes para ativar os cálculos.';
-        document.getElementById('dash-previsao').innerText = '--';
+        document.getElementById('dash-previsao').innerHTML = '--';
         return;
     }
 
@@ -1420,19 +1812,122 @@ function renderDashboard() {
         statusEl.className = "value negative";
     }
 
-    document.getElementById('dash-info-meta').innerText = `Meta final: ${formatBR(pesoMeta)} kg | Meta/Dia: ${metaDia} kg/dia`;
+    document.getElementById('dash-info-meta').innerHTML = `Meta Final: ${formatBR(pesoMeta)} kg | Meta/Dia: ${metaDia} kg/dia`;
 
     const previsaoEl = document.getElementById('dash-previsao');
     if (Number.isFinite(media) && media < 0 && pesoAtual > pesoMeta) {
-        const diasRestantes = (pesoMeta - pesoAtual) / media;
+        const diasRestantes = Math.max(0, Math.ceil((pesoMeta - pesoAtual) / media));
         const dataPrevisao = new Date();
         dataPrevisao.setDate(dataPrevisao.getDate() + diasRestantes);
-        previsaoEl.innerText = dataPrevisao.toLocaleDateString('pt-BR');
+        previsaoEl.innerHTML = `
+            <div>${dataPrevisao.toLocaleDateString('pt-BR')}</div>
+            <div class="small" style="margin-top: 4px; color: var(--text-secondary); font-weight: 600;">Em ${diasRestantes} ${diasRestantes === 1 ? 'dia' : 'dias'}</div>
+        `;
     } else if (pesoAtual <= pesoMeta) {
-        previsaoEl.innerText = "Meta Atingida!";
+        previsaoEl.innerHTML = `
+            <div>Meta Atingida!</div>
+            <div class="small" style="margin-top: 4px; color: var(--success); font-weight: 600;">Hoje</div>
+        `;
     } else {
-        previsaoEl.innerText = "Sem previsão (ganhando peso)";
+        previsaoEl.innerHTML = `
+            <div>Sem previsão</div>
+            <div class="small" style="margin-top: 4px; color: var(--text-secondary); font-weight: 600;">Registre novos pesos para calcular os dias restantes.</div>
+        `;
     }
+}
+
+
+function renderResumoPesoAtual() {
+    const container = document.getElementById('resumo-peso-atual');
+    if (!container) return;
+    const pesos = [...appData.pesos]
+        .filter(p => p && p.data && Number.isFinite(Number(p.peso)))
+        .sort((a, b) => b.data.localeCompare(a.data));
+    const atual = pesos.length ? Number(pesos[0].peso) : obterPesoAtual();
+    const anterior = pesos.length > 1 ? Number(pesos[1].peso) : atual;
+    const pesoMeta = numeroValido(appData.config.pesoMeta);
+
+    if (!Number.isFinite(atual)) {
+        container.innerHTML = '';
+        return;
+    }
+
+    const diffAnterior = atual - anterior;
+    const diffMeta = Number.isFinite(pesoMeta) ? pesoMeta - atual : NaN;
+    container.innerHTML = `
+        <div class="card peso-summary-card">
+            <div class="label">Peso Atual</div>
+            <div class="value" style="font-size: 16px;">${formatBR(atual)} kg</div>
+            <div class="small ${classePositivoNegativo(diffAnterior, false)}">${formatComSinal(diffAnterior)} vs anterior</div>
+            ${Number.isFinite(pesoMeta) ? `<div class="small ${classePositivoNegativo(diffMeta, true)}">Ideal: ${formatBR(pesoMeta)} (${formatComSinal(diffMeta)})</div>` : ''}
+        </div>
+    `;
+}
+
+function classificarIMC(imc) {
+    if (!Number.isFinite(imc)) return { categoria: '--', detalhe: '', normal: false };
+    if (imc < 18.5) return { categoria: 'Abaixo do Peso', detalhe: 'Abaixo de 18,5', normal: false };
+    if (imc < 25) return { categoria: 'Peso Normal', detalhe: 'Faixa saudável adulta', normal: true };
+    if (imc < 30) return { categoria: 'Sobrepeso', detalhe: 'Acima da faixa normal', normal: false };
+    if (imc < 35) return { categoria: 'Obesidade Grau I', detalhe: 'Classe 1', normal: false };
+    if (imc < 40) return { categoria: 'Obesidade Grau II', detalhe: 'Classe 2', normal: false };
+    return { categoria: 'Obesidade Grau III', detalhe: 'Classe 3', normal: false };
+}
+
+function renderIMCDashboard() {
+    const card = document.getElementById('imc-dashboard-card');
+    const content = document.getElementById('imc-dashboard-content');
+    if (!card || !content) return;
+    const pesoAtual = obterPesoAtual();
+    const alturaCm = numeroValido(appData.config.altura);
+    const idade = calcularIdade(appData.config.nascimento);
+    const genero = appData.config.genero || '--';
+
+    if (!Number.isFinite(pesoAtual) || !alturaCm) {
+        card.className = 'card imc-card neutral';
+        content.innerHTML = 'Preencha altura no perfil e registre seu peso atual para calcular o IMC completo.';
+        return;
+    }
+
+    const alturaM = alturaCm / 100;
+    const alturaQuadrado = alturaM * alturaM;
+    const imc = pesoAtual / alturaQuadrado;
+    const info = classificarIMC(imc);
+    const imcMinNormal = 18.5;
+    const imcMaxNormal = 24.9;
+    const pesoMinNormal = imcMinNormal * alturaQuadrado;
+    const pesoMaxNormal = imcMaxNormal * alturaQuadrado;
+    const perdaParaPesoMin = pesoAtual - pesoMinNormal;
+    const perdaParaPesoMax = pesoAtual - pesoMaxNormal;
+    const perdaMin = Math.min(perdaParaPesoMin, perdaParaPesoMax);
+    const perdaMax = Math.max(perdaParaPesoMin, perdaParaPesoMax);
+    const alturaFormatada = (alturaCm / 100).toFixed(2);
+    const idadeTexto = idade ? `${idade} anos` : '-- anos';
+
+    card.className = 'card imc-card ' + (info.normal ? 'ok' : 'alert');
+    content.innerHTML = `
+        <div class="imc-main">
+            <div class="imc-badge">${imc.toFixed(1).replace('.', ',')}</div>
+            <div>
+                <div class="value ${info.normal ? 'positive' : 'negative'}" style="font-size: 20px;">${info.categoria}</div>
+                <div class="imc-caption">${genero} - ${alturaFormatada} cm - ${idadeTexto}</div>
+            </div>
+        </div>
+        <div class="imc-detail-grid">
+            <div class="imc-detail-pill">
+                <div class="label">IMC Ideal</div>
+                <div class="value">18,5 a 24,9</div>
+            </div>
+            <div class="imc-detail-pill">
+                <div class="label">Peso Recomendado</div>
+                <div class="value">${formatBR(pesoMinNormal)} a ${formatBR(pesoMaxNormal)} kg</div>
+            </div>
+            <div class="imc-detail-pill imc-detail-wide">
+                <div class="label">Peso a Perder</div>
+                <div class="value">${formatBR2(perdaMin)} a ${formatBR2(perdaMax)} kg</div>
+            </div>
+        </div>
+    `;
 }
 
 function renderHistoricoPeso() {
@@ -1441,14 +1936,15 @@ function renderHistoricoPeso() {
     const pesoMeta = numeroValido(appData.config.pesoMeta);
 
     lista.innerHTML = sorted.map(p => {
-        const falta = Number.isFinite(pesoMeta) ? pesoMeta - Number(p.peso) : NaN;
+        const metaRegistro = Number.isFinite(Number(p.meta)) ? Number(p.meta) : pesoMeta;
+        const falta = Number.isFinite(metaRegistro) ? metaRegistro - Number(p.peso) : NaN;
         return `
             <tr>
                 <td>${formatDateBR(p.data)}</td>
                 <td>${formatBR(p.peso)}</td>
                 <td class="${classePositivoNegativo(falta, true)}">${formatComSinal(falta)}</td>
                 <td class="actions-cell">
-                    <button class="btn btn-outline compact-action" title="Editar" aria-label="Editar peso" onclick="editarPeso('${p.id}')">✎</button>
+                    <button class="btn btn-outline compact-action" title="Editar" onclick="editarPeso('${p.id}')">✎</button>
                     <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirPeso('${p.id}')">−</button>
                 </td>
             </tr>
@@ -1507,7 +2003,7 @@ function renderMedidas() {
             <td>${formatDateBR(m.data)}</td>
             <td>${formatBR(m.cintura)}</td>
             <td class="actions-cell">
-                <button class="btn btn-outline compact-action" title="Editar" aria-label="Editar medida" onclick="editarMedida('${m.id}')">✎</button>
+                <button class="btn btn-outline compact-action" title="Editar" onclick="editarMedida('${m.id}')">✎</button>
                 <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirMedida('${m.id}')">−</button>
             </td>
         </tr>
@@ -1558,6 +2054,7 @@ function renderGraficos() {
     const sortedPesos = obterPesosValidosParaCalculo().filter(p => p.data >= inicioFiltro);
     const labels = sortedPesos.map(p => formatDateChart(p.data));
     const dataReal = sortedPesos.map(p => p.peso);
+    const dataMeta = sortedPesos.map(p => Number.isFinite(Number(p.meta)) ? Number(p.meta) : null);
 
     if(chartPesoRef) chartPesoRef.destroy();
     chartPesoRef = new Chart(ctxPeso, {
@@ -1565,7 +2062,8 @@ function renderGraficos() {
         data: {
             labels: labels,
             datasets: [
-                { label: 'Peso', data: dataReal, borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,.12)', tension: 0.3 }
+                { label: 'Peso', data: dataReal, borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,.12)', tension: 0.3 },
+                { label: 'Meta', data: dataMeta, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,.10)', tension: 0.3 }
             ]
         },
         options: { responsive: true, maintainAspectRatio: false, animation: false, normalized: true, scales: { y: { beginAtZero: false } } }
@@ -1582,44 +2080,54 @@ function renderGraficos() {
             datasets: [
                 { label: 'Barriga', data: sortedMedidas.map(m => m.cintura), borderColor: '#ef4444' },
                 { label: 'Coxa', data: sortedMedidas.map(m => m.coxa), borderColor: '#22c55e' },
-                { label: 'Quadril', data: sortedMedidas.map(m => m.quadril), borderColor: '#38bdf8' }
+                { label: 'Quadril', data: sortedMedidas.map(m => m.quadril), borderColor: '#38bdf8' },
+                { label: 'Peito', data: sortedMedidas.map(m => m.peito), borderColor: '#a855f7' },
+                { label: 'Panturrilha', data: sortedMedidas.map(m => m.panturrilha), borderColor: '#f59e0b' },
+                { label: 'Braço', data: sortedMedidas.map(m => m.braco), borderColor: '#14b8a6' }
             ]
         },
-        options: { responsive: true, maintainAspectRatio: false, animation: false, normalized: true }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            normalized: true,
+            plugins: { legend: { labels: { boxWidth: 10, padding: 8, font: { size: 11 } } } },
+            elements: { point: { radius: 2 }, line: { borderWidth: 2 } }
+        }
     });
 }
 
 /**
  * ACTIONS & HANDLERS
  */
-function abrirTelaLancamentoPeso() {
-    const form = document.getElementById('form-peso');
-    if (form) form.reset();
-    document.getElementById('edit-peso-id').value = "";
-    document.getElementById('peso-data').value = hojeISO();
-    showView('peso', document.querySelector('[data-view="historico"]'));
-}
-
 function showView(viewId, navEl) {
     activeViewId = viewId;
     document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-    document.getElementById('view-' + viewId).classList.remove('hidden');
+    const view = document.getElementById('view-' + viewId);
+    if (view) view.classList.remove('hidden');
     
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if (navEl) navEl.classList.add('active');
+    document.querySelectorAll('.header-icon-btn').forEach(b => b.classList.remove('active-header'));
+    const navTarget = navEl || document.querySelector(`[data-view="${viewId}"]`) || (viewId === 'peso' ? document.querySelector('[data-view="historico"]') : null);
+    if (navTarget) {
+        if (navTarget.classList.contains('header-icon-btn')) navTarget.classList.add('active-header');
+        else navTarget.classList.add('active');
+    }
 
     const titles = {
         dashboard: "Início",
         peso: "Lançar Peso",
         historico: "Peso",
         medidas: "Medidas Corporais",
-        metas: "Metas e Simulador",
+        metas: "Simulador",
         graficos: "Evolução",
-        configs: "Configurações",
-        conta: "Conta",
-        backup: "Backup"
+        configs: "Ajustes",
+        conta: "Conta"
     };
-    document.getElementById('page-title').innerText = titles[viewId];
+    document.getElementById('page-title').innerText = titles[viewId] || '';
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    const viewContainer = document.getElementById('view-' + viewId);
+    if (viewContainer) viewContainer.scrollTop = 0;
 
     if (viewId === 'peso' && !document.getElementById('edit-peso-id').value) {
         document.getElementById('peso-data').value = hojeISO();
@@ -1627,49 +2135,90 @@ function showView(viewId, navEl) {
     if (viewId === 'graficos') renderGraficos();
 }
 
-// Auth Form
-document.getElementById('btn-login').onclick = () => entrarUsuario('');
-document.getElementById('btn-cadastro').onclick = () => cadastrarUsuario('');
-document.getElementById('btn-google-conta').onclick = entrarComGoogle;
-document.getElementById('btn-login-gate').onclick = () => entrarUsuario('gate');
-document.getElementById('btn-cadastro-gate').onclick = () => cadastrarUsuario('gate');
-document.getElementById('btn-google-gate').onclick = entrarComGoogle;
-document.getElementById('btn-logout').onclick = sairUsuario;
-document.getElementById('btn-upload-cloud').onclick = () => salvarDadosNaNuvem(true);
-document.getElementById('btn-download-cloud').onclick = () => {
-    if (confirm('Baixar os dados da nuvem e substituir os dados locais deste aparelho?')) {
-        carregarDadosDaNuvem(true);
-    }
-};
-document.getElementById('form-auth').onsubmit = function(e) {
-    e.preventDefault();
-    entrarUsuario('');
-};
-document.getElementById('form-auth-gate').onsubmit = function(e) {
+// Autenticação / Conta
+const btnLoginGate = document.getElementById('btn-login-gate');
+if (btnLoginGate) btnLoginGate.onclick = () => entrarUsuario('gate');
+const btnCadastroGate = document.getElementById('btn-cadastro-gate');
+if (btnCadastroGate) btnCadastroGate.onclick = () => cadastrarUsuario('gate');
+const btnGoogleGate = document.getElementById('btn-google-gate');
+if (btnGoogleGate) btnGoogleGate.onclick = entrarComGoogle;
+const formAuthGate = document.getElementById('form-auth-gate');
+if (formAuthGate) formAuthGate.onsubmit = function(e) {
     e.preventDefault();
     entrarUsuario('gate');
 };
 
+const btnProfileOpen = document.getElementById('btn-profile-open');
+if (btnProfileOpen) btnProfileOpen.onclick = abrirPerfil;
+
+const btnSettingsOpen = document.getElementById('btn-settings-open');
+if (btnSettingsOpen) btnSettingsOpen.onclick = abrirAjustes;
+
+const btnLogoutPerfil = document.getElementById('btn-logout-perfil');
+if (btnLogoutPerfil) btnLogoutPerfil.onclick = sairUsuario;
+
+const btnUploadCloud = document.getElementById('btn-upload-cloud');
+if (btnUploadCloud) btnUploadCloud.onclick = () => salvarDadosNaNuvem(true);
+const btnDownloadCloud = document.getElementById('btn-download-cloud');
+if (btnDownloadCloud) btnDownloadCloud.onclick = () => {
+    if (confirm('Baixar os dados da nuvem e substituir os dados locais deste aparelho?')) {
+        carregarDadosDaNuvem(true);
+    }
+};
+
+const perfilNascimento = document.getElementById('perfil-nascimento');
+if (perfilNascimento) perfilNascimento.addEventListener('change', () => { atualizarIdadePerfil(); agendarSalvarPerfil(); });
+
+const formPerfil = document.getElementById('form-perfil');
+if (formPerfil) formPerfil.onsubmit = function(e) {
+    e.preventDefault();
+    salvarPerfilUsuario();
+};
+
 // Peso Form
+function abrirLancamentoPeso() {
+    document.getElementById('edit-peso-id').value = '';
+    document.getElementById('form-peso').reset();
+    document.getElementById('peso-data').value = hojeISO();
+    document.getElementById('peso-meta').value = Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '';
+    showView('peso', document.querySelector('[data-view="historico"]'));
+}
+
+function fecharLancamentoPeso() {
+    document.getElementById('form-peso').reset();
+    document.getElementById('edit-peso-id').value = '';
+    showView('historico', document.querySelector('[data-view="historico"]'));
+}
+
+function limparFormularioPeso() {
+    document.getElementById('form-peso').reset();
+    document.getElementById('edit-peso-id').value = '';
+    document.getElementById('peso-data').value = hojeISO();
+    document.getElementById('peso-meta').value = Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '';
+    document.getElementById('peso-valor').focus();
+}
+
 document.getElementById('form-peso').onsubmit = function(e) {
     e.preventDefault();
     const id = document.getElementById('edit-peso-id').value || Date.now().toString();
     const data = document.getElementById('peso-data').value;
     const peso = parseFloat(document.getElementById('peso-valor').value);
+    const meta = numeroOuVazio(document.getElementById('peso-meta').value);
     const obs = document.getElementById('peso-obs').value;
 
     const index = appData.pesos.findIndex(p => p.id === id || p.data === data);
     if(index > -1 && !document.getElementById('edit-peso-id').value) {
         if(!confirm("Já existe um peso para esta data. Deseja substituir?")) return;
-        appData.pesos[index] = { id: appData.pesos[index].id, data, peso, observacoes: obs };
+        appData.pesos[index] = { id: appData.pesos[index].id, data, peso, meta, observacoes: obs };
     } else if (index > -1) {
-        appData.pesos[index] = { id, data, peso, observacoes: obs };
+        appData.pesos[index] = { id, data, peso, meta, observacoes: obs };
     } else {
-        appData.pesos.push({ id, data, peso, observacoes: obs });
+        appData.pesos.push({ id, data, peso, meta, observacoes: obs });
     }
 
     this.reset();
     document.getElementById('peso-data').value = hojeISO();
+    document.getElementById('peso-meta').value = Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '';
     document.getElementById('edit-peso-id').value = "";
     salvarDados();
     showView('historico', document.querySelector('[data-view="historico"]'));
@@ -1681,6 +2230,7 @@ function editarPeso(id) {
     document.getElementById('edit-peso-id').value = p.id;
     document.getElementById('peso-data').value = p.data;
     document.getElementById('peso-valor').value = p.peso;
+    document.getElementById('peso-meta').value = Number.isFinite(Number(p.meta)) ? p.meta : (Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '');
     document.getElementById('peso-obs').value = p.observacoes || '';
     showView('peso', document.querySelector('[data-view="historico"]'));
 }
@@ -1692,24 +2242,98 @@ function excluirPeso(id) {
 }
 
 // Config Form
-function limparPerfilMetas() {
-    document.getElementById('cfg-nome').value = '';
-    document.getElementById('cfg-data-init').value = hojeISO();
-    document.getElementById('cfg-peso-init').value = '';
-    document.getElementById('cfg-peso-meta').value = '';
-    document.getElementById('cfg-meta-dia').value = '';
+let historicoMetasPeso = [];
+let historicoMedidasIdeais = [];
+let historicoPerfilConta = [];
+let autosaveAjustesTimer = null;
+let autosavePerfilTimer = null;
+let pausandoAutosave = false;
+
+function snapshotMetasPeso() {
+    return {
+        dataInicial: appData.config.dataInicial || hojeISO(),
+        pesoInicial: appData.config.pesoInicial ?? '',
+        pesoMeta: appData.config.pesoMeta ?? '',
+        metaKgPorDia: appData.config.metaKgPorDia ?? ''
+    };
 }
 
-function limparMedidasIdeais() {
-    ['id-pescoco','id-peito','id-cintura','id-quadril','id-coxa','id-panturrilha','id-braco'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
+function snapshotMedidasIdeais() {
+    return { ...(appData.config.medidasIdeais || {}) };
+}
+
+function snapshotPerfilConta() {
+    return {
+        nome: appData.config.nome || '',
+        nascimento: appData.config.nascimento || '',
+        genero: appData.config.genero || '',
+        altura: appData.config.altura ?? ''
+    };
+}
+
+function pushHistoricoMetasPeso() {
+    const atual = JSON.stringify(snapshotMetasPeso());
+    const ultimo = historicoMetasPeso.length ? JSON.stringify(historicoMetasPeso[historicoMetasPeso.length - 1]) : null;
+    if (atual !== ultimo) historicoMetasPeso.push(JSON.parse(atual));
+    if (historicoMetasPeso.length > 20) historicoMetasPeso.shift();
+    atualizarEstadoBotoesDesfazer();
+}
+
+function pushHistoricoMedidasIdeais() {
+    const atual = JSON.stringify(snapshotMedidasIdeais());
+    const ultimo = historicoMedidasIdeais.length ? JSON.stringify(historicoMedidasIdeais[historicoMedidasIdeais.length - 1]) : null;
+    if (atual !== ultimo) historicoMedidasIdeais.push(JSON.parse(atual));
+    if (historicoMedidasIdeais.length > 20) historicoMedidasIdeais.shift();
+    atualizarEstadoBotoesDesfazer();
+}
+
+function pushHistoricoPerfilConta() {
+    const atual = JSON.stringify(snapshotPerfilConta());
+    const ultimo = historicoPerfilConta.length ? JSON.stringify(historicoPerfilConta[historicoPerfilConta.length - 1]) : null;
+    if (atual !== ultimo) historicoPerfilConta.push(JSON.parse(atual));
+    if (historicoPerfilConta.length > 20) historicoPerfilConta.shift();
+    atualizarEstadoBotoesDesfazer();
+}
+
+function atualizarEstadoBotoesDesfazer() {
+    const mapa = [
+        ['btn-desfazer-metas', historicoMetasPeso.length],
+        ['btn-desfazer-medidas', historicoMedidasIdeais.length],
+        ['btn-desfazer-perfil', historicoPerfilConta.length]
+    ];
+    mapa.forEach(([id, qtd]) => {
+        const btn = document.getElementById(id);
+        if (btn) btn.disabled = !qtd;
     });
 }
 
-document.getElementById('form-config').onsubmit = function(e) {
-    e.preventDefault();
-    appData.config.nome = document.getElementById('cfg-nome').value.trim();
+function aplicarCamposMetasPeso(snapshot) {
+    document.getElementById('cfg-data-init').value = snapshot.dataInicial || hojeISO();
+    document.getElementById('cfg-peso-init').value = snapshot.pesoInicial ?? '';
+    document.getElementById('cfg-peso-meta').value = snapshot.pesoMeta ?? '';
+    document.getElementById('cfg-meta-dia').value = snapshot.metaKgPorDia ?? '';
+}
+
+function aplicarCamposMedidasIdeais(snapshot) {
+    document.getElementById('id-pescoco').value = snapshot.pescoco ?? '';
+    document.getElementById('id-peito').value = snapshot.peito ?? '';
+    document.getElementById('id-cintura').value = snapshot.cintura ?? '';
+    document.getElementById('id-quadril').value = snapshot.quadril ?? '';
+    document.getElementById('id-coxa').value = snapshot.coxa ?? '';
+    document.getElementById('id-panturrilha').value = snapshot.panturrilha ?? '';
+    document.getElementById('id-braco').value = snapshot.braco ?? '';
+}
+
+function aplicarCamposPerfilConta(snapshot) {
+    document.getElementById('perfil-nome').value = snapshot.nome || '';
+    document.getElementById('perfil-nascimento').value = snapshot.nascimento || '';
+    document.getElementById('perfil-genero').value = snapshot.genero || '';
+    document.getElementById('perfil-altura').value = snapshot.altura ?? '';
+    atualizarIdadePerfil();
+}
+
+function salvarAjustesAutomaticamente() {
+    if (pausandoAutosave) return;
     appData.config.dataInicial = document.getElementById('cfg-data-init').value || hojeISO();
     appData.config.pesoInicial = numeroOuVazio(document.getElementById('cfg-peso-init').value);
     appData.config.pesoMeta = numeroOuVazio(document.getElementById('cfg-peso-meta').value);
@@ -1725,8 +2349,116 @@ document.getElementById('form-config').onsubmit = function(e) {
         braco: numeroOuVazio(document.getElementById('id-braco').value)
     };
 
+    preencherCamposPerfil();
     salvarDados();
-    alert("Configurações salvas!");
+}
+
+function agendarSalvarAjustes() {
+    clearTimeout(autosaveAjustesTimer);
+    autosaveAjustesTimer = setTimeout(salvarAjustesAutomaticamente, 350);
+}
+
+function limparPerfilMetas() {
+    pushHistoricoMetasPeso();
+    pausandoAutosave = true;
+    document.getElementById('cfg-data-init').value = hojeISO();
+    document.getElementById('cfg-peso-init').value = '';
+    document.getElementById('cfg-peso-meta').value = '';
+    document.getElementById('cfg-meta-dia').value = '';
+    pausandoAutosave = false;
+    salvarAjustesAutomaticamente();
+}
+
+function limparMedidasIdeais() {
+    pushHistoricoMedidasIdeais();
+    pausandoAutosave = true;
+    ['id-pescoco','id-peito','id-cintura','id-quadril','id-coxa','id-panturrilha','id-braco'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    pausandoAutosave = false;
+    salvarAjustesAutomaticamente();
+}
+
+function desfazerMetasPeso() {
+    const anterior = historicoMetasPeso.pop();
+    if (!anterior) return atualizarEstadoBotoesDesfazer();
+    pausandoAutosave = true;
+    aplicarCamposMetasPeso(anterior);
+    pausandoAutosave = false;
+    salvarAjustesAutomaticamente();
+    atualizarEstadoBotoesDesfazer();
+}
+
+function desfazerMedidasIdeais() {
+    const anterior = historicoMedidasIdeais.pop();
+    if (!anterior) return atualizarEstadoBotoesDesfazer();
+    pausandoAutosave = true;
+    aplicarCamposMedidasIdeais(anterior);
+    pausandoAutosave = false;
+    salvarAjustesAutomaticamente();
+    atualizarEstadoBotoesDesfazer();
+}
+
+function desfazerPerfilConta() {
+    const anterior = historicoPerfilConta.pop();
+    if (!anterior) return atualizarEstadoBotoesDesfazer();
+    aplicarCamposPerfilConta(anterior);
+    salvarPerfilAutomaticamente();
+    atualizarEstadoBotoesDesfazer();
+}
+
+function limparPerfilConta() {
+    pushHistoricoPerfilConta();
+    aplicarCamposPerfilConta({ nome: '', nascimento: '', genero: '', altura: '' });
+    salvarPerfilAutomaticamente();
+}
+
+function voltarInicio() {
+    showView('dashboard', document.querySelector('[data-view="dashboard"]'));
+}
+
+function salvarPerfilAutomaticamente() {
+    appData.config.nome = document.getElementById('perfil-nome')?.value.trim() || '';
+    appData.config.nascimento = document.getElementById('perfil-nascimento')?.value || '';
+    appData.config.genero = document.getElementById('perfil-genero')?.value || '';
+    appData.config.altura = numeroOuVazio(document.getElementById('perfil-altura')?.value);
+    atualizarIdadePerfil();
+    salvarDados();
+}
+
+function agendarSalvarPerfil() {
+    clearTimeout(autosavePerfilTimer);
+    autosavePerfilTimer = setTimeout(salvarPerfilAutomaticamente, 350);
+}
+
+const camposMetasPeso = ['cfg-data-init','cfg-peso-init','cfg-peso-meta','cfg-meta-dia'];
+const camposMedidasIdeais = ['id-pescoco','id-peito','id-cintura','id-quadril','id-coxa','id-panturrilha','id-braco'];
+camposMetasPeso.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('focus', pushHistoricoMetasPeso);
+    el.addEventListener('input', agendarSalvarAjustes);
+    el.addEventListener('change', agendarSalvarAjustes);
+});
+camposMedidasIdeais.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('focus', pushHistoricoMedidasIdeais);
+    el.addEventListener('input', agendarSalvarAjustes);
+    el.addEventListener('change', agendarSalvarAjustes);
+});
+['perfil-nome','perfil-nascimento','perfil-genero','perfil-altura'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('focus', pushHistoricoPerfilConta);
+    el.addEventListener('input', agendarSalvarPerfil);
+    el.addEventListener('change', agendarSalvarPerfil);
+});
+
+document.getElementById('form-config').onsubmit = function(e) {
+    e.preventDefault();
+    salvarAjustesAutomaticamente();
 };
 
 // Medidas Modal & Form
@@ -1740,6 +2472,14 @@ function fecharModalMedida() {
     document.getElementById('modal-medida').classList.add('hidden');
     document.getElementById('form-medidas').reset();
     document.getElementById('edit-medida-id').value = "";
+}
+
+function limparFormularioMedidas() {
+    document.getElementById('form-medidas').reset();
+    document.getElementById('edit-medida-id').value = "";
+    document.getElementById('med-data').value = hojeISO();
+    document.getElementById('med-peso').value = obterPesoAtual();
+    document.getElementById('med-pescoco').focus();
 }
 
 document.getElementById('form-medidas').onsubmit = function(e) {
@@ -1806,21 +2546,32 @@ function simularMeta() {
     ultimaSimulacao = { data, meta, previsao };
 
     document.getElementById('res-simulacao').innerHTML = `
-        <div class="card" style="border-color: var(--accent); background: #f8fcff; box-shadow: none;">
-            <div class="label">Resultados para ${formatDateBR(data)}</div>
-            <div class="grid-2" style="margin-top: 10px;">
-                <div><div class="small">Meta Planejada</div><div class="value">${formatBR(meta)} kg</div></div>
+        <div class="simulation-result-mini">
+            <div class="label">Resultado • ${formatDateBR(data)}</div>
+            <div class="simulation-result-grid" style="margin-top: 8px;">
+                <div><div class="small">Meta</div><div class="value">${formatBR(meta)} kg</div></div>
                 <div><div class="small">Previsão Real</div><div class="value">${formatBR(previsao)} kg</div></div>
             </div>
-            <div class="save-simulation-box">
-                <label>Salvar esta data como</label>
+            <div class="simulation-save-row">
+                <span class="small" style="color: var(--text-secondary)">Salvar esta simulação?</span>
+                <button class="btn btn-primary" style="width: auto; min-height: 36px; padding: 8px 12px;" onclick="abrirSalvarSimulacao()" type="button">Salvar</button>
+            </div>
+            <div id="box-salvar-simulacao" class="simulation-save-form hidden">
+                <label>Descrição</label>
                 <div class="inline-action-row">
                     <input type="text" id="nome-meta-personalizada" placeholder="Ex: Natal, Aniversário, Consulta...">
-                    <button class="btn btn-primary" style="width: auto;" onclick="salvarMetaPersonalizada()">Salvar</button>
+                    <button class="btn btn-primary" style="width: auto;" onclick="salvarMetaPersonalizada()" type="button">Confirmar</button>
                 </div>
             </div>
         </div>
     `;
+}
+
+function abrirSalvarSimulacao() {
+    const box = document.getElementById('box-salvar-simulacao');
+    if (box) box.classList.remove('hidden');
+    const input = document.getElementById('nome-meta-personalizada');
+    if (input) input.focus();
 }
 
 function limparSimulacaoMeta() {
@@ -1850,39 +2601,123 @@ function salvarMetaPersonalizada() {
     alert('Data personalizada salva.');
 }
 
+function editarMetaPersonalizada(id) {
+    const item = (appData.metasPersonalizadas || []).find(meta => meta.id === id);
+    if (!item) return;
+    const novoNome = prompt('Editar descrição:', item.nome || '');
+    if (novoNome === null) return;
+    const nomeLimpo = novoNome.trim();
+    if (!nomeLimpo) return alert('A descrição não pode ficar vazia.');
+    item.nome = nomeLimpo;
+    salvarDados();
+}
+
 function excluirMetaPersonalizada(id) {
     if (!confirm('Excluir esta data personalizada?')) return;
     appData.metasPersonalizadas = (appData.metasPersonalizadas || []).filter(item => item.id !== id);
     salvarDados();
 }
 
+function ordenarMetasPorProximidade(metas) {
+    const hoje = hojeISO();
+    return [...metas].sort((a, b) => {
+        const dataA = String(a.data || '');
+        const dataB = String(b.data || '');
+        const futuraA = dataA >= hoje;
+        const futuraB = dataB >= hoje;
+        if (futuraA !== futuraB) return futuraA ? -1 : 1;
+        return futuraA ? dataA.localeCompare(dataB) : dataB.localeCompare(dataA);
+    });
+}
+
 function renderMetasPersonalizadas() {
     const lista = document.getElementById('lista-metas-personalizadas');
+    const indicadores = document.getElementById('metas-personalizadas-indicadores');
     if (!lista) return;
-    const metas = Array.isArray(appData.metasPersonalizadas) ? [...appData.metasPersonalizadas] : [];
-    metas.sort((a, b) => a.data.localeCompare(b.data));
+    const metas = ordenarMetasPorProximidade(Array.isArray(appData.metasPersonalizadas) ? appData.metasPersonalizadas : []);
 
     if (!metas.length) {
         lista.innerHTML = '<div class="sync-box">Nenhuma data personalizada salva ainda.</div>';
+        if (indicadores) indicadores.innerHTML = '';
         return;
     }
 
-    lista.innerHTML = metas.map(item => `
-        <div class="custom-goal-item">
+    lista.innerHTML = metas.map((item, index) => `
+        <div class="custom-goal-item compact" data-carousel-index="${index}">
             <div class="custom-goal-head">
                 <div>
                     <div class="custom-goal-title">${escapeHtml(item.nome)}</div>
                     <div class="custom-goal-date">${formatDateBR(item.data)}</div>
                 </div>
-                <button class="btn btn-outline" style="width:auto; padding: 7px 10px; border-color: var(--danger); color: var(--danger);" onclick="excluirMetaPersonalizada('${item.id}')">Excluir</button>
+                <div class="custom-goal-actions">
+                    <button class="btn btn-outline compact-action" title="Editar" onclick="editarMetaPersonalizada('${item.id}')">✎</button>
+                    <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirMetaPersonalizada('${item.id}')">−</button>
+                </div>
             </div>
-            <div class="custom-goal-metrics">
-                <div class="custom-goal-metric"><div class="label">Meta</div><div class="value" style="font-size:16px;">${formatBR(item.meta)} kg</div></div>
-                <div class="custom-goal-metric"><div class="label">Previsão</div><div class="value" style="font-size:16px;">${formatBR(item.previsao)} kg</div></div>
+            <div class="custom-goal-metrics compact">
+                <div class="custom-goal-metric compact"><div class="label">Meta</div><div class="value">${formatBR(item.meta)} kg</div></div>
+                <div class="custom-goal-metric compact"><div class="label">Previsão</div><div class="value">${formatBR(item.previsao)} kg</div></div>
             </div>
         </div>
     `).join('');
+
+    renderIndicadoresMetasPersonalizadas(metas.length);
+    atualizarIndicadorMetasPersonalizadas();
 }
+
+function renderIndicadoresMetasPersonalizadas(total) {
+    const indicadores = document.getElementById('metas-personalizadas-indicadores');
+    if (!indicadores) return;
+    if (total <= 1) {
+        indicadores.innerHTML = '';
+        return;
+    }
+    indicadores.innerHTML = Array.from({ length: total }, (_, index) => `
+        <button type="button" class="custom-goal-dot${index === 0 ? ' active' : ''}" aria-label="Ir para data personalizada ${index + 1}" onclick="irParaMetaPersonalizada(${index})"></button>
+    `).join('');
+}
+
+function obterIndiceMetaPersonalizadaVisivel() {
+    const lista = document.getElementById('lista-metas-personalizadas');
+    if (!lista) return 0;
+    const cards = Array.from(lista.querySelectorAll('.custom-goal-item'));
+    if (!cards.length) return 0;
+
+    const centroLista = lista.scrollLeft + (lista.clientWidth / 2);
+    let indiceMaisProximo = 0;
+    let menorDistancia = Infinity;
+
+    cards.forEach((card, index) => {
+        const centroCard = card.offsetLeft + (card.offsetWidth / 2);
+        const distancia = Math.abs(centroLista - centroCard);
+        if (distancia < menorDistancia) {
+            menorDistancia = distancia;
+            indiceMaisProximo = index;
+        }
+    });
+
+    return indiceMaisProximo;
+}
+
+function atualizarIndicadorMetasPersonalizadas() {
+    const indicadores = document.getElementById('metas-personalizadas-indicadores');
+    if (!indicadores) return;
+    const dots = Array.from(indicadores.querySelectorAll('.custom-goal-dot'));
+    if (!dots.length) return;
+    const indiceAtual = obterIndiceMetaPersonalizadaVisivel();
+    dots.forEach((dot, index) => dot.classList.toggle('active', index === indiceAtual));
+}
+
+function irParaMetaPersonalizada(index) {
+    const lista = document.getElementById('lista-metas-personalizadas');
+    if (!lista) return;
+    const cards = Array.from(lista.querySelectorAll('.custom-goal-item'));
+    const card = cards[index];
+    if (!card) return;
+    lista.scrollTo({ left: card.offsetLeft - lista.offsetLeft, behavior: 'smooth' });
+    setTimeout(atualizarIndicadorMetasPersonalizadas, 260);
+}
+
 
 function escapeHtml(str) {
     return String(str || '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
@@ -1892,11 +2727,16 @@ function gerarTabelaMetas(tipo) {
     const container = document.getElementById('container-tabela-metas');
     const tabela = document.getElementById('tabela-metas-futuras');
     container.classList.remove('hidden');
-    tabela.innerHTML = `<thead><tr><th>Data</th><th>Meta</th><th>Prev. Real</th></tr></thead><tbody></tbody>`;
+    tabela.innerHTML = `<thead><tr><th>Data</th><th>Meta</th><th>Previsão</th></tr></thead><tbody></tbody>`;
     
     const media = calcularMediaRealDia();
     const pesoAtual = obterPesoAtual();
     const hoje = hojeISO();
+    const pesoMetaAjustes = parseFloat(appData.config.pesoMeta);
+    const classeComparacaoMetaAjustes = (valor) => {
+        if (!Number.isFinite(valor) || !Number.isFinite(pesoMetaAjustes)) return '';
+        return valor <= pesoMetaAjustes ? 'positive' : 'negative';
+    };
     const linhas = [];
     const configuracoes = {
         diario: { total: 30, titulo: 'Diário', proximaData: (i) => addDiasISO(hoje, i) },
@@ -1906,7 +2746,7 @@ function gerarTabelaMetas(tipo) {
     };
     const config = configuracoes[tipo] || configuracoes.diario;
 
-    for(let i = 1; i <= config.total; i++) {
+    for(let i = 0; i < config.total; i++) {
         const iso = config.proximaData(i);
         const diasAteData = diffDays(iso, hoje);
         const meta = calcularMetaDaData(iso);
@@ -1915,8 +2755,8 @@ function gerarTabelaMetas(tipo) {
         linhas.push(`
             <tr>
                 <td>${formatDateBR(iso)}</td>
-                <td>${formatBR(meta)}</td>
-                <td class="${Number.isFinite(prev) && Number.isFinite(meta) && prev <= meta ? 'positive' : 'negative'}">${formatBR(prev)}</td>
+                <td class="${classeComparacaoMetaAjustes(meta)}">${formatBR(meta)}</td>
+                <td class="${classeComparacaoMetaAjustes(prev)}">${formatBR(prev)}</td>
             </tr>
         `);
     }
@@ -1977,15 +2817,15 @@ function importarBackup(event) {
 
 function gerarRelatorioCSV() {
     const linhas = [];
-    linhas.push(['Tipo','Data','Peso','Pescoço','Peito','Barriga','Quadril','Coxa','Panturrilha','Braço','Observações'].join(';'));
+    linhas.push(['Tipo','Data','Peso','Meta','Pescoço','Peito','Barriga','Quadril','Coxa','Panturrilha','Braço','Observações'].join(';'));
 
     [...appData.pesos].sort((a, b) => a.data.localeCompare(b.data)).forEach(p => {
-        linhas.push(['Peso', formatDateBR(p.data), p.peso ?? '', '', '', '', '', '', '', '', p.observacoes || ''].map(campoCSV).join(';'));
+        linhas.push(['Peso', formatDateBR(p.data), p.peso ?? '', p.meta ?? '', '', '', '', '', '', '', '', p.observacoes || ''].map(campoCSV).join(';'));
     });
 
     [...appData.medidas].sort((a, b) => a.data.localeCompare(b.data)).forEach(m => {
         linhas.push([
-            'Medida', formatDateBR(m.data), m.peso ?? '', m.pescoco ?? '', m.peito ?? '', m.cintura ?? '', m.quadril ?? '', m.coxa ?? '', m.panturrilha ?? '', m.braco ?? '', m.observacoes || ''
+            'Medida', formatDateBR(m.data), m.peso ?? '', '', m.pescoco ?? '', m.peito ?? '', m.cintura ?? '', m.quadril ?? '', m.coxa ?? '', m.panturrilha ?? '', m.braco ?? '', m.observacoes || ''
         ].map(campoCSV).join(';'));
     });
 
@@ -2004,8 +2844,8 @@ function gerarRelatorioPDF() {
     if (!win) return alert('O navegador bloqueou a janela do relatório. Libere popups para gerar o PDF imprimível.');
 
     const linhasPesos = pesos.map(p => `
-        <tr><td>${formatDateBR(p.data)}</td><td>${formatBR(p.peso)} kg</td><td>${escapeHtml(p.observacoes || '')}</td></tr>
-    `).join('') || '<tr><td colspan="3">Nenhum peso registrado.</td></tr>';
+        <tr><td>${formatDateBR(p.data)}</td><td>${formatBR(p.peso)} kg</td><td>${Number.isFinite(Number(p.meta)) ? formatBR(p.meta) + ' kg' : '--'}</td><td>${escapeHtml(p.observacoes || '')}</td></tr>
+    `).join('') || '<tr><td colspan="4">Nenhum peso registrado.</td></tr>';
 
     const linhasMedidas = medidas.map(m => `
         <tr>
@@ -2047,7 +2887,7 @@ function gerarRelatorioPDF() {
 
             <h2>Histórico de Pesos</h2>
             <table>
-                <thead><tr><th>Data</th><th>Peso</th><th>Observações</th></tr></thead>
+                <thead><tr><th>Data</th><th>Peso</th><th>Meta</th><th>Observações</th></tr></thead>
                 <tbody>${linhasPesos}</tbody>
             </table>
 
@@ -2092,13 +2932,20 @@ window.onload = function() {
     const limparAteData = document.getElementById('limpar-ate-data');
     if (limparAteData) limparAteData.value = hojeISO();
     updateUI();
+    const listaMetasPersonalizadas = document.getElementById('lista-metas-personalizadas');
+    if (listaMetasPersonalizadas) {
+        listaMetasPersonalizadas.addEventListener('scroll', () => {
+            window.requestAnimationFrame(atualizarIndicadorMetasPersonalizadas);
+        }, { passive: true });
+    }
     observarLogin();
 };
 
 // Funções usadas por atributos onclick precisam ser expostas porque este script usa módulos ES.
 window.showView = showView;
-window.abrirTelaLancamentoPeso = abrirTelaLancamentoPeso;
 window.editarPeso = editarPeso;
+window.abrirLancamentoPeso = abrirLancamentoPeso;
+window.fecharLancamentoPeso = fecharLancamentoPeso;
 window.excluirPeso = excluirPeso;
 window.abrirModalMedida = abrirModalMedida;
 window.fecharModalMedida = fecharModalMedida;
@@ -2106,13 +2953,25 @@ window.editarMedida = editarMedida;
 window.excluirMedida = excluirMedida;
 window.simularMeta = simularMeta;
 window.limparSimulacaoMeta = limparSimulacaoMeta;
+window.limparFormularioPeso = limparFormularioPeso;
+window.limparFormularioMedidas = limparFormularioMedidas;
+window.limparPerfilConta = limparPerfilConta;
+window.desfazerPerfilConta = desfazerPerfilConta;
 window.salvarMetaPersonalizada = salvarMetaPersonalizada;
+window.editarMetaPersonalizada = editarMetaPersonalizada;
 window.excluirMetaPersonalizada = excluirMetaPersonalizada;
+window.irParaMetaPersonalizada = irParaMetaPersonalizada;
+window.abrirSalvarSimulacao = abrirSalvarSimulacao;
+window.fecharPerfil = fecharPerfil;
+window.abrirAjustes = abrirAjustes;
 window.gerarTabelaMetas = gerarTabelaMetas;
 window.limparFiltroMetas = limparFiltroMetas;
 window.alterarFiltroGrafico = alterarFiltroGrafico;
 window.limparPerfilMetas = limparPerfilMetas;
 window.limparMedidasIdeais = limparMedidasIdeais;
+window.desfazerMetasPeso = desfazerMetasPeso;
+window.desfazerMedidasIdeais = desfazerMedidasIdeais;
+window.voltarInicio = voltarInicio;
 window.exportarBackup = exportarBackup;
 window.importarBackup = importarBackup;
 window.gerarRelatorioPDF = gerarRelatorioPDF;
