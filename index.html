@@ -156,6 +156,60 @@
         }
 
 
+        /* Tela inicial breve */
+        .startup-splash {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background:
+                radial-gradient(circle at 50% 4%, rgba(56,189,248,.28), transparent 34%),
+                linear-gradient(180deg, #f7fcff 0%, #eaf7ff 100%);
+            transition: opacity .35s ease, visibility .35s ease;
+        }
+        .startup-splash.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .startup-splash-card {
+            min-height: 72vh;
+            width: 100%;
+            max-width: 420px;
+            display: grid;
+            grid-template-rows: 1fr auto;
+            align-items: center;
+            text-align: center;
+        }
+        .startup-splash-main {
+            display: grid;
+            place-items: center;
+            gap: 12px;
+        }
+        .startup-splash-icon {
+            width: 112px;
+            height: 112px;
+            display: grid;
+            place-items: center;
+        }
+        .startup-splash-title {
+            color: var(--accent);
+            font-size: 34px;
+            line-height: 1;
+            font-weight: 950;
+            letter-spacing: -.05em;
+            font-family: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+        }
+        .startup-splash-footer {
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.45;
+            margin-bottom: 8px;
+        }
+
         /* Bloqueio inicial de autenticação */
         .auth-gate {
             position: fixed;
@@ -624,6 +678,8 @@
         .custom-goal-metrics.compact { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-items: stretch; }
         .custom-goal-metric.compact { padding: 12px; border-radius: 16px; text-align: left; }
         .custom-goal-metric.compact .value { font-size: 18px; }
+        .custom-goal-metric.compact .value.positive { color: var(--success); }
+        .custom-goal-metric.compact .value.negative { color: var(--danger); }
         .custom-goal-actions { display: flex; gap: 6px; justify-content: flex-end; align-items: center; }
         .profile-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
         .profile-info-pill { background: var(--soft-bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px; }
@@ -676,7 +732,18 @@
 </head>
 <body>
 
-
+<div id="startup-splash" class="startup-splash" aria-label="Abrindo Projeto Leve">
+    <div class="startup-splash-card">
+        <div class="startup-splash-main">
+            <div class="startup-splash-icon"><img class="pl-icon-svg" src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Projeto Leve"></div>
+            <div class="startup-splash-title">Projeto Leve</div>
+        </div>
+        <div class="startup-splash-footer">
+            © 2026 Kaio Adriel<br>
+            Todos os direitos reservados
+        </div>
+    </div>
+</div>
 
 <div id="auth-gate" class="auth-gate">
     <div class="auth-gate-card">
@@ -2642,6 +2709,13 @@ function renderMetasPersonalizadas() {
         return;
     }
 
+    const pesoMetaAjustes = parseFloat(appData.config.pesoMeta);
+    const classeComparacaoMetaAjustes = (valor) => {
+        const numero = Number(valor);
+        if (!Number.isFinite(numero) || !Number.isFinite(pesoMetaAjustes)) return '';
+        return numero <= pesoMetaAjustes ? 'positive' : 'negative';
+    };
+
     lista.innerHTML = metas.map((item, index) => `
         <div class="custom-goal-item compact" data-carousel-index="${index}">
             <div class="custom-goal-head">
@@ -2655,8 +2729,8 @@ function renderMetasPersonalizadas() {
                 </div>
             </div>
             <div class="custom-goal-metrics compact">
-                <div class="custom-goal-metric compact"><div class="label">Meta</div><div class="value">${formatBR(item.meta)} kg</div></div>
-                <div class="custom-goal-metric compact"><div class="label">Previsão</div><div class="value">${formatBR(item.previsao)} kg</div></div>
+                <div class="custom-goal-metric compact"><div class="label">Meta</div><div class="value ${classeComparacaoMetaAjustes(item.meta)}">${formatBR(item.meta)} kg</div></div>
+                <div class="custom-goal-metric compact"><div class="label">Previsão</div><div class="value ${classeComparacaoMetaAjustes(item.previsao)}">${formatBR(item.previsao)} kg</div></div>
             </div>
         </div>
     `).join('');
@@ -2925,7 +2999,19 @@ function limparTudo() {
 /**
  * INITIALIZATION
  */
+function ocultarSplashInicial() {
+    const splash = document.getElementById('startup-splash');
+    if (!splash) return;
+    splash.classList.add('hidden');
+    setTimeout(() => splash.remove(), 450);
+}
+
+function agendarOcultarSplashInicial() {
+    setTimeout(ocultarSplashInicial, 1200);
+}
+
 window.onload = function() {
+    agendarOcultarSplashInicial();
     carregarDados();
     preencherCamposConfig();
     document.getElementById('peso-data').value = hojeISO();
