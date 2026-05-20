@@ -1208,6 +1208,25 @@ let activeViewId = "dashboard";
 let chartJsPromise = null;
 let filtroGraficoAtual = "inicio";
 const DATA_HOJE_INICIAL = new Date().toISOString().split("T")[0];
+const LOCAL_BASE_KEY = 'peso_medidas_app_data';
+function chaveLocalUsuario() {
+    return currentUser && currentUser.uid ? `${LOCAL_BASE_KEY}_${currentUser.uid}` : `${LOCAL_BASE_KEY}_guest`;
+}
+function salvarDadosLocalmente() {
+    localStorage.setItem(chaveLocalUsuario(), JSON.stringify(appData));
+}
+function carregarDadosLocaisDoUsuario() {
+    const saved = localStorage.getItem(chaveLocalUsuario());
+    if (!saved) return false;
+    try {
+        appData = normalizarDados(JSON.parse(saved));
+        return true;
+    } catch (error) {
+        console.error('Erro ao ler localStorage do usuário:', error);
+        appData = normalizarDados({});
+        return false;
+    }
+}
 
 /**
  * CORE DATA MANAGEMENT
@@ -1340,23 +1359,15 @@ function usuarioUsaGoogle() {
 }
 
 function carregarDados() {
-    const saved = localStorage.getItem('peso_medidas_app_data');
-    if (saved) {
-        try {
-            appData = normalizarDados(JSON.parse(saved));
-        } catch (error) {
-            console.error('Erro ao ler localStorage:', error);
-            appData = normalizarDados(appData);
-        }
-    } else {
-        // Dados padrão para primeira vez
+    if (!carregarDadosLocaisDoUsuario()) {
+        appData = normalizarDados({});
         salvarDados(false);
     }
 }
 
 function salvarDados(sincronizar = true) {
     appData = normalizarDados(appData);
-    localStorage.setItem('peso_medidas_app_data', JSON.stringify(appData));
+    salvarDadosLocalmente();
     updateUI();
 
     if (sincronizar && currentUser && !carregandoDaNuvem) {
@@ -1493,15 +1504,26 @@ async function carregarDadosDaNuvem(manual = false) {
                 medidas: cloud.medidas,
                 metasPersonalizadas: cloud.metasPersonalizadas
             });
-            localStorage.setItem('peso_medidas_app_data', JSON.stringify(appData));
+            salvarDadosLocalmente();
             preencherCamposConfig();
             updateUI();
             carregandoDaNuvem = false;
             definirStatusSync(`Dados baixados da nuvem às ${new Date().toLocaleTimeString('pt-BR')}.`);
             if (manual) alert('Dados baixados da nuvem.');
         } else {
-            definirStatusSync('Nenhum dado na nuvem ainda. Enviando os dados locais...');
-            await salvarDadosNaNuvem(false);
+            carregandoDaNuvem = true;
+            const tinhaCacheDoUsuario = carregarDadosLocaisDoUsuario();
+            if (!tinhaCacheDoUsuario) {
+                appData = normalizarDados({});
+                salvarDadosLocalmente();
+            }
+            preencherCamposConfig();
+            updateUI();
+            carregandoDaNuvem = false;
+            definirStatusSync(tinhaCacheDoUsuario
+                ? 'Nenhum dado na nuvem ainda. Cache local deste usuário carregado; nada foi enviado automaticamente.'
+                : 'Nenhum dado na nuvem ainda. Conta iniciada vazia para evitar misturar dados de outro usuário.');
+            if (manual) alert('Nenhum dado encontrado na nuvem para esta conta. Use "Enviar para nuvem" se quiser salvar os dados locais deste usuário.');
         }
     } catch (error) {
         carregandoDaNuvem = false;
@@ -1545,7 +1567,7 @@ async function cadastrarUsuario(origem = '') {
         definirStatusSync('Criando conta...');
         definirMensagemAuthGate('Criando conta...', 'info');
         await createUserWithEmailAndPassword(auth, email, senha);
-        alert('Conta criada com sucesso. Seus dados locais serão enviados para a nuvem.');
+        alert('Conta criada com sucesso. A conta será iniciada vazia se ainda não tiver dados na nuvem.');
     } catch (error) {
         const msg = traduzirErroFirebase(error);
         definirMensagemAuthGate('Erro ao criar conta: ' + msg, 'erro');
@@ -1591,17 +1613,23 @@ async function sairUsuario() {
 
 function observarLogin() {
     onAuthStateChanged(auth, async (user) => {
+        clearTimeout(salvamentoNuvemTimer);
         currentUser = user;
         authInicializado = true;
-        alternarInterfaceAutenticada(!!user);
-        renderConta();
 
         if (user) {
             definirMensagemAuthGate('Sessão confirmada.', 'ok');
             definirStatusSync('Login detectado. Sincronizando...');
+            carregarDados();
+            alternarInterfaceAutenticada(true);
+            renderConta();
             await carregarDadosDaNuvem(false);
             renderConta();
         } else {
+            appData = normalizarDados({});
+            carregarDados();
+            alternarInterfaceAutenticada(false);
+            renderConta();
             definirMensagemAuthGate('Faça login para abrir o app.', 'info');
             definirStatusSync('Desconectado. A interface principal está bloqueada.');
         }
@@ -2991,7 +3019,7 @@ function limparRegistrosAteData() {
 
 function limparTudo() {
     if(confirm("ATENÇÃO: Isso apagará TODOS os dados permanentemente. Continuar?")) {
-        localStorage.removeItem('peso_medidas_app_data');
+        localStorage.removeItem(chaveLocalUsuario());
         location.reload();
     }
 }
