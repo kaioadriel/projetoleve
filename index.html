@@ -154,13 +154,13 @@
             word-break: keep-all;
             overflow-wrap: normal;
             padding: 7px 4px;
-            font-size: 11px;
+            font-size: 10.5px;
             line-height: 1.08;
         }
-        .medidas-history-table .medidas-col-data { width: 25%; }
-        .medidas-history-table .medidas-col-peso { width: 19%; }
-        .medidas-history-table .medidas-col-barriga { width: 23%; }
-        .medidas-history-table .medidas-col-acoes { width: 33%; }
+        .medidas-history-table .medidas-col-data { width: 24%; }
+        .medidas-history-table .medidas-col-peso { width: 20%; }
+        .medidas-history-table .medidas-col-barriga { width: 25%; }
+        .medidas-history-table .medidas-col-acoes { width: 31%; }
         .medidas-history-table .actions-cell {
             display: flex;
             gap: 4px;
@@ -1049,13 +1049,13 @@
                     <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border);">
                     <h3>Medidas Ideais</h3>
                     <div class="grid-2">
-                        <div class="form-group"><label>Pescoço</label><input type="number" step="0.1" id="id-pescoco"></div>
-                        <div class="form-group"><label>Peito</label><input type="number" step="0.1" id="id-peito"></div>
-                        <div class="form-group"><label>Barriga</label><input type="number" step="0.1" id="id-cintura"></div>
-                        <div class="form-group"><label>Quadril</label><input type="number" step="0.1" id="id-quadril"></div>
-                        <div class="form-group"><label>Coxa</label><input type="number" step="0.1" id="id-coxa"></div>
-                        <div class="form-group"><label>Panturrilha</label><input type="number" step="0.1" id="id-panturrilha"></div>
-                        <div class="form-group"><label>Braço</label><input type="number" step="0.1" id="id-braco"></div>
+                        <div class="form-group"><label>Pescoço (cm)</label><input type="number" step="0.1" id="id-pescoco"></div>
+                        <div class="form-group"><label>Peito (cm)</label><input type="number" step="0.1" id="id-peito"></div>
+                        <div class="form-group"><label>Barriga (cm)</label><input type="number" step="0.1" id="id-cintura"></div>
+                        <div class="form-group"><label>Quadril (cm)</label><input type="number" step="0.1" id="id-quadril"></div>
+                        <div class="form-group"><label>Coxa (cm)</label><input type="number" step="0.1" id="id-coxa"></div>
+                        <div class="form-group"><label>Panturrilha (cm)</label><input type="number" step="0.1" id="id-panturrilha"></div>
+                        <div class="form-group"><label>Braço (cm)</label><input type="number" step="0.1" id="id-braco"></div>
                     </div>
                     <div class="settings-action-row">
                         <button type="button" id="btn-desfazer-medidas" class="btn btn-undo" onclick="desfazerMedidasIdeais()" aria-label="Desfazer Medidas Ideais" title="Desfazer">↶</button>
@@ -1178,13 +1178,13 @@
             <div class="form-group"><label>Data</label><input type="date" id="med-data" required></div>
             <div class="form-group"><label>Peso (kg)</label><input type="number" step="0.1" id="med-peso" required></div>
             <div class="grid-2">
-                <div class="form-group"><label>Pescoço</label><input type="number" step="0.1" id="med-pescoco"></div>
-                <div class="form-group"><label>Peito</label><input type="number" step="0.1" id="med-peito"></div>
-                <div class="form-group"><label>Barriga</label><input type="number" step="0.1" id="med-cintura"></div>
-                <div class="form-group"><label>Quadril</label><input type="number" step="0.1" id="med-quadril"></div>
-                <div class="form-group"><label>Coxa</label><input type="number" step="0.1" id="med-coxa"></div>
-                <div class="form-group"><label>Panturrilha</label><input type="number" step="0.1" id="med-panturrilha"></div>
-                <div class="form-group"><label>Braço</label><input type="number" step="0.1" id="med-braco"></div>
+                <div class="form-group"><label>Pescoço (cm)</label><input type="number" step="0.1" id="med-pescoco"></div>
+                <div class="form-group"><label>Peito (cm)</label><input type="number" step="0.1" id="med-peito"></div>
+                <div class="form-group"><label>Barriga (cm)</label><input type="number" step="0.1" id="med-cintura"></div>
+                <div class="form-group"><label>Quadril (cm)</label><input type="number" step="0.1" id="med-quadril"></div>
+                <div class="form-group"><label>Coxa (cm)</label><input type="number" step="0.1" id="med-coxa"></div>
+                <div class="form-group"><label>Panturrilha (cm)</label><input type="number" step="0.1" id="med-panturrilha"></div>
+                <div class="form-group"><label>Braço (cm)</label><input type="number" step="0.1" id="med-braco"></div>
             </div>
             <div class="form-group"><label>Obs</label><input type="text" id="med-obs"></div>
             <button type="button" class="btn btn-clear-outline" style="margin-bottom: 10px;" onclick="limparFormularioMedidas()">Limpar</button>
@@ -2090,13 +2090,13 @@ function renderMedidas() {
 
         const campos = [
             { label: 'Peso', key: 'peso', ideal: appData.config.pesoMeta, unidade: 'kg' },
-            { label: 'Pescoço', key: 'pescoco', ideal: ideais.pescoco },
-            { label: 'Peito', key: 'peito', ideal: ideais.peito },
-            { label: 'Barriga', key: 'cintura', ideal: ideais.cintura },
-            { label: 'Quadril', key: 'quadril', ideal: ideais.quadril },
-            { label: 'Coxa', key: 'coxa', ideal: ideais.coxa },
-            { label: 'Pant.', key: 'panturrilha', ideal: ideais.panturrilha },
-            { label: 'Braço', key: 'braco', ideal: ideais.braco }
+            { label: 'Pescoço', key: 'pescoco', ideal: ideais.pescoco, unidade: 'cm' },
+            { label: 'Peito', key: 'peito', ideal: ideais.peito, unidade: 'cm' },
+            { label: 'Barriga', key: 'cintura', ideal: ideais.cintura, unidade: 'cm' },
+            { label: 'Quadril', key: 'quadril', ideal: ideais.quadril, unidade: 'cm' },
+            { label: 'Coxa', key: 'coxa', ideal: ideais.coxa, unidade: 'cm' },
+            { label: 'Pant.', key: 'panturrilha', ideal: ideais.panturrilha, unidade: 'cm' },
+            { label: 'Braço', key: 'braco', ideal: ideais.braco, unidade: 'cm' }
         ];
 
         containerComparativo.innerHTML = campos.map(c => {
@@ -2132,7 +2132,7 @@ function renderMedidas() {
         <tr>
             <td title="${formatDateBR(m.data)}">${formatDateBR(m.data)}</td>
             <td title="${formatBR(m.peso)} kg">${formatBR(m.peso)} kg</td>
-            <td title="${formatBR(m.cintura)}">${formatBR(m.cintura)}</td>
+            <td title="${formatBR(m.cintura)} cm">${formatBR(m.cintura)} cm</td>
             <td class="actions-cell">
                 <button class="btn btn-outline compact-action" title="Editar" onclick="editarMedida('${m.id}')">✎</button>
                 <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirMedida('${m.id}')">−</button>
@@ -2955,7 +2955,7 @@ function importarBackup(event) {
 
 function gerarRelatorioCSV() {
     const linhas = [];
-    linhas.push(['Tipo','Data','Peso','Meta','Pescoço','Peito','Barriga','Quadril','Coxa','Panturrilha','Braço','Observações'].join(';'));
+    linhas.push(['Tipo','Data','Peso (kg)','Meta (kg)','Pescoço (cm)','Peito (cm)','Barriga (cm)','Quadril (cm)','Coxa (cm)','Panturrilha (cm)','Braço (cm)','Observações'].join(';'));
 
     [...appData.pesos].sort((a, b) => a.data.localeCompare(b.data)).forEach(p => {
         linhas.push(['Peso', formatDateBR(p.data), p.peso ?? '', p.meta ?? '', '', '', '', '', '', '', '', p.observacoes || ''].map(campoCSV).join(';'));
@@ -2975,6 +2975,10 @@ function campoCSV(valor) {
     return `"${texto}"`;
 }
 
+function formatValorComUnidade(valor, unidade) {
+    return Number.isFinite(Number(valor)) ? `${formatBR(valor)} ${unidade}` : '--';
+}
+
 function gerarRelatorioPDF() {
     const pesos = [...appData.pesos].sort((a, b) => a.data.localeCompare(b.data));
     const medidas = [...appData.medidas].sort((a, b) => a.data.localeCompare(b.data));
@@ -2988,14 +2992,14 @@ function gerarRelatorioPDF() {
     const linhasMedidas = medidas.map(m => `
         <tr>
             <td>${formatDateBR(m.data)}</td>
-            <td>${formatBR(m.peso)}</td>
-            <td>${formatBR(m.pescoco)}</td>
-            <td>${formatBR(m.peito)}</td>
-            <td>${formatBR(m.cintura)}</td>
-            <td>${formatBR(m.quadril)}</td>
-            <td>${formatBR(m.coxa)}</td>
-            <td>${formatBR(m.panturrilha)}</td>
-            <td>${formatBR(m.braco)}</td>
+            <td>${formatValorComUnidade(m.peso, 'kg')}</td>
+            <td>${formatValorComUnidade(m.pescoco, 'cm')}</td>
+            <td>${formatValorComUnidade(m.peito, 'cm')}</td>
+            <td>${formatValorComUnidade(m.cintura, 'cm')}</td>
+            <td>${formatValorComUnidade(m.quadril, 'cm')}</td>
+            <td>${formatValorComUnidade(m.coxa, 'cm')}</td>
+            <td>${formatValorComUnidade(m.panturrilha, 'cm')}</td>
+            <td>${formatValorComUnidade(m.braco, 'cm')}</td>
             <td>${escapeHtml(m.observacoes || '')}</td>
         </tr>
     `).join('') || '<tr><td colspan="10">Nenhuma medida registrada.</td></tr>';
