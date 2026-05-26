@@ -144,6 +144,31 @@
         .compact-table th, .compact-table td { padding: 7px 6px; font-size: 12px; vertical-align: middle; }
         .compact-table .actions-cell { display: flex; gap: 4px; justify-content: center; align-items: center; }
         .compact-action { width: 30px !important; min-height: 30px !important; height: 30px; padding: 0 !important; border-radius: 10px; font-size: 16px; font-weight: 900; }
+        .medidas-history-table { overflow-x: hidden; }
+        .medidas-history-table table { width: 100%; min-width: 0; table-layout: fixed; }
+        .medidas-history-table th,
+        .medidas-history-table td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: keep-all;
+            overflow-wrap: normal;
+            padding: 7px 4px;
+            font-size: 11px;
+            line-height: 1.08;
+        }
+        .medidas-history-table .medidas-col-data { width: 25%; }
+        .medidas-history-table .medidas-col-peso { width: 19%; }
+        .medidas-history-table .medidas-col-barriga { width: 23%; }
+        .medidas-history-table .medidas-col-acoes { width: 33%; }
+        .medidas-history-table .actions-cell {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            align-items: center;
+            padding-left: 2px;
+            padding-right: 2px;
+        }
         .backup-danger-zone { margin-top: 14px; padding: 14px; border-radius: 18px; background: #fff7ed; border: 1px dashed rgba(217,119,6,.45); }
         
         /* Modal Simple */
@@ -917,11 +942,18 @@
             </div>
             <div id="comparativo-medidas" class="grid-2"></div>
             <h3 class="section-title">Histórico</h3>
-            <div class="table-container compact-table" style="margin-top: 10px;">
+            <div class="table-container compact-table medidas-history-table" style="margin-top: 10px;">
                 <table>
+                    <colgroup>
+                        <col class="medidas-col-data">
+                        <col class="medidas-col-peso">
+                        <col class="medidas-col-barriga">
+                        <col class="medidas-col-acoes">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>Data</th>
+                            <th>Peso</th>
                             <th>Barriga</th>
                             <th>Ações</th>
                         </tr>
@@ -2057,6 +2089,7 @@ function renderMedidas() {
         const ideais = appData.config.medidasIdeais || {};
 
         const campos = [
+            { label: 'Peso', key: 'peso', ideal: appData.config.pesoMeta, unidade: 'kg' },
             { label: 'Pescoço', key: 'pescoco', ideal: ideais.pescoco },
             { label: 'Peito', key: 'peito', ideal: ideais.peito },
             { label: 'Barriga', key: 'cintura', ideal: ideais.cintura },
@@ -2076,14 +2109,16 @@ function renderMedidas() {
             let idealTxt = "";
             if(idealNumero !== null) {
                 const diffIdeal = idealNumero - vAtual;
-                idealTxt = `<div class="small ${diffIdeal >= 0 ? 'positive' : 'negative'}">Ideal: ${formatBR(idealNumero)} (${formatComSinal(diffIdeal)})</div>`;
+                const unidade = c.unidade ? ` ${c.unidade}` : '';
+                idealTxt = `<div class="small ${diffIdeal >= 0 ? 'positive' : 'negative'}">Ideal: ${formatBR(idealNumero)}${unidade} (${formatComSinal(diffIdeal)}${unidade})</div>`;
             }
 
+            const unidade = c.unidade ? ` ${c.unidade}` : '';
             return `
                 <div class="card" style="padding: 10px;">
                     <div class="label">${c.label}</div>
-                    <div class="value" style="font-size: 16px;">${formatBR(vAtual)}</div>
-                    <div class="small ${statusClass}">${formatComSinal(diff)} vs ant.</div>
+                    <div class="value" style="font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${formatBR(vAtual)}${unidade}</div>
+                    <div class="small ${statusClass}">${formatComSinal(diff)}${unidade} vs ant.</div>
                     ${idealTxt}
                 </div>
             `;
@@ -2095,8 +2130,9 @@ function renderMedidas() {
     const lista = document.getElementById('lista-medidas');
     lista.innerHTML = sorted.map(m => `
         <tr>
-            <td>${formatDateBR(m.data)}</td>
-            <td>${formatBR(m.cintura)}</td>
+            <td title="${formatDateBR(m.data)}">${formatDateBR(m.data)}</td>
+            <td title="${formatBR(m.peso)} kg">${formatBR(m.peso)} kg</td>
+            <td title="${formatBR(m.cintura)}">${formatBR(m.cintura)}</td>
             <td class="actions-cell">
                 <button class="btn btn-outline compact-action" title="Editar" onclick="editarMedida('${m.id}')">✎</button>
                 <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirMedida('${m.id}')">−</button>
