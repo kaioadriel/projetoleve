@@ -13,7 +13,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <script>
-        // Captura o evento antes do carregamento dos módulos do Firebase.
+        // Captura o evento antes do carregamento do Firebase Authentication.
         window.__projetoLeveInstallPrompt = null;
         window.addEventListener('beforeinstallprompt', function(event) {
             event.preventDefault();
@@ -437,7 +437,7 @@
             font-size: 13px;
         }
 
-        /* Conta / Firebase */
+        /* Conta / autenticação */
         .auth-status {
             display: inline-flex;
             align-items: center;
@@ -1055,7 +1055,7 @@
                         <textarea id="peso-obs" rows="2"></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Foto (opcional)</label>
+                        <label>Foto original, sem compressão (opcional)</label>
                         <label class="medicine-photo-input" for="peso-foto">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                             Selecionar ou tirar foto
@@ -1165,7 +1165,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Foto (opcional)</label>
+                        <label>Foto original, sem compressão (opcional)</label>
                         <label class="medicine-photo-input" for="remedio-foto">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                             Selecionar ou tirar foto
@@ -1348,12 +1348,8 @@
                     <div class="label">Conta conectada</div>
                     <div id="perfil-email">--</div>
                     <div id="perfil-google-info" class="profile-account-row"></div>
-                    <div class="label" style="margin-top: 10px;">Sincronização</div>
-                    <div id="sync-status">Aguardando login.</div>
-                    <div class="grid-2" style="margin-top: 12px;">
-                        <button type="button" class="btn btn-outline" id="btn-upload-cloud">Enviar para nuvem</button>
-                        <button type="button" class="btn btn-outline" id="btn-download-cloud">Baixar da nuvem</button>
-                    </div>
+                    <div class="label" style="margin-top: 10px;">Armazenamento</div>
+                    <div id="sync-status">Os dados e as fotos ficam somente neste aparelho.</div>
                 </div>
             </div>
             <div class="card">
@@ -1406,7 +1402,7 @@
                             <button type="button" id="btn-salvar-pasta-agora" class="btn btn-outline" onclick="salvarBackupNaPastaAgora()">Salvar agora</button>
                         </div>
                         <button type="button" id="btn-desativar-pasta-backup" class="automatic-backup-disable hidden" onclick="desativarPastaBackup()">Desativar pasta selecionada</button>
-                        <p id="backup-pasta-ajuda" class="automatic-backup-help">O arquivo “backup-projeto-leve-automatico.json” será atualizado após cada alteração. A autorização da pasta depende das regras do navegador.</p>
+                        <p id="backup-pasta-ajuda" class="automatic-backup-help">O arquivo “backup-projeto-leve-automatico.json” será atualizado após cada alteração. As fotos originais também serão copiadas para a subpasta “fotos-projeto-leve”. A autorização depende das regras do navegador.</p>
                     </div>
                 </div>
             </div>
@@ -1530,42 +1526,22 @@ import {
     signInWithPopup,
     signInWithRedirect
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import {
-    getFirestore,
-    doc,
-    getDoc,
-    setDoc,
-    deleteDoc,
-    Bytes,
-    serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-import {
-    getStorage,
-    ref as storageRef,
-    deleteObject
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAqnNIG9di9PE6nUZWSOPAxScfwUqxNtlU",
     authDomain: "projetoleve-58fec.firebaseapp.com",
     projectId: "projetoleve-58fec",
-    storageBucket: "projetoleve-58fec.firebasestorage.app",
     messagingSenderId: "863511363352",
     appId: "1:863511363352:web:4b959cf93635afacb3286d"
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
-const db = getFirestore(firebaseApp);
-const storage = getStorage(firebaseApp);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 let currentUser = null;
 let authInicializado = false;
-let salvamentoNuvemTimer = null;
-let filaSalvamentoNuvem = Promise.resolve(true);
-let carregandoDaNuvem = false;
-let ultimoStatusSync = "Aguardando login.";
+let ultimoStatusSync = "Os dados e as fotos ficam somente neste aparelho.";
 let activeViewId = "dashboard";
 let chartJsPromise = null;
 let filtroGraficoAtual = "inicio";
@@ -1573,16 +1549,12 @@ const DATA_HOJE_INICIAL = new Date().toISOString().split("T")[0];
 const LOCAL_BASE_KEY = 'peso_medidas_app_data';
 const FOTO_DB_NAME = 'projeto_leve_fotos';
 const FOTO_DB_STORE = 'fotos';
-const FOTO_MAX_BYTES = 480 * 1024;
-const FOTO_MAX_DIMENSAO = 1440;
-const FOTO_ENVIO_TIMEOUT_MS = 25000;
 const BACKUP_INTERNO_BASE_KEY = 'projeto_leve_backup_interno';
 const BACKUP_PASTA_STATUS_BASE_KEY = 'projeto_leve_backup_pasta_status';
 const BACKUP_PASTA_DB_NAME = 'projeto_leve_backup_pasta';
 const BACKUP_PASTA_DB_STORE = 'handles';
 const BACKUP_PASTA_ARQUIVO = 'backup-projeto-leve-automatico.json';
 let bancoFotosPromise = null;
-let sincronizacaoFotosPromise = null;
 let cacheUrlsFotos = new Map();
 let bancoBackupPastaPromise = null;
 let backupPastaHandle = null;
@@ -1788,44 +1760,12 @@ function marcarAtualizacaoDados(apagado = false) {
     appData.apagadoEm = apagado ? agora : '';
 }
 
-function obterTimestampDados(dados) {
-    if (!dados || typeof dados !== 'object') return 0;
-    const candidatos = [dados.ultimaAtualizacao, dados.updatedAt, dados.apagadoEm]
-        .map(valor => Date.parse(valor || ''))
-        .filter(Number.isFinite);
-    if (dados.updatedAtServer && typeof dados.updatedAtServer.toMillis === 'function') {
-        candidatos.push(dados.updatedAtServer.toMillis());
-    }
-    return candidatos.length ? Math.max(...candidatos) : 0;
-}
-
-function temDadosRelevantes(dados) {
-    const normalizados = normalizarDados(dados);
-    const config = normalizados.config || {};
-    const perfilOuMeta = [config.nome, config.nascimento, config.genero, config.altura, config.pesoInicial, config.pesoMeta, config.metaKgPorDia]
-        .some(valor => valor !== '' && valor !== null && valor !== undefined);
-    const ideais = Object.values(config.medidasIdeais || {}).some(valor => valor !== '' && valor !== null && valor !== undefined);
-    return perfilOuMeta || ideais || normalizados.pesos.length || normalizados.medidas.length || normalizados.remedios.length || normalizados.nomesRemedios.length || normalizados.metasPersonalizadas.length || !!normalizados.apagadoEm;
-}
-
-function clonarDados(dados) {
-    return normalizarDados(JSON.parse(JSON.stringify(dados)));
-}
-
-function salvarDados(sincronizar = true, imediato = false, marcarAtualizacao = true) {
+function salvarDados(_sincronizar = true, _imediato = false, marcarAtualizacao = true) {
     if (marcarAtualizacao) marcarAtualizacaoDados(false);
     atualizarCalculosMetasPersonalizadas();
     appData = normalizarDados(appData);
     salvarDadosLocalmente();
     updateUI();
-
-    if (sincronizar && currentUser && !carregandoDaNuvem) {
-        if (imediato) {
-            clearTimeout(salvamentoNuvemTimer);
-            return salvarDadosNaNuvem(false, appData);
-        }
-        agendarSalvarDadosNaNuvem();
-    }
     return Promise.resolve(true);
 }
 
@@ -1833,13 +1773,8 @@ function salvarDados(sincronizar = true, imediato = false, marcarAtualizacao = t
 
 
 /**
- * FIREBASE AUTH + FIRESTORE
+ * FIREBASE AUTHENTICATION + DADOS LOCAIS
  */
-function caminhoDocumentoUsuario() {
-    if (!currentUser) return null;
-    return doc(db, 'users', currentUser.uid, 'app', 'data');
-}
-
 function definirStatusSync(msg) {
     ultimoStatusSync = msg;
     const el = document.getElementById('sync-status');
@@ -1894,7 +1829,7 @@ function renderConta() {
         } else if (currentUser) {
             googleEl.innerHTML = '<span>Login por e-mail e senha.</span>';
         } else {
-            googleEl.innerHTML = '<span>Faça login para sincronizar seus dados.</span>';
+            googleEl.innerHTML = '<span>Faça login para abrir os dados locais deste usuário.</span>';
         }
     }
 
@@ -1903,164 +1838,6 @@ function renderConta() {
         logoutPerfil.disabled = !currentUser;
     }
     definirStatusSync(ultimoStatusSync);
-}
-
-function obterPayloadNuvem(dadosOrigem = appData) {
-    const dados = normalizarDados(dadosOrigem);
-    const ultimaAtualizacao = dados.ultimaAtualizacao || new Date().toISOString();
-    return {
-        config: dados.config,
-        pesos: dados.pesos,
-        medidas: dados.medidas,
-        remedios: dados.remedios,
-        nomesRemedios: dados.nomesRemedios,
-        metasPersonalizadas: dados.metasPersonalizadas,
-        ultimaAtualizacao,
-        apagadoEm: dados.apagadoEm || '',
-        updatedAt: ultimaAtualizacao,
-        updatedAtServer: serverTimestamp()
-    };
-}
-
-function salvarDadosNaNuvem(manual = false, dadosOrigem = appData) {
-    if (!currentUser) {
-        definirStatusSync('Entre na conta para sincronizar com a nuvem.');
-        return Promise.resolve(false);
-    }
-
-    const uidDaOperacao = currentUser.uid;
-    const dadosParaEnviar = clonarDados(dadosOrigem);
-    const executar = async () => {
-        if (!currentUser || currentUser.uid !== uidDaOperacao) return false;
-        try {
-            definirStatusSync('Enviando dados para a nuvem...');
-            await setDoc(doc(db, 'users', uidDaOperacao, 'app', 'data'), obterPayloadNuvem(dadosParaEnviar), { merge: false });
-            definirStatusSync(`Sincronizado na nuvem às ${new Date().toLocaleTimeString('pt-BR')}.`);
-            if (manual) alert('Dados enviados para a nuvem.');
-            return true;
-        } catch (error) {
-            console.error(error);
-            definirStatusSync('Erro ao salvar na nuvem: ' + traduzirErroFirebase(error));
-            if (manual) alert('Erro ao enviar para a nuvem: ' + traduzirErroFirebase(error));
-            return false;
-        }
-    };
-
-    filaSalvamentoNuvem = filaSalvamentoNuvem.catch(() => true).then(executar);
-    return filaSalvamentoNuvem;
-}
-
-function agendarSalvarDadosNaNuvem() {
-    clearTimeout(salvamentoNuvemTimer);
-    salvamentoNuvemTimer = setTimeout(() => salvarDadosNaNuvem(false), 900);
-}
-
-async function carregarDadosDaNuvem(manual = false) {
-    if (!currentUser) {
-        definirStatusSync('Entre na conta para baixar dados da nuvem.');
-        return;
-    }
-
-    try {
-        await filaSalvamentoNuvem.catch(() => false);
-        definirStatusSync('Buscando dados na nuvem...');
-        const snap = await getDoc(caminhoDocumentoUsuario());
-
-        if (snap.exists()) {
-            carregandoDaNuvem = true;
-            appData = normalizarDados(snap.data());
-            atualizarCalculosMetasPersonalizadas();
-            salvarDadosLocalmente();
-            preencherCamposConfig();
-            updateUI();
-            carregandoDaNuvem = false;
-            definirStatusSync(`Dados baixados da nuvem às ${new Date().toLocaleTimeString('pt-BR')}.`);
-            if (manual) alert('Dados baixados da nuvem.');
-        } else {
-            carregandoDaNuvem = true;
-            const tinhaCacheDoUsuario = carregarDadosLocaisDoUsuario();
-            if (!tinhaCacheDoUsuario) {
-                appData = normalizarDados({});
-                salvarDadosLocalmente();
-            }
-            preencherCamposConfig();
-            updateUI();
-            carregandoDaNuvem = false;
-            definirStatusSync(tinhaCacheDoUsuario
-                ? 'Nenhum dado na nuvem ainda. Cache local deste usuário carregado; nada foi enviado automaticamente.'
-                : 'Nenhum dado na nuvem ainda. Conta iniciada vazia para evitar misturar dados de outro usuário.');
-            if (manual) alert('Nenhum dado encontrado na nuvem para esta conta. Use "Enviar para nuvem" se quiser salvar os dados locais deste usuário.');
-        }
-    } catch (error) {
-        carregandoDaNuvem = false;
-        console.error(error);
-        definirStatusSync('Erro ao baixar da nuvem: ' + traduzirErroFirebase(error));
-        if (manual) alert('Erro ao baixar da nuvem: ' + traduzirErroFirebase(error));
-    }
-}
-
-async function sincronizarDadosMaisRecentes() {
-    if (!currentUser) return false;
-    const dadosLocais = clonarDados(appData);
-
-    try {
-        definirStatusSync('Comparando a última atualização local e da nuvem...');
-        const snap = await getDoc(caminhoDocumentoUsuario());
-
-        if (!snap.exists()) {
-            appData = dadosLocais;
-            if (temDadosRelevantes(appData)) {
-                if (!appData.ultimaAtualizacao) marcarAtualizacaoDados(false);
-                atualizarCalculosMetasPersonalizadas();
-                salvarDadosLocalmente();
-                updateUI();
-                const enviado = await salvarDadosNaNuvem(false, appData);
-                definirStatusSync(enviado
-                    ? 'Dados locais eram os mais recentes e foram enviados para a nuvem.'
-                    : 'Dados locais preservados. O envio para a nuvem ficou pendente.');
-            } else {
-                definirStatusSync('Conta pronta. Nenhum dado salvo ainda.');
-            }
-            return true;
-        }
-
-        const dadosBrutosNuvem = snap.data();
-        const dadosNuvem = normalizarDados(dadosBrutosNuvem);
-        const timestampLocal = obterTimestampDados(dadosLocais);
-        const timestampNuvem = obterTimestampDados(dadosBrutosNuvem);
-
-        carregandoDaNuvem = true;
-        if (timestampLocal > timestampNuvem) {
-            appData = dadosLocais;
-            atualizarCalculosMetasPersonalizadas();
-            salvarDadosLocalmente();
-            updateUI();
-            carregandoDaNuvem = false;
-            const enviado = await salvarDadosNaNuvem(false, appData);
-            definirStatusSync(enviado
-                ? 'A atualização local era a mais recente e foi enviada para a nuvem.'
-                : 'A atualização local foi preservada. O envio para a nuvem ficou pendente.');
-        } else {
-            appData = dadosNuvem;
-            atualizarCalculosMetasPersonalizadas();
-            salvarDadosLocalmente();
-            preencherCamposConfig();
-            updateUI();
-            carregandoDaNuvem = false;
-            definirStatusSync(timestampNuvem > timestampLocal
-                ? 'A atualização da nuvem era a mais recente e foi aplicada neste aparelho.'
-                : 'Dados locais e da nuvem já estavam sincronizados.');
-        }
-        return true;
-    } catch (error) {
-        carregandoDaNuvem = false;
-        console.error(error);
-        appData = dadosLocais;
-        salvarDadosLocalmente();
-        updateUI();
-        definirStatusSync('Sem acesso à nuvem. Mantendo a atualização local: ' + traduzirErroFirebase(error));
-        return false;
-    }
 }
 
 async function entrarUsuario(origem = '') {
@@ -2075,7 +1852,7 @@ async function entrarUsuario(origem = '') {
         definirMensagemAuthGate('Entrando...', 'info');
         await signInWithEmailAndPassword(auth, email, senha);
     } catch (error) {
-        const msg = traduzirErroFirebase(error);
+        const msg = traduzirErroApp(error);
         definirMensagemAuthGate('Erro ao entrar: ' + msg, 'erro');
         alert('Erro ao entrar: ' + msg);
         definirStatusSync('Falha ao entrar.');
@@ -2097,9 +1874,9 @@ async function cadastrarUsuario(origem = '') {
         definirStatusSync('Criando conta...');
         definirMensagemAuthGate('Criando conta...', 'info');
         await createUserWithEmailAndPassword(auth, email, senha);
-        alert('Conta criada com sucesso. A conta será iniciada vazia se ainda não tiver dados na nuvem.');
+        alert('Conta criada com sucesso. Os dados desta conta serão guardados somente neste aparelho.');
     } catch (error) {
-        const msg = traduzirErroFirebase(error);
+        const msg = traduzirErroApp(error);
         definirMensagemAuthGate('Erro ao criar conta: ' + msg, 'erro');
         alert('Erro ao criar conta: ' + msg);
         definirStatusSync('Falha ao criar conta.');
@@ -2119,12 +1896,12 @@ async function entrarComGoogle() {
                 await signInWithRedirect(auth, googleProvider);
                 return;
             } catch (redirectError) {
-                const msgRedirect = traduzirErroFirebase(redirectError);
+                const msgRedirect = traduzirErroApp(redirectError);
                 definirMensagemAuthGate('Erro no login Google: ' + msgRedirect, 'erro');
                 alert('Erro no login Google: ' + msgRedirect);
             }
         } else {
-            const msg = traduzirErroFirebase(error);
+            const msg = traduzirErroApp(error);
             definirMensagemAuthGate('Erro no login Google: ' + msg, 'erro');
             alert('Erro no login Google: ' + msg);
         }
@@ -2134,17 +1911,15 @@ async function entrarComGoogle() {
 
 async function sairUsuario() {
     try {
-        await filaSalvamentoNuvem.catch(() => false);
         await signOut(auth);
         definirStatusSync('Você saiu da conta. Dados continuam salvos neste aparelho.');
     } catch (error) {
-        alert('Erro ao sair: ' + traduzirErroFirebase(error));
+        alert('Erro ao sair: ' + traduzirErroApp(error));
     }
 }
 
 function observarLogin() {
     onAuthStateChanged(auth, async (user) => {
-        clearTimeout(salvamentoNuvemTimer);
         const usuarioMudou = (currentUser?.uid || '') !== (user?.uid || '');
         if (usuarioMudou) limparUrlsFotosEmMemoria();
         currentUser = user;
@@ -2157,17 +1932,17 @@ function observarLogin() {
         }
 
         if (user) {
-            definirMensagemAuthGate('Sessão confirmada. Verificando os dados mais recentes...', 'ok');
-            definirStatusSync('Login detectado. Comparando atualizações...');
+            definirMensagemAuthGate('Sessão confirmada. Carregando os dados deste aparelho...', 'ok');
+            const armazenamentoPersistente = await garantirPersistenciaArmazenamentoLocal();
+            definirStatusSync(armazenamentoPersistente
+                ? 'Dados e fotos salvos automaticamente neste aparelho. Proteção persistente ativa.'
+                : 'Dados e fotos salvos automaticamente somente neste aparelho.');
             carregarDados();
-            renderConta();
-            await sincronizarDadosMaisRecentes();
             preencherCamposConfig();
             alternarInterfaceAutenticada(true);
             updateUI();
             renderConta();
             await inicializarBackupAutomatico();
-            sincronizarFotosPendentes();
         } else {
             appData = normalizarDados({});
             carregarDados();
@@ -2179,7 +1954,7 @@ function observarLogin() {
     });
 }
 
-function traduzirErroFirebase(error) {
+function traduzirErroApp(error) {
     const code = error && error.code ? error.code : '';
     const mapa = {
         'auth/invalid-email': 'e-mail inválido.',
@@ -2191,15 +1966,7 @@ function traduzirErroFirebase(error) {
         'auth/unauthorized-domain': 'domínio não autorizado no Firebase Authentication.',
         'auth/popup-blocked': 'o navegador bloqueou o popup. Tentaremos redirecionar para o Google.',
         'auth/popup-closed-by-user': 'a janela de login foi fechada antes de concluir.',
-        'auth/cancelled-popup-request': 'uma tentativa de login anterior foi cancelada.',
-        'permission-denied': 'permissão negada. Confira as regras do Firestore.',
-        'resource-exhausted': 'o limite disponível do Firebase foi atingido.',
-        'unavailable': 'o Firebase está temporariamente indisponível. A foto continuará salva neste aparelho.',
-        'photo/timeout': 'o Firebase demorou para responder. A foto continuará salva neste aparelho e será reenviada automaticamente.',
-        'storage/unauthorized': 'sem permissão para acessar as fotos no Firebase Storage.',
-        'storage/object-not-found': 'a foto não foi encontrada no Firebase Storage.',
-        'storage/retry-limit-exceeded': 'não foi possível concluir o envio da foto. Tente novamente.',
-        'storage/unknown': 'o Firebase Storage não está disponível para este projeto.'
+        'auth/cancelled-popup-request': 'uma tentativa de login anterior foi cancelada.'
     };
     return mapa[code] || (error && error.message ? error.message : 'erro desconhecido.');
 }
@@ -2628,10 +2395,8 @@ function renderHistoricoPeso() {
         const metaRegistro = Number.isFinite(Number(p.meta)) ? Number(p.meta) : pesoMeta;
         const falta = Number.isFinite(metaRegistro) ? metaRegistro - Number(p.peso) : NaN;
         const temFoto = temFotoRemedio(p);
-        const pendente = p.fotoStatus === 'pendente';
-        const tituloFoto = pendente ? 'Abrir foto (sincronização pendente)' : 'Abrir foto';
         const foto = temFoto
-            ? `<button type="button" class="photo-history-icon${pendente ? ' pending' : ''}" title="${tituloFoto}" aria-label="${tituloFoto}" onclick="abrirCarrosselFotosPesos('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>`
+            ? `<button type="button" class="photo-history-icon" title="Abrir foto local" aria-label="Abrir foto local" onclick="abrirCarrosselFotosPesos('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>`
             : '<span aria-label="Sem foto">—</span>';
         return `
             <tr>
@@ -2739,10 +2504,8 @@ function renderRemedios() {
 
     lista.innerHTML = remedios.map(item => {
         const temFoto = temFotoRemedio(item);
-        const pendente = item.fotoStatus === 'pendente';
-        const tituloFoto = pendente ? 'Abrir foto (sincronização pendente)' : 'Abrir foto';
         const foto = temFoto
-            ? `<button type="button" class="photo-history-icon${pendente ? ' pending' : ''}" title="${tituloFoto}" aria-label="${tituloFoto}" onclick="abrirCarrosselFotos('${item.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>`
+            ? `<button type="button" class="photo-history-icon" title="Abrir foto local" aria-label="Abrir foto local" onclick="abrirCarrosselFotos('${item.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>`
             : '<span aria-label="Sem foto">—</span>';
         return `
             <tr>
@@ -2776,40 +2539,44 @@ async function prepararFotoRegistro(file, idRemedio) {
     if (!String(file.type || '').startsWith('image/')) throw new Error('Selecione um arquivo de imagem válido.');
 
     const uid = currentUser.uid;
-    const fotoComprimida = await comprimirFotoRemedio(file);
-    if (currentUser?.uid !== uid) throw new Error('A sessão mudou durante o processamento da foto. Entre novamente e repita o lançamento.');
-    await salvarFotoNoCacheLocal(uid, idRemedio, fotoComprimida.blob, {
-        contentType: fotoComprimida.contentType,
-        largura: fotoComprimida.largura,
-        altura: fotoComprimida.altura,
+    let largura = 0;
+    let altura = 0;
+    try {
+        const origem = await carregarFonteDaFoto(file);
+        largura = origem.largura;
+        altura = origem.altura;
+        origem.liberar();
+    } catch (error) {
+        console.warn('A foto original será salva sem leitura prévia das dimensões:', error);
+    }
+    if (currentUser?.uid !== uid) throw new Error('A sessão mudou durante o salvamento da foto. Entre novamente e repita o lançamento.');
+    await salvarFotoNoCacheLocal(uid, idRemedio, file, {
+        contentType: file.type || 'image/jpeg',
+        largura,
+        altura,
         nomeOriginal: file.name || 'foto'
     });
 
     return {
         uid,
-        fotoComprimida,
         dadosFoto: {
             fotoUrl: '',
             fotoPath: '',
             fotoDocId: idRemedio,
-            fotoArmazenamento: 'firestore',
-            fotoStatus: 'pendente',
+            fotoArmazenamento: 'indexeddb-local',
+            fotoStatus: 'local',
             fotoNome: file.name || 'foto',
             fotoTamanhoOriginal: Number(file.size) || 0,
-            fotoTamanhoComprimido: fotoComprimida.blob.size,
-            fotoContentType: fotoComprimida.contentType,
-            fotoLargura: fotoComprimida.largura,
-            fotoAltura: fotoComprimida.altura
+            fotoTamanhoArmazenado: Number(file.size) || 0,
+            fotoContentType: file.type || 'image/jpeg',
+            fotoLargura: largura,
+            fotoAltura: altura
         }
     };
 }
 
 async function enviarFotoRemedio(file, idRemedio) {
     return prepararFotoRegistro(file, idRemedio);
-}
-
-function caminhoFotoFirestore(uid, fotoDocId) {
-    return doc(db, 'users', uid, 'app', `photo_${fotoDocId}`);
 }
 
 function abrirBancoFotos() {
@@ -2827,6 +2594,17 @@ function abrirBancoFotos() {
         request.onblocked = () => reject(new Error('O armazenamento local de fotos está bloqueado por outra aba do aplicativo.'));
     });
     return bancoFotosPromise;
+}
+
+async function garantirPersistenciaArmazenamentoLocal() {
+    if (!navigator.storage?.persist) return false;
+    try {
+        if (await navigator.storage.persisted()) return true;
+        return await navigator.storage.persist();
+    } catch (error) {
+        console.warn('O navegador administrará automaticamente a permanência dos dados locais:', error);
+        return false;
+    }
 }
 
 function chaveFotoLocal(uid, fotoDocId) {
@@ -2904,12 +2682,6 @@ function limparUrlsFotosEmMemoria() {
     cacheUrlsFotos.clear();
 }
 
-function canvasParaBlob(canvas, tipo, qualidade) {
-    return new Promise((resolve, reject) => {
-        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Não foi possível processar a imagem selecionada.')), tipo, qualidade);
-    });
-}
-
 async function carregarFonteDaFoto(file) {
     if (typeof createImageBitmap === 'function') {
         try {
@@ -2935,186 +2707,26 @@ async function carregarFonteDaFoto(file) {
     };
 }
 
-async function comprimirFotoRemedio(file) {
-    const origem = await carregarFonteDaFoto(file);
-    try {
-        const maiorLado = Math.max(origem.largura, origem.altura);
-        const escalaInicial = Math.min(1, FOTO_MAX_DIMENSAO / Math.max(1, maiorLado));
-        let largura = Math.max(1, Math.round(origem.largura * escalaInicial));
-        let altura = Math.max(1, Math.round(origem.altura * escalaInicial));
-        let qualidade = 0.82;
-        let blob = null;
-        let contentType = 'image/webp';
-
-        const canvas = document.createElement('canvas');
-        const contexto = canvas.getContext('2d', { alpha: false });
-        if (!contexto) throw new Error('O navegador não conseguiu preparar a foto para compressão.');
-
-        for (let tentativa = 0; tentativa < 14; tentativa++) {
-            canvas.width = largura;
-            canvas.height = altura;
-            contexto.fillStyle = '#ffffff';
-            contexto.fillRect(0, 0, largura, altura);
-            contexto.drawImage(origem.fonte, 0, 0, largura, altura);
-
-            blob = await canvasParaBlob(canvas, 'image/webp', qualidade);
-            if (blob.type !== 'image/webp') {
-                contentType = 'image/jpeg';
-                blob = await canvasParaBlob(canvas, 'image/jpeg', qualidade);
-            } else {
-                contentType = 'image/webp';
-            }
-
-            if (blob.size <= FOTO_MAX_BYTES) break;
-            if (qualidade > 0.52) {
-                qualidade = Math.max(0.48, qualidade - 0.10);
-            } else if (Math.max(largura, altura) > 720) {
-                largura = Math.max(1, Math.round(largura * 0.82));
-                altura = Math.max(1, Math.round(altura * 0.82));
-                qualidade = 0.72;
-            } else {
-                qualidade = Math.max(0.34, qualidade - 0.05);
-            }
-        }
-
-        if (!blob || blob.size > FOTO_MAX_BYTES) {
-            throw new Error('A foto continuou muito grande após a compressão. Tente selecionar outra imagem.');
-        }
-
-        return { blob, contentType, largura, altura };
-    } finally {
-        origem.liberar();
-    }
-}
-
-function executarComTempoLimite(promessa, tempoMs, mensagem) {
-    return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => {
-            const erro = new Error(mensagem);
-            erro.code = 'photo/timeout';
-            reject(erro);
-        }, tempoMs);
-        Promise.resolve(promessa).then(valor => {
-            clearTimeout(timer);
-            resolve(valor);
-        }, error => {
-            clearTimeout(timer);
-            reject(error);
-        });
-    });
-}
-
-async function salvarFotoComprimidaNoFirestore(uid, fotoDocId, fotoComprimida, nomeOriginal = 'foto') {
-    const bytes = new Uint8Array(await fotoComprimida.blob.arrayBuffer());
-    await executarComTempoLimite(
-        setDoc(caminhoFotoFirestore(uid, fotoDocId), {
-            imagem: Bytes.fromUint8Array(bytes),
-            contentType: fotoComprimida.contentType,
-            tamanho: fotoComprimida.blob.size,
-            largura: fotoComprimida.largura,
-            altura: fotoComprimida.altura,
-            nomeOriginal,
-            atualizadoEm: new Date().toISOString(),
-            updatedAtServer: serverTimestamp()
-        }, { merge: false }),
-        FOTO_ENVIO_TIMEOUT_MS,
-        'O envio da foto demorou além do esperado.'
-    );
-}
-
 async function obterUrlFotoRemedio(item) {
-    if (item.fotoUrl) return item.fotoUrl;
     if (!currentUser || !item.fotoDocId) throw new Error('A referência desta foto não está disponível.');
 
     const chave = chaveFotoLocal(currentUser.uid, item.fotoDocId);
     if (cacheUrlsFotos.has(chave)) return cacheUrlsFotos.get(chave);
 
-    let fotoLocal = await obterFotoDoCacheLocal(currentUser.uid, item.fotoDocId);
-    if (!fotoLocal?.blob) {
-        const snapshot = await executarComTempoLimite(
-            getDoc(caminhoFotoFirestore(currentUser.uid, item.fotoDocId)),
-            FOTO_ENVIO_TIMEOUT_MS,
-            'A foto demorou além do esperado para carregar.'
-        );
-        if (!snapshot.exists()) throw new Error('A foto não foi encontrada no banco de dados.');
-        const dados = snapshot.data();
-        const imagem = dados.imagem;
-        const array = imagem && typeof imagem.toUint8Array === 'function' ? imagem.toUint8Array() : imagem;
-        if (!(array instanceof Uint8Array)) throw new Error('Os dados desta foto estão inválidos.');
-        const blob = new Blob([array], { type: dados.contentType || item.fotoContentType || 'image/jpeg' });
-        fotoLocal = { blob, contentType: blob.type };
-        await salvarFotoNoCacheLocal(currentUser.uid, item.fotoDocId, blob, {
-            contentType: blob.type,
-            largura: dados.largura || item.fotoLargura || 0,
-            altura: dados.altura || item.fotoAltura || 0,
-            nomeOriginal: dados.nomeOriginal || item.fotoNome || 'foto'
-        });
-    }
+    const fotoLocal = await obterFotoDoCacheLocal(currentUser.uid, item.fotoDocId);
+    if (!fotoLocal?.blob) throw new Error('A foto não foi encontrada no armazenamento local deste aparelho.');
 
     const url = URL.createObjectURL(fotoLocal.blob);
     cacheUrlsFotos.set(chave, url);
     return url;
 }
 
-async function sincronizarFotosPendentes() {
-    if (!currentUser) return false;
-    if (sincronizacaoFotosPromise) return sincronizacaoFotosPromise;
-
-    const uid = currentUser.uid;
-    sincronizacaoFotosPromise = (async () => {
-        let atualizouRegistro = false;
-        const pendentes = [
-            ...(appData.remedios || []),
-            ...(appData.pesos || [])
-        ].filter(item => item.fotoDocId && item.fotoStatus !== 'salva');
-        for (const item of pendentes) {
-            if (!currentUser || currentUser.uid !== uid) break;
-            const fotoLocal = await obterFotoDoCacheLocal(uid, item.fotoDocId);
-            if (!fotoLocal?.blob) continue;
-            try {
-                await salvarFotoComprimidaNoFirestore(uid, item.fotoDocId, {
-                    blob: fotoLocal.blob,
-                    contentType: fotoLocal.contentType || item.fotoContentType || fotoLocal.blob.type || 'image/jpeg',
-                    largura: fotoLocal.largura || item.fotoLargura || 0,
-                    altura: fotoLocal.altura || item.fotoAltura || 0
-                }, fotoLocal.nomeOriginal || item.fotoNome || 'foto');
-                item.fotoStatus = 'salva';
-                atualizouRegistro = true;
-            } catch (error) {
-                console.warn('A foto continuará pendente para a próxima sincronização:', error);
-            }
-        }
-
-        if (atualizouRegistro && currentUser?.uid === uid) salvarDados(true, true);
-        return atualizouRegistro;
-    })().finally(() => {
-        sincronizacaoFotosPromise = null;
-    });
-    return sincronizacaoFotosPromise;
-}
-
-async function excluirFotosDoStorage(caminhos) {
-    if (!currentUser) return;
-    const unicos = [...new Set((caminhos || []).filter(Boolean))];
-    await Promise.all(unicos.map(async caminho => {
-        try {
-            await deleteObject(storageRef(storage, caminho));
-        } catch (error) {
-            if (error?.code !== 'storage/object-not-found') throw error;
-        }
-    }));
-}
-
-async function excluirFotosFirebase(registros) {
+async function excluirFotosLocais(registros) {
     if (!currentUser) return;
     const uid = currentUser.uid;
     const itens = Array.isArray(registros) ? registros : [];
-    const idsFirestore = [...new Set(itens.map(item => item?.fotoDocId).filter(Boolean))];
-    const caminhosStorage = [...new Set(itens.map(item => item?.fotoPath).filter(Boolean))];
-
-    await Promise.all(idsFirestore.map(id => deleteDoc(caminhoFotoFirestore(uid, id))));
-    await excluirFotosDoStorage(caminhosStorage);
-    await removerFotosDoCacheLocal(uid, idsFirestore);
+    const idsLocais = [...new Set(itens.map(item => item?.fotoDocId).filter(Boolean))];
+    await removerFotosDoCacheLocal(uid, idsLocais);
 }
 
 function obterCamposFotoRegistro(item = {}) {
@@ -3126,20 +2738,12 @@ function obterCamposFotoRegistro(item = {}) {
         fotoStatus: item.fotoStatus || '',
         fotoNome: item.fotoNome || '',
         fotoTamanhoOriginal: Number(item.fotoTamanhoOriginal) || 0,
+        fotoTamanhoArmazenado: Number(item.fotoTamanhoArmazenado) || Number(item.fotoTamanhoComprimido) || 0,
         fotoTamanhoComprimido: Number(item.fotoTamanhoComprimido) || 0,
         fotoContentType: item.fotoContentType || '',
         fotoLargura: Number(item.fotoLargura) || 0,
         fotoAltura: Number(item.fotoAltura) || 0
     };
-}
-
-async function excluirFotoAnteriorSubstituida(anterior, atual) {
-    if (!anterior || !currentUser) return;
-    const descartar = {
-        fotoDocId: anterior.fotoDocId && anterior.fotoDocId !== atual.fotoDocId ? anterior.fotoDocId : '',
-        fotoPath: anterior.fotoPath && anterior.fotoPath !== atual.fotoPath ? anterior.fotoPath : ''
-    };
-    if (descartar.fotoDocId || descartar.fotoPath) await excluirFotosFirebase([descartar]);
 }
 
 function limparFormularioRemedio() {
@@ -3183,7 +2787,7 @@ async function excluirRemedio(id) {
     if (!item || !confirm('Excluir este lançamento de remédio?')) return;
 
     try {
-        if (temFotoRemedio(item)) await excluirFotosFirebase([item]);
+        if (temFotoRemedio(item)) await excluirFotosLocais([item]);
     } catch (error) {
         console.error(error);
         return alert('Não foi possível excluir a foto deste lançamento. O registro foi mantido para evitar uma exclusão incompleta.');
@@ -3237,7 +2841,7 @@ async function renderCarrosselFotos() {
     if (info) info.innerHTML = `
         <div class="label">${formatDateBR(item.data)}</div>
         <div class="value" style="font-size:18px; margin-top:3px;">${escapeHtml(item.nome || '')} • ${formatBR(item.mg)} mg</div>
-        <div class="small" style="margin-top:4px; color:var(--text-secondary);">Peso: ${formatBR(item.peso)} kg${item.fotoStatus === 'pendente' ? ' • sincronização da foto pendente' : ''}</div>
+        <div class="small" style="margin-top:4px; color:var(--text-secondary);">Peso: ${formatBR(item.peso)} kg • foto original local</div>
     `;
     if (contador) contador.innerText = `${indiceFotoRemedio + 1} de ${fotosRemediosCarrossel.length}`;
 
@@ -3248,7 +2852,7 @@ async function renderCarrosselFotos() {
     } catch (error) {
         console.error(error);
         if (token === renderFotoCarrosselToken && stage) {
-            stage.innerHTML = `<div class="photo-carousel-loading">Não foi possível abrir a foto.<br><span style="font-size:12px; font-weight:600;">${escapeHtml(traduzirErroFirebase(error))}</span></div>`;
+            stage.innerHTML = `<div class="photo-carousel-loading">Não foi possível abrir a foto.<br><span style="font-size:12px; font-weight:600;">${escapeHtml(traduzirErroApp(error))}</span></div>`;
         }
     }
 }
@@ -3295,7 +2899,7 @@ async function renderCarrosselFotosPesos() {
     if (info) info.innerHTML = `
         <div class="label">${formatDateBR(item.data)}</div>
         <div class="value" style="font-size:18px; margin-top:3px;">${formatBR(item.peso)} kg</div>
-        <div class="small" style="margin-top:4px; color:var(--text-secondary);">Meta: ${Number.isFinite(Number(item.meta)) ? formatBR(item.meta) + ' kg' : '--'}${item.fotoStatus === 'pendente' ? ' • sincronização da foto pendente' : ''}</div>
+        <div class="small" style="margin-top:4px; color:var(--text-secondary);">Meta: ${Number.isFinite(Number(item.meta)) ? formatBR(item.meta) + ' kg' : '--'} • foto original local</div>
         ${item.observacoes ? `<div class="small" style="margin-top:6px; color:var(--text-secondary);">${escapeHtml(item.observacoes)}</div>` : ''}
     `;
     if (contador) contador.innerText = `${indiceFotoPeso + 1} de ${fotosPesosCarrossel.length}`;
@@ -3307,7 +2911,7 @@ async function renderCarrosselFotosPesos() {
     } catch (error) {
         console.error(error);
         if (token === renderFotoPesoCarrosselToken && stage) {
-            stage.innerHTML = `<div class="photo-carousel-loading">Não foi possível abrir a foto.<br><span style="font-size:12px; font-weight:600;">${escapeHtml(traduzirErroFirebase(error))}</span></div>`;
+            stage.innerHTML = `<div class="photo-carousel-loading">Não foi possível abrir a foto.<br><span style="font-size:12px; font-weight:600;">${escapeHtml(traduzirErroApp(error))}</span></div>`;
         }
     }
 }
@@ -3467,18 +3071,6 @@ if (btnSettingsOpen) btnSettingsOpen.onclick = abrirAjustes;
 const btnLogoutPerfil = document.getElementById('btn-logout-perfil');
 if (btnLogoutPerfil) btnLogoutPerfil.onclick = sairUsuario;
 
-const btnUploadCloud = document.getElementById('btn-upload-cloud');
-if (btnUploadCloud) btnUploadCloud.onclick = () => {
-    salvarDados(false, false, true);
-    salvarDadosNaNuvem(true, appData);
-};
-const btnDownloadCloud = document.getElementById('btn-download-cloud');
-if (btnDownloadCloud) btnDownloadCloud.onclick = () => {
-    if (confirm('Baixar os dados da nuvem e substituir os dados locais deste aparelho?')) {
-        carregarDadosDaNuvem(true);
-    }
-};
-
 const perfilNascimento = document.getElementById('perfil-nascimento');
 if (perfilNascimento) perfilNascimento.addEventListener('change', () => { atualizarIdadePerfil(); agendarSalvarPerfil(); });
 
@@ -3512,7 +3104,7 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
     const botaoSalvar = document.getElementById('btn-salvar-remedio');
     if (botaoSalvar) {
         botaoSalvar.disabled = true;
-        botaoSalvar.innerText = arquivoFoto ? 'Comprimindo foto...' : 'Salvando...';
+        botaoSalvar.innerText = arquivoFoto ? 'Salvando foto original...' : 'Salvando...';
     }
 
     try {
@@ -3525,7 +3117,7 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
         const id = registroAnterior?.id || globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(16).slice(2)}`;
         const fotoDocId = registroAnterior?.fotoDocId || id;
         const fotoPreparada = arquivoFoto ? await enviarFotoRemedio(arquivoFoto, fotoDocId) : null;
-        if (fotoPreparada && currentUser?.uid !== fotoPreparada.uid) throw new Error('A sessão mudou durante o processamento da foto. Entre novamente e repita o lançamento.');
+        if (fotoPreparada && currentUser?.uid !== fotoPreparada.uid) throw new Error('A sessão mudou durante o salvamento da foto. Entre novamente e repita o lançamento.');
         if (botaoSalvar) botaoSalvar.innerText = 'Salvando lançamento...';
 
         const registro = {
@@ -3543,28 +3135,9 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
         adicionarNomeRemedioAoCatalogo(nome);
         salvarDados(true, true);
         limparFormularioRemedio();
-
-        if (fotoPreparada) {
-            if (botaoSalvar) botaoSalvar.innerText = 'Salvando foto...';
-            try {
-                await salvarFotoComprimidaNoFirestore(fotoPreparada.uid, fotoDocId, fotoPreparada.fotoComprimida, arquivoFoto.name || 'foto');
-                registro.fotoStatus = 'salva';
-                salvarDados(true, true);
-                try {
-                    await excluirFotoAnteriorSubstituida(registroAnterior, registro);
-                } catch (cleanupError) {
-                    console.warn('A foto anterior não pôde ser removida, mas a nova foto foi salva:', cleanupError);
-                }
-            } catch (fotoError) {
-                console.error(fotoError);
-                registro.fotoStatus = 'pendente';
-                salvarDados(false, false, false);
-                alert('O lançamento foi salvo. A foto comprimida ficou guardada neste aparelho e será reenviada automaticamente quando o Firebase responder.\n\nDetalhe: ' + traduzirErroFirebase(fotoError));
-            }
-        }
     } catch (error) {
         console.error(error);
-        alert('Não foi possível salvar o lançamento: ' + traduzirErroFirebase(error));
+        alert('Não foi possível salvar o lançamento: ' + traduzirErroApp(error));
     } finally {
         if (botaoSalvar) {
             botaoSalvar.disabled = false;
@@ -3639,12 +3212,12 @@ document.getElementById('form-peso').onsubmit = async function(e) {
 
     if (botaoSalvar) {
         botaoSalvar.disabled = true;
-        botaoSalvar.innerText = arquivoFoto ? 'Comprimindo foto...' : 'Salvando...';
+        botaoSalvar.innerText = arquivoFoto ? 'Salvando foto original...' : 'Salvando...';
     }
 
     try {
         const fotoPreparada = arquivoFoto ? await prepararFotoRegistro(arquivoFoto, fotoDocId) : null;
-        if (fotoPreparada && currentUser?.uid !== fotoPreparada.uid) throw new Error('A sessão mudou durante o processamento da foto. Entre novamente e repita o lançamento.');
+        if (fotoPreparada && currentUser?.uid !== fotoPreparada.uid) throw new Error('A sessão mudou durante o salvamento da foto. Entre novamente e repita o lançamento.');
 
         const registro = {
             ...(registroAnterior || {}),
@@ -3662,28 +3235,9 @@ document.getElementById('form-peso').onsubmit = async function(e) {
         salvarDados(true, true);
         redefinirFormularioPeso();
         showView('historico', document.querySelector('[data-view="historico"]'));
-
-        if (fotoPreparada) {
-            if (botaoSalvar) botaoSalvar.innerText = 'Salvando foto...';
-            try {
-                await salvarFotoComprimidaNoFirestore(fotoPreparada.uid, fotoDocId, fotoPreparada.fotoComprimida, arquivoFoto.name || 'foto');
-                registro.fotoStatus = 'salva';
-                salvarDados(true, true);
-                try {
-                    await excluirFotoAnteriorSubstituida(registroAnterior, registro);
-                } catch (cleanupError) {
-                    console.warn('A foto anterior não pôde ser removida, mas a nova foto foi salva:', cleanupError);
-                }
-            } catch (fotoError) {
-                console.error(fotoError);
-                registro.fotoStatus = 'pendente';
-                salvarDados(false, false, false);
-                alert('O peso foi salvo. A foto comprimida ficou guardada neste aparelho e será reenviada automaticamente quando o Firebase responder.\n\nDetalhe: ' + traduzirErroFirebase(fotoError));
-            }
-        }
     } catch (error) {
         console.error(error);
-        alert('Não foi possível salvar o peso: ' + traduzirErroFirebase(error));
+        alert('Não foi possível salvar o peso: ' + traduzirErroApp(error));
     } finally {
         if (botaoSalvar) {
             botaoSalvar.disabled = false;
@@ -3715,7 +3269,7 @@ async function excluirPeso(id) {
     if (!item || !confirm('Excluir este registro de peso?')) return;
 
     try {
-        if (temFotoRemedio(item)) await excluirFotosFirebase([item]);
+        if (temFotoRemedio(item)) await excluirFotosLocais([item]);
     } catch (error) {
         console.error(error);
         return alert('Não foi possível excluir a foto deste lançamento. O registro foi mantido para evitar uma exclusão incompleta.');
@@ -4460,6 +4014,67 @@ async function selecionarPastaBackup() {
     }
 }
 
+function extensaoFotoBackup(foto) {
+    const nome = String(foto?.nomeOriginal || '');
+    const extensaoNome = nome.includes('.') ? nome.split('.').pop().toLowerCase() : '';
+    const permitidas = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif', 'avif'];
+    if (permitidas.includes(extensaoNome)) return extensaoNome;
+    const porTipo = {
+        'image/jpeg': 'jpg',
+        'image/png': 'png',
+        'image/webp': 'webp',
+        'image/gif': 'gif',
+        'image/heic': 'heic',
+        'image/heif': 'heif',
+        'image/avif': 'avif'
+    };
+    return porTipo[foto?.contentType || foto?.blob?.type] || 'jpg';
+}
+
+async function copiarFotosOriginaisParaPasta(handle, usuario, dados) {
+    const registros = [...(dados?.remedios || []), ...(dados?.pesos || [])];
+    const ids = [...new Set(registros.map(item => item?.fotoDocId).filter(Boolean))];
+    if (!ids.length) return 0;
+
+    const pastaFotos = await handle.getDirectoryHandle('fotos-projeto-leve', { create: true });
+    let copiadas = 0;
+    const arquivosAtivos = new Set();
+    for (const fotoDocId of ids) {
+        const foto = await obterFotoDoCacheLocal(usuario, fotoDocId);
+        if (!foto?.blob) continue;
+        const idSeguro = String(fotoDocId).replace(/[^a-zA-Z0-9_-]/g, '_');
+        const nomeArquivo = `pl_${idSeguro}.${extensaoFotoBackup(foto)}`;
+        arquivosAtivos.add(nomeArquivo);
+        const arquivo = await pastaFotos.getFileHandle(nomeArquivo, { create: true });
+        try {
+            const existente = await arquivo.getFile();
+            if (existente.size === foto.blob.size) {
+                copiadas++;
+                continue;
+            }
+        } catch (error) {
+            // O arquivo novo será gravado abaixo.
+        }
+        const gravacao = await arquivo.createWritable();
+        try {
+            await gravacao.write(foto.blob);
+            await gravacao.close();
+            copiadas++;
+        } catch (error) {
+            try { await gravacao.abort(); } catch (abortError) { /* nada a fazer */ }
+            throw error;
+        }
+    }
+    if (typeof pastaFotos.entries === 'function' && typeof pastaFotos.removeEntry === 'function') {
+        for await (const [nome, entrada] of pastaFotos.entries()) {
+            if (entrada.kind === 'file' && nome.startsWith('pl_') && !arquivosAtivos.has(nome)) {
+                await pastaFotos.removeEntry(nome);
+            }
+        }
+    }
+    return copiadas;
+}
+
 async function gravarBackupAutomaticoNaPasta(conteudo, handle, usuario) {
     if (!handle) return false;
     const arquivo = await handle.getFileHandle(BACKUP_PASTA_ARQUIVO, { create: true });
@@ -4471,6 +4086,7 @@ async function gravarBackupAutomaticoNaPasta(conteudo, handle, usuario) {
         try { await gravacao.abort(); } catch (abortError) { /* nada a fazer */ }
         throw error;
     }
+    await copiarFotosOriginaisParaPasta(handle, usuario, JSON.parse(conteudo));
     const salvoEm = new Date().toISOString();
     localStorage.setItem(chaveStatusBackupPastaUsuario(usuario), salvoEm);
     if (usuarioBackupInicializado === usuario && backupPastaHandle === handle) {
@@ -4673,10 +4289,10 @@ async function limparRegistrosAteData() {
     const remediosRemovidos = (appData.remedios || []).filter(item => item.data && item.data <= data);
     const pesosRemovidos = (appData.pesos || []).filter(item => item.data && item.data <= data);
     try {
-        await excluirFotosFirebase([...remediosRemovidos, ...pesosRemovidos]);
+        await excluirFotosLocais([...remediosRemovidos, ...pesosRemovidos]);
     } catch (error) {
         console.error(error);
-        return alert('Não foi possível excluir todas as fotos. Nenhum registro foi removido. Tente novamente conectado à internet.');
+        return alert('Não foi possível excluir todas as fotos do armazenamento local. Nenhum registro foi removido.');
     }
     appData.pesos = appData.pesos.filter(item => !item.data || item.data > data);
     appData.medidas = appData.medidas.filter(item => !item.data || item.data > data);
@@ -4687,9 +4303,8 @@ async function limparRegistrosAteData() {
 }
 
 async function limparTudo() {
-    if(!confirm("ATENÇÃO: Isso apagará TODOS os dados locais, dados da nuvem e fotos permanentemente. Continuar?")) return;
+    if(!confirm("ATENÇÃO: Isso apagará TODOS os dados e fotos locais deste usuário permanentemente. Continuar?")) return;
 
-    clearTimeout(salvamentoNuvemTimer);
     clearTimeout(autosaveAjustesTimer);
     clearTimeout(autosavePerfilTimer);
     const registrosComFotos = [
@@ -4698,10 +4313,10 @@ async function limparTudo() {
     ].filter(temFotoRemedio);
 
     try {
-        await excluirFotosFirebase(registrosComFotos);
+        await excluirFotosLocais(registrosComFotos);
     } catch (error) {
         console.error(error);
-        return alert('Não foi possível excluir todas as fotos do Firebase. A limpeza foi interrompida para evitar uma exclusão incompleta.');
+        return alert('Não foi possível excluir todas as fotos locais. A limpeza foi interrompida para evitar uma exclusão incompleta.');
     }
 
     const dadosVazios = normalizarDados({});
@@ -4715,11 +4330,8 @@ async function limparTudo() {
     redefinirFormularioPeso();
     updateUI();
 
-    const apagouNaNuvem = currentUser ? await salvarDadosNaNuvem(false, appData) : true;
     showView('dashboard', document.querySelector('[data-view="dashboard"]'));
-    alert(apagouNaNuvem
-        ? 'Todos os dados locais, dados da nuvem e fotos foram apagados.'
-        : 'Os dados locais foram apagados. A exclusão da nuvem ficou pendente e será reenviada no próximo login.');
+    alert('Todos os dados e fotos locais deste usuário foram apagados.');
 }
 
 /**
@@ -5049,11 +4661,6 @@ window.addEventListener('appinstalled', () => {
 });
 
 window.matchMedia('(display-mode: standalone)').addEventListener?.('change', atualizarEstadoInstalacao);
-window.addEventListener('online', async () => {
-    if (!currentUser) return;
-    await sincronizarDadosMaisRecentes();
-    sincronizarFotosPendentes();
-});
 atualizarEstadoInstalacao();
 if (lerSessaoPWA(PWA_CHAVE_PREPARACAO) && lerSessaoPWA(PWA_CHAVE_RECARREGOU) === '1' && !appEstaInstalado() && !deferredInstallPrompt) {
     setTimeout(() => iniciarPreparoInstalacaoPWA({ retomar: true }), 600);

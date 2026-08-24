@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v8';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v8';
+const CACHE_VERSION = 'projeto-leve-v9-local';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v9-local';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -31,8 +31,6 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
-  const url = new URL(request.url);
-
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
@@ -47,9 +45,7 @@ self.addEventListener('fetch', event => {
   }
 
   const destinoEstatico = ['script', 'style', 'image', 'font'].includes(request.destination);
-  const arquivoDoFirebaseStorage = /(^|\.)firebasestorage\.googleapis\.com$/.test(url.hostname)
-    || /(^|\.)storage\.googleapis\.com$/.test(url.hostname);
-  if (!destinoEstatico || arquivoDoFirebaseStorage) return;
+  if (!destinoEstatico) return;
 
   event.respondWith(
     caches.match(request).then(cached => {

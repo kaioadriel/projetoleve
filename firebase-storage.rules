@@ -2,12 +2,9 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    match /users/{userId}/remedios/{photoFile} {
-      allow read, delete: if request.auth != null
-                          && request.auth.uid == userId;
-      allow create, update: if request.auth != null
-                            && request.auth.uid == userId
-                            && request.resource.contentType.matches('image/.*');
+    // Fotos são armazenadas localmente no IndexedDB, sem compressão.
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }

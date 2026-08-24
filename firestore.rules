@@ -2,22 +2,10 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId}/app/{documentId} {
-      allow read, delete: if request.auth != null
-                          && request.auth.uid == userId;
-
-      allow create, update: if request.auth != null
-                            && request.auth.uid == userId
-                            && (
-                              documentId == 'data'
-                              || (
-                                documentId.matches('photo_.*')
-                                && request.resource.data.imagem is bytes
-                                && request.resource.data.imagem.size() <= 491520
-                                && request.resource.data.contentType is string
-                                && request.resource.data.contentType.matches('image/.*')
-                              )
-                            );
+    // O Projeto Leve usa o Firebase somente para autenticação.
+    // Todo o banco de dados do aplicativo permanece no aparelho.
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

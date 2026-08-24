@@ -2,7 +2,7 @@
   "id": "/",
   "name": "Projeto Leve",
   "short_name": "Projeto Leve",
-  "description": "Controle de peso, medidas, metas e remédios com sincronização Firebase.",
+  "description": "Controle de peso, medidas, metas e remédios com dados locais e autenticação segura.",
   "lang": "pt-BR",
   "start_url": "/",
   "scope": "/",
