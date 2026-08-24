@@ -283,8 +283,26 @@
             background: var(--accent-soft);
             color: var(--accent);
             cursor: pointer;
+            position: relative;
         }
         .photo-history-icon svg { width: 18px; height: 18px; }
+        .photo-count-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            min-width: 17px;
+            height: 17px;
+            padding: 0 4px;
+            display: grid;
+            place-items: center;
+            border: 2px solid #fff;
+            border-radius: 999px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 900;
+            line-height: 1;
+        }
         .photo-history-icon.pending { color: var(--warning); border-color: rgba(217,119,6,.38); background: #fff7ed; }
         .photo-carousel-card { width: 100%; max-width: 620px; max-height: 92vh; overflow-y: auto; }
         .photo-carousel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -301,6 +319,8 @@
         .photo-carousel-stage img { display: block; width: 100%; max-height: 58vh; object-fit: contain; }
         .photo-carousel-loading { padding: 24px; color: #e2e8f0; font-weight: 800; text-align: center; }
         .photo-carousel-info { margin-top: 12px; padding: 12px; border-radius: 16px; background: var(--soft-bg); }
+        .photo-carousel-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+        .photo-carousel-actions .btn { min-height: 46px; padding: 9px 8px; font-size: 12px; }
         .photo-carousel-controls { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; margin-top: 12px; }
         .photo-carousel-counter { min-width: 68px; color: var(--text-secondary); font-size: 12px; font-weight: 800; text-align: center; }
 
@@ -1058,10 +1078,10 @@
                         <label>Foto original, sem compressão (opcional)</label>
                         <label class="medicine-photo-input" for="peso-foto">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                            Selecionar ou tirar foto
+                            Selecionar ou tirar fotos
                         </label>
-                        <input type="file" id="peso-foto" class="hidden" accept="image/*">
-                        <div id="peso-foto-nome" class="medicine-photo-name">Nenhuma foto selecionada.</div>
+                        <input type="file" id="peso-foto" class="hidden" accept="image/*" multiple>
+                        <div id="peso-foto-nome" class="medicine-photo-name">Nenhuma foto selecionada. Você pode escolher várias.</div>
                     </div>
                     <button type="button" class="btn btn-clear-outline" style="margin-bottom: 10px;" onclick="limparFormularioPeso()">Limpar</button>
                     <div class="grid-2">
@@ -1168,10 +1188,10 @@
                         <label>Foto original, sem compressão (opcional)</label>
                         <label class="medicine-photo-input" for="remedio-foto">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                            Selecionar ou tirar foto
+                            Selecionar ou tirar fotos
                         </label>
-                        <input type="file" id="remedio-foto" class="hidden" accept="image/*">
-                        <div id="remedio-foto-nome" class="medicine-photo-name">Nenhuma foto selecionada.</div>
+                        <input type="file" id="remedio-foto" class="hidden" accept="image/*" multiple>
+                        <div id="remedio-foto-nome" class="medicine-photo-name">Nenhuma foto selecionada. Você pode escolher várias.</div>
                     </div>
                     <button type="button" class="btn btn-clear-outline" style="margin-bottom: 10px;" onclick="limparFormularioRemedio()">Limpar</button>
                     <button type="submit" class="btn btn-primary" id="btn-salvar-remedio">Salvar Lançamento</button>
@@ -1488,6 +1508,10 @@
         </div>
         <div id="foto-carousel-stage" class="photo-carousel-stage"></div>
         <div id="foto-carousel-info" class="photo-carousel-info"></div>
+        <div class="photo-carousel-actions">
+            <button type="button" class="btn btn-outline" onclick="baixarFotoOriginalRemedio()">Baixar original</button>
+            <button type="button" class="btn btn-danger" onclick="excluirFotoAtualRemedio()">Excluir foto</button>
+        </div>
         <div class="photo-carousel-controls">
             <button type="button" class="btn btn-outline" id="btn-foto-anterior" onclick="mudarFotoCarrossel(-1)">Anterior</button>
             <div id="foto-carousel-contador" class="photo-carousel-counter">0 de 0</div>
@@ -1505,6 +1529,10 @@
         </div>
         <div id="foto-peso-carousel-stage" class="photo-carousel-stage"></div>
         <div id="foto-peso-carousel-info" class="photo-carousel-info"></div>
+        <div class="photo-carousel-actions">
+            <button type="button" class="btn btn-outline" onclick="baixarFotoOriginalPeso()">Baixar original</button>
+            <button type="button" class="btn btn-danger" onclick="excluirFotoAtualPeso()">Excluir foto</button>
+        </div>
         <div class="photo-carousel-controls">
             <button type="button" class="btn btn-outline" id="btn-foto-peso-anterior" onclick="mudarFotoCarrosselPesos(-1)">Anterior</button>
             <div id="foto-peso-carousel-contador" class="photo-carousel-counter">0 de 0</div>
@@ -1649,7 +1677,10 @@ function normalizarDados(raw) {
     };
 
     const origem = raw && typeof raw === "object" ? raw : {};
-    const remedios = Array.isArray(origem.remedios) ? origem.remedios : [];
+    const remedios = (Array.isArray(origem.remedios) ? origem.remedios : [])
+        .map(item => ({ ...item, fotos: obterFotosRegistro(item) }));
+    const pesos = (Array.isArray(origem.pesos) ? origem.pesos : [])
+        .map(item => ({ ...item, fotos: obterFotosRegistro(item) }));
     const nomesHistoricos = remedios.map(item => String(item?.nome || '').trim()).filter(Boolean);
     const nomesOrigem = Array.isArray(origem.nomesRemedios) ? origem.nomesRemedios : [];
     const nomesRemedios = [...nomesOrigem, ...nomesHistoricos].reduce((lista, nome) => {
@@ -1666,7 +1697,7 @@ function normalizarDados(raw) {
                 ...((origem.config && origem.config.medidasIdeais) || {})
             }
         },
-        pesos: Array.isArray(origem.pesos) ? origem.pesos : [],
+        pesos,
         medidas: Array.isArray(origem.medidas) ? origem.medidas : [],
         remedios,
         nomesRemedios,
@@ -2395,8 +2426,9 @@ function renderHistoricoPeso() {
         const metaRegistro = Number.isFinite(Number(p.meta)) ? Number(p.meta) : pesoMeta;
         const falta = Number.isFinite(metaRegistro) ? metaRegistro - Number(p.peso) : NaN;
         const temFoto = temFotoRemedio(p);
+        const quantidadeFotos = obterFotosRegistro(p).length;
         const foto = temFoto
-            ? `<button type="button" class="photo-history-icon" title="Abrir foto local" aria-label="Abrir foto local" onclick="abrirCarrosselFotosPesos('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>`
+            ? `<button type="button" class="photo-history-icon" title="Abrir ${quantidadeFotos} foto(s) local(is)" aria-label="Abrir ${quantidadeFotos} foto(s) local(is)" onclick="abrirCarrosselFotosPesos('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg>${quantidadeFotos > 1 ? `<span class="photo-count-badge">${quantidadeFotos}</span>` : ''}</button>`
             : '<span aria-label="Sem foto">—</span>';
         return `
             <tr>
@@ -2478,7 +2510,23 @@ function renderMedidas() {
 }
 
 function temFotoRemedio(item) {
-    return !!(item && (item.fotoDocId || item.fotoUrl));
+    return obterFotosRegistro(item).length > 0;
+}
+
+function obterFotosRegistro(item = {}) {
+    const origem = Array.isArray(item.fotos) && item.fotos.length
+        ? item.fotos
+        : (item.fotoDocId ? [item] : []);
+    const vistos = new Set();
+    return origem.reduce((lista, foto) => {
+        if (!foto || typeof foto !== 'object') return lista;
+        const campos = obterCamposFotoRegistro(foto);
+        const id = String(campos.fotoDocId || foto.id || '');
+        if (!id || vistos.has(id)) return lista;
+        vistos.add(id);
+        lista.push({ ...campos, fotoDocId: id });
+        return lista;
+    }, []);
 }
 
 function renderRemedios() {
@@ -2504,8 +2552,9 @@ function renderRemedios() {
 
     lista.innerHTML = remedios.map(item => {
         const temFoto = temFotoRemedio(item);
+        const quantidadeFotos = obterFotosRegistro(item).length;
         const foto = temFoto
-            ? `<button type="button" class="photo-history-icon" title="Abrir foto local" aria-label="Abrir foto local" onclick="abrirCarrosselFotos('${item.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>`
+            ? `<button type="button" class="photo-history-icon" title="Abrir ${quantidadeFotos} foto(s) local(is)" aria-label="Abrir ${quantidadeFotos} foto(s) local(is)" onclick="abrirCarrosselFotos('${item.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg>${quantidadeFotos > 1 ? `<span class="photo-count-badge">${quantidadeFotos}</span>` : ''}</button>`
             : '<span aria-label="Sem foto">—</span>';
         return `
             <tr>
@@ -2575,8 +2624,26 @@ async function prepararFotoRegistro(file, idRemedio) {
     };
 }
 
-async function enviarFotoRemedio(file, idRemedio) {
-    return prepararFotoRegistro(file, idRemedio);
+function criarIdFoto(prefixo = 'foto') {
+    const unico = globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    return `${prefixo}_${unico}`;
+}
+
+async function prepararFotosRegistro(arquivos, prefixo) {
+    const lista = Array.from(arquivos || []);
+    if (!lista.length) return null;
+    const uid = currentUser?.uid || '';
+    const fotos = [];
+    try {
+        for (const arquivo of lista) {
+            const preparada = await prepararFotoRegistro(arquivo, criarIdFoto(prefixo));
+            fotos.push(preparada.dadosFoto);
+        }
+        return { uid, fotos };
+    } catch (error) {
+        await removerFotosDoCacheLocal(uid, fotos.map(foto => foto.fotoDocId));
+        throw error;
+    }
 }
 
 function abrirBancoFotos() {
@@ -2725,7 +2792,7 @@ async function excluirFotosLocais(registros) {
     if (!currentUser) return;
     const uid = currentUser.uid;
     const itens = Array.isArray(registros) ? registros : [];
-    const idsLocais = [...new Set(itens.map(item => item?.fotoDocId).filter(Boolean))];
+    const idsLocais = [...new Set(itens.flatMap(obterFotosRegistro).map(item => item?.fotoDocId).filter(Boolean))];
     await removerFotosDoCacheLocal(uid, idsLocais);
 }
 
@@ -2746,6 +2813,22 @@ function obterCamposFotoRegistro(item = {}) {
     };
 }
 
+function limparCamposFotoUnica(registro, fotoDocId) {
+    if (!registro || String(registro.fotoDocId || '') !== String(fotoDocId || '')) return;
+    registro.fotoUrl = '';
+    registro.fotoPath = '';
+    registro.fotoDocId = '';
+    registro.fotoArmazenamento = '';
+    registro.fotoStatus = '';
+    registro.fotoNome = '';
+    registro.fotoTamanhoOriginal = 0;
+    registro.fotoTamanhoArmazenado = 0;
+    registro.fotoTamanhoComprimido = 0;
+    registro.fotoContentType = '';
+    registro.fotoLargura = 0;
+    registro.fotoAltura = 0;
+}
+
 function limparFormularioRemedio() {
     const form = document.getElementById('form-remedio');
     if (form) form.reset();
@@ -2757,7 +2840,7 @@ function limparFormularioRemedio() {
     if (data) data.value = hojeISO();
     const pesoAtual = numeroInformado(obterPesoAtual());
     if (peso) peso.value = pesoAtual !== null ? pesoAtual : '';
-    if (fotoNome) fotoNome.innerText = 'Nenhuma foto selecionada.';
+    if (fotoNome) fotoNome.innerText = 'Nenhuma foto selecionada. Você pode escolher várias.';
     if (editId) editId.value = '';
     if (botaoSalvar) botaoSalvar.innerText = 'Salvar Lançamento';
 }
@@ -2774,9 +2857,10 @@ function editarRemedio(id) {
     document.getElementById('remedio-mg').value = Number.isFinite(Number(item.mg)) ? item.mg : '';
     document.getElementById('remedio-peso').value = Number.isFinite(Number(item.peso)) ? item.peso : '';
     const fotoNome = document.getElementById('remedio-foto-nome');
-    if (fotoNome) fotoNome.innerText = temFotoRemedio(item)
-        ? 'Foto atual mantida. Selecione outra somente para substituir.'
-        : 'Nenhuma foto selecionada.';
+    const quantidadeFotos = obterFotosRegistro(item).length;
+    if (fotoNome) fotoNome.innerText = quantidadeFotos
+        ? `${quantidadeFotos} foto(s) atual(is) mantida(s). Selecione mais imagens para adicionar.`
+        : 'Nenhuma foto selecionada. Você pode escolher várias.';
     const botaoSalvar = document.getElementById('btn-salvar-remedio');
     if (botaoSalvar) botaoSalvar.innerText = 'Salvar Alterações';
     showView('remedio', document.querySelector('[data-view="remedio"]'));
@@ -2803,17 +2887,21 @@ let fotosRemediosCarrossel = [];
 let indiceFotoRemedio = 0;
 let renderFotoCarrosselToken = 0;
 
-function abrirCarrosselFotos(idInicial = '') {
-    fotosRemediosCarrossel = [...(appData.remedios || [])]
-        .filter(temFotoRemedio)
+function montarItensCarrossel(registros) {
+    return [...(registros || [])]
         .sort((a, b) => {
             const porData = String(a.data || '').localeCompare(String(b.data || ''));
             return porData || String(a.id || '').localeCompare(String(b.id || ''));
-        });
+        })
+        .flatMap(registro => obterFotosRegistro(registro).map(foto => ({ registro, foto })));
+}
+
+function abrirCarrosselFotos(idInicial = '') {
+    fotosRemediosCarrossel = montarItensCarrossel(appData.remedios);
 
     if (!fotosRemediosCarrossel.length) return alert('Nenhuma foto foi adicionada aos lançamentos de remédios.');
     indiceFotoRemedio = idInicial
-        ? Math.max(0, fotosRemediosCarrossel.findIndex(item => String(item.id) === String(idInicial)))
+        ? Math.max(0, fotosRemediosCarrossel.findIndex(item => String(item.registro.id) === String(idInicial)))
         : 0;
     document.getElementById('modal-fotos-remedios')?.classList.remove('hidden');
     renderCarrosselFotos();
@@ -2831,8 +2919,10 @@ function mudarFotoCarrossel(direcao) {
 }
 
 async function renderCarrosselFotos() {
-    const item = fotosRemediosCarrossel[indiceFotoRemedio];
-    if (!item) return;
+    const entrada = fotosRemediosCarrossel[indiceFotoRemedio];
+    if (!entrada) return;
+    const item = entrada.registro;
+    const foto = entrada.foto;
     const token = ++renderFotoCarrosselToken;
     const stage = document.getElementById('foto-carousel-stage');
     const info = document.getElementById('foto-carousel-info');
@@ -2841,12 +2931,12 @@ async function renderCarrosselFotos() {
     if (info) info.innerHTML = `
         <div class="label">${formatDateBR(item.data)}</div>
         <div class="value" style="font-size:18px; margin-top:3px;">${escapeHtml(item.nome || '')} • ${formatBR(item.mg)} mg</div>
-        <div class="small" style="margin-top:4px; color:var(--text-secondary);">Peso: ${formatBR(item.peso)} kg • foto original local</div>
+        <div class="small" style="margin-top:4px; color:var(--text-secondary);">Peso: ${formatBR(item.peso)} kg • ${escapeHtml(foto.fotoNome || 'foto original')}</div>
     `;
     if (contador) contador.innerText = `${indiceFotoRemedio + 1} de ${fotosRemediosCarrossel.length}`;
 
     try {
-        const url = await obterUrlFotoRemedio(item);
+        const url = await obterUrlFotoRemedio(foto);
         if (token !== renderFotoCarrosselToken || !stage) return;
         stage.innerHTML = `<img src="${escapeHtml(url)}" alt="Foto de ${escapeHtml(item.nome || 'remédio')} em ${formatDateBR(item.data)}">`;
     } catch (error) {
@@ -2862,16 +2952,11 @@ let indiceFotoPeso = 0;
 let renderFotoPesoCarrosselToken = 0;
 
 function abrirCarrosselFotosPesos(idInicial = '') {
-    fotosPesosCarrossel = [...(appData.pesos || [])]
-        .filter(temFotoRemedio)
-        .sort((a, b) => {
-            const porData = String(a.data || '').localeCompare(String(b.data || ''));
-            return porData || String(a.id || '').localeCompare(String(b.id || ''));
-        });
+    fotosPesosCarrossel = montarItensCarrossel(appData.pesos);
 
     if (!fotosPesosCarrossel.length) return alert('Nenhuma foto foi adicionada aos lançamentos de peso.');
     indiceFotoPeso = idInicial
-        ? Math.max(0, fotosPesosCarrossel.findIndex(item => String(item.id) === String(idInicial)))
+        ? Math.max(0, fotosPesosCarrossel.findIndex(item => String(item.registro.id) === String(idInicial)))
         : 0;
     document.getElementById('modal-fotos-pesos')?.classList.remove('hidden');
     renderCarrosselFotosPesos();
@@ -2889,8 +2974,10 @@ function mudarFotoCarrosselPesos(direcao) {
 }
 
 async function renderCarrosselFotosPesos() {
-    const item = fotosPesosCarrossel[indiceFotoPeso];
-    if (!item) return;
+    const entrada = fotosPesosCarrossel[indiceFotoPeso];
+    if (!entrada) return;
+    const item = entrada.registro;
+    const foto = entrada.foto;
     const token = ++renderFotoPesoCarrosselToken;
     const stage = document.getElementById('foto-peso-carousel-stage');
     const info = document.getElementById('foto-peso-carousel-info');
@@ -2899,13 +2986,13 @@ async function renderCarrosselFotosPesos() {
     if (info) info.innerHTML = `
         <div class="label">${formatDateBR(item.data)}</div>
         <div class="value" style="font-size:18px; margin-top:3px;">${formatBR(item.peso)} kg</div>
-        <div class="small" style="margin-top:4px; color:var(--text-secondary);">Meta: ${Number.isFinite(Number(item.meta)) ? formatBR(item.meta) + ' kg' : '--'} • foto original local</div>
+        <div class="small" style="margin-top:4px; color:var(--text-secondary);">Meta: ${Number.isFinite(Number(item.meta)) ? formatBR(item.meta) + ' kg' : '--'} • ${escapeHtml(foto.fotoNome || 'foto original')}</div>
         ${item.observacoes ? `<div class="small" style="margin-top:6px; color:var(--text-secondary);">${escapeHtml(item.observacoes)}</div>` : ''}
     `;
     if (contador) contador.innerText = `${indiceFotoPeso + 1} de ${fotosPesosCarrossel.length}`;
 
     try {
-        const url = await obterUrlFotoRemedio(item);
+        const url = await obterUrlFotoRemedio(foto);
         if (token !== renderFotoPesoCarrosselToken || !stage) return;
         stage.innerHTML = `<img src="${escapeHtml(url)}" alt="Foto do peso de ${formatBR(item.peso)} kg em ${formatDateBR(item.data)}">`;
     } catch (error) {
@@ -2914,6 +3001,69 @@ async function renderCarrosselFotosPesos() {
             stage.innerHTML = `<div class="photo-carousel-loading">Não foi possível abrir a foto.<br><span style="font-size:12px; font-weight:600;">${escapeHtml(traduzirErroApp(error))}</span></div>`;
         }
     }
+}
+
+async function baixarFotoOriginalEntrada(entrada) {
+    if (!entrada?.foto?.fotoDocId || !currentUser) return alert('A foto original não está disponível.');
+    const fotoLocal = await obterFotoDoCacheLocal(currentUser.uid, entrada.foto.fotoDocId);
+    if (!fotoLocal?.blob) return alert('A foto original não foi encontrada neste aparelho.');
+    const nomeInformado = entrada.foto.fotoNome || fotoLocal.nomeOriginal || `foto-${entrada.foto.fotoDocId}`;
+    const nomeSeguro = String(nomeInformado).replace(/[\\/:*?"<>|]/g, '_');
+    const url = URL.createObjectURL(fotoLocal.blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = nomeSeguro || 'foto-original';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+function baixarFotoOriginalRemedio() {
+    return baixarFotoOriginalEntrada(fotosRemediosCarrossel[indiceFotoRemedio]);
+}
+
+function baixarFotoOriginalPeso() {
+    return baixarFotoOriginalEntrada(fotosPesosCarrossel[indiceFotoPeso]);
+}
+
+async function excluirFotoAtual(tipo) {
+    const ehRemedio = tipo === 'remedio';
+    const lista = ehRemedio ? fotosRemediosCarrossel : fotosPesosCarrossel;
+    const indice = ehRemedio ? indiceFotoRemedio : indiceFotoPeso;
+    const entrada = lista[indice];
+    if (!entrada || !confirm('Excluir somente esta foto original? O lançamento será mantido.')) return;
+
+    try {
+        await removerFotosDoCacheLocal(currentUser?.uid || '', [entrada.foto.fotoDocId]);
+        entrada.registro.fotos = obterFotosRegistro(entrada.registro)
+            .filter(foto => String(foto.fotoDocId) !== String(entrada.foto.fotoDocId));
+        limparCamposFotoUnica(entrada.registro, entrada.foto.fotoDocId);
+        salvarDados(true, true);
+
+        if (ehRemedio) {
+            fotosRemediosCarrossel = montarItensCarrossel(appData.remedios);
+            if (!fotosRemediosCarrossel.length) return fecharCarrosselFotos();
+            indiceFotoRemedio = Math.min(indice, fotosRemediosCarrossel.length - 1);
+            renderCarrosselFotos();
+        } else {
+            fotosPesosCarrossel = montarItensCarrossel(appData.pesos);
+            if (!fotosPesosCarrossel.length) return fecharCarrosselFotosPesos();
+            indiceFotoPeso = Math.min(indice, fotosPesosCarrossel.length - 1);
+            renderCarrosselFotosPesos();
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Não foi possível excluir esta foto: ' + traduzirErroApp(error));
+    }
+}
+
+function excluirFotoAtualRemedio() {
+    return excluirFotoAtual('remedio');
+}
+
+function excluirFotoAtualPeso() {
+    return excluirFotoAtual('peso');
 }
 
 let chartPesoRef = null;
@@ -3082,9 +3232,11 @@ if (formPerfil) formPerfil.onsubmit = function(e) {
 
 const inputFotoRemedio = document.getElementById('remedio-foto');
 if (inputFotoRemedio) inputFotoRemedio.addEventListener('change', () => {
-    const nome = inputFotoRemedio.files?.[0]?.name || '';
+    const quantidade = inputFotoRemedio.files?.length || 0;
     const fotoNome = document.getElementById('remedio-foto-nome');
-    if (fotoNome) fotoNome.innerText = nome ? `Foto selecionada: ${nome}` : 'Nenhuma foto selecionada.';
+    if (fotoNome) fotoNome.innerText = quantidade
+        ? `${quantidade} nova(s) foto(s) selecionada(s).`
+        : 'Nenhuma foto selecionada. Você pode escolher várias.';
 });
 
 const formRemedio = document.getElementById('form-remedio');
@@ -3095,7 +3247,7 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
     const nome = document.getElementById('remedio-nome')?.value.trim() || '';
     const mg = Number(document.getElementById('remedio-mg')?.value);
     const peso = Number(document.getElementById('remedio-peso')?.value);
-    const arquivoFoto = inputFotoRemedio?.files?.[0] || null;
+    const arquivosFoto = Array.from(inputFotoRemedio?.files || []);
 
     if (!data || !nome || !Number.isFinite(mg) || !Number.isFinite(peso)) {
         return alert('Preencha data, nome do remédio, dose em mg e peso.');
@@ -3104,7 +3256,7 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
     const botaoSalvar = document.getElementById('btn-salvar-remedio');
     if (botaoSalvar) {
         botaoSalvar.disabled = true;
-        botaoSalvar.innerText = arquivoFoto ? 'Salvando foto original...' : 'Salvando...';
+        botaoSalvar.innerText = arquivosFoto.length ? `Salvando ${arquivosFoto.length} foto(s)...` : 'Salvando...';
     }
 
     try {
@@ -3115,8 +3267,8 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
         if (editId && !registroAnterior) throw new Error('O lançamento que seria editado não foi encontrado.');
 
         const id = registroAnterior?.id || globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-        const fotoDocId = registroAnterior?.fotoDocId || id;
-        const fotoPreparada = arquivoFoto ? await enviarFotoRemedio(arquivoFoto, fotoDocId) : null;
+        const fotosAnteriores = obterFotosRegistro(registroAnterior || {});
+        const fotoPreparada = arquivosFoto.length ? await prepararFotosRegistro(arquivosFoto, `remedio_${id}`) : null;
         if (fotoPreparada && currentUser?.uid !== fotoPreparada.uid) throw new Error('A sessão mudou durante o salvamento da foto. Entre novamente e repita o lançamento.');
         if (botaoSalvar) botaoSalvar.innerText = 'Salvando lançamento...';
 
@@ -3127,7 +3279,7 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
             nome,
             mg,
             peso,
-            ...(fotoPreparada?.dadosFoto || obterCamposFotoRegistro(registroAnterior || {}))
+            fotos: [...fotosAnteriores, ...(fotoPreparada?.fotos || [])]
         };
         appData.remedios = Array.isArray(appData.remedios) ? appData.remedios : [];
         if (indiceExistente > -1) appData.remedios[indiceExistente] = registro;
@@ -3149,9 +3301,11 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
 // Peso Form
 const inputFotoPeso = document.getElementById('peso-foto');
 if (inputFotoPeso) inputFotoPeso.addEventListener('change', () => {
-    const nome = inputFotoPeso.files?.[0]?.name || '';
+    const quantidade = inputFotoPeso.files?.length || 0;
     const fotoNome = document.getElementById('peso-foto-nome');
-    if (fotoNome) fotoNome.innerText = nome ? `Foto selecionada: ${nome}` : 'Nenhuma foto selecionada.';
+    if (fotoNome) fotoNome.innerText = quantidade
+        ? `${quantidade} nova(s) foto(s) selecionada(s).`
+        : 'Nenhuma foto selecionada. Você pode escolher várias.';
 });
 
 function redefinirFormularioPeso({ focar = false } = {}) {
@@ -3161,7 +3315,7 @@ function redefinirFormularioPeso({ focar = false } = {}) {
     document.getElementById('peso-data').value = hojeISO();
     document.getElementById('peso-meta').value = Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '';
     const fotoNome = document.getElementById('peso-foto-nome');
-    if (fotoNome) fotoNome.innerText = 'Nenhuma foto selecionada.';
+    if (fotoNome) fotoNome.innerText = 'Nenhuma foto selecionada. Você pode escolher várias.';
     const botaoSalvar = document.getElementById('btn-salvar-peso');
     if (botaoSalvar) {
         botaoSalvar.disabled = false;
@@ -3191,7 +3345,7 @@ document.getElementById('form-peso').onsubmit = async function(e) {
     const peso = Number(document.getElementById('peso-valor').value);
     const meta = numeroOuVazio(document.getElementById('peso-meta').value);
     const observacoes = document.getElementById('peso-obs').value;
-    const arquivoFoto = inputFotoPeso?.files?.[0] || null;
+    const arquivosFoto = Array.from(inputFotoPeso?.files || []);
 
     if (!data || !Number.isFinite(peso) || peso <= 0 || meta === '' || !Number.isFinite(meta)) {
         return alert('Preencha a data, o peso e a meta com valores válidos.');
@@ -3207,16 +3361,16 @@ document.getElementById('form-peso').onsubmit = async function(e) {
 
     const registroAnterior = indiceExistente > -1 ? appData.pesos[indiceExistente] : null;
     const id = registroAnterior?.id || globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    const fotoDocId = registroAnterior?.fotoDocId || `peso_${id}`;
     const botaoSalvar = document.getElementById('btn-salvar-peso');
 
     if (botaoSalvar) {
         botaoSalvar.disabled = true;
-        botaoSalvar.innerText = arquivoFoto ? 'Salvando foto original...' : 'Salvando...';
+        botaoSalvar.innerText = arquivosFoto.length ? `Salvando ${arquivosFoto.length} foto(s)...` : 'Salvando...';
     }
 
     try {
-        const fotoPreparada = arquivoFoto ? await prepararFotoRegistro(arquivoFoto, fotoDocId) : null;
+        const fotosAnteriores = obterFotosRegistro(registroAnterior || {});
+        const fotoPreparada = arquivosFoto.length ? await prepararFotosRegistro(arquivosFoto, `peso_${id}`) : null;
         if (fotoPreparada && currentUser?.uid !== fotoPreparada.uid) throw new Error('A sessão mudou durante o salvamento da foto. Entre novamente e repita o lançamento.');
 
         const registro = {
@@ -3226,7 +3380,7 @@ document.getElementById('form-peso').onsubmit = async function(e) {
             peso,
             meta,
             observacoes,
-            ...(fotoPreparada?.dadosFoto || obterCamposFotoRegistro(registroAnterior || {}))
+            fotos: [...fotosAnteriores, ...(fotoPreparada?.fotos || [])]
         };
 
         if (indiceExistente > -1) appData.pesos[indiceExistente] = registro;
@@ -3256,9 +3410,10 @@ function editarPeso(id) {
     document.getElementById('peso-meta').value = Number.isFinite(Number(item.meta)) ? item.meta : (Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '');
     document.getElementById('peso-obs').value = item.observacoes || '';
     const fotoNome = document.getElementById('peso-foto-nome');
-    if (fotoNome) fotoNome.innerText = temFotoRemedio(item)
-        ? 'Foto atual mantida. Selecione outra somente para substituir.'
-        : 'Nenhuma foto selecionada.';
+    const quantidadeFotos = obterFotosRegistro(item).length;
+    if (fotoNome) fotoNome.innerText = quantidadeFotos
+        ? `${quantidadeFotos} foto(s) atual(is) mantida(s). Selecione mais imagens para adicionar.`
+        : 'Nenhuma foto selecionada. Você pode escolher várias.';
     const botaoSalvar = document.getElementById('btn-salvar-peso');
     if (botaoSalvar) botaoSalvar.innerText = 'Salvar Alterações';
     showView('peso', document.querySelector('[data-view="historico"]'));
@@ -4033,8 +4188,7 @@ function extensaoFotoBackup(foto) {
 
 async function copiarFotosOriginaisParaPasta(handle, usuario, dados) {
     const registros = [...(dados?.remedios || []), ...(dados?.pesos || [])];
-    const ids = [...new Set(registros.map(item => item?.fotoDocId).filter(Boolean))];
-    if (!ids.length) return 0;
+    const ids = [...new Set(registros.flatMap(obterFotosRegistro).map(item => item?.fotoDocId).filter(Boolean))];
 
     const pastaFotos = await handle.getDirectoryHandle('fotos-projeto-leve', { create: true });
     let copiadas = 0;
@@ -4385,6 +4539,10 @@ window.mudarFotoCarrossel = mudarFotoCarrossel;
 window.abrirCarrosselFotosPesos = abrirCarrosselFotosPesos;
 window.fecharCarrosselFotosPesos = fecharCarrosselFotosPesos;
 window.mudarFotoCarrosselPesos = mudarFotoCarrosselPesos;
+window.baixarFotoOriginalRemedio = baixarFotoOriginalRemedio;
+window.excluirFotoAtualRemedio = excluirFotoAtualRemedio;
+window.baixarFotoOriginalPeso = baixarFotoOriginalPeso;
+window.excluirFotoAtualPeso = excluirFotoAtualPeso;
 window.simularMeta = simularMeta;
 window.limparSimulacaoMeta = limparSimulacaoMeta;
 window.limparFormularioPeso = limparFormularioPeso;

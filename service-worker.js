@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v9-local';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v9-local';
+const CACHE_VERSION = 'projeto-leve-v10-multifotos';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v10-multifotos';
 const APP_SHELL = [
   '/',
   '/index.html',
