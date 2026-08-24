@@ -195,18 +195,25 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .weight-col-date { width: 22%; }
-        .weight-col-value { width: 18%; }
-        .weight-col-missing { width: 18%; }
+        .weight-col-date { width: 25%; }
+        .weight-col-value { width: 15%; }
+        .weight-col-missing { width: 17%; }
         .weight-col-photo { width: 14%; text-align: center; }
-        .weight-col-actions { width: 28%; }
+        .weight-col-actions { width: 29%; }
         .weight-history-table .actions-cell {
+            display: table-cell;
+            text-align: center;
+            overflow: visible;
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+        .weight-history-action-buttons {
             display: flex;
             gap: 4px;
             justify-content: center;
             align-items: center;
-            padding-left: 2px;
-            padding-right: 2px;
+            width: 100%;
+            min-width: 0;
         }
         .backup-danger-zone { margin-top: 14px; padding: 14px; border-radius: 18px; background: #fff7ed; border: 1px dashed rgba(217,119,6,.45); }
 
@@ -2536,8 +2543,10 @@ function renderHistoricoPeso() {
                 <td class="weight-col-missing ${classePositivoNegativo(falta, true)}">${formatComSinal(falta)}</td>
                 <td class="weight-col-photo">${foto}</td>
                 <td class="weight-col-actions actions-cell">
-                    <button class="btn btn-outline compact-action" title="Editar" onclick="editarPeso('${p.id}')">✎</button>
-                    <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirPeso('${p.id}')">−</button>
+                    <div class="weight-history-action-buttons">
+                        <button class="btn btn-outline compact-action" title="Editar" onclick="editarPeso('${p.id}')">✎</button>
+                        <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirPeso('${p.id}')">−</button>
+                    </div>
                 </td>
             </tr>
         `;
