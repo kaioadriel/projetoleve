@@ -240,29 +240,42 @@
         .medicine-history-table th,
         .medicine-history-table td {
             padding: 8px 4px;
-            font-size: 11px;
+            font-size: 10.5px;
             vertical-align: middle;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        .medicine-col-date { width: 20%; }
-        .medicine-col-name { width: 22%; }
-        .medicine-col-dose { width: 12%; text-align: right; }
-        .medicine-col-weight { width: 15%; text-align: right; }
-        .medicine-col-photo { width: 12%; text-align: center; }
-        .medicine-col-actions { width: 19%; }
+        .medicine-col-date { width: 19%; }
+        .medicine-col-name { width: 21%; }
+        .medicine-col-dose { width: 11%; text-align: right; }
+        .medicine-col-weight { width: 14%; text-align: right; }
+        .medicine-col-photo { width: 13%; text-align: center; }
+        .medicine-col-actions { width: 22%; text-align: center; }
         .medicine-history-table .actions-cell {
+            display: table-cell;
+            overflow: visible;
+            text-align: center;
+            padding-left: 1px;
+            padding-right: 1px;
+        }
+        .medicine-action-buttons {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             justify-content: center;
             align-items: center;
-            padding-left: 2px;
-            padding-right: 2px;
+            width: 100%;
+            min-width: 0;
+        }
+        .medicine-history-table .compact-action {
+            width: 27px !important;
+            min-width: 27px !important;
+            min-height: 29px !important;
+            height: 29px;
         }
         .photo-history-icon {
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             display: inline-grid;
             place-items: center;
             border: 1px solid rgba(2,132,199,.35);
@@ -851,6 +864,20 @@
         .backup-button-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
         .backup-action-btn { min-height: 56px; gap: 8px; font-size: 14px; }
         .backup-action-btn svg { width: 20px; height: 20px; flex: 0 0 auto; }
+        .automatic-backup-panel { margin-top: 18px; padding: 16px; border: 1px solid rgba(2,132,199,.2); border-radius: 20px; background: linear-gradient(180deg, #f8fdff 0%, #f0f9ff 100%); }
+        .automatic-backup-block + .automatic-backup-block { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
+        .automatic-backup-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--text-primary); font-size: 13px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+        .automatic-backup-dot { width: 12px; height: 12px; flex: 0 0 auto; border-radius: 50%; background: var(--text-secondary); box-shadow: 0 0 0 4px rgba(100,116,139,.10); }
+        .automatic-backup-dot.ok { background: var(--success); box-shadow: 0 0 0 4px rgba(22,163,74,.12); }
+        .automatic-backup-dot.warning { background: #f59e0b; box-shadow: 0 0 0 4px rgba(245,158,11,.14); }
+        .automatic-backup-status { margin-top: 7px; color: var(--accent-hover); font-size: 12px; font-weight: 800; line-height: 1.4; }
+        .automatic-backup-help { margin-top: 10px; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
+        .automatic-backup-folder { margin-top: 12px; padding: 11px 12px; border: 1px solid var(--border); border-radius: 14px; background: #fff; }
+        .automatic-backup-folder .label { margin-bottom: 2px; }
+        .automatic-backup-folder-name { color: var(--text-primary); font-size: 14px; font-weight: 850; overflow-wrap: anywhere; }
+        .automatic-backup-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+        .automatic-backup-actions .btn { min-height: 48px; padding: 9px 8px; font-size: 12px; }
+        .automatic-backup-disable { width: 100%; margin-top: 12px; border: 0; background: transparent; color: var(--danger); font-size: 11px; font-weight: 850; cursor: pointer; }
 
         @media (min-width: 760px) {
             .planning-filter-grid { grid-template-columns: repeat(3, 1fr); }
@@ -1352,6 +1379,36 @@
                     </button>
                 </div>
                 <div id="backup-info" class="small text-center" style="margin-top: 15px; color: var(--text-secondary)"></div>
+
+                <div class="automatic-backup-panel" aria-label="Backup automático">
+                    <div class="automatic-backup-block">
+                        <div class="automatic-backup-heading">
+                            <span>Cópia interna automática</span>
+                            <span id="backup-interno-dot" class="automatic-backup-dot" aria-hidden="true"></span>
+                        </div>
+                        <div id="backup-interno-status" class="automatic-backup-status">Preparando proteção local...</div>
+                        <p class="automatic-backup-help">Uma cópia separada dos dados é atualizada automaticamente neste aparelho e não pede nova autorização ao reabrir o app.</p>
+                        <button type="button" class="btn btn-outline" style="margin-top:12px" onclick="restaurarCopiaInterna()">Restaurar cópia interna</button>
+                    </div>
+
+                    <div class="automatic-backup-block">
+                        <div class="automatic-backup-heading">
+                            <span>Backup automático em pasta</span>
+                            <span id="backup-pasta-dot" class="automatic-backup-dot warning" aria-hidden="true"></span>
+                        </div>
+                        <div id="backup-pasta-status" class="automatic-backup-status">Nenhuma pasta selecionada.</div>
+                        <div class="automatic-backup-folder">
+                            <div class="label">Pasta selecionada</div>
+                            <div id="backup-pasta-nome" class="automatic-backup-folder-name">Nenhuma</div>
+                        </div>
+                        <div class="automatic-backup-actions">
+                            <button type="button" id="btn-selecionar-pasta-backup" class="btn btn-outline" onclick="selecionarPastaBackup()">Selecionar pasta</button>
+                            <button type="button" id="btn-salvar-pasta-agora" class="btn btn-outline" onclick="salvarBackupNaPastaAgora()">Salvar agora</button>
+                        </div>
+                        <button type="button" id="btn-desativar-pasta-backup" class="automatic-backup-disable hidden" onclick="desativarPastaBackup()">Desativar pasta selecionada</button>
+                        <p id="backup-pasta-ajuda" class="automatic-backup-help">O arquivo “backup-projeto-leve-automatico.json” será atualizado após cada alteração. A autorização da pasta depende das regras do navegador.</p>
+                    </div>
+                </div>
             </div>
             <div class="card">
                 <h3>Limpeza por Data</h3>
@@ -1519,15 +1576,41 @@ const FOTO_DB_STORE = 'fotos';
 const FOTO_MAX_BYTES = 480 * 1024;
 const FOTO_MAX_DIMENSAO = 1440;
 const FOTO_ENVIO_TIMEOUT_MS = 25000;
+const BACKUP_INTERNO_BASE_KEY = 'projeto_leve_backup_interno';
+const BACKUP_PASTA_STATUS_BASE_KEY = 'projeto_leve_backup_pasta_status';
+const BACKUP_PASTA_DB_NAME = 'projeto_leve_backup_pasta';
+const BACKUP_PASTA_DB_STORE = 'handles';
+const BACKUP_PASTA_ARQUIVO = 'backup-projeto-leve-automatico.json';
 let bancoFotosPromise = null;
 let sincronizacaoFotosPromise = null;
 let cacheUrlsFotos = new Map();
+let bancoBackupPastaPromise = null;
+let backupPastaHandle = null;
+let backupPastaPermissao = 'indisponivel';
+let ultimoBackupInternoEm = '';
+let ultimoBackupPastaEm = '';
+let filaBackupPasta = Promise.resolve(true);
+let usuarioBackupInicializado = '';
 
 function chaveLocalUsuario() {
     return currentUser && currentUser.uid ? `${LOCAL_BASE_KEY}_${currentUser.uid}` : `${LOCAL_BASE_KEY}_guest`;
 }
+function sufixoUsuarioBackup() {
+    return currentUser && currentUser.uid ? currentUser.uid : 'guest';
+}
+function chaveBackupInternoUsuario() {
+    return `${BACKUP_INTERNO_BASE_KEY}_${sufixoUsuarioBackup()}`;
+}
+function chaveHandleBackupUsuario() {
+    return `pasta_${sufixoUsuarioBackup()}`;
+}
+function chaveStatusBackupPastaUsuario(usuario = sufixoUsuarioBackup()) {
+    return `${BACKUP_PASTA_STATUS_BASE_KEY}_${usuario}`;
+}
 function salvarDadosLocalmente() {
     localStorage.setItem(chaveLocalUsuario(), JSON.stringify(appData));
+    salvarCopiaInternaAutomatica();
+    enfileirarBackupAutomaticoNaPasta();
 }
 function carregarDadosLocaisDoUsuario() {
     const saved = localStorage.getItem(chaveLocalUsuario());
@@ -2062,9 +2145,16 @@ async function sairUsuario() {
 function observarLogin() {
     onAuthStateChanged(auth, async (user) => {
         clearTimeout(salvamentoNuvemTimer);
-        if ((currentUser?.uid || '') !== (user?.uid || '')) limparUrlsFotosEmMemoria();
+        const usuarioMudou = (currentUser?.uid || '') !== (user?.uid || '');
+        if (usuarioMudou) limparUrlsFotosEmMemoria();
         currentUser = user;
         authInicializado = true;
+        if (usuarioMudou) {
+            usuarioBackupInicializado = sufixoUsuarioBackup();
+            backupPastaHandle = null;
+            backupPastaPermissao = 'indisponivel';
+            ultimoBackupPastaEm = localStorage.getItem(chaveStatusBackupPastaUsuario()) || '';
+        }
 
         if (user) {
             definirMensagemAuthGate('Sessão confirmada. Verificando os dados mais recentes...', 'ok');
@@ -2076,6 +2166,7 @@ function observarLogin() {
             alternarInterfaceAutenticada(true);
             updateUI();
             renderConta();
+            await inicializarBackupAutomatico();
             sincronizarFotosPendentes();
         } else {
             appData = normalizarDados({});
@@ -2197,6 +2288,12 @@ function formatDateBR(iso) {
     if(!iso) return '--';
     const [y, m, d] = iso.split('-');
     return `${d}/${m}/${y}`;
+}
+
+function formatDateCurtaBR(iso) {
+    if(!iso) return '--';
+    const [y, m, d] = iso.split('-');
+    return `${d}/${m}/${String(y || '').slice(-2)}`;
 }
 
 function formatDateChart(iso) {
@@ -2649,14 +2746,16 @@ function renderRemedios() {
             : '<span aria-label="Sem foto">—</span>';
         return `
             <tr>
-                <td class="medicine-col-date" title="${formatDateBR(item.data)}">${formatDateBR(item.data)}</td>
+                <td class="medicine-col-date" title="${formatDateBR(item.data)}">${formatDateCurtaBR(item.data)}</td>
                 <td class="medicine-col-name" title="${escapeHtml(item.nome || '')}">${escapeHtml(item.nome || '')}</td>
                 <td class="medicine-col-dose" title="${formatBR(item.mg)} mg">${formatBR(item.mg)}</td>
                 <td class="medicine-col-weight" title="${formatBR(item.peso)} kg">${formatBR(item.peso)}</td>
                 <td class="medicine-col-photo">${foto}</td>
                 <td class="medicine-col-actions actions-cell">
-                    <button class="btn btn-outline compact-action" title="Editar" onclick="editarRemedio('${item.id}')">✎</button>
-                    <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirRemedio('${item.id}')">−</button>
+                    <div class="medicine-action-buttons">
+                        <button class="btn btn-outline compact-action" title="Editar" aria-label="Editar lançamento" onclick="editarRemedio('${item.id}')">✎</button>
+                        <button class="btn btn-outline compact-action" title="Excluir" aria-label="Excluir lançamento" style="border-color: var(--danger); color: var(--danger);" onclick="excluirRemedio('${item.id}')">−</button>
+                    </div>
                 </td>
             </tr>
         `;
@@ -4179,6 +4278,268 @@ function baixarArquivo(nome, conteudo, tipo = 'text/plain;charset=utf-8') {
     URL.revokeObjectURL(url);
 }
 
+function formatarDataHoraBackup(valor) {
+    const data = valor ? new Date(valor) : null;
+    if (!data || !Number.isFinite(data.getTime())) return '';
+    return data.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'medium' });
+}
+
+function lerCopiaInternaAutomatica() {
+    try {
+        const texto = localStorage.getItem(chaveBackupInternoUsuario());
+        if (!texto) return null;
+        const pacote = JSON.parse(texto);
+        return pacote && pacote.dados ? pacote : { versao: 1, salvoEm: '', dados: pacote };
+    } catch (error) {
+        console.warn('Não foi possível ler a cópia interna automática:', error);
+        return null;
+    }
+}
+
+function salvarCopiaInternaAutomatica() {
+    try {
+        const pacote = {
+            versao: 1,
+            salvoEm: new Date().toISOString(),
+            dados: normalizarDados(appData)
+        };
+        localStorage.setItem(chaveBackupInternoUsuario(), JSON.stringify(pacote));
+        ultimoBackupInternoEm = pacote.salvoEm;
+        atualizarInterfaceBackupAutomatico();
+        return true;
+    } catch (error) {
+        console.warn('Não foi possível atualizar a cópia interna automática:', error);
+        ultimoBackupInternoEm = '';
+        atualizarInterfaceBackupAutomatico();
+        return false;
+    }
+}
+
+function abrirBancoBackupPasta() {
+    if (!('indexedDB' in window)) return Promise.reject(new Error('O navegador não oferece armazenamento para lembrar a pasta.'));
+    if (bancoBackupPastaPromise) return bancoBackupPastaPromise;
+    bancoBackupPastaPromise = new Promise((resolve, reject) => {
+        const request = indexedDB.open(BACKUP_PASTA_DB_NAME, 1);
+        request.onupgradeneeded = () => {
+            const banco = request.result;
+            if (!banco.objectStoreNames.contains(BACKUP_PASTA_DB_STORE)) banco.createObjectStore(BACKUP_PASTA_DB_STORE);
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error('Não foi possível abrir a configuração da pasta.'));
+    });
+    return bancoBackupPastaPromise;
+}
+
+async function guardarHandleBackupPasta(handle) {
+    const banco = await abrirBancoBackupPasta();
+    await new Promise((resolve, reject) => {
+        const transacao = banco.transaction(BACKUP_PASTA_DB_STORE, 'readwrite');
+        transacao.objectStore(BACKUP_PASTA_DB_STORE).put(handle, chaveHandleBackupUsuario());
+        transacao.oncomplete = resolve;
+        transacao.onerror = () => reject(transacao.error || new Error('Não foi possível guardar a pasta selecionada.'));
+        transacao.onabort = () => reject(transacao.error || new Error('O navegador interrompeu a gravação da pasta.'));
+    });
+}
+
+async function obterHandleBackupPasta() {
+    const banco = await abrirBancoBackupPasta();
+    return new Promise((resolve, reject) => {
+        const transacao = banco.transaction(BACKUP_PASTA_DB_STORE, 'readonly');
+        const request = transacao.objectStore(BACKUP_PASTA_DB_STORE).get(chaveHandleBackupUsuario());
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error || new Error('Não foi possível recuperar a pasta selecionada.'));
+    });
+}
+
+async function removerHandleBackupPasta() {
+    const banco = await abrirBancoBackupPasta();
+    await new Promise((resolve, reject) => {
+        const transacao = banco.transaction(BACKUP_PASTA_DB_STORE, 'readwrite');
+        transacao.objectStore(BACKUP_PASTA_DB_STORE).delete(chaveHandleBackupUsuario());
+        transacao.oncomplete = resolve;
+        transacao.onerror = () => reject(transacao.error || new Error('Não foi possível remover a pasta selecionada.'));
+    });
+}
+
+async function verificarPermissaoBackupPasta(handle, solicitar = false) {
+    if (!handle) return 'indisponivel';
+    const opcoes = { mode: 'readwrite' };
+    if (typeof handle.queryPermission === 'function') {
+        const estado = await handle.queryPermission(opcoes);
+        if (estado === 'granted' || !solicitar) return estado;
+    }
+    if (solicitar && typeof handle.requestPermission === 'function') return handle.requestPermission(opcoes);
+    return 'prompt';
+}
+
+function atualizarInterfaceBackupAutomatico() {
+    const copia = lerCopiaInternaAutomatica();
+    const statusInterno = document.getElementById('backup-interno-status');
+    const dotInterno = document.getElementById('backup-interno-dot');
+    const dataInterna = ultimoBackupInternoEm || copia?.salvoEm || '';
+    if (statusInterno) statusInterno.innerText = dataInterna
+        ? `Protegido em ${formatarDataHoraBackup(dataInterna)}`
+        : 'A cópia interna ainda não pôde ser criada.';
+    if (dotInterno) dotInterno.className = `automatic-backup-dot${dataInterna ? ' ok' : ' warning'}`;
+
+    const suportaPasta = typeof window.showDirectoryPicker === 'function';
+    const statusPasta = document.getElementById('backup-pasta-status');
+    const nomePasta = document.getElementById('backup-pasta-nome');
+    const dotPasta = document.getElementById('backup-pasta-dot');
+    const btnSelecionar = document.getElementById('btn-selecionar-pasta-backup');
+    const btnSalvar = document.getElementById('btn-salvar-pasta-agora');
+    const btnDesativar = document.getElementById('btn-desativar-pasta-backup');
+    const ajuda = document.getElementById('backup-pasta-ajuda');
+
+    if (nomePasta) nomePasta.innerText = backupPastaHandle?.name || 'Nenhuma';
+    if (btnDesativar) btnDesativar.classList.toggle('hidden', !backupPastaHandle);
+    if (btnSelecionar) {
+        btnSelecionar.disabled = !suportaPasta;
+        btnSelecionar.innerText = backupPastaHandle ? 'Trocar pasta' : 'Selecionar pasta';
+    }
+    if (btnSalvar) btnSalvar.disabled = !suportaPasta;
+
+    let texto = 'Nenhuma pasta selecionada.';
+    let classe = 'warning';
+    if (!suportaPasta) {
+        texto = 'Este navegador não permite selecionar uma pasta diretamente.';
+        if (ajuda) ajuda.innerText = 'A cópia interna automática continua ativa. Para criar um arquivo externo, use o botão “Backup” acima.';
+    } else if (backupPastaHandle && backupPastaPermissao === 'granted') {
+        texto = ultimoBackupPastaEm
+            ? `Salvo automaticamente em ${formatarDataHoraBackup(ultimoBackupPastaEm)}`
+            : 'Pasta autorizada. O próximo salvamento será automático.';
+        classe = 'ok';
+    } else if (backupPastaHandle) {
+        texto = 'Pasta lembrada. Toque em “Salvar agora” para reautorizar, se necessário.';
+    }
+    if (statusPasta) statusPasta.innerText = texto;
+    if (dotPasta) dotPasta.className = `automatic-backup-dot ${classe}`;
+}
+
+async function inicializarBackupAutomatico() {
+    const usuario = sufixoUsuarioBackup();
+    usuarioBackupInicializado = usuario;
+    const copia = lerCopiaInternaAutomatica();
+    ultimoBackupInternoEm = copia?.salvoEm || '';
+    backupPastaHandle = null;
+    backupPastaPermissao = 'indisponivel';
+    ultimoBackupPastaEm = localStorage.getItem(chaveStatusBackupPastaUsuario()) || '';
+    if (typeof window.showDirectoryPicker === 'function') {
+        try {
+            const handle = await obterHandleBackupPasta();
+            if (usuarioBackupInicializado !== usuario) return;
+            backupPastaHandle = handle;
+            backupPastaPermissao = handle ? await verificarPermissaoBackupPasta(handle, false) : 'indisponivel';
+        } catch (error) {
+            console.warn('Não foi possível recuperar a pasta de backup:', error);
+        }
+    }
+    if (!copia) salvarCopiaInternaAutomatica();
+    atualizarInterfaceBackupAutomatico();
+    if (backupPastaHandle && backupPastaPermissao === 'granted') await enfileirarBackupAutomaticoNaPasta();
+}
+
+async function selecionarPastaBackup() {
+    if (typeof window.showDirectoryPicker !== 'function') {
+        return alert('Este navegador não permite selecionar uma pasta. A cópia interna automática continuará funcionando normalmente.');
+    }
+    try {
+        const handle = await window.showDirectoryPicker({ id: 'projeto-leve-backup', mode: 'readwrite' });
+        const permissao = await verificarPermissaoBackupPasta(handle, true);
+        if (permissao !== 'granted') return alert('A pasta não foi autorizada para gravação.');
+        backupPastaHandle = handle;
+        backupPastaPermissao = permissao;
+        await guardarHandleBackupPasta(handle);
+        atualizarInterfaceBackupAutomatico();
+        await salvarBackupNaPastaAgora(false);
+    } catch (error) {
+        if (error?.name !== 'AbortError') {
+            console.error(error);
+            alert('Não foi possível selecionar a pasta: ' + (error?.message || 'erro desconhecido.'));
+        }
+    }
+}
+
+async function gravarBackupAutomaticoNaPasta(conteudo, handle, usuario) {
+    if (!handle) return false;
+    const arquivo = await handle.getFileHandle(BACKUP_PASTA_ARQUIVO, { create: true });
+    const gravacao = await arquivo.createWritable();
+    try {
+        await gravacao.write(conteudo);
+        await gravacao.close();
+    } catch (error) {
+        try { await gravacao.abort(); } catch (abortError) { /* nada a fazer */ }
+        throw error;
+    }
+    const salvoEm = new Date().toISOString();
+    localStorage.setItem(chaveStatusBackupPastaUsuario(usuario), salvoEm);
+    if (usuarioBackupInicializado === usuario && backupPastaHandle === handle) {
+        ultimoBackupPastaEm = salvoEm;
+        atualizarInterfaceBackupAutomatico();
+    }
+    return true;
+}
+
+function enfileirarBackupAutomaticoNaPasta() {
+    if (!backupPastaHandle || backupPastaPermissao !== 'granted') return Promise.resolve(false);
+    const conteudo = JSON.stringify(appData, null, 2);
+    const handle = backupPastaHandle;
+    const usuario = sufixoUsuarioBackup();
+    filaBackupPasta = filaBackupPasta
+        .catch(() => false)
+        .then(() => gravarBackupAutomaticoNaPasta(conteudo, handle, usuario))
+        .catch(error => {
+            console.warn('Não foi possível atualizar o backup automático na pasta:', error);
+            if (usuarioBackupInicializado === usuario && backupPastaHandle === handle) {
+                if (error?.name === 'NotAllowedError' || error?.name === 'SecurityError') backupPastaPermissao = 'prompt';
+                atualizarInterfaceBackupAutomatico();
+            }
+            return false;
+        });
+    return filaBackupPasta;
+}
+
+async function salvarBackupNaPastaAgora(mostrarMensagem = true) {
+    if (!backupPastaHandle) return selecionarPastaBackup();
+    try {
+        backupPastaPermissao = await verificarPermissaoBackupPasta(backupPastaHandle, true);
+        if (backupPastaPermissao !== 'granted') return alert('Autorize o acesso à pasta para salvar o backup.');
+        atualizarInterfaceBackupAutomatico();
+        const salvou = await enfileirarBackupAutomaticoNaPasta();
+        if (mostrarMensagem && salvou) alert(`Backup salvo em “${backupPastaHandle.name}”.`);
+    } catch (error) {
+        console.error(error);
+        backupPastaPermissao = 'prompt';
+        atualizarInterfaceBackupAutomatico();
+        alert('Não foi possível salvar na pasta: ' + (error?.message || 'erro desconhecido.'));
+    }
+}
+
+async function desativarPastaBackup() {
+    if (!backupPastaHandle || !confirm('Desativar o backup automático nesta pasta? A cópia interna continuará ativa.')) return;
+    try {
+        await removerHandleBackupPasta();
+    } catch (error) {
+        console.warn('Não foi possível apagar a lembrança da pasta:', error);
+    }
+    backupPastaHandle = null;
+    backupPastaPermissao = 'indisponivel';
+    ultimoBackupPastaEm = '';
+    localStorage.removeItem(chaveStatusBackupPastaUsuario());
+    atualizarInterfaceBackupAutomatico();
+}
+
+function restaurarCopiaInterna() {
+    const pacote = lerCopiaInternaAutomatica();
+    if (!pacote?.dados) return alert('Nenhuma cópia interna válida foi encontrada.');
+    const quando = pacote.salvoEm ? ` de ${formatarDataHoraBackup(pacote.salvoEm)}` : '';
+    if (!confirm(`Restaurar a cópia interna${quando}? Os dados atuais serão substituídos.`)) return;
+    appData = normalizarDados(pacote.dados);
+    preencherCamposConfig();
+    salvarDados(true, true);
+    alert('Cópia interna restaurada com sucesso.');
+}
+
 function exportarBackup() {
     baixarArquivo(
         "peso_medidas_backup_" + hojeISO() + ".json",
@@ -4435,6 +4796,10 @@ window.desfazerMedidasIdeais = desfazerMedidasIdeais;
 window.voltarInicio = voltarInicio;
 window.exportarBackup = exportarBackup;
 window.importarBackup = importarBackup;
+window.restaurarCopiaInterna = restaurarCopiaInterna;
+window.selecionarPastaBackup = selecionarPastaBackup;
+window.salvarBackupNaPastaAgora = salvarBackupNaPastaAgora;
+window.desativarPastaBackup = desativarPastaBackup;
 window.gerarRelatorioPDF = gerarRelatorioPDF;
 window.gerarRelatorioCSV = gerarRelatorioCSV;
 window.limparRegistrosAteData = limparRegistrosAteData;
