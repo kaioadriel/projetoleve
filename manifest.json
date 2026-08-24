@@ -1,0 +1,28 @@
+{
+  "id": "./",
+  "name": "Projeto Leve",
+  "short_name": "Projeto Leve",
+  "description": "Controle de peso, medidas, metas e remédios com sincronização Firebase.",
+  "lang": "pt-BR",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#edf7ff",
+  "theme_color": "#0284c7",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

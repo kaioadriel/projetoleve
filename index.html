@@ -1,10 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Projeto Leve</title>
+    <meta name="theme-color" content="#0284c7">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
     <!-- Chart.js será carregado sob demanda na aba Gráficos para acelerar a abertura do app -->
     <style>
         :root {
@@ -99,9 +102,9 @@
         nav::-webkit-scrollbar { display: none; }
         .nav-item {
             display: flex;
-            flex: 1 1 20%;
+            flex: 1 1 16.6667%;
             min-width: 0;
-            max-width: 20%;
+            max-width: 16.6667%;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -170,6 +173,69 @@
             padding-right: 2px;
         }
         .backup-danger-zone { margin-top: 14px; padding: 14px; border-radius: 18px; background: #fff7ed; border: 1px dashed rgba(217,119,6,.45); }
+
+        /* Remédios e comparação de fotos */
+        .medicine-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .medicine-photo-input {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 50px;
+            padding: 12px;
+            border: 1px dashed var(--accent);
+            border-radius: 14px;
+            background: var(--accent-soft);
+            color: var(--accent-hover);
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .medicine-photo-input svg { width: 22px; height: 22px; }
+        .medicine-photo-name { min-height: 20px; margin-top: 7px; color: var(--text-secondary); font-size: 12px; }
+        .medicine-history-table { overflow-x: hidden; }
+        .medicine-history-table table { width: 100%; min-width: 0; table-layout: fixed; }
+        .medicine-history-table th,
+        .medicine-history-table td {
+            padding: 8px 4px;
+            font-size: 11px;
+            vertical-align: middle;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .medicine-col-date { width: 23%; }
+        .medicine-col-name { width: 30%; }
+        .medicine-col-dose { width: 15%; text-align: right; }
+        .medicine-col-weight { width: 18%; text-align: right; }
+        .medicine-col-photo { width: 14%; text-align: center; }
+        .photo-history-icon {
+            width: 32px;
+            height: 32px;
+            display: inline-grid;
+            place-items: center;
+            border: 1px solid rgba(2,132,199,.35);
+            border-radius: 11px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            cursor: pointer;
+        }
+        .photo-history-icon svg { width: 18px; height: 18px; }
+        .photo-carousel-card { width: 100%; max-width: 620px; max-height: 92vh; overflow-y: auto; }
+        .photo-carousel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .photo-carousel-close { width: 42px !important; min-height: 42px !important; padding: 0 !important; font-size: 20px; }
+        .photo-carousel-stage {
+            min-height: 320px;
+            margin-top: 12px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #0f172a;
+            display: grid;
+            place-items: center;
+        }
+        .photo-carousel-stage img { display: block; width: 100%; max-height: 58vh; object-fit: contain; }
+        .photo-carousel-info { margin-top: 12px; padding: 12px; border-radius: 16px; background: var(--soft-bg); }
+        .photo-carousel-controls { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; margin-top: 12px; }
+        .photo-carousel-counter { min-width: 68px; color: var(--text-secondary); font-size: 12px; font-weight: 800; text-align: center; }
         
         /* Modal Simple */
         .modal {
@@ -751,6 +817,8 @@
             .settings-action-row, .profile-action-row { gap: 8px; grid-template-columns: 42px minmax(0, 1fr) minmax(0, 1fr); }
             .settings-action-row .btn, .profile-action-row .btn { font-size: 13px; padding-left: 6px; padding-right: 6px; }
             .imc-detail-grid { grid-template-columns: 1fr; }
+            .medicine-form-grid { grid-template-columns: 1fr; gap: 0; }
+            .photo-carousel-stage { min-height: 250px; }
         }
 
     </style>
@@ -964,6 +1032,76 @@
             <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
+        <!-- Remédio -->
+        <section id="view-remedio" class="view hidden">
+            <div class="card feature-card">
+                <h3>Novo Lançamento</h3>
+                <form id="form-remedio">
+                    <div class="medicine-form-grid">
+                        <div class="form-group">
+                            <label>Data</label>
+                            <input type="date" id="remedio-data" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nome do Remédio</label>
+                            <input type="text" id="remedio-nome" list="lista-nomes-remedios" autocomplete="off" placeholder="Digite ou selecione" required>
+                            <datalist id="lista-nomes-remedios"></datalist>
+                        </div>
+                        <div class="form-group">
+                            <label>Dose (mg)</label>
+                            <input type="number" min="0" step="0.01" id="remedio-mg" placeholder="Ex: 10" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Peso (kg)</label>
+                            <input type="number" min="0" step="0.1" id="remedio-peso" placeholder="00,0" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Foto (opcional)</label>
+                        <label class="medicine-photo-input" for="remedio-foto">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                            Selecionar ou tirar foto
+                        </label>
+                        <input type="file" id="remedio-foto" class="hidden" accept="image/*">
+                        <div id="remedio-foto-nome" class="medicine-photo-name">Nenhuma foto selecionada.</div>
+                    </div>
+                    <button type="button" class="btn btn-clear-outline" style="margin-bottom: 10px;" onclick="limparFormularioRemedio()">Limpar</button>
+                    <button type="submit" class="btn btn-primary" id="btn-salvar-remedio">Salvar Lançamento</button>
+                </form>
+            </div>
+
+            <div class="card primary-action-card">
+                <button type="button" class="btn btn-outline" onclick="abrirCarrosselFotos()">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="margin-right:8px"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="m21 15-5-5L5 19"></path></svg>
+                    Comparar Fotos
+                </button>
+            </div>
+
+            <h3 class="section-title">Histórico</h3>
+            <div class="table-container medicine-history-table">
+                <table>
+                    <colgroup>
+                        <col class="medicine-col-date">
+                        <col class="medicine-col-name">
+                        <col class="medicine-col-dose">
+                        <col class="medicine-col-weight">
+                        <col class="medicine-col-photo">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th class="medicine-col-date">Data</th>
+                            <th class="medicine-col-name">Remédio</th>
+                            <th class="medicine-col-dose">mg</th>
+                            <th class="medicine-col-weight">Peso</th>
+                            <th class="medicine-col-photo">Foto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-remedios"></tbody>
+                </table>
+            </div>
+            <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
+        </section>
+
         <!-- Metas -->
         <section id="view-metas" class="view hidden">
             <div class="card feature-card">
@@ -1129,7 +1267,7 @@
             </div>
             <div class="card">
                 <h3>Limpeza por Data</h3>
-                <p class="small" style="margin-bottom: 10px; color: var(--text-secondary)">Exclui pesos, medidas e metas personalizadas da data escolhida e anteriores.</p>
+                <p class="small" style="margin-bottom: 10px; color: var(--text-secondary)">Exclui pesos, medidas, remédios, fotos e metas personalizadas da data escolhida e anteriores.</p>
                 <div class="backup-danger-zone" style="margin-top: 0;">
                     <div class="inline-action-row">
                         <input type="date" id="limpar-ate-data">
@@ -1158,6 +1296,10 @@
     <a class="nav-item" data-view="medidas" onclick="showView('medidas', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
         Medidas
+    </a>
+    <a class="nav-item" data-view="remedio" onclick="showView('remedio', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7.1-7.1l7 7a5 5 0 0 1-7.1 7.1Z"></path><path d="m7 10 7 7"></path><path d="m14.5 6.5 3-3a2.1 2.1 0 0 1 3 3l-3 3"></path></svg>
+        Remédio
     </a>
     <a class="nav-item" data-view="metas" onclick="showView('metas', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -1196,6 +1338,23 @@
     </div>
 </div>
 
+<!-- Modal Comparação de Fotos -->
+<div id="modal-fotos-remedios" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="titulo-comparar-fotos">
+    <div class="card photo-carousel-card">
+        <div class="photo-carousel-head">
+            <h3 id="titulo-comparar-fotos" style="margin-bottom:0">Comparar Fotos</h3>
+            <button type="button" class="btn btn-outline photo-carousel-close" onclick="fecharCarrosselFotos()" aria-label="Fechar comparação">×</button>
+        </div>
+        <div id="foto-carousel-stage" class="photo-carousel-stage"></div>
+        <div id="foto-carousel-info" class="photo-carousel-info"></div>
+        <div class="photo-carousel-controls">
+            <button type="button" class="btn btn-outline" id="btn-foto-anterior" onclick="mudarFotoCarrossel(-1)">Anterior</button>
+            <div id="foto-carousel-contador" class="photo-carousel-counter">0 de 0</div>
+            <button type="button" class="btn btn-outline" id="btn-foto-proxima" onclick="mudarFotoCarrossel(1)">Próxima</button>
+        </div>
+    </div>
+</div>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -1216,6 +1375,13 @@ import {
     setDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import {
+    getStorage,
+    ref as storageRef,
+    uploadBytes,
+    getDownloadURL,
+    deleteObject
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAqnNIG9di9PE6nUZWSOPAxScfwUqxNtlU",
@@ -1229,11 +1395,13 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
+const storage = getStorage(firebaseApp);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 let currentUser = null;
 let authInicializado = false;
 let salvamentoNuvemTimer = null;
+let filaSalvamentoNuvem = Promise.resolve(true);
 let carregandoDaNuvem = false;
 let ultimoStatusSync = "Aguardando login.";
 let activeViewId = "dashboard";
@@ -1279,7 +1447,11 @@ let appData = {
     },
     pesos: [],
     medidas: [],
-    metasPersonalizadas: []
+    remedios: [],
+    nomesRemedios: [],
+    metasPersonalizadas: [],
+    ultimaAtualizacao: "",
+    apagadoEm: ""
 };
 
 // Persistence
@@ -1300,10 +1472,22 @@ function normalizarDados(raw) {
         },
         pesos: [],
         medidas: [],
-        metasPersonalizadas: []
+        remedios: [],
+        nomesRemedios: [],
+        metasPersonalizadas: [],
+        ultimaAtualizacao: "",
+        apagadoEm: ""
     };
 
     const origem = raw && typeof raw === "object" ? raw : {};
+    const remedios = Array.isArray(origem.remedios) ? origem.remedios : [];
+    const nomesHistoricos = remedios.map(item => String(item?.nome || '').trim()).filter(Boolean);
+    const nomesOrigem = Array.isArray(origem.nomesRemedios) ? origem.nomesRemedios : [];
+    const nomesRemedios = [...nomesOrigem, ...nomesHistoricos].reduce((lista, nome) => {
+        const nomeLimpo = String(nome || '').trim();
+        if (nomeLimpo && !lista.some(item => item.toLocaleLowerCase('pt-BR') === nomeLimpo.toLocaleLowerCase('pt-BR'))) lista.push(nomeLimpo);
+        return lista;
+    }, []).sort((a, b) => a.localeCompare(b, 'pt-BR'));
     return {
         config: {
             ...padrao.config,
@@ -1315,7 +1499,11 @@ function normalizarDados(raw) {
         },
         pesos: Array.isArray(origem.pesos) ? origem.pesos : [],
         medidas: Array.isArray(origem.medidas) ? origem.medidas : [],
-        metasPersonalizadas: Array.isArray(origem.metasPersonalizadas) ? origem.metasPersonalizadas : []
+        remedios,
+        nomesRemedios,
+        metasPersonalizadas: Array.isArray(origem.metasPersonalizadas) ? origem.metasPersonalizadas : [],
+        ultimaAtualizacao: origem.ultimaAtualizacao || origem.updatedAt || '',
+        apagadoEm: origem.apagadoEm || ''
     };
 }
 
@@ -1393,18 +1581,55 @@ function usuarioUsaGoogle() {
 function carregarDados() {
     if (!carregarDadosLocaisDoUsuario()) {
         appData = normalizarDados({});
-        salvarDados(false);
+        salvarDadosLocalmente();
     }
 }
 
-function salvarDados(sincronizar = true) {
+function marcarAtualizacaoDados(apagado = false) {
+    const agora = new Date().toISOString();
+    appData.ultimaAtualizacao = agora;
+    appData.apagadoEm = apagado ? agora : '';
+}
+
+function obterTimestampDados(dados) {
+    if (!dados || typeof dados !== 'object') return 0;
+    const candidatos = [dados.ultimaAtualizacao, dados.updatedAt, dados.apagadoEm]
+        .map(valor => Date.parse(valor || ''))
+        .filter(Number.isFinite);
+    if (dados.updatedAtServer && typeof dados.updatedAtServer.toMillis === 'function') {
+        candidatos.push(dados.updatedAtServer.toMillis());
+    }
+    return candidatos.length ? Math.max(...candidatos) : 0;
+}
+
+function temDadosRelevantes(dados) {
+    const normalizados = normalizarDados(dados);
+    const config = normalizados.config || {};
+    const perfilOuMeta = [config.nome, config.nascimento, config.genero, config.altura, config.pesoInicial, config.pesoMeta, config.metaKgPorDia]
+        .some(valor => valor !== '' && valor !== null && valor !== undefined);
+    const ideais = Object.values(config.medidasIdeais || {}).some(valor => valor !== '' && valor !== null && valor !== undefined);
+    return perfilOuMeta || ideais || normalizados.pesos.length || normalizados.medidas.length || normalizados.remedios.length || normalizados.nomesRemedios.length || normalizados.metasPersonalizadas.length || !!normalizados.apagadoEm;
+}
+
+function clonarDados(dados) {
+    return normalizarDados(JSON.parse(JSON.stringify(dados)));
+}
+
+function salvarDados(sincronizar = true, imediato = false, marcarAtualizacao = true) {
+    if (marcarAtualizacao) marcarAtualizacaoDados(false);
+    atualizarCalculosMetasPersonalizadas();
     appData = normalizarDados(appData);
     salvarDadosLocalmente();
     updateUI();
 
     if (sincronizar && currentUser && !carregandoDaNuvem) {
+        if (imediato) {
+            clearTimeout(salvamentoNuvemTimer);
+            return salvarDadosNaNuvem(false, appData);
+        }
         agendarSalvarDadosNaNuvem();
     }
+    return Promise.resolve(true);
 }
 
 
@@ -1483,33 +1708,49 @@ function renderConta() {
     definirStatusSync(ultimoStatusSync);
 }
 
-function obterPayloadNuvem() {
+function obterPayloadNuvem(dadosOrigem = appData) {
+    const dados = normalizarDados(dadosOrigem);
+    const ultimaAtualizacao = dados.ultimaAtualizacao || new Date().toISOString();
     return {
-        config: appData.config,
-        pesos: appData.pesos,
-        medidas: appData.medidas,
-        metasPersonalizadas: appData.metasPersonalizadas,
-        updatedAt: new Date().toISOString(),
+        config: dados.config,
+        pesos: dados.pesos,
+        medidas: dados.medidas,
+        remedios: dados.remedios,
+        nomesRemedios: dados.nomesRemedios,
+        metasPersonalizadas: dados.metasPersonalizadas,
+        ultimaAtualizacao,
+        apagadoEm: dados.apagadoEm || '',
+        updatedAt: ultimaAtualizacao,
         updatedAtServer: serverTimestamp()
     };
 }
 
-async function salvarDadosNaNuvem(manual = false) {
+function salvarDadosNaNuvem(manual = false, dadosOrigem = appData) {
     if (!currentUser) {
         definirStatusSync('Entre na conta para sincronizar com a nuvem.');
-        return;
+        return Promise.resolve(false);
     }
 
-    try {
-        definirStatusSync('Enviando dados para a nuvem...');
-        await setDoc(caminhoDocumentoUsuario(), obterPayloadNuvem(), { merge: false });
-        definirStatusSync(`Sincronizado na nuvem às ${new Date().toLocaleTimeString('pt-BR')}.`);
-        if (manual) alert('Dados enviados para a nuvem.');
-    } catch (error) {
-        console.error(error);
-        definirStatusSync('Erro ao salvar na nuvem: ' + traduzirErroFirebase(error));
-        if (manual) alert('Erro ao enviar para a nuvem: ' + traduzirErroFirebase(error));
-    }
+    const uidDaOperacao = currentUser.uid;
+    const dadosParaEnviar = clonarDados(dadosOrigem);
+    const executar = async () => {
+        if (!currentUser || currentUser.uid !== uidDaOperacao) return false;
+        try {
+            definirStatusSync('Enviando dados para a nuvem...');
+            await setDoc(doc(db, 'users', uidDaOperacao, 'app', 'data'), obterPayloadNuvem(dadosParaEnviar), { merge: false });
+            definirStatusSync(`Sincronizado na nuvem às ${new Date().toLocaleTimeString('pt-BR')}.`);
+            if (manual) alert('Dados enviados para a nuvem.');
+            return true;
+        } catch (error) {
+            console.error(error);
+            definirStatusSync('Erro ao salvar na nuvem: ' + traduzirErroFirebase(error));
+            if (manual) alert('Erro ao enviar para a nuvem: ' + traduzirErroFirebase(error));
+            return false;
+        }
+    };
+
+    filaSalvamentoNuvem = filaSalvamentoNuvem.catch(() => true).then(executar);
+    return filaSalvamentoNuvem;
 }
 
 function agendarSalvarDadosNaNuvem() {
@@ -1524,18 +1765,14 @@ async function carregarDadosDaNuvem(manual = false) {
     }
 
     try {
+        await filaSalvamentoNuvem.catch(() => false);
         definirStatusSync('Buscando dados na nuvem...');
         const snap = await getDoc(caminhoDocumentoUsuario());
 
         if (snap.exists()) {
             carregandoDaNuvem = true;
-            const cloud = snap.data();
-            appData = normalizarDados({
-                config: cloud.config,
-                pesos: cloud.pesos,
-                medidas: cloud.medidas,
-                metasPersonalizadas: cloud.metasPersonalizadas
-            });
+            appData = normalizarDados(snap.data());
+            atualizarCalculosMetasPersonalizadas();
             salvarDadosLocalmente();
             preencherCamposConfig();
             updateUI();
@@ -1562,6 +1799,70 @@ async function carregarDadosDaNuvem(manual = false) {
         console.error(error);
         definirStatusSync('Erro ao baixar da nuvem: ' + traduzirErroFirebase(error));
         if (manual) alert('Erro ao baixar da nuvem: ' + traduzirErroFirebase(error));
+    }
+}
+
+async function sincronizarDadosMaisRecentes() {
+    if (!currentUser) return false;
+    const dadosLocais = clonarDados(appData);
+
+    try {
+        definirStatusSync('Comparando a última atualização local e da nuvem...');
+        const snap = await getDoc(caminhoDocumentoUsuario());
+
+        if (!snap.exists()) {
+            appData = dadosLocais;
+            if (temDadosRelevantes(appData)) {
+                if (!appData.ultimaAtualizacao) marcarAtualizacaoDados(false);
+                atualizarCalculosMetasPersonalizadas();
+                salvarDadosLocalmente();
+                updateUI();
+                const enviado = await salvarDadosNaNuvem(false, appData);
+                definirStatusSync(enviado
+                    ? 'Dados locais eram os mais recentes e foram enviados para a nuvem.'
+                    : 'Dados locais preservados. O envio para a nuvem ficou pendente.');
+            } else {
+                definirStatusSync('Conta pronta. Nenhum dado salvo ainda.');
+            }
+            return true;
+        }
+
+        const dadosBrutosNuvem = snap.data();
+        const dadosNuvem = normalizarDados(dadosBrutosNuvem);
+        const timestampLocal = obterTimestampDados(dadosLocais);
+        const timestampNuvem = obterTimestampDados(dadosBrutosNuvem);
+
+        carregandoDaNuvem = true;
+        if (timestampLocal > timestampNuvem) {
+            appData = dadosLocais;
+            atualizarCalculosMetasPersonalizadas();
+            salvarDadosLocalmente();
+            updateUI();
+            carregandoDaNuvem = false;
+            const enviado = await salvarDadosNaNuvem(false, appData);
+            definirStatusSync(enviado
+                ? 'A atualização local era a mais recente e foi enviada para a nuvem.'
+                : 'A atualização local foi preservada. O envio para a nuvem ficou pendente.');
+        } else {
+            appData = dadosNuvem;
+            atualizarCalculosMetasPersonalizadas();
+            salvarDadosLocalmente();
+            preencherCamposConfig();
+            updateUI();
+            carregandoDaNuvem = false;
+            definirStatusSync(timestampNuvem > timestampLocal
+                ? 'A atualização da nuvem era a mais recente e foi aplicada neste aparelho.'
+                : 'Dados locais e da nuvem já estavam sincronizados.');
+        }
+        return true;
+    } catch (error) {
+        carregandoDaNuvem = false;
+        console.error(error);
+        appData = dadosLocais;
+        salvarDadosLocalmente();
+        updateUI();
+        definirStatusSync('Sem acesso à nuvem. Mantendo a atualização local: ' + traduzirErroFirebase(error));
+        return false;
     }
 }
 
@@ -1636,6 +1937,7 @@ async function entrarComGoogle() {
 
 async function sairUsuario() {
     try {
+        await filaSalvamentoNuvem.catch(() => false);
         await signOut(auth);
         definirStatusSync('Você saiu da conta. Dados continuam salvos neste aparelho.');
     } catch (error) {
@@ -1650,12 +1952,14 @@ function observarLogin() {
         authInicializado = true;
 
         if (user) {
-            definirMensagemAuthGate('Sessão confirmada.', 'ok');
-            definirStatusSync('Login detectado. Sincronizando...');
+            definirMensagemAuthGate('Sessão confirmada. Verificando os dados mais recentes...', 'ok');
+            definirStatusSync('Login detectado. Comparando atualizações...');
             carregarDados();
-            alternarInterfaceAutenticada(true);
             renderConta();
-            await carregarDadosDaNuvem(false);
+            await sincronizarDadosMaisRecentes();
+            preencherCamposConfig();
+            alternarInterfaceAutenticada(true);
+            updateUI();
             renderConta();
         } else {
             appData = normalizarDados({});
@@ -1681,7 +1985,10 @@ function traduzirErroFirebase(error) {
         'auth/popup-blocked': 'o navegador bloqueou o popup. Tentaremos redirecionar para o Google.',
         'auth/popup-closed-by-user': 'a janela de login foi fechada antes de concluir.',
         'auth/cancelled-popup-request': 'uma tentativa de login anterior foi cancelada.',
-        'permission-denied': 'permissão negada. Confira as regras do Firestore.'
+        'permission-denied': 'permissão negada. Confira as regras do Firestore.',
+        'storage/unauthorized': 'sem permissão para acessar as fotos no Firebase Storage.',
+        'storage/object-not-found': 'a foto não foi encontrada no Firebase Storage.',
+        'storage/retry-limit-exceeded': 'não foi possível concluir o envio da foto. Tente novamente.'
     };
     return mapa[code] || (error && error.message ? error.message : 'erro desconhecido.');
 }
@@ -1814,6 +2121,37 @@ function calcularMediaRealDia() {
     return (atual - numeroValido(appData.config.pesoInicial)) / dias;
 }
 
+function numeroInformado(valor) {
+    if (valor === '' || valor === null || valor === undefined) return null;
+    const numero = Number(valor);
+    return Number.isFinite(numero) ? numero : null;
+}
+
+function atualizarCalculosMetasPersonalizadas() {
+    if (!Array.isArray(appData.metasPersonalizadas)) appData.metasPersonalizadas = [];
+    const dataInicial = appData.config?.dataInicial || '';
+    const pesoInicial = numeroInformado(appData.config?.pesoInicial);
+    const metaKgPorDia = numeroInformado(appData.config?.metaKgPorDia);
+    const pesoAtual = numeroInformado(obterPesoAtual());
+    const media = dataInicial && pesoInicial !== null && metaKgPorDia !== null ? calcularMediaRealDia() : NaN;
+    const hoje = hojeISO();
+
+    appData.metasPersonalizadas = appData.metasPersonalizadas.map(item => {
+        const data = String(item?.data || '');
+        const meta = data && dataInicial && pesoInicial !== null && metaKgPorDia !== null
+            ? pesoInicial + (diffDays(data, dataInicial) * metaKgPorDia)
+            : NaN;
+        const previsao = data && pesoAtual !== null && Number.isFinite(media)
+            ? pesoAtual + (diffDays(data, hoje) * media)
+            : NaN;
+        return {
+            ...item,
+            meta: Number.isFinite(meta) ? meta : '',
+            previsao: Number.isFinite(previsao) ? previsao : ''
+        };
+    });
+}
+
 function obterInicioFiltroGrafico() {
     const hoje = hojeISO();
     const dataInicial = appData.config.dataInicial || hoje;
@@ -1830,12 +2168,14 @@ function obterInicioFiltroGrafico() {
  * UI RENDERING
  */
 function updateUI() {
+    atualizarCalculosMetasPersonalizadas();
     renderDashboard();
     renderDatasImportantesDashboard();
     renderResumoPesoAtual();
     renderIMCDashboard();
     renderHistoricoPeso();
     renderMedidas();
+    renderRemedios();
     renderMetasPersonalizadas();
     if (activeViewId === 'graficos') renderGraficos();
     renderConta();
@@ -1846,9 +2186,9 @@ function updateUI() {
 }
 
 function classeMetaComparadaAoPesoMeta(valor) {
-    const n = Number(valor);
-    const pesoMeta = numeroValido(appData.config.pesoMeta);
-    if (!Number.isFinite(n) || pesoMeta === null) return 'status-neutral';
+    const n = numeroInformado(valor);
+    const pesoMeta = numeroInformado(appData.config.pesoMeta);
+    if (n === null || pesoMeta === null) return 'status-neutral';
     return n > pesoMeta ? 'status-bad' : 'status-good';
 }
 
@@ -1868,14 +2208,14 @@ function renderDatasImportantesDashboard() {
     }
 
     tbody.innerHTML = metas.map(item => {
-        const metaNumero = Number(item.meta);
-        const previsaoNumero = Number(item.previsao);
+        const metaNumero = numeroInformado(item.meta);
+        const previsaoNumero = numeroInformado(item.previsao);
         return `
             <tr>
                 <td class="col-data">${formatDateBR(item.data)}</td>
                 <td class="col-descricao">${escapeHtml(item.nome || '')}</td>
-                <td class="col-meta ${classeMetaComparadaAoPesoMeta(metaNumero)}">${Number.isFinite(metaNumero) ? formatBR(metaNumero) : '--'}</td>
-                <td class="col-previsao ${classeMetaComparadaAoPesoMeta(previsaoNumero)}">${Number.isFinite(previsaoNumero) ? formatBR(previsaoNumero) : '--'}</td>
+                <td class="col-meta ${classeMetaComparadaAoPesoMeta(metaNumero)}">${metaNumero !== null ? formatBR(metaNumero) : '--'}</td>
+                <td class="col-previsao ${classeMetaComparadaAoPesoMeta(previsaoNumero)}">${previsaoNumero !== null ? formatBR(previsaoNumero) : '--'}</td>
             </tr>
         `;
     }).join('');
@@ -2141,6 +2481,133 @@ function renderMedidas() {
     `).join('');
 }
 
+function renderRemedios() {
+    const datalist = document.getElementById('lista-nomes-remedios');
+    if (datalist) {
+        datalist.innerHTML = [...(appData.nomesRemedios || [])]
+            .sort((a, b) => String(a).localeCompare(String(b), 'pt-BR'))
+            .map(nome => `<option value="${escapeHtml(nome)}"></option>`)
+            .join('');
+    }
+
+    const lista = document.getElementById('lista-remedios');
+    if (!lista) return;
+    const remedios = [...(appData.remedios || [])].sort((a, b) => {
+        const porData = String(b.data || '').localeCompare(String(a.data || ''));
+        return porData || String(b.id || '').localeCompare(String(a.id || ''));
+    });
+
+    if (!remedios.length) {
+        lista.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-secondary);">Nenhum remédio lançado ainda.</td></tr>';
+        return;
+    }
+
+    lista.innerHTML = remedios.map(item => {
+        const temFoto = !!(item.fotoUrl && item.fotoPath);
+        const foto = temFoto
+            ? `<button type="button" class="photo-history-icon" title="Abrir foto" aria-label="Abrir foto deste lançamento" onclick="abrirCarrosselFotos('${item.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>`
+            : '<span aria-label="Sem foto">—</span>';
+        return `
+            <tr>
+                <td class="medicine-col-date" title="${formatDateBR(item.data)}">${formatDateBR(item.data)}</td>
+                <td class="medicine-col-name" title="${escapeHtml(item.nome || '')}">${escapeHtml(item.nome || '')}</td>
+                <td class="medicine-col-dose" title="${formatBR(item.mg)} mg">${formatBR(item.mg)}</td>
+                <td class="medicine-col-weight" title="${formatBR(item.peso)} kg">${formatBR(item.peso)}</td>
+                <td class="medicine-col-photo">${foto}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function adicionarNomeRemedioAoCatalogo(nome) {
+    const nomeLimpo = String(nome || '').trim();
+    if (!nomeLimpo) return;
+    appData.nomesRemedios = Array.isArray(appData.nomesRemedios) ? appData.nomesRemedios : [];
+    const jaExiste = appData.nomesRemedios.some(item => String(item).toLocaleLowerCase('pt-BR') === nomeLimpo.toLocaleLowerCase('pt-BR'));
+    if (!jaExiste) appData.nomesRemedios.push(nomeLimpo);
+}
+
+async function enviarFotoRemedio(file, idRemedio) {
+    if (!file) return { fotoUrl: '', fotoPath: '', fotoNome: '' };
+    if (!currentUser) throw new Error('Faça login antes de anexar uma foto.');
+    if (!String(file.type || '').startsWith('image/')) throw new Error('Selecione um arquivo de imagem válido.');
+
+    const nomeSeguro = String(file.name || 'foto.jpg').replace(/[^a-zA-Z0-9._-]+/g, '_');
+    const caminho = `users/${currentUser.uid}/remedios/${idRemedio}_${nomeSeguro}`;
+    const referencia = storageRef(storage, caminho);
+    await uploadBytes(referencia, file, { contentType: file.type || 'image/jpeg' });
+    const fotoUrl = await getDownloadURL(referencia);
+    return { fotoUrl, fotoPath: caminho, fotoNome: file.name || nomeSeguro };
+}
+
+async function excluirFotosDoStorage(caminhos) {
+    if (!currentUser) return;
+    const unicos = [...new Set((caminhos || []).filter(Boolean))];
+    await Promise.all(unicos.map(async caminho => {
+        try {
+            await deleteObject(storageRef(storage, caminho));
+        } catch (error) {
+            if (error?.code !== 'storage/object-not-found') throw error;
+        }
+    }));
+}
+
+function limparFormularioRemedio() {
+    const form = document.getElementById('form-remedio');
+    if (form) form.reset();
+    const data = document.getElementById('remedio-data');
+    const peso = document.getElementById('remedio-peso');
+    const fotoNome = document.getElementById('remedio-foto-nome');
+    if (data) data.value = hojeISO();
+    const pesoAtual = numeroInformado(obterPesoAtual());
+    if (peso) peso.value = pesoAtual !== null ? pesoAtual : '';
+    if (fotoNome) fotoNome.innerText = 'Nenhuma foto selecionada.';
+}
+
+let fotosRemediosCarrossel = [];
+let indiceFotoRemedio = 0;
+
+function abrirCarrosselFotos(idInicial = '') {
+    fotosRemediosCarrossel = [...(appData.remedios || [])]
+        .filter(item => item.fotoUrl && item.fotoPath)
+        .sort((a, b) => {
+            const porData = String(a.data || '').localeCompare(String(b.data || ''));
+            return porData || String(a.id || '').localeCompare(String(b.id || ''));
+        });
+
+    if (!fotosRemediosCarrossel.length) return alert('Nenhuma foto foi adicionada aos lançamentos de remédios.');
+    indiceFotoRemedio = idInicial
+        ? Math.max(0, fotosRemediosCarrossel.findIndex(item => String(item.id) === String(idInicial)))
+        : 0;
+    document.getElementById('modal-fotos-remedios')?.classList.remove('hidden');
+    renderCarrosselFotos();
+}
+
+function fecharCarrosselFotos() {
+    document.getElementById('modal-fotos-remedios')?.classList.add('hidden');
+}
+
+function mudarFotoCarrossel(direcao) {
+    if (!fotosRemediosCarrossel.length) return;
+    indiceFotoRemedio = (indiceFotoRemedio + direcao + fotosRemediosCarrossel.length) % fotosRemediosCarrossel.length;
+    renderCarrosselFotos();
+}
+
+function renderCarrosselFotos() {
+    const item = fotosRemediosCarrossel[indiceFotoRemedio];
+    if (!item) return;
+    const stage = document.getElementById('foto-carousel-stage');
+    const info = document.getElementById('foto-carousel-info');
+    const contador = document.getElementById('foto-carousel-contador');
+    if (stage) stage.innerHTML = `<img src="${escapeHtml(item.fotoUrl)}" alt="Foto de ${escapeHtml(item.nome || 'remédio')} em ${formatDateBR(item.data)}">`;
+    if (info) info.innerHTML = `
+        <div class="label">${formatDateBR(item.data)}</div>
+        <div class="value" style="font-size:18px; margin-top:3px;">${escapeHtml(item.nome || '')} • ${formatBR(item.mg)} mg</div>
+        <div class="small" style="margin-top:4px; color:var(--text-secondary);">Peso: ${formatBR(item.peso)} kg</div>
+    `;
+    if (contador) contador.innerText = `${indiceFotoRemedio + 1} de ${fotosRemediosCarrossel.length}`;
+}
+
 let chartPesoRef = null;
 let chartMedidasRef = null;
 
@@ -2250,6 +2717,7 @@ function showView(viewId, navEl) {
         peso: "Lançar Peso",
         historico: "Peso",
         medidas: "Medidas Corporais",
+        remedio: "Remédio",
         metas: "Simulador",
         graficos: "Evolução",
         configs: "Ajustes",
@@ -2262,6 +2730,13 @@ function showView(viewId, navEl) {
 
     if (viewId === 'peso' && !document.getElementById('edit-peso-id').value) {
         document.getElementById('peso-data').value = hojeISO();
+    }
+    if (viewId === 'remedio') {
+        if (!document.getElementById('remedio-data')?.value) document.getElementById('remedio-data').value = hojeISO();
+        if (!document.getElementById('remedio-peso')?.value) {
+            const pesoAtual = numeroInformado(obterPesoAtual());
+            document.getElementById('remedio-peso').value = pesoAtual !== null ? pesoAtual : '';
+        }
     }
     if (viewId === 'graficos') renderGraficos();
 }
@@ -2289,7 +2764,10 @@ const btnLogoutPerfil = document.getElementById('btn-logout-perfil');
 if (btnLogoutPerfil) btnLogoutPerfil.onclick = sairUsuario;
 
 const btnUploadCloud = document.getElementById('btn-upload-cloud');
-if (btnUploadCloud) btnUploadCloud.onclick = () => salvarDadosNaNuvem(true);
+if (btnUploadCloud) btnUploadCloud.onclick = () => {
+    salvarDados(false, false, true);
+    salvarDadosNaNuvem(true, appData);
+};
 const btnDownloadCloud = document.getElementById('btn-download-cloud');
 if (btnDownloadCloud) btnDownloadCloud.onclick = () => {
     if (confirm('Baixar os dados da nuvem e substituir os dados locais deste aparelho?')) {
@@ -2304,6 +2782,51 @@ const formPerfil = document.getElementById('form-perfil');
 if (formPerfil) formPerfil.onsubmit = function(e) {
     e.preventDefault();
     salvarPerfilUsuario();
+};
+
+const inputFotoRemedio = document.getElementById('remedio-foto');
+if (inputFotoRemedio) inputFotoRemedio.addEventListener('change', () => {
+    const nome = inputFotoRemedio.files?.[0]?.name || '';
+    const fotoNome = document.getElementById('remedio-foto-nome');
+    if (fotoNome) fotoNome.innerText = nome ? `Foto selecionada: ${nome}` : 'Nenhuma foto selecionada.';
+});
+
+const formRemedio = document.getElementById('form-remedio');
+if (formRemedio) formRemedio.onsubmit = async function(e) {
+    e.preventDefault();
+    const data = document.getElementById('remedio-data')?.value || '';
+    const nome = document.getElementById('remedio-nome')?.value.trim() || '';
+    const mg = Number(document.getElementById('remedio-mg')?.value);
+    const peso = Number(document.getElementById('remedio-peso')?.value);
+    const arquivoFoto = inputFotoRemedio?.files?.[0] || null;
+
+    if (!data || !nome || !Number.isFinite(mg) || !Number.isFinite(peso)) {
+        return alert('Preencha data, nome do remédio, dose em mg e peso.');
+    }
+
+    const botaoSalvar = document.getElementById('btn-salvar-remedio');
+    if (botaoSalvar) {
+        botaoSalvar.disabled = true;
+        botaoSalvar.innerText = arquivoFoto ? 'Enviando foto...' : 'Salvando...';
+    }
+
+    try {
+        const id = globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+        const dadosFoto = await enviarFotoRemedio(arquivoFoto, id);
+        appData.remedios = Array.isArray(appData.remedios) ? appData.remedios : [];
+        appData.remedios.push({ id, data, nome, mg, peso, ...dadosFoto });
+        adicionarNomeRemedioAoCatalogo(nome);
+        salvarDados(true, true);
+        limparFormularioRemedio();
+    } catch (error) {
+        console.error(error);
+        alert('Não foi possível salvar o lançamento: ' + traduzirErroFirebase(error));
+    } finally {
+        if (botaoSalvar) {
+            botaoSalvar.disabled = false;
+            botaoSalvar.innerText = 'Salvar Lançamento';
+        }
+    }
 };
 
 // Peso Form
@@ -2351,7 +2874,7 @@ document.getElementById('form-peso').onsubmit = function(e) {
     document.getElementById('peso-data').value = hojeISO();
     document.getElementById('peso-meta').value = Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '';
     document.getElementById('edit-peso-id').value = "";
-    salvarDados();
+    salvarDados(true, true);
     showView('historico', document.querySelector('[data-view="historico"]'));
 };
 
@@ -2369,7 +2892,7 @@ function editarPeso(id) {
 function excluirPeso(id) {
     if(!confirm("Excluir este registro?")) return;
     appData.pesos = appData.pesos.filter(x => x.id !== id);
-    salvarDados();
+    salvarDados(true, true);
 }
 
 // Config Form
@@ -2635,7 +3158,7 @@ document.getElementById('form-medidas').onsubmit = function(e) {
     else appData.medidas.push(novaMed);
 
     fecharModalMedida();
-    salvarDados();
+    salvarDados(true, true);
 };
 
 function editarMedida(id) {
@@ -2659,7 +3182,7 @@ function editarMedida(id) {
 function excluirMedida(id) {
     if(!confirm("Excluir esta medição?")) return;
     appData.medidas = appData.medidas.filter(x => x.id !== id);
-    salvarDados();
+    salvarDados(true, true);
 }
 
 // Metas
@@ -2727,7 +3250,7 @@ function salvarMetaPersonalizada() {
         meta: Number(ultimaSimulacao.meta),
         previsao: Number(ultimaSimulacao.previsao)
     });
-    salvarDados();
+    salvarDados(true, true);
     if (input) input.value = '';
     alert('Data personalizada salva.');
 }
@@ -2740,13 +3263,13 @@ function editarMetaPersonalizada(id) {
     const nomeLimpo = novoNome.trim();
     if (!nomeLimpo) return alert('A descrição não pode ficar vazia.');
     item.nome = nomeLimpo;
-    salvarDados();
+    salvarDados(true, true);
 }
 
 function excluirMetaPersonalizada(id) {
     if (!confirm('Excluir esta data personalizada?')) return;
     appData.metasPersonalizadas = (appData.metasPersonalizadas || []).filter(item => item.id !== id);
-    salvarDados();
+    salvarDados(true, true);
 }
 
 function ordenarMetasPorProximidade(metas) {
@@ -2773,10 +3296,10 @@ function renderMetasPersonalizadas() {
         return;
     }
 
-    const pesoMetaAjustes = parseFloat(appData.config.pesoMeta);
+    const pesoMetaAjustes = numeroInformado(appData.config.pesoMeta);
     const classeComparacaoMetaAjustes = (valor) => {
-        const numero = Number(valor);
-        if (!Number.isFinite(numero) || !Number.isFinite(pesoMetaAjustes)) return '';
+        const numero = numeroInformado(valor);
+        if (numero === null || pesoMetaAjustes === null) return '';
         return numero <= pesoMetaAjustes ? 'positive' : 'negative';
     };
 
@@ -2793,8 +3316,8 @@ function renderMetasPersonalizadas() {
                 </div>
             </div>
             <div class="custom-goal-metrics compact">
-                <div class="custom-goal-metric compact"><div class="label">Meta</div><div class="value ${classeComparacaoMetaAjustes(item.meta)}">${formatBR(item.meta)} kg</div></div>
-                <div class="custom-goal-metric compact"><div class="label">Previsão</div><div class="value ${classeComparacaoMetaAjustes(item.previsao)}">${formatBR(item.previsao)} kg</div></div>
+                <div class="custom-goal-metric compact"><div class="label">Meta</div><div class="value ${classeComparacaoMetaAjustes(item.meta)}">${numeroInformado(item.meta) !== null ? formatBR(item.meta) + ' kg' : '--'}</div></div>
+                <div class="custom-goal-metric compact"><div class="label">Previsão</div><div class="value ${classeComparacaoMetaAjustes(item.previsao)}">${numeroInformado(item.previsao) !== null ? formatBR(item.previsao) + ' kg' : '--'}</div></div>
             </div>
         </div>
     `).join('');
@@ -2940,14 +3463,17 @@ function importarBackup(event) {
             const imported = JSON.parse(e.target.result);
             if (imported.config && imported.pesos) {
                 appData = normalizarDados(imported);
-                salvarDados();
+                salvarDados(true, true);
+                preencherCamposConfig();
+                updateUI();
                 alert("Backup importado com sucesso!");
-                location.reload();
             } else {
                 alert("Arquivo de backup inválido.");
             }
         } catch (err) {
             alert("Erro ao ler arquivo.");
+        } finally {
+            event.target.value = '';
         }
     };
     reader.readAsText(file);
@@ -3045,23 +3571,56 @@ function gerarRelatorioPDF() {
     win.focus();
 }
 
-function limparRegistrosAteData() {
+async function limparRegistrosAteData() {
     const data = document.getElementById('limpar-ate-data')?.value;
     if (!data) return alert('Selecione uma data para limpar os registros.');
-    if(!confirm(`Excluir pesos, medidas e metas personalizadas de ${formatDateBR(data)} e datas anteriores?`)) return;
+    if(!confirm(`Excluir pesos, medidas, remédios, fotos e metas personalizadas de ${formatDateBR(data)} e datas anteriores?`)) return;
 
+    const remediosRemovidos = (appData.remedios || []).filter(item => item.data && item.data <= data);
+    try {
+        await excluirFotosDoStorage(remediosRemovidos.map(item => item.fotoPath));
+    } catch (error) {
+        console.error(error);
+        return alert('Não foi possível excluir todas as fotos. Nenhum registro foi removido. Tente novamente conectado à internet.');
+    }
     appData.pesos = appData.pesos.filter(item => !item.data || item.data > data);
     appData.medidas = appData.medidas.filter(item => !item.data || item.data > data);
+    appData.remedios = (appData.remedios || []).filter(item => !item.data || item.data > data);
     appData.metasPersonalizadas = (appData.metasPersonalizadas || []).filter(item => !item.data || item.data > data);
-    salvarDados();
+    salvarDados(true, true);
     alert('Registros removidos.');
 }
 
-function limparTudo() {
-    if(confirm("ATENÇÃO: Isso apagará TODOS os dados permanentemente. Continuar?")) {
-        localStorage.removeItem(chaveLocalUsuario());
-        location.reload();
+async function limparTudo() {
+    if(!confirm("ATENÇÃO: Isso apagará TODOS os dados locais, dados da nuvem e fotos permanentemente. Continuar?")) return;
+
+    clearTimeout(salvamentoNuvemTimer);
+    clearTimeout(autosaveAjustesTimer);
+    clearTimeout(autosavePerfilTimer);
+    const caminhosFotos = (appData.remedios || []).map(item => item.fotoPath).filter(Boolean);
+
+    try {
+        await excluirFotosDoStorage(caminhosFotos);
+    } catch (error) {
+        console.error(error);
+        return alert('Não foi possível excluir todas as fotos do Firebase Storage. A limpeza foi interrompida para evitar uma exclusão incompleta.');
     }
+
+    const dadosVazios = normalizarDados({});
+    const agora = new Date().toISOString();
+    dadosVazios.ultimaAtualizacao = agora;
+    dadosVazios.apagadoEm = agora;
+    appData = dadosVazios;
+    salvarDadosLocalmente();
+    preencherCamposConfig();
+    limparFormularioRemedio();
+    updateUI();
+
+    const apagouNaNuvem = currentUser ? await salvarDadosNaNuvem(false, appData) : true;
+    showView('dashboard', document.querySelector('[data-view="dashboard"]'));
+    alert(apagouNaNuvem
+        ? 'Todos os dados locais, dados da nuvem e fotos foram apagados.'
+        : 'Os dados locais foram apagados. A exclusão da nuvem ficou pendente e será reenviada no próximo login.');
 }
 
 /**
@@ -3083,6 +3642,7 @@ window.onload = function() {
     carregarDados();
     preencherCamposConfig();
     document.getElementById('peso-data').value = hojeISO();
+    limparFormularioRemedio();
     const limparAteData = document.getElementById('limpar-ate-data');
     if (limparAteData) limparAteData.value = hojeISO();
     updateUI();
@@ -3105,6 +3665,10 @@ window.abrirModalMedida = abrirModalMedida;
 window.fecharModalMedida = fecharModalMedida;
 window.editarMedida = editarMedida;
 window.excluirMedida = excluirMedida;
+window.limparFormularioRemedio = limparFormularioRemedio;
+window.abrirCarrosselFotos = abrirCarrosselFotos;
+window.fecharCarrosselFotos = fecharCarrosselFotos;
+window.mudarFotoCarrossel = mudarFotoCarrossel;
 window.simularMeta = simularMeta;
 window.limparSimulacaoMeta = limparSimulacaoMeta;
 window.limparFormularioPeso = limparFormularioPeso;
@@ -3136,56 +3700,11 @@ window.limparTudo = limparTudo;
 /**
  * PWA SETUP
  */
-// Manifesto Dinâmico
-const APP_ICON_URL = "https://projetoleve.kaioadriel.com.br/icone/icone.png";
-const faviconLink = document.createElement('link');
-faviconLink.rel = 'icon';
-faviconLink.type = 'image/png';
-faviconLink.href = APP_ICON_URL;
-document.head.appendChild(faviconLink);
-
-const appleTouchIconLink = document.createElement('link');
-appleTouchIconLink.rel = 'apple-touch-icon';
-appleTouchIconLink.href = APP_ICON_URL;
-document.head.appendChild(appleTouchIconLink);
-
-const manifest = {
-    "name": "Projeto Leve",
-    "short_name": "Projeto Leve",
-    "start_url": "./index.html",
-    "scope": "./",
-    "display": "standalone",
-    "display_override": ["standalone", "minimal-ui"],
-    "background_color": "#edf7ff",
-    "theme_color": "#0284c7",
-    "description": "Controle de emagrecimento, peso e medidas com sincronização Firebase",
-    "prefer_related_applications": false,
-    "icons": [
-        { "src": APP_ICON_URL, "sizes": "192x192", "type": "image/png", "purpose": "any" },
-        { "src": APP_ICON_URL, "sizes": "512x512", "type": "image/png", "purpose": "any" }
-    ]
-};
-const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-const manifestURL = URL.createObjectURL(manifestBlob);
-const linkTag = document.createElement('link');
-linkTag.rel = 'manifest';
-linkTag.href = manifestURL;
-document.head.appendChild(linkTag);
-
-// Service Worker Inline
 if ('serviceWorker' in navigator) {
-    const swCode = `
-        const CACHE_NAME = 'projeto-leve-v5';
-        self.addEventListener('install', (e) => {
-            e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(['./'])));
-        });
-        self.addEventListener('fetch', (e) => {
-            e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
-        });
-    `;
-    const swBlob = new Blob([swCode], {type: 'application/javascript'});
-    const swURL = URL.createObjectURL(swBlob);
-    navigator.serviceWorker.register(swURL);
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+            .catch(error => console.error('Falha ao registrar o service worker:', error));
+    });
 }
 
 
