@@ -1,11 +1,11 @@
-const CACHE_VERSION = 'projeto-leve-v7';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v7';
+const CACHE_VERSION = 'projeto-leve-v8';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v8';
 const APP_SHELL = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png'
 ];
 
 self.addEventListener('install', event => {
@@ -41,7 +41,7 @@ self.addEventListener('fetch', event => {
           caches.open(RUNTIME_CACHE).then(cache => cache.put(request, copy));
           return response;
         })
-        .catch(async () => (await caches.match(request)) || caches.match('./index.html'))
+        .catch(async () => (await caches.match(request)) || caches.match('/index.html'))
     );
     return;
   }

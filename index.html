@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Projeto Leve</title>
     <meta name="theme-color" content="#0284c7">
-    <link rel="manifest" href="./manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
-    <link rel="apple-touch-icon" href="./icons/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Projeto Leve">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <script>
         // Captura o evento antes do carregamento dos módulos do Firebase.
         window.__projetoLeveInstallPrompt = null;
@@ -180,6 +184,30 @@
             padding-left: 2px;
             padding-right: 2px;
         }
+        .weight-history-table { overflow-x: hidden; }
+        .weight-history-table table { width: 100%; min-width: 0; table-layout: fixed; }
+        .weight-history-table th,
+        .weight-history-table td {
+            padding: 7px 4px;
+            font-size: 11px;
+            vertical-align: middle;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .weight-col-date { width: 22%; }
+        .weight-col-value { width: 18%; }
+        .weight-col-missing { width: 18%; }
+        .weight-col-photo { width: 14%; text-align: center; }
+        .weight-col-actions { width: 28%; }
+        .weight-history-table .actions-cell {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            align-items: center;
+            padding-left: 2px;
+            padding-right: 2px;
+        }
         .backup-danger-zone { margin-top: 14px; padding: 14px; border-radius: 18px; background: #fff7ed; border: 1px dashed rgba(217,119,6,.45); }
 
         /* Remédios e comparação de fotos */
@@ -211,11 +239,20 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        .medicine-col-date { width: 23%; }
-        .medicine-col-name { width: 30%; }
-        .medicine-col-dose { width: 15%; text-align: right; }
-        .medicine-col-weight { width: 18%; text-align: right; }
-        .medicine-col-photo { width: 14%; text-align: center; }
+        .medicine-col-date { width: 20%; }
+        .medicine-col-name { width: 22%; }
+        .medicine-col-dose { width: 12%; text-align: right; }
+        .medicine-col-weight { width: 15%; text-align: right; }
+        .medicine-col-photo { width: 12%; text-align: center; }
+        .medicine-col-actions { width: 19%; }
+        .medicine-history-table .actions-cell {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            align-items: center;
+            padding-left: 2px;
+            padding-right: 2px;
+        }
         .photo-history-icon {
             width: 32px;
             height: 32px;
@@ -983,9 +1020,18 @@
                         <label>Observações</label>
                         <textarea id="peso-obs" rows="2"></textarea>
                     </div>
+                    <div class="form-group">
+                        <label>Foto (opcional)</label>
+                        <label class="medicine-photo-input" for="peso-foto">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                            Selecionar ou tirar foto
+                        </label>
+                        <input type="file" id="peso-foto" class="hidden" accept="image/*">
+                        <div id="peso-foto-nome" class="medicine-photo-name">Nenhuma foto selecionada.</div>
+                    </div>
                     <button type="button" class="btn btn-clear-outline" style="margin-bottom: 10px;" onclick="limparFormularioPeso()">Limpar</button>
                     <div class="grid-2">
-                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <button type="submit" class="btn btn-primary" id="btn-salvar-peso">Salvar</button>
                         <button type="button" class="btn btn-outline" onclick="fecharLancamentoPeso()">Cancelar</button>
                     </div>
                 </form>
@@ -998,16 +1044,30 @@
             <div class="card primary-action-card">
                 <button class="btn btn-primary" onclick="abrirLancamentoPeso()">Lançar Peso</button>
             </div>
+            <div class="card primary-action-card">
+                <button type="button" class="btn btn-outline" onclick="abrirCarrosselFotosPesos()">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="margin-right:8px"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="m21 15-5-5L5 19"></path></svg>
+                    Comparar Fotos
+                </button>
+            </div>
             <div id="resumo-peso-atual" class="grid-2"></div>
             <h3 class="section-title">Histórico</h3>
-            <div class="table-container compact-table">
+            <div class="table-container compact-table weight-history-table">
                 <table>
+                    <colgroup>
+                        <col class="weight-col-date">
+                        <col class="weight-col-value">
+                        <col class="weight-col-missing">
+                        <col class="weight-col-photo">
+                        <col class="weight-col-actions">
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th>Data</th>
-                            <th>Peso</th>
-                            <th>Falta</th>
-                            <th>Ações</th>
+                            <th class="weight-col-date">Data</th>
+                            <th class="weight-col-value">Peso</th>
+                            <th class="weight-col-missing">Falta</th>
+                            <th class="weight-col-photo">Foto</th>
+                            <th class="weight-col-actions">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="lista-historico"></tbody>
@@ -1050,6 +1110,7 @@
             <div class="card feature-card">
                 <h3>Novo Lançamento</h3>
                 <form id="form-remedio">
+                    <input type="hidden" id="edit-remedio-id">
                     <div class="medicine-form-grid">
                         <div class="form-group">
                             <label>Data</label>
@@ -1099,6 +1160,7 @@
                         <col class="medicine-col-dose">
                         <col class="medicine-col-weight">
                         <col class="medicine-col-photo">
+                        <col class="medicine-col-actions">
                     </colgroup>
                     <thead>
                         <tr>
@@ -1107,6 +1169,7 @@
                             <th class="medicine-col-dose">mg</th>
                             <th class="medicine-col-weight">Peso</th>
                             <th class="medicine-col-photo">Foto</th>
+                            <th class="medicine-col-actions">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="lista-remedios"></tbody>
@@ -1369,6 +1432,23 @@
             <button type="button" class="btn btn-outline" id="btn-foto-anterior" onclick="mudarFotoCarrossel(-1)">Anterior</button>
             <div id="foto-carousel-contador" class="photo-carousel-counter">0 de 0</div>
             <button type="button" class="btn btn-outline" id="btn-foto-proxima" onclick="mudarFotoCarrossel(1)">Próxima</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Comparação de Fotos de Peso -->
+<div id="modal-fotos-pesos" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="titulo-comparar-fotos-pesos">
+    <div class="card photo-carousel-card">
+        <div class="photo-carousel-head">
+            <h3 id="titulo-comparar-fotos-pesos" style="margin-bottom:0">Comparar Fotos de Peso</h3>
+            <button type="button" class="btn btn-outline photo-carousel-close" onclick="fecharCarrosselFotosPesos()" aria-label="Fechar comparação">×</button>
+        </div>
+        <div id="foto-peso-carousel-stage" class="photo-carousel-stage"></div>
+        <div id="foto-peso-carousel-info" class="photo-carousel-info"></div>
+        <div class="photo-carousel-controls">
+            <button type="button" class="btn btn-outline" id="btn-foto-peso-anterior" onclick="mudarFotoCarrosselPesos(-1)">Anterior</button>
+            <div id="foto-peso-carousel-contador" class="photo-carousel-counter">0 de 0</div>
+            <button type="button" class="btn btn-outline" id="btn-foto-peso-proxima" onclick="mudarFotoCarrosselPesos(1)">Próxima</button>
         </div>
     </div>
 </div>
@@ -2435,15 +2515,27 @@ function renderHistoricoPeso() {
     const sorted = [...appData.pesos].sort((a, b) => b.data.localeCompare(a.data));
     const pesoMeta = numeroValido(appData.config.pesoMeta);
 
+    if (!sorted.length) {
+        lista.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-secondary);">Nenhum peso lançado ainda.</td></tr>';
+        return;
+    }
+
     lista.innerHTML = sorted.map(p => {
         const metaRegistro = Number.isFinite(Number(p.meta)) ? Number(p.meta) : pesoMeta;
         const falta = Number.isFinite(metaRegistro) ? metaRegistro - Number(p.peso) : NaN;
+        const temFoto = temFotoRemedio(p);
+        const pendente = p.fotoStatus === 'pendente';
+        const tituloFoto = pendente ? 'Abrir foto (sincronização pendente)' : 'Abrir foto';
+        const foto = temFoto
+            ? `<button type="button" class="photo-history-icon${pendente ? ' pending' : ''}" title="${tituloFoto}" aria-label="${tituloFoto}" onclick="abrirCarrosselFotosPesos('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>`
+            : '<span aria-label="Sem foto">—</span>';
         return `
             <tr>
-                <td>${formatDateBR(p.data)}</td>
-                <td>${formatBR(p.peso)}</td>
-                <td class="${classePositivoNegativo(falta, true)}">${formatComSinal(falta)}</td>
-                <td class="actions-cell">
+                <td class="weight-col-date">${formatDateBR(p.data)}</td>
+                <td class="weight-col-value">${formatBR(p.peso)}</td>
+                <td class="weight-col-missing ${classePositivoNegativo(falta, true)}">${formatComSinal(falta)}</td>
+                <td class="weight-col-photo">${foto}</td>
+                <td class="weight-col-actions actions-cell">
                     <button class="btn btn-outline compact-action" title="Editar" onclick="editarPeso('${p.id}')">✎</button>
                     <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirPeso('${p.id}')">−</button>
                 </td>
@@ -2535,7 +2627,7 @@ function renderRemedios() {
     });
 
     if (!remedios.length) {
-        lista.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-secondary);">Nenhum remédio lançado ainda.</td></tr>';
+        lista.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-secondary);">Nenhum remédio lançado ainda.</td></tr>';
         return;
     }
 
@@ -2553,6 +2645,10 @@ function renderRemedios() {
                 <td class="medicine-col-dose" title="${formatBR(item.mg)} mg">${formatBR(item.mg)}</td>
                 <td class="medicine-col-weight" title="${formatBR(item.peso)} kg">${formatBR(item.peso)}</td>
                 <td class="medicine-col-photo">${foto}</td>
+                <td class="medicine-col-actions actions-cell">
+                    <button class="btn btn-outline compact-action" title="Editar" onclick="editarRemedio('${item.id}')">✎</button>
+                    <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirRemedio('${item.id}')">−</button>
+                </td>
             </tr>
         `;
     }).join('');
@@ -2566,7 +2662,7 @@ function adicionarNomeRemedioAoCatalogo(nome) {
     if (!jaExiste) appData.nomesRemedios.push(nomeLimpo);
 }
 
-async function enviarFotoRemedio(file, idRemedio) {
+async function prepararFotoRegistro(file, idRemedio) {
     if (!file) return null;
     if (!currentUser) throw new Error('Faça login antes de anexar uma foto.');
     if (!String(file.type || '').startsWith('image/')) throw new Error('Selecione um arquivo de imagem válido.');
@@ -2600,6 +2696,10 @@ async function enviarFotoRemedio(file, idRemedio) {
     };
 }
 
+async function enviarFotoRemedio(file, idRemedio) {
+    return prepararFotoRegistro(file, idRemedio);
+}
+
 function caminhoFotoFirestore(uid, fotoDocId) {
     return doc(db, 'users', uid, 'app', `photo_${fotoDocId}`);
 }
@@ -2627,7 +2727,7 @@ function chaveFotoLocal(uid, fotoDocId) {
 
 async function salvarFotoNoCacheLocal(uid, fotoDocId, blob, metadados = {}) {
     const banco = await abrirBancoFotos();
-    return new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
         const transacao = banco.transaction(FOTO_DB_STORE, 'readwrite');
         transacao.objectStore(FOTO_DB_STORE).put({
             chave: chaveFotoLocal(uid, fotoDocId),
@@ -2644,6 +2744,12 @@ async function salvarFotoNoCacheLocal(uid, fotoDocId, blob, metadados = {}) {
         transacao.onerror = () => reject(transacao.error || new Error('Não foi possível guardar a foto neste aparelho.'));
         transacao.onabort = () => reject(transacao.error || new Error('O armazenamento local da foto foi interrompido.'));
     });
+
+    const chave = chaveFotoLocal(uid, fotoDocId);
+    const urlAnterior = cacheUrlsFotos.get(chave);
+    if (urlAnterior) URL.revokeObjectURL(urlAnterior);
+    cacheUrlsFotos.delete(chave);
+    return true;
 }
 
 async function obterFotoDoCacheLocal(uid, fotoDocId) {
@@ -2849,7 +2955,10 @@ async function sincronizarFotosPendentes() {
     const uid = currentUser.uid;
     sincronizacaoFotosPromise = (async () => {
         let atualizouRegistro = false;
-        const pendentes = (appData.remedios || []).filter(item => item.fotoDocId && item.fotoStatus !== 'salva');
+        const pendentes = [
+            ...(appData.remedios || []),
+            ...(appData.pesos || [])
+        ].filter(item => item.fotoDocId && item.fotoStatus !== 'salva');
         for (const item of pendentes) {
             if (!currentUser || currentUser.uid !== uid) break;
             const fotoLocal = await obterFotoDoCacheLocal(uid, item.fotoDocId);
@@ -2900,16 +3009,82 @@ async function excluirFotosFirebase(registros) {
     await removerFotosDoCacheLocal(uid, idsFirestore);
 }
 
+function obterCamposFotoRegistro(item = {}) {
+    return {
+        fotoUrl: item.fotoUrl || '',
+        fotoPath: item.fotoPath || '',
+        fotoDocId: item.fotoDocId || '',
+        fotoArmazenamento: item.fotoArmazenamento || '',
+        fotoStatus: item.fotoStatus || '',
+        fotoNome: item.fotoNome || '',
+        fotoTamanhoOriginal: Number(item.fotoTamanhoOriginal) || 0,
+        fotoTamanhoComprimido: Number(item.fotoTamanhoComprimido) || 0,
+        fotoContentType: item.fotoContentType || '',
+        fotoLargura: Number(item.fotoLargura) || 0,
+        fotoAltura: Number(item.fotoAltura) || 0
+    };
+}
+
+async function excluirFotoAnteriorSubstituida(anterior, atual) {
+    if (!anterior || !currentUser) return;
+    const descartar = {
+        fotoDocId: anterior.fotoDocId && anterior.fotoDocId !== atual.fotoDocId ? anterior.fotoDocId : '',
+        fotoPath: anterior.fotoPath && anterior.fotoPath !== atual.fotoPath ? anterior.fotoPath : ''
+    };
+    if (descartar.fotoDocId || descartar.fotoPath) await excluirFotosFirebase([descartar]);
+}
+
 function limparFormularioRemedio() {
     const form = document.getElementById('form-remedio');
     if (form) form.reset();
     const data = document.getElementById('remedio-data');
     const peso = document.getElementById('remedio-peso');
     const fotoNome = document.getElementById('remedio-foto-nome');
+    const editId = document.getElementById('edit-remedio-id');
+    const botaoSalvar = document.getElementById('btn-salvar-remedio');
     if (data) data.value = hojeISO();
     const pesoAtual = numeroInformado(obterPesoAtual());
     if (peso) peso.value = pesoAtual !== null ? pesoAtual : '';
     if (fotoNome) fotoNome.innerText = 'Nenhuma foto selecionada.';
+    if (editId) editId.value = '';
+    if (botaoSalvar) botaoSalvar.innerText = 'Salvar Lançamento';
+}
+
+function editarRemedio(id) {
+    const item = (appData.remedios || []).find(registro => String(registro.id) === String(id));
+    if (!item) return;
+
+    const form = document.getElementById('form-remedio');
+    if (form) form.reset();
+    document.getElementById('edit-remedio-id').value = item.id;
+    document.getElementById('remedio-data').value = item.data || hojeISO();
+    document.getElementById('remedio-nome').value = item.nome || '';
+    document.getElementById('remedio-mg').value = Number.isFinite(Number(item.mg)) ? item.mg : '';
+    document.getElementById('remedio-peso').value = Number.isFinite(Number(item.peso)) ? item.peso : '';
+    const fotoNome = document.getElementById('remedio-foto-nome');
+    if (fotoNome) fotoNome.innerText = temFotoRemedio(item)
+        ? 'Foto atual mantida. Selecione outra somente para substituir.'
+        : 'Nenhuma foto selecionada.';
+    const botaoSalvar = document.getElementById('btn-salvar-remedio');
+    if (botaoSalvar) botaoSalvar.innerText = 'Salvar Alterações';
+    showView('remedio', document.querySelector('[data-view="remedio"]'));
+}
+
+async function excluirRemedio(id) {
+    const item = (appData.remedios || []).find(registro => String(registro.id) === String(id));
+    if (!item || !confirm('Excluir este lançamento de remédio?')) return;
+
+    try {
+        if (temFotoRemedio(item)) await excluirFotosFirebase([item]);
+    } catch (error) {
+        console.error(error);
+        return alert('Não foi possível excluir a foto deste lançamento. O registro foi mantido para evitar uma exclusão incompleta.');
+    }
+
+    appData.remedios = (appData.remedios || []).filter(registro => String(registro.id) !== String(id));
+    fecharCarrosselFotos();
+    limparFormularioRemedio();
+    salvarDados(true, true);
 }
 
 let fotosRemediosCarrossel = [];
@@ -2965,6 +3140,65 @@ async function renderCarrosselFotos() {
     } catch (error) {
         console.error(error);
         if (token === renderFotoCarrosselToken && stage) {
+            stage.innerHTML = `<div class="photo-carousel-loading">Não foi possível abrir a foto.<br><span style="font-size:12px; font-weight:600;">${escapeHtml(traduzirErroFirebase(error))}</span></div>`;
+        }
+    }
+}
+
+let fotosPesosCarrossel = [];
+let indiceFotoPeso = 0;
+let renderFotoPesoCarrosselToken = 0;
+
+function abrirCarrosselFotosPesos(idInicial = '') {
+    fotosPesosCarrossel = [...(appData.pesos || [])]
+        .filter(temFotoRemedio)
+        .sort((a, b) => {
+            const porData = String(a.data || '').localeCompare(String(b.data || ''));
+            return porData || String(a.id || '').localeCompare(String(b.id || ''));
+        });
+
+    if (!fotosPesosCarrossel.length) return alert('Nenhuma foto foi adicionada aos lançamentos de peso.');
+    indiceFotoPeso = idInicial
+        ? Math.max(0, fotosPesosCarrossel.findIndex(item => String(item.id) === String(idInicial)))
+        : 0;
+    document.getElementById('modal-fotos-pesos')?.classList.remove('hidden');
+    renderCarrosselFotosPesos();
+}
+
+function fecharCarrosselFotosPesos() {
+    renderFotoPesoCarrosselToken++;
+    document.getElementById('modal-fotos-pesos')?.classList.add('hidden');
+}
+
+function mudarFotoCarrosselPesos(direcao) {
+    if (!fotosPesosCarrossel.length) return;
+    indiceFotoPeso = (indiceFotoPeso + direcao + fotosPesosCarrossel.length) % fotosPesosCarrossel.length;
+    renderCarrosselFotosPesos();
+}
+
+async function renderCarrosselFotosPesos() {
+    const item = fotosPesosCarrossel[indiceFotoPeso];
+    if (!item) return;
+    const token = ++renderFotoPesoCarrosselToken;
+    const stage = document.getElementById('foto-peso-carousel-stage');
+    const info = document.getElementById('foto-peso-carousel-info');
+    const contador = document.getElementById('foto-peso-carousel-contador');
+    if (stage) stage.innerHTML = '<div class="photo-carousel-loading">Carregando foto...</div>';
+    if (info) info.innerHTML = `
+        <div class="label">${formatDateBR(item.data)}</div>
+        <div class="value" style="font-size:18px; margin-top:3px;">${formatBR(item.peso)} kg</div>
+        <div class="small" style="margin-top:4px; color:var(--text-secondary);">Meta: ${Number.isFinite(Number(item.meta)) ? formatBR(item.meta) + ' kg' : '--'}${item.fotoStatus === 'pendente' ? ' • sincronização da foto pendente' : ''}</div>
+        ${item.observacoes ? `<div class="small" style="margin-top:6px; color:var(--text-secondary);">${escapeHtml(item.observacoes)}</div>` : ''}
+    `;
+    if (contador) contador.innerText = `${indiceFotoPeso + 1} de ${fotosPesosCarrossel.length}`;
+
+    try {
+        const url = await obterUrlFotoRemedio(item);
+        if (token !== renderFotoPesoCarrosselToken || !stage) return;
+        stage.innerHTML = `<img src="${escapeHtml(url)}" alt="Foto do peso de ${formatBR(item.peso)} kg em ${formatDateBR(item.data)}">`;
+    } catch (error) {
+        console.error(error);
+        if (token === renderFotoPesoCarrosselToken && stage) {
             stage.innerHTML = `<div class="photo-carousel-loading">Não foi possível abrir a foto.<br><span style="font-size:12px; font-weight:600;">${escapeHtml(traduzirErroFirebase(error))}</span></div>`;
         }
     }
@@ -3156,6 +3390,7 @@ if (inputFotoRemedio) inputFotoRemedio.addEventListener('change', () => {
 const formRemedio = document.getElementById('form-remedio');
 if (formRemedio) formRemedio.onsubmit = async function(e) {
     e.preventDefault();
+    const editId = document.getElementById('edit-remedio-id')?.value || '';
     const data = document.getElementById('remedio-data')?.value || '';
     const nome = document.getElementById('remedio-nome')?.value.trim() || '';
     const mg = Number(document.getElementById('remedio-mg')?.value);
@@ -3173,21 +3408,30 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
     }
 
     try {
-        const id = globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-        const fotoPreparada = arquivoFoto ? await enviarFotoRemedio(arquivoFoto, id) : null;
+        const indiceExistente = editId
+            ? (appData.remedios || []).findIndex(item => String(item.id) === String(editId))
+            : -1;
+        const registroAnterior = indiceExistente > -1 ? appData.remedios[indiceExistente] : null;
+        if (editId && !registroAnterior) throw new Error('O lançamento que seria editado não foi encontrado.');
+
+        const id = registroAnterior?.id || globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+        const fotoDocId = registroAnterior?.fotoDocId || id;
+        const fotoPreparada = arquivoFoto ? await enviarFotoRemedio(arquivoFoto, fotoDocId) : null;
         if (fotoPreparada && currentUser?.uid !== fotoPreparada.uid) throw new Error('A sessão mudou durante o processamento da foto. Entre novamente e repita o lançamento.');
         if (botaoSalvar) botaoSalvar.innerText = 'Salvando lançamento...';
 
         const registro = {
+            ...(registroAnterior || {}),
             id,
             data,
             nome,
             mg,
             peso,
-            ...(fotoPreparada?.dadosFoto || { fotoUrl: '', fotoPath: '', fotoDocId: '', fotoNome: '' })
+            ...(fotoPreparada?.dadosFoto || obterCamposFotoRegistro(registroAnterior || {}))
         };
         appData.remedios = Array.isArray(appData.remedios) ? appData.remedios : [];
-        appData.remedios.push(registro);
+        if (indiceExistente > -1) appData.remedios[indiceExistente] = registro;
+        else appData.remedios.push(registro);
         adicionarNomeRemedioAoCatalogo(nome);
         salvarDados(true, true);
         limparFormularioRemedio();
@@ -3195,9 +3439,14 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
         if (fotoPreparada) {
             if (botaoSalvar) botaoSalvar.innerText = 'Salvando foto...';
             try {
-                await salvarFotoComprimidaNoFirestore(fotoPreparada.uid, id, fotoPreparada.fotoComprimida, arquivoFoto.name || 'foto');
+                await salvarFotoComprimidaNoFirestore(fotoPreparada.uid, fotoDocId, fotoPreparada.fotoComprimida, arquivoFoto.name || 'foto');
                 registro.fotoStatus = 'salva';
                 salvarDados(true, true);
+                try {
+                    await excluirFotoAnteriorSubstituida(registroAnterior, registro);
+                } catch (cleanupError) {
+                    console.warn('A foto anterior não pôde ser removida, mas a nova foto foi salva:', cleanupError);
+                }
             } catch (fotoError) {
                 console.error(fotoError);
                 registro.fotoStatus = 'pendente';
@@ -3217,68 +3466,156 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
 };
 
 // Peso Form
-function abrirLancamentoPeso() {
+const inputFotoPeso = document.getElementById('peso-foto');
+if (inputFotoPeso) inputFotoPeso.addEventListener('change', () => {
+    const nome = inputFotoPeso.files?.[0]?.name || '';
+    const fotoNome = document.getElementById('peso-foto-nome');
+    if (fotoNome) fotoNome.innerText = nome ? `Foto selecionada: ${nome}` : 'Nenhuma foto selecionada.';
+});
+
+function redefinirFormularioPeso({ focar = false } = {}) {
+    const form = document.getElementById('form-peso');
+    if (form) form.reset();
     document.getElementById('edit-peso-id').value = '';
-    document.getElementById('form-peso').reset();
     document.getElementById('peso-data').value = hojeISO();
     document.getElementById('peso-meta').value = Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '';
+    const fotoNome = document.getElementById('peso-foto-nome');
+    if (fotoNome) fotoNome.innerText = 'Nenhuma foto selecionada.';
+    const botaoSalvar = document.getElementById('btn-salvar-peso');
+    if (botaoSalvar) {
+        botaoSalvar.disabled = false;
+        botaoSalvar.innerText = 'Salvar';
+    }
+    if (focar) document.getElementById('peso-valor')?.focus();
+}
+
+function abrirLancamentoPeso() {
+    redefinirFormularioPeso();
     showView('peso', document.querySelector('[data-view="historico"]'));
 }
 
 function fecharLancamentoPeso() {
-    document.getElementById('form-peso').reset();
-    document.getElementById('edit-peso-id').value = '';
+    redefinirFormularioPeso();
     showView('historico', document.querySelector('[data-view="historico"]'));
 }
 
 function limparFormularioPeso() {
-    document.getElementById('form-peso').reset();
-    document.getElementById('edit-peso-id').value = '';
-    document.getElementById('peso-data').value = hojeISO();
-    document.getElementById('peso-meta').value = Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '';
-    document.getElementById('peso-valor').focus();
+    redefinirFormularioPeso({ focar: true });
 }
 
-document.getElementById('form-peso').onsubmit = function(e) {
+document.getElementById('form-peso').onsubmit = async function(e) {
     e.preventDefault();
-    const id = document.getElementById('edit-peso-id').value || Date.now().toString();
+    const editId = document.getElementById('edit-peso-id').value || '';
     const data = document.getElementById('peso-data').value;
-    const peso = parseFloat(document.getElementById('peso-valor').value);
+    const peso = Number(document.getElementById('peso-valor').value);
     const meta = numeroOuVazio(document.getElementById('peso-meta').value);
-    const obs = document.getElementById('peso-obs').value;
+    const observacoes = document.getElementById('peso-obs').value;
+    const arquivoFoto = inputFotoPeso?.files?.[0] || null;
 
-    const index = appData.pesos.findIndex(p => p.id === id || p.data === data);
-    if(index > -1 && !document.getElementById('edit-peso-id').value) {
-        if(!confirm("Já existe um peso para esta data. Deseja substituir?")) return;
-        appData.pesos[index] = { id: appData.pesos[index].id, data, peso, meta, observacoes: obs };
-    } else if (index > -1) {
-        appData.pesos[index] = { id, data, peso, meta, observacoes: obs };
-    } else {
-        appData.pesos.push({ id, data, peso, meta, observacoes: obs });
+    if (!data || !Number.isFinite(peso) || peso <= 0 || meta === '' || !Number.isFinite(meta)) {
+        return alert('Preencha a data, o peso e a meta com valores válidos.');
     }
 
-    this.reset();
-    document.getElementById('peso-data').value = hojeISO();
-    document.getElementById('peso-meta').value = Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '';
-    document.getElementById('edit-peso-id').value = "";
-    salvarDados(true, true);
-    showView('historico', document.querySelector('[data-view="historico"]'));
+    appData.pesos = Array.isArray(appData.pesos) ? appData.pesos : [];
+    let indiceExistente = editId
+        ? appData.pesos.findIndex(item => String(item.id) === String(editId))
+        : appData.pesos.findIndex(item => item.data === data);
+
+    if (!editId && indiceExistente > -1 && !confirm('Já existe um peso para esta data. Deseja substituir?')) return;
+    if (editId && indiceExistente < 0) return alert('O lançamento que seria editado não foi encontrado.');
+
+    const registroAnterior = indiceExistente > -1 ? appData.pesos[indiceExistente] : null;
+    const id = registroAnterior?.id || globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    const fotoDocId = registroAnterior?.fotoDocId || `peso_${id}`;
+    const botaoSalvar = document.getElementById('btn-salvar-peso');
+
+    if (botaoSalvar) {
+        botaoSalvar.disabled = true;
+        botaoSalvar.innerText = arquivoFoto ? 'Comprimindo foto...' : 'Salvando...';
+    }
+
+    try {
+        const fotoPreparada = arquivoFoto ? await prepararFotoRegistro(arquivoFoto, fotoDocId) : null;
+        if (fotoPreparada && currentUser?.uid !== fotoPreparada.uid) throw new Error('A sessão mudou durante o processamento da foto. Entre novamente e repita o lançamento.');
+
+        const registro = {
+            ...(registroAnterior || {}),
+            id,
+            data,
+            peso,
+            meta,
+            observacoes,
+            ...(fotoPreparada?.dadosFoto || obterCamposFotoRegistro(registroAnterior || {}))
+        };
+
+        if (indiceExistente > -1) appData.pesos[indiceExistente] = registro;
+        else appData.pesos.push(registro);
+
+        salvarDados(true, true);
+        redefinirFormularioPeso();
+        showView('historico', document.querySelector('[data-view="historico"]'));
+
+        if (fotoPreparada) {
+            if (botaoSalvar) botaoSalvar.innerText = 'Salvando foto...';
+            try {
+                await salvarFotoComprimidaNoFirestore(fotoPreparada.uid, fotoDocId, fotoPreparada.fotoComprimida, arquivoFoto.name || 'foto');
+                registro.fotoStatus = 'salva';
+                salvarDados(true, true);
+                try {
+                    await excluirFotoAnteriorSubstituida(registroAnterior, registro);
+                } catch (cleanupError) {
+                    console.warn('A foto anterior não pôde ser removida, mas a nova foto foi salva:', cleanupError);
+                }
+            } catch (fotoError) {
+                console.error(fotoError);
+                registro.fotoStatus = 'pendente';
+                salvarDados(false, false, false);
+                alert('O peso foi salvo. A foto comprimida ficou guardada neste aparelho e será reenviada automaticamente quando o Firebase responder.\n\nDetalhe: ' + traduzirErroFirebase(fotoError));
+            }
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Não foi possível salvar o peso: ' + traduzirErroFirebase(error));
+    } finally {
+        if (botaoSalvar) {
+            botaoSalvar.disabled = false;
+            botaoSalvar.innerText = 'Salvar';
+        }
+    }
 };
 
 function editarPeso(id) {
-    const p = appData.pesos.find(x => x.id === id);
-    if(!p) return;
-    document.getElementById('edit-peso-id').value = p.id;
-    document.getElementById('peso-data').value = p.data;
-    document.getElementById('peso-valor').value = p.peso;
-    document.getElementById('peso-meta').value = Number.isFinite(Number(p.meta)) ? p.meta : (Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '');
-    document.getElementById('peso-obs').value = p.observacoes || '';
+    const item = appData.pesos.find(registro => String(registro.id) === String(id));
+    if(!item) return;
+    document.getElementById('form-peso').reset();
+    document.getElementById('edit-peso-id').value = item.id;
+    document.getElementById('peso-data').value = item.data;
+    document.getElementById('peso-valor').value = item.peso;
+    document.getElementById('peso-meta').value = Number.isFinite(Number(item.meta)) ? item.meta : (Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '');
+    document.getElementById('peso-obs').value = item.observacoes || '';
+    const fotoNome = document.getElementById('peso-foto-nome');
+    if (fotoNome) fotoNome.innerText = temFotoRemedio(item)
+        ? 'Foto atual mantida. Selecione outra somente para substituir.'
+        : 'Nenhuma foto selecionada.';
+    const botaoSalvar = document.getElementById('btn-salvar-peso');
+    if (botaoSalvar) botaoSalvar.innerText = 'Salvar Alterações';
     showView('peso', document.querySelector('[data-view="historico"]'));
 }
 
-function excluirPeso(id) {
-    if(!confirm("Excluir este registro?")) return;
-    appData.pesos = appData.pesos.filter(x => x.id !== id);
+async function excluirPeso(id) {
+    const item = appData.pesos.find(registro => String(registro.id) === String(id));
+    if (!item || !confirm('Excluir este registro de peso?')) return;
+
+    try {
+        if (temFotoRemedio(item)) await excluirFotosFirebase([item]);
+    } catch (error) {
+        console.error(error);
+        return alert('Não foi possível excluir a foto deste lançamento. O registro foi mantido para evitar uma exclusão incompleta.');
+    }
+
+    appData.pesos = appData.pesos.filter(registro => String(registro.id) !== String(id));
+    fecharCarrosselFotosPesos();
+    redefinirFormularioPeso();
     salvarDados(true, true);
 }
 
@@ -3964,8 +4301,9 @@ async function limparRegistrosAteData() {
     if(!confirm(`Excluir pesos, medidas, remédios, fotos e metas personalizadas de ${formatDateBR(data)} e datas anteriores?`)) return;
 
     const remediosRemovidos = (appData.remedios || []).filter(item => item.data && item.data <= data);
+    const pesosRemovidos = (appData.pesos || []).filter(item => item.data && item.data <= data);
     try {
-        await excluirFotosFirebase(remediosRemovidos);
+        await excluirFotosFirebase([...remediosRemovidos, ...pesosRemovidos]);
     } catch (error) {
         console.error(error);
         return alert('Não foi possível excluir todas as fotos. Nenhum registro foi removido. Tente novamente conectado à internet.');
@@ -3984,7 +4322,10 @@ async function limparTudo() {
     clearTimeout(salvamentoNuvemTimer);
     clearTimeout(autosaveAjustesTimer);
     clearTimeout(autosavePerfilTimer);
-    const registrosComFotos = (appData.remedios || []).filter(temFotoRemedio);
+    const registrosComFotos = [
+        ...(appData.remedios || []),
+        ...(appData.pesos || [])
+    ].filter(temFotoRemedio);
 
     try {
         await excluirFotosFirebase(registrosComFotos);
@@ -4001,6 +4342,7 @@ async function limparTudo() {
     salvarDadosLocalmente();
     preencherCamposConfig();
     limparFormularioRemedio();
+    redefinirFormularioPeso();
     updateUI();
 
     const apagouNaNuvem = currentUser ? await salvarDadosNaNuvem(false, appData) : true;
@@ -4048,6 +4390,8 @@ window.editarPeso = editarPeso;
 window.abrirLancamentoPeso = abrirLancamentoPeso;
 window.fecharLancamentoPeso = fecharLancamentoPeso;
 window.excluirPeso = excluirPeso;
+window.editarRemedio = editarRemedio;
+window.excluirRemedio = excluirRemedio;
 window.abrirModalMedida = abrirModalMedida;
 window.fecharModalMedida = fecharModalMedida;
 window.editarMedida = editarMedida;
@@ -4056,6 +4400,9 @@ window.limparFormularioRemedio = limparFormularioRemedio;
 window.abrirCarrosselFotos = abrirCarrosselFotos;
 window.fecharCarrosselFotos = fecharCarrosselFotos;
 window.mudarFotoCarrossel = mudarFotoCarrossel;
+window.abrirCarrosselFotosPesos = abrirCarrosselFotosPesos;
+window.fecharCarrosselFotosPesos = fecharCarrosselFotosPesos;
+window.mudarFotoCarrosselPesos = mudarFotoCarrosselPesos;
 window.simularMeta = simularMeta;
 window.limparSimulacaoMeta = limparSimulacaoMeta;
 window.limparFormularioPeso = limparFormularioPeso;
@@ -4087,15 +4434,38 @@ window.limparTudo = limparTudo;
 /**
  * PWA SETUP
  */
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js')
-            .then(registration => registration.update())
-            .catch(error => console.error('Falha ao registrar o service worker:', error));
-    });
+let deferredInstallPrompt = window.__projetoLeveInstallPrompt || null;
+let registroServiceWorkerPWA = null;
+let preparandoInstalacaoPWA = false;
+let intervaloInstalacaoPWA = null;
+const PWA_TEMPO_ENGAJAMENTO_MS = 30000;
+const PWA_CHAVE_PREPARACAO = 'projetoLevePwaPreparacaoEm';
+const PWA_CHAVE_RECARREGOU = 'projetoLevePwaRecarregou';
+const PWA_INICIO_PAGINA = Date.now();
+
+async function registrarServiceWorkerPWA() {
+    if (!('serviceWorker' in navigator)) return null;
+    if (registroServiceWorkerPWA) return registroServiceWorkerPWA;
+
+    const registro = await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
+    registroServiceWorkerPWA = registro;
+    registro.update().catch(error => console.warn('Não foi possível verificar a atualização do PWA:', error));
+    await executarComTempoLimite(
+        navigator.serviceWorker.ready,
+        10000,
+        'O componente de instalação demorou além do esperado para ficar pronto.'
+    );
+    return registro;
 }
 
-let deferredInstallPrompt = window.__projetoLeveInstallPrompt || null;
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        registrarServiceWorkerPWA().catch(error => {
+            console.error('Falha ao registrar o service worker:', error);
+            atualizarEstadoInstalacao();
+        });
+    });
+}
 
 function appEstaInstalado() {
     return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
@@ -4109,8 +4479,10 @@ function atualizarEstadoInstalacao() {
 
     if (btnCabecalho) btnCabecalho.classList.toggle('hidden', instalado || !deferredInstallPrompt);
     if (btnAjustes) {
-        btnAjustes.disabled = instalado;
-        btnAjustes.innerText = instalado ? 'Aplicativo já instalado' : 'Instalar Projeto Leve';
+        btnAjustes.disabled = instalado || preparandoInstalacaoPWA;
+        btnAjustes.innerText = instalado
+            ? 'Aplicativo já instalado'
+            : (deferredInstallPrompt ? 'Instalar Projeto Leve' : (preparandoInstalacaoPWA ? 'Preparando instalação...' : 'Preparar instalação'));
     }
 
     if (!status) return;
@@ -4120,8 +4492,136 @@ function atualizarEstadoInstalacao() {
         status.innerText = 'Tudo pronto. Toque no botão abaixo para confirmar a instalação pelo Chrome.';
     } else if (!window.isSecureContext || location.protocol === 'file:') {
         status.innerText = 'A instalação fica disponível quando o app é aberto pelo Chrome em um endereço HTTPS. Um arquivo index.html aberto diretamente não pode ser instalado como PWA.';
+    } else if (!('serviceWorker' in navigator)) {
+        status.innerText = 'Este navegador não oferece suporte à instalação deste aplicativo. Abra o endereço pelo Chrome atualizado.';
+    } else if (preparandoInstalacaoPWA) {
+        status.innerText = 'Preparando o aplicativo para o Chrome. Permaneça nesta tela por alguns segundos.';
     } else {
-        status.innerText = 'O Chrome ainda está verificando os requisitos de instalação. Se o botão não abrir a confirmação, recarregue a página e tente novamente.';
+        status.innerText = 'Toque em “Preparar instalação”. O Chrome pode exigir interação e algum tempo nesta página antes de liberar a confirmação.';
+    }
+}
+
+function limparEsperaInstalacaoPWA() {
+    if (intervaloInstalacaoPWA) clearInterval(intervaloInstalacaoPWA);
+    intervaloInstalacaoPWA = null;
+}
+
+function lerSessaoPWA(chave) {
+    try {
+        return sessionStorage.getItem(chave);
+    } catch (error) {
+        return null;
+    }
+}
+
+function gravarSessaoPWA(chave, valor) {
+    try {
+        sessionStorage.setItem(chave, valor);
+    } catch (error) {
+        console.warn('O navegador não permitiu guardar o estado temporário da instalação:', error);
+    }
+}
+
+function removerSessaoPWA(chave) {
+    try {
+        sessionStorage.removeItem(chave);
+    } catch (error) {
+        // A instalação continua funcionando mesmo sem sessionStorage.
+    }
+}
+
+async function aguardarControleServiceWorker(tempoMs = 1800) {
+    if (navigator.serviceWorker?.controller) return true;
+    return new Promise(resolve => {
+        let finalizado = false;
+        const concluir = valor => {
+            if (finalizado) return;
+            finalizado = true;
+            clearTimeout(timer);
+            navigator.serviceWorker?.removeEventListener('controllerchange', aoControlar);
+            resolve(valor);
+        };
+        const aoControlar = () => concluir(!!navigator.serviceWorker.controller);
+        const timer = setTimeout(() => concluir(!!navigator.serviceWorker?.controller), tempoMs);
+        navigator.serviceWorker?.addEventListener('controllerchange', aoControlar);
+    });
+}
+
+async function garantirControleServiceWorker() {
+    await registrarServiceWorkerPWA();
+    const controlado = await aguardarControleServiceWorker();
+    if (controlado) {
+        removerSessaoPWA(PWA_CHAVE_RECARREGOU);
+        return true;
+    }
+
+    if (lerSessaoPWA(PWA_CHAVE_RECARREGOU) !== '1') {
+        gravarSessaoPWA(PWA_CHAVE_RECARREGOU, '1');
+        const status = document.getElementById('pwa-install-status');
+        if (status) status.innerText = 'Ativando o modo aplicativo. A página será recarregada uma vez para concluir a preparação.';
+        setTimeout(() => location.reload(), 350);
+        return 'recarregando';
+    }
+    return 'sem-controle';
+}
+
+async function iniciarPreparoInstalacaoPWA({ retomar = false } = {}) {
+    if (preparandoInstalacaoPWA || appEstaInstalado() || deferredInstallPrompt) return;
+    preparandoInstalacaoPWA = true;
+    atualizarEstadoInstalacao();
+
+    try {
+        const inicioRegistrado = Number(lerSessaoPWA(PWA_CHAVE_PREPARACAO));
+        const inicio = Number.isFinite(inicioRegistrado) && inicioRegistrado > 0 ? inicioRegistrado : PWA_INICIO_PAGINA;
+        if (!retomar || !inicioRegistrado) gravarSessaoPWA(PWA_CHAVE_PREPARACAO, String(inicio));
+
+        const estadoControle = await garantirControleServiceWorker();
+        if (estadoControle === 'recarregando') return;
+
+        const status = document.getElementById('pwa-install-status');
+        const botao = document.getElementById('btn-install-app-settings');
+        const atualizarContagem = () => {
+            if (deferredInstallPrompt || appEstaInstalado()) {
+                preparandoInstalacaoPWA = false;
+                limparEsperaInstalacaoPWA();
+                atualizarEstadoInstalacao();
+                return;
+            }
+
+            const faltam = Math.max(0, Math.ceil((PWA_TEMPO_ENGAJAMENTO_MS - (Date.now() - inicio)) / 1000));
+            if (faltam > 0) {
+                if (status) status.innerText = `O Chrome está verificando o aplicativo. Permaneça nesta tela por até ${faltam} segundo${faltam === 1 ? '' : 's'}.`;
+                if (botao) {
+                    botao.disabled = true;
+                    botao.innerText = `Preparando... ${faltam}s`;
+                }
+                return;
+            }
+
+            preparandoInstalacaoPWA = false;
+            limparEsperaInstalacaoPWA();
+            removerSessaoPWA(PWA_CHAVE_PREPARACAO);
+            removerSessaoPWA(PWA_CHAVE_RECARREGOU);
+            if (botao) {
+                botao.disabled = false;
+                botao.innerText = 'Tentar instalar novamente';
+            }
+            if (status) status.innerText = 'O PWA está preparado. Se a confirmação não apareceu, toque novamente ou abra o menu ⋮ do Chrome e escolha “Instalar app” ou “Adicionar à tela inicial”.';
+        };
+
+        atualizarContagem();
+        if (preparandoInstalacaoPWA) intervaloInstalacaoPWA = setInterval(atualizarContagem, 1000);
+    } catch (error) {
+        console.error('Não foi possível preparar a instalação:', error);
+        preparandoInstalacaoPWA = false;
+        limparEsperaInstalacaoPWA();
+        const botao = document.getElementById('btn-install-app-settings');
+        const status = document.getElementById('pwa-install-status');
+        if (botao) {
+            botao.disabled = false;
+            botao.innerText = 'Tentar novamente';
+        }
+        if (status) status.innerText = 'Não foi possível ativar o instalador agora. Verifique a conexão, recarregue a página e tente novamente.';
     }
 }
 
@@ -4147,13 +4647,17 @@ async function solicitarInstalacaoPWA() {
 
     const usaIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
     if (usaIOS) return alert('No Safari, toque em Compartilhar e depois em “Adicionar à Tela de Início”.');
-    alert('O Chrome ainda não liberou a confirmação de instalação. Recarregue a página, aguarde alguns segundos e toque novamente. Também é possível usar o menu ⋮ do Chrome e escolher “Instalar app”.');
+    await iniciarPreparoInstalacaoPWA();
 }
 
 window.addEventListener('beforeinstallprompt', (event) => {
     event.preventDefault();
     deferredInstallPrompt = event;
     window.__projetoLeveInstallPrompt = event;
+    preparandoInstalacaoPWA = false;
+    limparEsperaInstalacaoPWA();
+    removerSessaoPWA(PWA_CHAVE_PREPARACAO);
+    removerSessaoPWA(PWA_CHAVE_RECARREGOU);
     atualizarEstadoInstalacao();
 });
 
@@ -4163,6 +4667,10 @@ document.getElementById('btn-install-app-settings')?.addEventListener('click', s
 window.addEventListener('appinstalled', () => {
     deferredInstallPrompt = null;
     window.__projetoLeveInstallPrompt = null;
+    preparandoInstalacaoPWA = false;
+    limparEsperaInstalacaoPWA();
+    removerSessaoPWA(PWA_CHAVE_PREPARACAO);
+    removerSessaoPWA(PWA_CHAVE_RECARREGOU);
     atualizarEstadoInstalacao();
 });
 
@@ -4173,6 +4681,9 @@ window.addEventListener('online', async () => {
     sincronizarFotosPendentes();
 });
 atualizarEstadoInstalacao();
+if (lerSessaoPWA(PWA_CHAVE_PREPARACAO) && lerSessaoPWA(PWA_CHAVE_RECARREGOU) === '1' && !appEstaInstalado() && !deferredInstallPrompt) {
+    setTimeout(() => iniciarPreparoInstalacaoPWA({ retomar: true }), 600);
+}
 
 </script>
 
