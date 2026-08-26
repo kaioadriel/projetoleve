@@ -1049,6 +1049,60 @@
                 <div class="label">IMC</div>
                 <div id="imc-dashboard-content" class="small" style="margin-top: 8px; color: var(--text-secondary)">Preencha altura, idade e gênero no perfil para calcular.</div>
             </div>
+            <div class="card">
+                <h3>Backup e Relatórios</h3>
+                <p class="small" style="margin-bottom: 8px; color: var(--text-secondary)">Exporte seus dados, restaure backups ou gere relatórios para guardar fora do app.</p>
+                <div class="backup-button-grid">
+                    <button class="btn btn-outline backup-action-btn" onclick="exportarBackup()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Backup
+                    </button>
+                    <label class="btn btn-outline backup-action-btn" style="margin-bottom:0">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Restaurar
+                        <input type="file" id="input-import" class="hidden" accept=".json" onchange="importarBackup(event)">
+                    </label>
+                    <button class="btn btn-outline backup-action-btn" onclick="gerarRelatorioPDF()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                        Gerar PDF
+                    </button>
+                    <button class="btn btn-outline backup-action-btn" onclick="gerarRelatorioCSV()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"></path><path d="M4 9h16"></path><path d="M9 4v16"></path></svg>
+                        Gerar CSV
+                    </button>
+                </div>
+                <div id="backup-info" class="small text-center" style="margin-top: 15px; color: var(--text-secondary)"></div>
+
+                <div class="automatic-backup-panel" aria-label="Backup automático">
+                    <div class="automatic-backup-block">
+                        <div class="automatic-backup-heading">
+                            <span>Cópia interna automática</span>
+                            <span id="backup-interno-dot" class="automatic-backup-dot" aria-hidden="true"></span>
+                        </div>
+                        <div id="backup-interno-status" class="automatic-backup-status">Preparando proteção local...</div>
+                        <p class="automatic-backup-help">Uma cópia separada dos dados é atualizada automaticamente neste aparelho e não pede nova autorização ao reabrir o app.</p>
+                        <button type="button" class="btn btn-outline" style="margin-top:12px" onclick="restaurarCopiaInterna()">Restaurar cópia interna</button>
+                    </div>
+
+                    <div class="automatic-backup-block">
+                        <div class="automatic-backup-heading">
+                            <span>Backup automático em pasta</span>
+                            <span id="backup-pasta-dot" class="automatic-backup-dot warning" aria-hidden="true"></span>
+                        </div>
+                        <div id="backup-pasta-status" class="automatic-backup-status">Nenhuma pasta selecionada.</div>
+                        <div class="automatic-backup-folder">
+                            <div class="label">Pasta selecionada</div>
+                            <div id="backup-pasta-nome" class="automatic-backup-folder-name">Nenhuma</div>
+                        </div>
+                        <div class="automatic-backup-actions">
+                            <button type="button" id="btn-selecionar-pasta-backup" class="btn btn-outline" onclick="selecionarPastaBackup()">Selecionar pasta</button>
+                            <button type="button" id="btn-salvar-pasta-agora" class="btn btn-outline" onclick="salvarBackupNaPastaAgora()">Salvar agora</button>
+                        </div>
+                        <button type="button" id="btn-desativar-pasta-backup" class="automatic-backup-disable hidden" onclick="desativarPastaBackup()">Desativar pasta selecionada</button>
+                        <p id="backup-pasta-ajuda" class="automatic-backup-help">O arquivo “backup-projeto-leve-automatico.json” será atualizado após cada alteração. As fotos originais também serão copiadas para a subpasta “fotos-projeto-leve”. A autorização depende das regras do navegador.</p>
+                    </div>
+                </div>
+            </div>
             <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
@@ -1370,60 +1424,6 @@
                     <div id="perfil-google-info" class="profile-account-row"></div>
                     <div class="label" style="margin-top: 10px;">Armazenamento</div>
                     <div id="sync-status">Os dados e as fotos ficam somente neste aparelho.</div>
-                </div>
-            </div>
-            <div class="card">
-                <h3>Backup e Relatórios</h3>
-                <p class="small" style="margin-bottom: 8px; color: var(--text-secondary)">Exporte seus dados, restaure backups ou gere relatórios para guardar fora do app.</p>
-                <div class="backup-button-grid">
-                    <button class="btn btn-outline backup-action-btn" onclick="exportarBackup()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Backup
-                    </button>
-                    <label class="btn btn-outline backup-action-btn" style="margin-bottom:0">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                        Restaurar
-                        <input type="file" id="input-import" class="hidden" accept=".json" onchange="importarBackup(event)">
-                    </label>
-                    <button class="btn btn-outline backup-action-btn" onclick="gerarRelatorioPDF()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                        Gerar PDF
-                    </button>
-                    <button class="btn btn-outline backup-action-btn" onclick="gerarRelatorioCSV()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"></path><path d="M4 9h16"></path><path d="M9 4v16"></path></svg>
-                        Gerar CSV
-                    </button>
-                </div>
-                <div id="backup-info" class="small text-center" style="margin-top: 15px; color: var(--text-secondary)"></div>
-
-                <div class="automatic-backup-panel" aria-label="Backup automático">
-                    <div class="automatic-backup-block">
-                        <div class="automatic-backup-heading">
-                            <span>Cópia interna automática</span>
-                            <span id="backup-interno-dot" class="automatic-backup-dot" aria-hidden="true"></span>
-                        </div>
-                        <div id="backup-interno-status" class="automatic-backup-status">Preparando proteção local...</div>
-                        <p class="automatic-backup-help">Uma cópia separada dos dados é atualizada automaticamente neste aparelho e não pede nova autorização ao reabrir o app.</p>
-                        <button type="button" class="btn btn-outline" style="margin-top:12px" onclick="restaurarCopiaInterna()">Restaurar cópia interna</button>
-                    </div>
-
-                    <div class="automatic-backup-block">
-                        <div class="automatic-backup-heading">
-                            <span>Backup automático em pasta</span>
-                            <span id="backup-pasta-dot" class="automatic-backup-dot warning" aria-hidden="true"></span>
-                        </div>
-                        <div id="backup-pasta-status" class="automatic-backup-status">Nenhuma pasta selecionada.</div>
-                        <div class="automatic-backup-folder">
-                            <div class="label">Pasta selecionada</div>
-                            <div id="backup-pasta-nome" class="automatic-backup-folder-name">Nenhuma</div>
-                        </div>
-                        <div class="automatic-backup-actions">
-                            <button type="button" id="btn-selecionar-pasta-backup" class="btn btn-outline" onclick="selecionarPastaBackup()">Selecionar pasta</button>
-                            <button type="button" id="btn-salvar-pasta-agora" class="btn btn-outline" onclick="salvarBackupNaPastaAgora()">Salvar agora</button>
-                        </div>
-                        <button type="button" id="btn-desativar-pasta-backup" class="automatic-backup-disable hidden" onclick="desativarPastaBackup()">Desativar pasta selecionada</button>
-                        <p id="backup-pasta-ajuda" class="automatic-backup-help">O arquivo “backup-projeto-leve-automatico.json” será atualizado após cada alteração. As fotos originais também serão copiadas para a subpasta “fotos-projeto-leve”. A autorização depende das regras do navegador.</p>
-                    </div>
                 </div>
             </div>
             <div class="card">
@@ -3975,16 +3975,20 @@ function limparFiltroMetas() {
 
 
 // Backup
-function baixarArquivo(nome, conteudo, tipo = 'text/plain;charset=utf-8') {
-    const blob = new Blob([conteudo], { type: tipo });
+function baixarBlob(nome, blob) {
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = nome;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = nome;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+
+function baixarArquivo(nome, conteudo, tipo = 'text/plain;charset=utf-8') {
+    baixarBlob(nome, new Blob([conteudo], { type: tipo }));
 }
 
 function formatarDataHoraBackup(valor) {
@@ -4357,7 +4361,7 @@ function gerarRelatorioCSV() {
         ].map(campoCSV).join(';'));
     });
 
-    baixarArquivo('relatorio_projeto_leve_' + hojeISO() + '.csv', linhas.join('\n'), 'text/csv;charset=utf-8');
+    baixarArquivo('relatorio_projeto_leve_' + hojeISO() + '.csv', '\uFEFF' + linhas.join('\n'), 'text/csv;charset=utf-8');
 }
 
 function campoCSV(valor) {
@@ -4369,70 +4373,221 @@ function formatValorComUnidade(valor, unidade) {
     return Number.isFinite(Number(valor)) ? `${formatBR(valor)} ${unidade}` : '--';
 }
 
+function codificarPdfWinAnsi(texto) {
+    const especiais = {
+        0x20AC: 128, 0x201A: 130, 0x0192: 131, 0x201E: 132, 0x2026: 133,
+        0x2020: 134, 0x2021: 135, 0x02C6: 136, 0x2030: 137, 0x0160: 138,
+        0x2039: 139, 0x0152: 140, 0x017D: 142, 0x2018: 145, 0x2019: 146,
+        0x201C: 147, 0x201D: 148, 0x2022: 149, 0x2013: 150, 0x2014: 151,
+        0x02DC: 152, 0x2122: 153, 0x0161: 154, 0x203A: 155, 0x0153: 156,
+        0x017E: 158, 0x0178: 159
+    };
+    const bytes = [];
+    for (const caractere of String(texto ?? '')) {
+        const codigo = caractere.codePointAt(0);
+        bytes.push(codigo <= 255 ? codigo : (especiais[codigo] ?? 63));
+    }
+    return new Uint8Array(bytes);
+}
+
+function juntarBytesPdf(partes) {
+    const arrays = partes.map(parte => typeof parte === 'string' ? codificarPdfWinAnsi(parte) : parte);
+    const total = arrays.reduce((soma, parte) => soma + parte.length, 0);
+    const resultado = new Uint8Array(total);
+    let posicao = 0;
+    arrays.forEach(parte => {
+        resultado.set(parte, posicao);
+        posicao += parte.length;
+    });
+    return resultado;
+}
+
+function escaparTextoPdf(texto) {
+    return String(texto ?? '')
+        .replace(/[\r\n\t]+/g, ' ')
+        .replace(/\\/g, '\\\\')
+        .replace(/\(/g, '\\(')
+        .replace(/\)/g, '\\)');
+}
+
+function formatarNumeroPdf(valor) {
+    return Number(Number(valor).toFixed(2)).toString();
+}
+
+function truncarTextoPdf(texto, largura, tamanho) {
+    const valor = String(texto ?? '');
+    const maximo = Math.max(1, Math.floor(largura / Math.max(1, tamanho * 0.52)));
+    if (valor.length <= maximo) return valor;
+    if (maximo <= 3) return valor.slice(0, maximo);
+    return valor.slice(0, maximo - 3) + '...';
+}
+
+function criarArquivoPdf(conteudosPaginas) {
+    const objetos = [];
+    const idsPaginas = conteudosPaginas.map((_, indice) => 5 + (indice * 2));
+    objetos[1] = codificarPdfWinAnsi('<< /Type /Catalog /Pages 2 0 R >>');
+    objetos[2] = codificarPdfWinAnsi('<< /Type /Pages /Count ' + idsPaginas.length + ' /Kids [' + idsPaginas.map(id => id + ' 0 R').join(' ') + '] >>');
+    objetos[3] = codificarPdfWinAnsi('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+    objetos[4] = codificarPdfWinAnsi('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+
+    conteudosPaginas.forEach((conteudo, indice) => {
+        const paginaId = 5 + (indice * 2);
+        const conteudoId = paginaId + 1;
+        const bytesConteudo = codificarPdfWinAnsi(conteudo);
+        objetos[paginaId] = codificarPdfWinAnsi('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ' + conteudoId + ' 0 R >>');
+        objetos[conteudoId] = juntarBytesPdf([
+            '<< /Length ' + bytesConteudo.length + ' >>\nstream\n',
+            bytesConteudo,
+            '\nendstream'
+        ]);
+    });
+
+    const cabecalho = codificarPdfWinAnsi('%PDF-1.4\n%âãÏÓ\n');
+    const partes = [cabecalho];
+    const offsets = new Array(objetos.length).fill(0);
+    let tamanhoAtual = cabecalho.length;
+
+    for (let id = 1; id < objetos.length; id++) {
+        const bloco = juntarBytesPdf([id + ' 0 obj\n', objetos[id], '\nendobj\n']);
+        offsets[id] = tamanhoAtual;
+        partes.push(bloco);
+        tamanhoAtual += bloco.length;
+    }
+
+    const inicioXref = tamanhoAtual;
+    let xref = 'xref\n0 ' + objetos.length + '\n0000000000 65535 f \n';
+    for (let id = 1; id < objetos.length; id++) {
+        xref += String(offsets[id]).padStart(10, '0') + ' 00000 n \n';
+    }
+    xref += 'trailer\n<< /Size ' + objetos.length + ' /Root 1 0 R >>\nstartxref\n' + inicioXref + '\n%%EOF';
+    partes.push(codificarPdfWinAnsi(xref));
+    return juntarBytesPdf(partes);
+}
+
+function criarPdfRelatorio() {
+    const larguraPagina = 595.28;
+    const margem = 36;
+    const larguraUtil = larguraPagina - (margem * 2);
+    const paginas = [];
+    let comandos = [];
+    let y = 0;
+
+    const texto = (valor, x, posY, tamanho = 9, negrito = false, cor = '0.06 0.13 0.23') => {
+        comandos.push('BT /F' + (negrito ? '2' : '1') + ' ' + formatarNumeroPdf(tamanho) + ' Tf ' + cor + ' rg 1 0 0 1 ' + formatarNumeroPdf(x) + ' ' + formatarNumeroPdf(posY) + ' Tm (' + escaparTextoPdf(valor) + ') Tj ET');
+    };
+    const linha = (x1, y1, x2, y2, cor = '0.80 0.84 0.88', espessura = 0.6) => {
+        comandos.push(cor + ' RG ' + formatarNumeroPdf(espessura) + ' w ' + formatarNumeroPdf(x1) + ' ' + formatarNumeroPdf(y1) + ' m ' + formatarNumeroPdf(x2) + ' ' + formatarNumeroPdf(y2) + ' l S');
+    };
+    const preencher = (x, posY, largura, altura, cor) => {
+        comandos.push(cor + ' rg ' + formatarNumeroPdf(x) + ' ' + formatarNumeroPdf(posY) + ' ' + formatarNumeroPdf(largura) + ' ' + formatarNumeroPdf(altura) + ' re f');
+    };
+    const novaPagina = () => {
+        comandos = [];
+        paginas.push(comandos);
+        const numeroPagina = paginas.length;
+        texto('Projeto Leve', margem, 805, 18, true, '0.01 0.52 0.78');
+        texto('Relatório de acompanhamento', margem, 789, 9, false, '0.39 0.45 0.54');
+        texto('Página ' + numeroPagina, 510, 800, 8, false, '0.39 0.45 0.54');
+        linha(margem, 778, larguraPagina - margem, 778, '0.80 0.88 0.93', 1);
+        y = 756;
+    };
+    const tituloSecao = titulo => {
+        if (y < 75) novaPagina();
+        preencher(margem, y - 17, larguraUtil, 22, '0.91 0.96 0.99');
+        texto(titulo, margem + 7, y - 11, 11, true, '0.04 0.29 0.42');
+        y -= 28;
+    };
+
+    novaPagina();
+    texto('Gerado em: ' + new Date().toLocaleString('pt-BR'), margem, y, 9, false, '0.39 0.45 0.54');
+    y -= 14;
+    texto('Data inicial dos cálculos: ' + formatDateBR(appData.config.dataInicial), margem, y, 9, false, '0.39 0.45 0.54');
+    y -= 24;
+
+    const pesos = [...appData.pesos].sort((a, b) => String(a.data || '').localeCompare(String(b.data || '')));
+    const medidas = [...appData.medidas].sort((a, b) => String(a.data || '').localeCompare(String(b.data || '')));
+    const colunasPeso = [74, 64, 64, larguraUtil - 202];
+    const cabecalhosPeso = ['Data', 'Peso', 'Meta', 'Observações'];
+
+    const linhaPeso = (valores, cabecalho = false, alternada = false) => {
+        const altura = 20;
+        if (cabecalho) preencher(margem, y - altura, larguraUtil, altura, '0.88 0.94 0.98');
+        else if (alternada) preencher(margem, y - altura, larguraUtil, altura, '0.97 0.98 0.99');
+        let x = margem;
+        valores.forEach((valor, indice) => {
+            texto(truncarTextoPdf(valor, colunasPeso[indice] - 8, 8.5), x + 4, y - 14, 8.5, cabecalho);
+            x += colunasPeso[indice];
+        });
+        linha(margem, y - altura, margem + larguraUtil, y - altura);
+        y -= altura;
+    };
+    const iniciarTabelaPesos = continuacao => {
+        tituloSecao('Histórico de Pesos' + (continuacao ? ' — continuação' : ''));
+        linhaPeso(cabecalhosPeso, true);
+    };
+
+    iniciarTabelaPesos(false);
+    if (!pesos.length) {
+        texto('Nenhum peso registrado.', margem + 4, y - 13, 9, false, '0.39 0.45 0.54');
+        y -= 22;
+    } else {
+        pesos.forEach((item, indice) => {
+            if (y < 66) {
+                novaPagina();
+                iniciarTabelaPesos(true);
+            }
+            linhaPeso([
+                formatDateBR(item.data),
+                formatValorComUnidade(item.peso, 'kg'),
+                Number.isFinite(Number(item.meta)) ? formatValorComUnidade(item.meta, 'kg') : '--',
+                item.observacoes || ''
+            ], false, indice % 2 === 1);
+        });
+    }
+
+    y -= 16;
+    const iniciarMedidas = continuacao => tituloSecao('Histórico de Medidas' + (continuacao ? ' — continuação' : ''));
+    iniciarMedidas(false);
+    if (!medidas.length) {
+        texto('Nenhuma medida registrada.', margem + 4, y - 2, 9, false, '0.39 0.45 0.54');
+    } else {
+        medidas.forEach((item, indice) => {
+            const temObservacao = !!String(item.observacoes || '').trim();
+            const alturaBloco = temObservacao ? 62 : 48;
+            if (y - alturaBloco < 42) {
+                novaPagina();
+                iniciarMedidas(true);
+            }
+            if (indice % 2 === 1) preencher(margem, y - alturaBloco + 4, larguraUtil, alturaBloco, '0.97 0.98 0.99');
+            texto(formatDateBR(item.data), margem + 5, y - 10, 9, true);
+            texto('Peso: ' + formatValorComUnidade(item.peso, 'kg'), margem + 92, y - 10, 9, true);
+            texto(truncarTextoPdf(
+                'Pescoço: ' + formatValorComUnidade(item.pescoco, 'cm') + '  |  Peito: ' + formatValorComUnidade(item.peito, 'cm') + '  |  Barriga: ' + formatValorComUnidade(item.cintura, 'cm') + '  |  Quadril: ' + formatValorComUnidade(item.quadril, 'cm'),
+                larguraUtil - 10,
+                8.2
+            ), margem + 5, y - 26, 8.2);
+            texto(truncarTextoPdf(
+                'Coxa: ' + formatValorComUnidade(item.coxa, 'cm') + '  |  Panturrilha: ' + formatValorComUnidade(item.panturrilha, 'cm') + '  |  Braço: ' + formatValorComUnidade(item.braco, 'cm'),
+                larguraUtil - 10,
+                8.2
+            ), margem + 5, y - 40, 8.2);
+            if (temObservacao) texto(truncarTextoPdf('Obs.: ' + item.observacoes, larguraUtil - 10, 8.2), margem + 5, y - 54, 8.2, false, '0.39 0.45 0.54');
+            linha(margem, y - alturaBloco + 4, margem + larguraUtil, y - alturaBloco + 4);
+            y -= alturaBloco;
+        });
+    }
+
+    return criarArquivoPdf(paginas.map(pagina => pagina.join('\n')));
+}
+
 function gerarRelatorioPDF() {
-    const pesos = [...appData.pesos].sort((a, b) => a.data.localeCompare(b.data));
-    const medidas = [...appData.medidas].sort((a, b) => a.data.localeCompare(b.data));
-    const win = window.open('', '_blank');
-    if (!win) return alert('O navegador bloqueou a janela do relatório. Libere popups para gerar o PDF imprimível.');
-
-    const linhasPesos = pesos.map(p => `
-        <tr><td>${formatDateBR(p.data)}</td><td>${formatBR(p.peso)} kg</td><td>${Number.isFinite(Number(p.meta)) ? formatBR(p.meta) + ' kg' : '--'}</td><td>${escapeHtml(p.observacoes || '')}</td></tr>
-    `).join('') || '<tr><td colspan="4">Nenhum peso registrado.</td></tr>';
-
-    const linhasMedidas = medidas.map(m => `
-        <tr>
-            <td>${formatDateBR(m.data)}</td>
-            <td>${formatValorComUnidade(m.peso, 'kg')}</td>
-            <td>${formatValorComUnidade(m.pescoco, 'cm')}</td>
-            <td>${formatValorComUnidade(m.peito, 'cm')}</td>
-            <td>${formatValorComUnidade(m.cintura, 'cm')}</td>
-            <td>${formatValorComUnidade(m.quadril, 'cm')}</td>
-            <td>${formatValorComUnidade(m.coxa, 'cm')}</td>
-            <td>${formatValorComUnidade(m.panturrilha, 'cm')}</td>
-            <td>${formatValorComUnidade(m.braco, 'cm')}</td>
-            <td>${escapeHtml(m.observacoes || '')}</td>
-        </tr>
-    `).join('') || '<tr><td colspan="10">Nenhuma medida registrada.</td></tr>';
-
-    win.document.write(`
-        <!DOCTYPE html>
-        <html lang="pt-br">
-        <head>
-            <meta charset="UTF-8">
-            <title>Relatório Projeto Leve</title>
-            <style>
-                body { font-family: Arial, sans-serif; color: #0f172a; padding: 24px; }
-                h1 { color: #0284c7; margin-bottom: 4px; }
-                h2 { margin-top: 28px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-                th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: left; }
-                th { background: #eaf4fb; }
-                .muted { color: #64748b; font-size: 12px; }
-                @media print { button { display: none; } body { padding: 0; } }
-            </style>
-        </head>
-        <body>
-            <button onclick="window.print()" style="padding:10px 14px; margin-bottom:16px; border:0; border-radius:10px; background:#0284c7; color:white; font-weight:bold;">Imprimir / Salvar em PDF</button>
-            <h1>Projeto Leve</h1>
-            <div class="muted">Relatório gerado em ${new Date().toLocaleString('pt-BR')}</div>
-            <div class="muted">Data inicial dos cálculos: ${formatDateBR(appData.config.dataInicial)}</div>
-
-            <h2>Histórico de Pesos</h2>
-            <table>
-                <thead><tr><th>Data</th><th>Peso</th><th>Meta</th><th>Observações</th></tr></thead>
-                <tbody>${linhasPesos}</tbody>
-            </table>
-
-            <h2>Histórico de Medidas</h2>
-            <table>
-                <thead><tr><th>Data</th><th>Peso</th><th>Pescoço</th><th>Peito</th><th>Barriga</th><th>Quadril</th><th>Coxa</th><th>Panturrilha</th><th>Braço</th><th>Obs</th></tr></thead>
-                <tbody>${linhasMedidas}</tbody>
-            </table>
-        </body>
-        </html>
-    `);
-    win.document.close();
-    win.focus();
+    try {
+        const arquivo = criarPdfRelatorio();
+        baixarBlob('relatorio_projeto_leve_' + hojeISO() + '.pdf', new Blob([arquivo], { type: 'application/pdf' }));
+    } catch (error) {
+        console.error(error);
+        alert('Não foi possível gerar o PDF neste aparelho. Tente novamente após recarregar o app.');
+    }
 }
 
 async function limparRegistrosAteData() {
