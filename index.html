@@ -1235,7 +1235,7 @@
                         </div>
                         <div class="form-group">
                             <label>Peso (kg)</label>
-                            <input type="number" min="0" step="0.1" id="remedio-peso" placeholder="00,0" required>
+                            <input type="number" min="0" step="0.1" id="remedio-peso" required>
                         </div>
                     </div>
                     <div class="form-group">
@@ -2833,13 +2833,10 @@ function limparFormularioRemedio() {
     const form = document.getElementById('form-remedio');
     if (form) form.reset();
     const data = document.getElementById('remedio-data');
-    const peso = document.getElementById('remedio-peso');
     const fotoNome = document.getElementById('remedio-foto-nome');
     const editId = document.getElementById('edit-remedio-id');
     const botaoSalvar = document.getElementById('btn-salvar-remedio');
     if (data) data.value = hojeISO();
-    const pesoAtual = numeroInformado(obterPesoAtual());
-    if (peso) peso.value = pesoAtual !== null ? pesoAtual : '';
     if (fotoNome) fotoNome.innerText = 'Nenhuma foto selecionada. Você pode escolher várias.';
     if (editId) editId.value = '';
     if (botaoSalvar) botaoSalvar.innerText = 'Salvar Lançamento';
@@ -3191,10 +3188,6 @@ function showView(viewId, navEl) {
     }
     if (viewId === 'remedio') {
         if (!document.getElementById('remedio-data')?.value) document.getElementById('remedio-data').value = hojeISO();
-        if (!document.getElementById('remedio-peso')?.value) {
-            const pesoAtual = numeroInformado(obterPesoAtual());
-            document.getElementById('remedio-peso').value = pesoAtual !== null ? pesoAtual : '';
-        }
     }
     if (viewId === 'graficos') renderGraficos();
 }
@@ -4506,6 +4499,10 @@ function criarPdfRelatorio() {
 
     const pesos = [...appData.pesos].sort((a, b) => String(a.data || '').localeCompare(String(b.data || '')));
     const medidas = [...appData.medidas].sort((a, b) => String(a.data || '').localeCompare(String(b.data || '')));
+    const remedios = [...(appData.remedios || [])].sort((a, b) => {
+        const porData = String(a.data || '').localeCompare(String(b.data || ''));
+        return porData || String(a.id || '').localeCompare(String(b.id || ''));
+    });
     const colunasPeso = [74, 64, 64, larguraUtil - 202];
     const cabecalhosPeso = ['Data', 'Peso', 'Meta', 'Observações'];
 
@@ -4550,6 +4547,7 @@ function criarPdfRelatorio() {
     iniciarMedidas(false);
     if (!medidas.length) {
         texto('Nenhuma medida registrada.', margem + 4, y - 2, 9, false, '0.39 0.45 0.54');
+        y -= 22;
     } else {
         medidas.forEach((item, indice) => {
             const temObservacao = !!String(item.observacoes || '').trim();
@@ -4574,6 +4572,48 @@ function criarPdfRelatorio() {
             if (temObservacao) texto(truncarTextoPdf('Obs.: ' + item.observacoes, larguraUtil - 10, 8.2), margem + 5, y - 54, 8.2, false, '0.39 0.45 0.54');
             linha(margem, y - alturaBloco + 4, margem + larguraUtil, y - alturaBloco + 4);
             y -= alturaBloco;
+        });
+    }
+
+    y -= 16;
+    const colunasRemedio = [72, 190, 70, 70, larguraUtil - 402];
+    const cabecalhosRemedio = ['Data', 'Remédio', 'Dose', 'Peso', 'Fotos'];
+    const linhaRemedio = (valores, cabecalho = false, alternada = false) => {
+        const altura = 20;
+        if (cabecalho) preencher(margem, y - altura, larguraUtil, altura, '0.88 0.94 0.98');
+        else if (alternada) preencher(margem, y - altura, larguraUtil, altura, '0.97 0.98 0.99');
+        let x = margem;
+        valores.forEach((valor, indice) => {
+            texto(truncarTextoPdf(valor, colunasRemedio[indice] - 8, 8.5), x + 4, y - 14, 8.5, cabecalho);
+            x += colunasRemedio[indice];
+        });
+        linha(margem, y - altura, margem + larguraUtil, y - altura);
+        y -= altura;
+    };
+    const iniciarTabelaRemedios = continuacao => {
+        tituloSecao('Histórico de Remédios' + (continuacao ? ' — continuação' : ''));
+        linhaRemedio(cabecalhosRemedio, true);
+    };
+
+    if (y < 94) novaPagina();
+    iniciarTabelaRemedios(false);
+    if (!remedios.length) {
+        texto('Nenhum remédio registrado.', margem + 4, y - 13, 9, false, '0.39 0.45 0.54');
+        y -= 22;
+    } else {
+        remedios.forEach((item, indice) => {
+            if (y < 66) {
+                novaPagina();
+                iniciarTabelaRemedios(true);
+            }
+            const quantidadeFotos = obterFotosRegistro(item).length;
+            linhaRemedio([
+                formatDateBR(item.data),
+                item.nome || '',
+                formatValorComUnidade(item.mg, 'mg'),
+                formatValorComUnidade(item.peso, 'kg'),
+                quantidadeFotos ? quantidadeFotos + ' foto(s)' : 'Sem foto'
+            ], false, indice % 2 === 1);
         });
     }
 
