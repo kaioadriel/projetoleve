@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v17-foto-inicial-carrossel';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v17-foto-inicial-carrossel';
+const CACHE_VERSION = 'projeto-leve-v18-exclusao-foto-individual';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v18-exclusao-foto-individual';
 const APP_SHELL = [
   '/',
   '/index.html',

@@ -3469,15 +3469,37 @@ function baixarFotoInicial() {
 
 async function removerFotoInicial() {
     const fotos = obterFotosIniciaisConfiguradas();
-    if (!fotos.length || !confirm(`Remover ${fotos.length > 1 ? 'todas as fotos iniciais' : 'a foto inicial'} deste aparelho?`)) return;
+    if (!fotos.length) return;
+
+    // Exclui somente a foto que está aberta no carrossel.
+    if (indiceFotoInicial < 0 || indiceFotoInicial >= fotos.length) indiceFotoInicial = 0;
+    const indiceRemover = indiceFotoInicial;
+    const fotoSelecionada = fotos[indiceRemover];
+    const nomeFoto = fotoSelecionada?.fotoNome || `Foto ${indiceRemover + 1}`;
+    if (!confirm(`Remover somente ${nomeFoto} deste aparelho?`)) return;
+
     try {
-        await removerFotosDoCacheLocal(currentUser?.uid || '', fotos.map(foto => foto.fotoDocId));
-        appData.config.fotoInicial = {};
-        fecharVisualizacaoFotoInicial();
+        if (fotoSelecionada?.fotoDocId) {
+            await removerFotosDoCacheLocal(currentUser?.uid || '', [fotoSelecionada.fotoDocId]);
+        }
+
+        const restantes = fotos.filter((_, indice) => indice !== indiceRemover);
+        appData.config.fotoInicial = restantes.length ? { fotos: restantes } : {};
+
+        if (!restantes.length) {
+            fecharVisualizacaoFotoInicial();
+        } else {
+            // Mantém o carrossel na posição equivalente; ao apagar a última,
+            // volta naturalmente para a nova última foto.
+            indiceFotoInicial = Math.min(indiceRemover, restantes.length - 1);
+            renderModalFotoInicial();
+        }
+
         salvarDados(true, true);
+        renderFotoInicialConfiguracoes();
     } catch (error) {
         console.error(error);
-        alert('Não foi possível remover a foto inicial: ' + traduzirErroApp(error));
+        alert('Não foi possível remover a foto inicial selecionada: ' + traduzirErroApp(error));
     }
 }
 
