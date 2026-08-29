@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v10-multifotos';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v10-multifotos';
+const CACHE_VERSION = 'projeto-leve-v11-medidas-antes-depois';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v11-medidas-antes-depois';
 const APP_SHELL = [
   '/',
   '/index.html',
