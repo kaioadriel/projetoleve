@@ -1574,8 +1574,8 @@
                         </div>
                         <div class="initial-photo-actions">
                             <label class="btn btn-outline attach-initial-photo">
-                                Anexar ou alterar foto
-                                <input type="file" id="foto-inicial-input" class="hidden" accept="image/*">
+                                Anexar ou alterar fotos
+                                <input type="file" id="foto-inicial-input" class="hidden" accept="image/*" multiple>
                             </label>
                             <button type="button" id="btn-visualizar-foto-inicial" class="btn btn-outline" onclick="abrirVisualizacaoFotoInicial()">Visualizar</button>
                             <button type="button" id="btn-remover-foto-inicial" class="btn btn-clear-outline" onclick="removerFotoInicial()">Remover</button>
@@ -1956,7 +1956,8 @@ function normalizarDados(raw) {
         .map(item => ({ ...item, fotos: obterFotosRegistro(item) }));
     const medidas = (Array.isArray(origem.medidas) ? origem.medidas : [])
         .map(item => ({ ...item, fotos: obterFotosRegistro(item) }));
-    const fotoInicial = obterFotosRegistro(origem.config?.fotoInicial || {})[0] || {};
+    const fotosIniciais = obterFotosRegistro(origem.config?.fotoInicial || {});
+    const fotoInicial = fotosIniciais.length ? { fotos: fotosIniciais } : {};
     const nomesHistoricos = remedios.map(item => String(item?.nome || '').trim()).filter(Boolean);
     const nomesOrigem = Array.isArray(origem.nomesRemedios) ? origem.nomesRemedios : [];
     const nomesRemedios = [...nomesOrigem, ...nomesHistoricos].reduce((lista, nome) => {
@@ -3266,8 +3267,24 @@ function inicializarVisualizadoresFotos() {
     window.visualViewport?.addEventListener('scroll', ajustarAlturaVisualizador);
 }
 
+function obterFotosIniciaisConfiguradas() {
+    return obterFotosRegistro(appData.config?.fotoInicial || {});
+}
+
 function obterFotoInicialConfigurada() {
-    return obterFotosRegistro(appData.config?.fotoInicial || {})[0] || null;
+    // A foto exibida como "Antes" é sempre a Foto 1 da coleção configurada.
+    return obterFotosIniciaisConfiguradas()[0] || null;
+}
+
+function obterPrimeiroPesoComFotoDesdeDataInicial() {
+    const dataInicial = String(appData.config?.dataInicial || '');
+    return (appData.pesos || [])
+        .map((item, indice) => ({ item, indice }))
+        .filter(({ item }) => item?.data && obterFotosRegistro(item).length && (!dataInicial || String(item.data) >= dataInicial))
+        .sort((a, b) => {
+            const porData = String(a.item.data || '').localeCompare(String(b.item.data || ''));
+            return porData || (a.indice - b.indice);
+        })[0]?.item || null;
 }
 
 function obterPesoMaisRecenteComFoto() {
@@ -3298,7 +3315,9 @@ async function renderAntesDepoisDashboard() {
     if (!antes || !depois || !infoAntes || !infoDepois) return;
 
     const token = ++renderAntesDepoisToken;
-    const fotoInicial = obterFotoInicialConfigurada();
+    const fotoInicialConfigurada = obterFotoInicialConfigurada();
+    const registroFallbackAntes = fotoInicialConfigurada ? null : obterPrimeiroPesoComFotoDesdeDataInicial();
+    const fotoInicial = fotoInicialConfigurada || obterFotosRegistro(registroFallbackAntes || {})[0] || null;
     const registroDepois = obterPesoMaisRecenteComFoto();
     const fotosDepois = obterFotosRegistro(registroDepois || {});
     // Mesmo que o registro mais recente tenha várias fotos, o card usa sempre a Foto 1.
@@ -3310,7 +3329,10 @@ async function renderAntesDepoisDashboard() {
         ? '<div class="before-after-change">Sem alteração de peso</div>'
         : `<div class="before-after-change ${variacao < 0 ? 'negative' : 'positive'}">${formatBR(Math.abs(variacao))} kg ${variacao < 0 ? 'perdidos' : 'ganhos'}</div>`;
 
-    infoAntes.innerHTML = `
+    infoAntes.innerHTML = registroFallbackAntes ? `
+        <div>${formatDateBR(registroFallbackAntes.data)}</div>
+        <strong>${numeroInformado(registroFallbackAntes.peso) !== null ? formatBR(registroFallbackAntes.peso) + ' kg' : '--'}</strong>
+    ` : `
         <div>${formatDateBR(appData.config?.dataInicial)}</div>
         <strong>${numeroInformado(appData.config?.pesoInicial) !== null ? formatBR(appData.config.pesoInicial) + ' kg' : '--'}</strong>
     `;
@@ -3332,7 +3354,10 @@ async function renderAntesDepoisDashboard() {
         try {
             const url = await obterUrlFotoRemedio(fotoInicial);
             if (token !== renderAntesDepoisToken) return;
-            antes.innerHTML = `<img src="${escapeHtml(url)}" alt="Foto inicial" onclick="abrirVisualizacaoFotoInicial()" role="button" tabindex="0">`;
+            const acaoAntes = fotoInicialConfigurada
+                ? 'abrirVisualizacaoFotoInicial()'
+                : `abrirCarrosselFotosPesos('${registroFallbackAntes.id}', '${fotoInicial.fotoDocId}')`;
+            antes.innerHTML = `<img src="${escapeHtml(url)}" alt="Foto inicial" onclick="${acaoAntes}" role="button" tabindex="0">`;
         } catch (error) {
             console.error(error);
             if (token === renderAntesDepoisToken) antes.innerHTML = '<div class="before-after-placeholder">Foto inicial indisponível neste aparelho.</div>';
@@ -3377,7 +3402,8 @@ async function renderFotoInicialConfiguracoes() {
     }
 
     preview.innerHTML = '<div class="small">Carregando foto inicial...</div>';
-    status.innerText = foto.fotoNome || 'Foto inicial salva neste aparelho.';
+    const totalFotos = obterFotosIniciaisConfiguradas().length;
+    status.innerText = totalFotos > 1 ? `${totalFotos} fotos iniciais salvas. A Foto 1 será exibida na tela inicial.` : (foto.fotoNome || 'Foto inicial salva neste aparelho.');
     try {
         const url = await obterUrlFotoRemedio(foto);
         if (token !== renderFotoInicialConfigToken) return;
@@ -3427,10 +3453,10 @@ function baixarFotoInicial() {
 }
 
 async function removerFotoInicial() {
-    const foto = obterFotoInicialConfigurada();
-    if (!foto || !confirm('Remover a foto inicial deste aparelho?')) return;
+    const fotos = obterFotosIniciaisConfiguradas();
+    if (!fotos.length || !confirm(`Remover ${fotos.length > 1 ? 'todas as fotos iniciais' : 'a foto inicial'} deste aparelho?`)) return;
     try {
-        await removerFotosDoCacheLocal(currentUser?.uid || '', [foto.fotoDocId]);
+        await removerFotosDoCacheLocal(currentUser?.uid || '', fotos.map(foto => foto.fotoDocId));
         appData.config.fotoInicial = {};
         fecharVisualizacaoFotoInicial();
         salvarDados(true, true);
@@ -3965,23 +3991,26 @@ if (formPerfil) formPerfil.onsubmit = function(e) {
 
 const inputFotoInicial = document.getElementById('foto-inicial-input');
 if (inputFotoInicial) inputFotoInicial.addEventListener('change', async () => {
-    const arquivo = inputFotoInicial.files?.[0] || null;
-    if (!arquivo) return;
+    const arquivos = Array.from(inputFotoInicial.files || []);
+    if (!arquivos.length) return;
     const status = document.getElementById('foto-inicial-status');
-    const fotoAnterior = obterFotoInicialConfigurada();
+    const fotosAnteriores = obterFotosIniciaisConfiguradas();
     inputFotoInicial.disabled = true;
-    if (status) status.innerText = 'Salvando foto inicial...';
+    if (status) status.innerText = `Salvando ${arquivos.length} foto(s) inicial(is)...`;
 
     try {
-        const preparada = await prepararFotoRegistro(arquivo, criarIdFoto('foto_inicial'));
-        if (currentUser?.uid !== preparada.uid) throw new Error('A sessão mudou durante o salvamento da foto. Entre novamente e repita.');
-        appData.config.fotoInicial = preparada.dadosFoto;
+        const preparada = await prepararFotosRegistro(arquivos, 'foto_inicial');
+        if (!preparada || currentUser?.uid !== preparada.uid) throw new Error('A sessão mudou durante o salvamento das fotos. Entre novamente e repita.');
+        // A ordem escolhida pelo navegador é preservada: a primeira selecionada é a Foto 1.
+        appData.config.fotoInicial = { fotos: preparada.fotos };
         salvarDados(true, true);
-        if (fotoAnterior?.fotoDocId && fotoAnterior.fotoDocId !== preparada.dadosFoto.fotoDocId) {
+        const novosIds = new Set(preparada.fotos.map(foto => foto.fotoDocId));
+        const idsAntigos = fotosAnteriores.map(foto => foto.fotoDocId).filter(id => id && !novosIds.has(id));
+        if (idsAntigos.length) {
             try {
-                await removerFotosDoCacheLocal(preparada.uid, [fotoAnterior.fotoDocId]);
+                await removerFotosDoCacheLocal(preparada.uid, idsAntigos);
             } catch (errorLimpeza) {
-                console.warn('A nova foto inicial foi salva, mas a cópia anterior não pôde ser removida do armazenamento local:', errorLimpeza);
+                console.warn('As novas fotos iniciais foram salvas, mas cópias anteriores não puderam ser removidas do armazenamento local:', errorLimpeza);
             }
         }
     } catch (error) {
