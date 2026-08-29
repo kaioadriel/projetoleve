@@ -3271,9 +3271,14 @@ function obterFotoInicialConfigurada() {
 }
 
 function obterPesoMaisRecenteComFoto() {
+    const dataInicial = String(appData.config?.dataInicial || '');
     return (appData.pesos || [])
         .map((item, indice) => ({ item, indice }))
-        .filter(({ item }) => item?.data && obterFotosRegistro(item).length)
+        .filter(({ item }) => {
+            if (!item?.data || !obterFotosRegistro(item).length) return false;
+            // No "Depois", nunca usar uma foto anterior à data inicial configurada.
+            return !dataInicial || String(item.data) >= dataInicial;
+        })
         .sort((a, b) => {
             const porData = String(b.item.data || '').localeCompare(String(a.item.data || ''));
             return porData || (b.indice - a.indice);
@@ -3296,7 +3301,8 @@ async function renderAntesDepoisDashboard() {
     const fotoInicial = obterFotoInicialConfigurada();
     const registroDepois = obterPesoMaisRecenteComFoto();
     const fotosDepois = obterFotosRegistro(registroDepois || {});
-    const fotoDepois = fotosDepois[fotosDepois.length - 1] || null;
+    // Mesmo que o registro mais recente tenha várias fotos, o card usa sempre a Foto 1.
+    const fotoDepois = fotosDepois[0] || null;
     const pesoInicial = numeroInformado(appData.config?.pesoInicial);
     const pesoDepois = numeroInformado(registroDepois?.peso);
     const variacao = pesoInicial !== null && pesoDepois !== null ? Math.round((pesoDepois - pesoInicial) * 100) / 100 : null;

@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v12-fotos-tela-inteira';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v12-fotos-tela-inteira';
+const CACHE_VERSION = 'projeto-leve-v15-regra-antes-depois';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v15-regra-antes-depois';
 const APP_SHELL = [
   '/',
   '/index.html',
