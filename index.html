@@ -1802,11 +1802,11 @@
                 <button type="button" class="photo-icon-button photo-carousel-close" onclick="fecharVisualizacaoFotoInicial()" title="Fechar" aria-label="Fechar foto inicial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
             </div>
         </div>
-        <div id="foto-inicial-modal-stage" class="photo-carousel-stage"></div>
+        <div id="foto-inicial-modal-stage" class="photo-carousel-stage" tabindex="0" role="group" aria-label="Foto inicial: arraste para os lados ou use as setas do teclado"></div>
         <div id="foto-inicial-modal-info" class="photo-carousel-info"></div>
         <div class="photo-carousel-toolbar">
             <button type="button" class="photo-icon-button" onclick="baixarFotoInicial()" title="Baixar original" aria-label="Baixar foto original"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v12m-5-5 5 5 5-5"/></svg></button>
-            <div class="photo-carousel-counter">Foto Inicial</div>
+            <div><div id="foto-inicial-modal-contador" class="photo-carousel-counter" aria-live="polite">0 de 0</div><div class="photo-swipe-hint">Arraste para os lados</div></div>
             <button type="button" class="photo-icon-button danger" onclick="removerFotoInicial()" title="Remover foto" aria-label="Remover foto inicial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6m4-6v6"/></svg></button>
         </div>
     </div>
@@ -3171,7 +3171,7 @@ const controlesVisualizador = {
     'modal-fotos-remedios': { mudar: mudarFotoCarrossel, fechar: fecharCarrosselFotos },
     'modal-fotos-pesos': { mudar: mudarFotoCarrosselPesos, fechar: fecharCarrosselFotosPesos },
     'modal-fotos-medidas': { mudar: mudarFotoCarrosselMedidas, fechar: fecharCarrosselFotosMedidas },
-    'modal-foto-inicial': { fechar: fecharVisualizacaoFotoInicial }
+    'modal-foto-inicial': { mudar: mudarFotoInicial, fechar: fecharVisualizacaoFotoInicial }
 };
 
 function ajustarAlturaVisualizador() {
@@ -3403,7 +3403,7 @@ async function renderFotoInicialConfiguracoes() {
 
     preview.innerHTML = '<div class="small">Carregando foto inicial...</div>';
     const totalFotos = obterFotosIniciaisConfiguradas().length;
-    status.innerText = totalFotos > 1 ? `${totalFotos} fotos iniciais salvas. A Foto 1 será exibida na tela inicial.` : (foto.fotoNome || 'Foto inicial salva neste aparelho.');
+    status.innerText = totalFotos > 1 ? `${totalFotos} fotos iniciais salvas.` : (foto.fotoNome || 'Foto inicial salva neste aparelho.');
     try {
         const url = await obterUrlFotoRemedio(foto);
         if (token !== renderFotoInicialConfigToken) return;
@@ -3414,30 +3414,44 @@ async function renderFotoInicialConfiguracoes() {
     }
 }
 
+let indiceFotoInicial = 0;
+
+function mudarFotoInicial(direcao) {
+    const fotos = obterFotosIniciaisConfiguradas();
+    if (!fotos.length) return;
+    indiceFotoInicial = (indiceFotoInicial + direcao + fotos.length) % fotos.length;
+    renderModalFotoInicial();
+}
+
 async function renderModalFotoInicial() {
     const stage = document.getElementById('foto-inicial-modal-stage');
     const info = document.getElementById('foto-inicial-modal-info');
-    const foto = obterFotoInicialConfigurada();
-    if (!stage || !info || !foto) return;
+    const contador = document.getElementById('foto-inicial-modal-contador');
+    const fotos = obterFotosIniciaisConfiguradas();
+    if (!stage || !info || !fotos.length) return;
+    if (indiceFotoInicial < 0 || indiceFotoInicial >= fotos.length) indiceFotoInicial = 0;
+    const foto = fotos[indiceFotoInicial];
     const token = ++renderFotoInicialModalToken;
     stage.innerHTML = '<div class="photo-carousel-loading">Carregando foto...</div>';
+    if (contador) contador.innerText = `${indiceFotoInicial + 1} de ${fotos.length}`;
     info.innerHTML = `
         <div class="label">${formatDateBR(appData.config?.dataInicial)}</div>
         <div class="value" style="font-size:18px; margin-top:3px;">${numeroInformado(appData.config?.pesoInicial) !== null ? formatBR(appData.config.pesoInicial) + ' kg' : '--'}</div>
-        <div class="small" style="margin-top:4px; color:var(--text-secondary);">${escapeHtml(foto.fotoNome || 'foto inicial')}</div>
+        <div class="small" style="margin-top:4px; color:var(--text-secondary);">${escapeHtml(foto.fotoNome || `foto inicial ${indiceFotoInicial + 1}`)}</div>
     `;
     try {
         const url = await obterUrlFotoRemedio(foto);
         if (token !== renderFotoInicialModalToken) return;
-        stage.innerHTML = `<img src="${escapeHtml(url)}" alt="Foto inicial">`;
+        stage.innerHTML = `<img src="${escapeHtml(url)}" alt="Foto inicial ${indiceFotoInicial + 1}">`;
     } catch (error) {
         console.error(error);
-        if (token === renderFotoInicialModalToken) stage.innerHTML = '<div class="photo-carousel-loading">Não foi possível abrir a foto inicial.</div>';
+        if (token === renderFotoInicialModalToken) stage.innerHTML = '<div class="photo-carousel-loading">Não foi possível abrir esta foto inicial.</div>';
     }
 }
 
 function abrirVisualizacaoFotoInicial() {
     if (!obterFotoInicialConfigurada()) return alert('Nenhuma foto inicial foi anexada.');
+    indiceFotoInicial = 0;
     abrirVisualizadorFoto('modal-foto-inicial');
     renderModalFotoInicial();
 }
@@ -3448,7 +3462,8 @@ function fecharVisualizacaoFotoInicial() {
 }
 
 function baixarFotoInicial() {
-    const foto = obterFotoInicialConfigurada();
+    const fotos = obterFotosIniciaisConfiguradas();
+    const foto = fotos[indiceFotoInicial] || fotos[0] || null;
     return foto ? baixarFotoOriginalEntrada({ foto }) : alert('Nenhuma foto inicial foi anexada.');
 }
 
