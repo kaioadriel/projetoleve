@@ -746,11 +746,10 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .important-dates-table .col-data { width: 20%; }
-        .important-dates-table .col-descricao { width: 28%; }
-        .important-dates-table .col-meta { width: 14%; }
-        .important-dates-table .col-previsao { width: 16%; }
-        .important-dates-table .col-variacao { width: 22%; }
+        .important-dates-table .col-data { width: 24%; }
+        .important-dates-table .col-descricao { width: 34%; }
+        .important-dates-table .col-meta { width: 20%; }
+        .important-dates-table .col-previsao { width: 22%; }
         .important-dates-table th.col-meta,
         .important-dates-table th.col-previsao,
         .important-dates-table th.col-variacao,
@@ -777,11 +776,10 @@
                 padding: 8px 3px;
                 font-size: 9.5px;
             }
-            .important-dates-table .col-data { width: 20%; }
-            .important-dates-table .col-descricao { width: 26%; }
-            .important-dates-table .col-meta { width: 14%; }
-            .important-dates-table .col-previsao { width: 17%; }
-            .important-dates-table .col-variacao { width: 23%; }
+            .important-dates-table .col-data { width: 24%; }
+            .important-dates-table .col-descricao { width: 34%; }
+            .important-dates-table .col-meta { width: 20%; }
+            .important-dates-table .col-previsao { width: 22%; }
             .important-dates-table th.col-previsao,
             .important-dates-table th.col-variacao { font-size: 8px; }
         }
@@ -989,10 +987,10 @@
         .primary-action-card { padding: 12px; }
         .primary-action-card .btn { min-height: 50px; font-size: 15px; }
         .peso-summary-card { padding: 10px; }
-        .medicine-summary-wrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
-        .medicine-summary-card { padding: 14px; text-align: center; }
-        .medicine-summary-card .medicine-current-dose { font-size: 28px; line-height: 1.05; margin-top: 4px; color: var(--accent); }
-        .medicine-summary-card .medicine-current-name { margin-top: 6px; font-size: 14px; font-weight: 850; color: var(--text-primary); overflow-wrap: anywhere; }
+        .medicine-summary-wrap { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .medicine-summary-card { padding: 10px; text-align: left; }
+        .medicine-summary-card .medicine-current-dose { font-size: 16px; line-height: 1.2; margin-top: 4px; color: var(--text-primary); }
+        .medicine-summary-card .medicine-current-name { margin-top: 4px; font-size: 12px; font-weight: 700; color: var(--text-secondary); overflow-wrap: anywhere; }
         .sim-actions-row { display: grid; grid-template-columns: 1fr 78px 78px; gap: 8px; align-items: end; }
         .simulation-result-mini {
             margin-top: 12px;
@@ -1195,7 +1193,6 @@
                             <col class="col-descricao">
                             <col class="col-meta">
                             <col class="col-previsao">
-                            <col class="col-variacao">
                         </colgroup>
                         <thead>
                             <tr>
@@ -1203,7 +1200,6 @@
                                 <th class="col-descricao">Descrição</th>
                                 <th class="col-meta">Meta</th>
                                 <th class="col-previsao">Previsão</th>
-                                <th class="col-variacao" title="Peso perdido ou ganhado">Perda/Ganho</th>
                             </tr>
                         </thead>
                         <tbody id="lista-datas-importantes-dashboard"></tbody>
@@ -2547,7 +2543,7 @@ function renderDatasImportantesDashboard() {
     if (!metas.length) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" style="text-align: center; color: var(--text-secondary);">Nenhuma data personalizada salva ainda.</td>
+                <td colspan="4" style="text-align: center; color: var(--text-secondary);">Nenhuma data personalizada salva ainda.</td>
             </tr>
         `;
         return;
@@ -2562,7 +2558,6 @@ function renderDatasImportantesDashboard() {
                 <td class="col-descricao" title="${escapeHtml(item.nome || '')}">${escapeHtml(item.nome || '')}</td>
                 <td class="col-meta ${classeMetaComparadaAoPesoMeta(metaNumero)}">${metaNumero !== null ? formatBR(metaNumero) : '--'}</td>
                 <td class="col-previsao ${classeMetaComparadaAoPesoMeta(previsaoNumero)}">${previsaoNumero !== null ? formatBR(previsaoNumero) : '--'}</td>
-                <td class="col-variacao ${classeVariacaoDesdePesoInicial(previsaoNumero)}">${formatarVariacaoDesdePesoInicial(previsaoNumero)}</td>
             </tr>
         `;
     }).join('');
