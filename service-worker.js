@@ -1,61 +1,68 @@
-const CACHE_VERSION = 'projeto-leve-v19-auditoria-final';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v19-auditoria-final';
-const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+const CACHE_VERSION = 'projeto-leve-v19-recuperacao-segura';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v19-recuperacao-segura';
+const BASE = new URL('./', self.location.href);
+const localUrl = name => new URL(name, BASE).href;
+const APP_SHELL = ['./', 'index.html', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png'].map(localUrl);
+const DEPENDENCIAS = [
+  'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js',
+  'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js',
+  'https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js'
 ];
-
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION)
-      .then(cache => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil((async () => {
+    const shell = await caches.open(CACHE_VERSION);
+    await shell.addAll(APP_SHELL);
+    const runtime = await caches.open(RUNTIME_CACHE);
+    await Promise.allSettled(DEPENDENCIAS.map(async url => {
+      const response = await fetch(url, { mode: 'cors' });
+      if (response.ok) await runtime.put(url, response);
+    }));
+    await self.skipWaiting();
+  })());
 });
-
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys
-          .filter(key => key !== CACHE_VERSION && key !== RUNTIME_CACHE)
-          .map(key => caches.delete(key))
-      ))
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(key => /^projeto-leve-(v|runtime-v)/.test(key) && key !== CACHE_VERSION && key !== RUNTIME_CACHE).map(key => caches.delete(key)));
+    await self.clients.claim();
+  })());
 });
-
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          const copy = response.clone();
-          caches.open(RUNTIME_CACHE).then(cache => cache.put(request, copy));
-          return response;
-        })
-        .catch(async () => (await caches.match(request)) || caches.match('/index.html'))
-    );
+  const url = new URL(request.url);
+  if (url.origin === BASE.origin && request.mode === 'navigate') {
+    event.respondWith((async () => {
+      const runtime = await caches.open(RUNTIME_CACHE), shell = await caches.open(CACHE_VERSION);
+      try {
+        const response = await fetch(request);
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        if ((response.headers.get('content-type') || '').includes('text/html')) {
+          const saving = Promise.all([
+            runtime.put(request, response.clone()),
+            runtime.put(localUrl('index.html'), response.clone()),
+            runtime.put(localUrl('./'), response.clone())
+          ]);
+          event.waitUntil(saving.catch(() => {}));
+          await saving.catch(() => {});
+        }
+        return response;
+      } catch {
+        return (await runtime.match(request)) || (await runtime.match(localUrl('index.html'))) ||
+          (await shell.match(request)) || (await shell.match(localUrl('index.html'))) ||
+          new Response('Abra o aplicativo com internet uma vez para preparar o modo offline.', { status: 503, headers: { 'content-type': 'text/plain;charset=utf-8' } });
+      }
+    })());
     return;
   }
-
-  const destinoEstatico = ['script', 'style', 'image', 'font'].includes(request.destination);
-  if (!destinoEstatico) return;
-
-  event.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
-      return fetch(request).then(response => {
-        if (!response || (response.status !== 200 && response.type !== 'opaque')) return response;
-        const copy = response.clone();
-        caches.open(RUNTIME_CACHE).then(cache => cache.put(request, copy));
-        return response;
-      });
-    })
-  );
+  const estatico = ['script', 'style', 'image', 'font'].includes(request.destination);
+  if (!estatico || (url.origin !== BASE.origin && !DEPENDENCIAS.includes(url.href))) return;
+  event.respondWith((async () => {
+    const runtime = await caches.open(RUNTIME_CACHE), shell = await caches.open(CACHE_VERSION);
+    const cached = (await runtime.match(request)) || (await shell.match(request));
+    if (cached) return cached;
+    const response = await fetch(request);
+    if (response.ok) event.waitUntil(runtime.put(request, response.clone()).catch(() => {}));
+    return response;
+  })());
 });

@@ -2,16 +2,16 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projeto Leve</title>
     <meta name="theme-color" content="#0284c7">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Projeto Leve">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
     <script>
         // Captura o evento antes do carregamento do Firebase Authentication.
         window.__projetoLeveInstallPrompt = null;
@@ -1080,6 +1080,13 @@
             .medicine-form-grid { grid-template-columns: 1fr; gap: 0; }
         }
 
+
+        .storage-error { color: var(--danger); border: 1px solid var(--danger); border-radius: 10px; padding: 10px; margin-top: 12px; font-size: 13px; }
+        .weight-history-table .compact-action, .medidas-history-table .compact-action, .medicine-history-table .compact-action {
+            min-height: 44px !important; height: 44px !important;
+        }
+        .photo-history-icon { min-height: 44px; height: 44px; }
+        #copia-interna-select { width: 100%; min-height: 44px; }
     </style>
 </head>
 <body>
@@ -1233,14 +1240,14 @@
                 <h3>Backup e Relatórios</h3>
                 <p class="small" style="margin-bottom: 8px; color: var(--text-secondary)">Exporte seus dados, restaure backups ou gere relatórios para guardar fora do app.</p>
                 <div class="backup-button-grid">
-                    <button class="btn btn-outline backup-action-btn" onclick="exportarBackup()">
+                    <button class="btn btn-outline backup-action-btn" title="Baixar backup completo em ZIP, incluindo as fotos originais" onclick="exportarBackup()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Backup
+                        Backup completo (ZIP)
                     </button>
                     <label class="btn btn-outline backup-action-btn" style="margin-bottom:0">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                         Restaurar
-                        <input type="file" id="input-import" class="hidden" accept=".json" onchange="importarBackup(event)">
+                        <input type="file" id="input-import" class="hidden" accept=".json,.zip,application/zip,application/json" onchange="importarBackup(event)">
                     </label>
                     <button class="btn btn-outline backup-action-btn" onclick="gerarRelatorioPDF()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
@@ -1251,6 +1258,8 @@
                         Gerar CSV
                     </button>
                 </div>
+                <div id="backup-work-status" role="status" aria-live="polite" class="small hidden" style="margin-top:12px"></div>
+                <div id="storage-error" role="alert" class="storage-error hidden"></div>
                 <div id="backup-info" class="small text-center" style="margin-top: 15px; color: var(--text-secondary)"></div>
 
                 <div class="automatic-backup-panel" aria-label="Backup automático">
@@ -1260,8 +1269,9 @@
                             <span id="backup-interno-dot" class="automatic-backup-dot" aria-hidden="true"></span>
                         </div>
                         <div id="backup-interno-status" class="automatic-backup-status">Preparando proteção local...</div>
-                        <p class="automatic-backup-help">Uma cópia separada dos dados é atualizada automaticamente neste aparelho e não pede nova autorização ao reabrir o app.</p>
+                        <p class="automatic-backup-help">As versões recentes dos registros são preservadas junto com as fotos necessárias para recuperá-las. Para proteger contra perda do aparelho, use também o backup completo.</p>
                         <button type="button" class="btn btn-outline" style="margin-top:12px" onclick="restaurarCopiaInterna()">Restaurar cópia interna</button>
+                        <div id="copia-interna-escolha" class="hidden" style="margin-top:12px"><label for="copia-interna-select">Versão para restaurar</label><select id="copia-interna-select"></select><button type="button" class="btn btn-outline" style="margin-top:8px" onclick="confirmarRestauracaoInterna()">Restaurar versão selecionada</button></div>
                     </div>
 
                     <div class="automatic-backup-block">
@@ -1274,6 +1284,7 @@
                             <div class="label">Pasta selecionada</div>
                             <div id="backup-pasta-nome" class="automatic-backup-folder-name">Nenhuma</div>
                         </div>
+                        <button type="button" class="btn btn-outline" style="margin:10px 0" onclick="restaurarBackupDaPasta()">Restaurar da pasta</button>
                         <div class="automatic-backup-actions">
                             <button type="button" id="btn-selecionar-pasta-backup" class="btn btn-outline" onclick="selecionarPastaBackup()">Selecionar pasta</button>
                             <button type="button" id="btn-salvar-pasta-agora" class="btn btn-outline" onclick="salvarBackupNaPastaAgora()">Salvar agora</button>
@@ -1425,11 +1436,11 @@
                         </div>
                         <div class="form-group">
                             <label>Dose (mg)</label>
-                            <input type="number" min="0.01" step="0.01" id="remedio-mg" placeholder="Ex: 10" required>
+                            <input type="number" min="0" step="0.01" id="remedio-mg" placeholder="Ex: 10" required>
                         </div>
                         <div class="form-group">
                             <label>Peso (kg)</label>
-                            <input type="number" min="0.1" step="0.1" id="remedio-peso" required>
+                            <input type="number" min="0" step="0.1" id="remedio-peso" required>
                         </div>
                     </div>
                     <div class="form-group">
@@ -1638,6 +1649,7 @@
                     <div id="perfil-email">--</div>
                     <div id="perfil-google-info" class="profile-account-row"></div>
                     <div class="label" style="margin-top: 10px;">Armazenamento</div>
+                    <div id="storage-usage" class="small" style="margin:8px 0" aria-live="polite"></div>
                     <div id="sync-status">Os dados e as fotos ficam somente neste aparelho.</div>
                 </div>
             </div>
@@ -1647,7 +1659,7 @@
                 <div class="backup-danger-zone" style="margin-top: 0;">
                     <div class="inline-action-row">
                         <input type="date" id="limpar-ate-data">
-                        <button class="btn btn-danger" style="width: auto;" onclick="limparRegistrosAteData()">Limpar a Partir de</button>
+                        <button class="btn btn-danger" style="width: auto;" onclick="limparRegistrosAteData()">Limpar até a Data</button>
                     </div>
                 </div>
                 <button class="btn btn-danger" style="margin-top: 12px;" onclick="limparTudo()">Limpar Todo o App</button>
@@ -1658,6 +1670,8 @@
 
     </div>
 </div>
+
+<div id="restore-overlay" class="hidden" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:99999;background:rgba(241,245,249,.95);display:grid;place-items:center;padding:24px;text-align:center;font-weight:700">Conferindo e salvando os dados. Aguarde...</div>
 
 <!-- Navigation Bar -->
 <nav id="bottom-nav" class="hidden">
@@ -1737,6 +1751,7 @@
         <div id="foto-carousel-info" class="photo-carousel-info"></div>
         <div class="photo-carousel-toolbar">
             <button type="button" class="photo-icon-button" onclick="baixarFotoOriginalRemedio()" title="Baixar original" aria-label="Baixar foto original"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v12m-5-5 5 5 5-5"/></svg></button>
+            <button type="button" class="photo-icon-button" onclick="definirFotoPrincipalRegistro('remedio')" title="Usar como Foto 1" aria-label="Usar como Foto 1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg></button>
             <div>
                 <div id="foto-carousel-contador" class="photo-carousel-counter" aria-live="polite">0 de 0</div>
                 <div class="photo-swipe-hint">Arraste para os lados</div>
@@ -1760,6 +1775,7 @@
         <div id="foto-peso-carousel-info" class="photo-carousel-info"></div>
         <div class="photo-carousel-toolbar">
             <button type="button" class="photo-icon-button" onclick="baixarFotoOriginalPeso()" title="Baixar original" aria-label="Baixar foto original"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v12m-5-5 5 5 5-5"/></svg></button>
+            <button type="button" class="photo-icon-button" onclick="definirFotoPrincipalRegistro('peso')" title="Usar como Foto 1" aria-label="Usar como Foto 1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg></button>
             <div>
                 <div id="foto-peso-carousel-contador" class="photo-carousel-counter" aria-live="polite">0 de 0</div>
                 <div class="photo-swipe-hint">Arraste para os lados</div>
@@ -1783,6 +1799,7 @@
         <div id="foto-medida-carousel-info" class="photo-carousel-info"></div>
         <div class="photo-carousel-toolbar">
             <button type="button" class="photo-icon-button" onclick="baixarFotoOriginalMedida()" title="Baixar original" aria-label="Baixar foto original"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v12m-5-5 5 5 5-5"/></svg></button>
+            <button type="button" class="photo-icon-button" onclick="definirFotoPrincipalRegistro('medida')" title="Usar como Foto 1" aria-label="Usar como Foto 1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg></button>
             <div>
                 <div id="foto-medida-carousel-contador" class="photo-carousel-counter" aria-live="polite">0 de 0</div>
                 <div class="photo-swipe-hint">Arraste para os lados</div>
@@ -1806,6 +1823,7 @@
         <div id="foto-inicial-modal-info" class="photo-carousel-info"></div>
         <div class="photo-carousel-toolbar">
             <button type="button" class="photo-icon-button" onclick="baixarFotoInicial()" title="Baixar original" aria-label="Baixar foto original"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v12m-5-5 5 5 5-5"/></svg></button>
+            <button type="button" class="photo-icon-button" onclick="definirFotoInicialPrincipal()" title="Usar como Foto 1" aria-label="Usar como Foto 1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg></button>
             <div><div id="foto-inicial-modal-contador" class="photo-carousel-counter" aria-live="polite">0 de 0</div><div class="photo-swipe-hint">Arraste para os lados</div></div>
             <button type="button" class="photo-icon-button danger" onclick="removerFotoInicial()" title="Remover foto" aria-label="Remover foto inicial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6m4-6v6"/></svg></button>
         </div>
@@ -1838,21 +1856,13 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
-
-function dataLocalISO(data = new Date()) {
-    const ano = data.getFullYear();
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    const dia = String(data.getDate()).padStart(2, '0');
-    return `${ano}-${mes}-${dia}`;
-}
-
 let currentUser = null;
 let authInicializado = false;
 let ultimoStatusSync = "Os dados e as fotos ficam somente neste aparelho.";
 let activeViewId = "dashboard";
 let chartJsPromise = null;
 let filtroGraficoAtual = "inicio";
-const DATA_HOJE_INICIAL = dataLocalISO();
+const DATA_HOJE_INICIAL = dataLocalISO(new Date());
 const LOCAL_BASE_KEY = 'peso_medidas_app_data';
 const FOTO_DB_NAME = 'projeto_leve_fotos';
 const FOTO_DB_STORE = 'fotos';
@@ -1887,21 +1897,573 @@ function chaveStatusBackupPastaUsuario(usuario = sufixoUsuarioBackup()) {
     return `${BACKUP_PASTA_STATUS_BASE_KEY}_${usuario}`;
 }
 function salvarDadosLocalmente() {
-    localStorage.setItem(chaveLocalUsuario(), JSON.stringify(appData));
-    salvarCopiaInternaAutomatica();
+    if (dadosLocaisBloqueados) throw new Error('Os dados locais precisam ser restaurados antes de salvar novas alterações.');
+    const chave = chaveLocalUsuario();
+    let anteriores = [], dadosAnteriores = null;
+    const textoAnterior = localStorage.getItem(chave), copia = lerCopiaInternaAutomatica();
+    try {
+        if (textoAnterior) dadosAnteriores = validarDadosImportados(JSON.parse(textoAnterior));
+        anteriores = [...(copia?.anteriores || [])];
+        if (dadosAnteriores && JSON.stringify(dadosAnteriores) !== JSON.stringify(appData)) {
+            const agora = new Date().toISOString(), protegida = !!motivoProximaCopia;
+            const ultima = anteriores[0];
+            if (!protegida && ultima && !ultima.protegida && Date.now() - Date.parse(ultima.salvoEm) < 60000) anteriores.shift();
+            anteriores.unshift({ salvoEm: agora, motivo: motivoProximaCopia || 'Antes da alteração', protegida, dados: dadosAnteriores });
+            anteriores = anteriores.slice(0, LIMITE_COPIAS_INTERNAS);
+            salvarCopiaInternaAutomatica(dadosAnteriores, anteriores);
+        }
+        localStorage.setItem(chave, JSON.stringify(appData));
+    } catch (error) {
+        if (dadosAnteriores) appData = dadosAnteriores;
+        registrarFalhaArmazenamento(error);
+        throw error;
+    } finally { motivoProximaCopia = ''; }
+    try {
+        salvarCopiaInternaAutomatica(appData, anteriores);
+        falhaArmazenamento = '';
+        document.getElementById('storage-error')?.classList.add('hidden');
+    } catch (error) { registrarFalhaArmazenamento(error); }
+    atualizarInterfaceBackupAutomatico();
     enfileirarBackupAutomaticoNaPasta();
+    clearTimeout(limpezaFotosTimer);
+    const usuario = sufixoUsuarioBackup();
+    limpezaFotosTimer = setTimeout(() => limparFotosSemReferencias(usuario).catch(console.warn), 1000);
+    atualizarUsoArmazenamento();
 }
 function carregarDadosLocaisDoUsuario() {
-    const saved = localStorage.getItem(chaveLocalUsuario());
-    if (!saved) return false;
+    dadosLocaisBloqueados = false;
     try {
-        appData = normalizarDados(JSON.parse(saved));
+        const texto = localStorage.getItem(chaveLocalUsuario());
+        if (texto) {
+            try { appData = validarDadosImportados(JSON.parse(texto)); return true; }
+            catch (error) { console.warn('Dados principais inválidos. Tentando a cópia interna.', error); }
+        }
+        const copia = lerCopiaInternaAutomatica();
+        if (copia) {
+            appData = normalizarDados(copia.dados);
+            localStorage.setItem(chaveLocalUsuario(), JSON.stringify(appData));
+            definirStatusSync('Os dados foram recuperados da cópia interna.');
+            return true;
+        }
+        if (texto) {
+            dadosLocaisBloqueados = true; appData = normalizarDados({});
+            registrarFalhaArmazenamento(new Error('Os dados estão ilegíveis. Use Restaurar; os arquivos existentes foram preservados.'));
+            return true;
+        }
+        return false;
+    } catch (error) {
+        dadosLocaisBloqueados = true; appData = normalizarDados({});
+        registrarFalhaArmazenamento(error); return true;
+    }
+}
+
+let dadosLocaisBloqueados = false;
+let falhaArmazenamento = '';
+let motivoProximaCopia = '';
+let limpezaFotosTimer = null;
+const LIMITE_COPIAS_INTERNAS = 12;
+const fotosEmPreparacao = new Set();
+
+
+
+function textoSeguro(valor, limite = 20000) {
+    return typeof valor === 'string' ? valor.slice(0, limite) : '';
+}
+
+function dataISOValida(valor) {
+    if (typeof valor !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(valor)) return false;
+    const data = new Date(valor + 'T12:00:00');
+    return Number.isFinite(data.getTime()) && dataLocalISO(data) === valor;
+}
+
+function idRegistroSeguro(valor) {
+    const id = String(valor ?? '');
+    return /^[A-Za-z0-9_-]{1,180}$/.test(id) ? id : criarIdFoto('registro');
+}
+
+function validarDadosImportados(raw) {
+    const objeto = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+    if (!objeto(raw) || !objeto(raw.config) || !Array.isArray(raw.pesos)) throw new Error('Este arquivo não contém um backup válido do Projeto Leve.');
+    const validarNumero = (valor, rotulo, minimo = null, obrigatorio = false) => {
+        if (valor === '' || valor === null || valor === undefined) {
+            if (obrigatorio) throw new Error(rotulo + ' não informado.');
+            return;
+        }
+        if (!['number', 'string'].includes(typeof valor) || !Number.isFinite(Number(valor)) || (minimo !== null && Number(valor) < minimo)) throw new Error(rotulo + ' inválido no backup.');
+    };
+    const validarTexto = (v, nome, max) => {
+        if (v !== undefined && v !== null && (typeof v !== 'string' || v.length > max)) throw new Error(nome + ' inválido no backup.');
+    };
+    const validarFotos = item => {
+        if (item.fotos !== undefined && !Array.isArray(item.fotos)) throw new Error('Lista de fotos inválida.');
+        for (const foto of (Array.isArray(item.fotos) ? item.fotos : (item.fotoDocId ? [item] : []))) {
+            if (!objeto(foto) || !/^[A-Za-z0-9_-]{1,180}$/.test(String(foto.fotoDocId || foto.id || ''))) throw new Error('Referência de foto inválida.');
+            validarTexto(foto.fotoNome, 'Nome da foto', 1000);
+        }
+    };
+    validarTexto(raw.config.nome, 'Nome', 300);
+    validarTexto(raw.config.genero, 'Gênero', 80);
+    if (raw.config.dataInicial && !dataISOValida(raw.config.dataInicial)) throw new Error('Data inicial inválida.');
+    if (raw.config.nascimento && !dataISOValida(raw.config.nascimento)) throw new Error('Data de nascimento inválida.');
+    for (const campo of ['altura', 'pesoInicial', 'pesoMeta']) validarNumero(raw.config[campo], campo, 0);
+    validarNumero(raw.config.metaKgPorDia, 'Meta diária');
+    if (raw.config.fotoInicial !== undefined && !objeto(raw.config.fotoInicial)) throw new Error('Foto inicial inválida.');
+    validarFotos(raw.config.fotoInicial || {});
+    if (raw.config.medidasIdeais !== undefined && !objeto(raw.config.medidasIdeais)) throw new Error('Metas de medidas inválidas.');
+    for (const [campo, valor] of Object.entries(raw.config.medidasIdeais || {})) validarNumero(valor, campo, 0);
+    for (const nome of ['pesos', 'medidas', 'remedios', 'metasPersonalizadas']) {
+        if (raw[nome] !== undefined && !Array.isArray(raw[nome])) throw new Error('Histórico inválido: ' + nome);
+        const ids = new Set();
+        for (const item of raw[nome] || []) {
+            if (!objeto(item) || !dataISOValida(item.data)) throw new Error('Registro com data inválida em ' + nome + '.');
+            const id = String(item.id ?? '');
+            if (!/^[A-Za-z0-9_-]{1,180}$/.test(id) || ids.has(id)) throw new Error('Registro com identificador inválido ou repetido em ' + nome + '.');
+            ids.add(id);
+            validarTexto(item.observacoes, 'Observações', 20000);
+            validarTexto(item.nome, 'Nome', 300);
+            validarFotos(item);
+            if (nome !== 'metasPersonalizadas') validarNumero(item.peso, 'Peso', 0, true);
+            if (nome === 'pesos' || nome === 'metasPersonalizadas') validarNumero(item.meta, 'Meta');
+            if (nome === 'medidas') for (const campo of ['pescoco', 'peito', 'cintura', 'quadril', 'coxa', 'panturrilha', 'braco']) validarNumero(item[campo], campo, 0);
+            if (nome === 'remedios') {
+                if (!String(item.nome || '').trim()) throw new Error('Remédio sem nome.');
+                validarNumero(item.mg, 'Dose', 0, true);
+            }
+        }
+    }
+    return normalizarDados(raw);
+}
+
+function todosRegistrosComFotos(dados) {
+    return [...(dados.remedios || []), ...(dados.pesos || []), ...(dados.medidas || []), dados.config?.fotoInicial || {}];
+}
+
+function referenciasFotos(dados) {
+    const fotos = new Map();
+    for (const registro of todosRegistrosComFotos(dados)) for (const foto of obterFotosRegistro(registro)) fotos.set(foto.fotoDocId, foto);
+    return fotos;
+}
+
+function registrarFalhaArmazenamento(error) {
+    falhaArmazenamento = error?.name === 'QuotaExceededError'
+        ? 'Não há espaço suficiente para salvar. Faça um backup completo e libere espaço no aparelho.'
+        : 'Não foi possível salvar: ' + (error?.message || 'o armazenamento está indisponível.');
+    const aviso = document.getElementById('storage-error');
+    if (aviso) { aviso.innerText = falhaArmazenamento; aviso.classList.remove('hidden'); }
+    definirStatusSync(falhaArmazenamento);
+}
+
+function fotosProtegidasUsuario(usuario) {
+    const ids = new Set(), texto = localStorage.getItem(LOCAL_BASE_KEY + '_' + usuario);
+    if (texto) for (const id of referenciasFotos(validarDadosImportados(JSON.parse(texto))).keys()) ids.add(id);
+    const copia = lerCopiaInternaAutomatica(usuario);
+    for (const dados of [copia?.dados, ...(copia?.anteriores || []).map(item => item.dados)].filter(Boolean)) {
+        for (const id of referenciasFotos(dados).keys()) ids.add(id);
+    }
+    if (usuario === sufixoUsuarioBackup()) for (const id of fotosEmPreparacao) ids.add(id);
+    return ids;
+}
+
+async function percorrerFotosUsuario(usuario, callback, modo = 'readonly') {
+    const banco = await abrirBancoFotos();
+    return new Promise((resolve, reject) => {
+        const tx = banco.transaction(FOTO_DB_STORE, modo), request = tx.objectStore(FOTO_DB_STORE).openCursor();
+        request.onsuccess = () => {
+            const cursor = request.result;
+            if (!cursor) return;
+            if (cursor.value.uid === usuario) callback(cursor);
+            cursor.continue();
+        };
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error || new Error('Falha ao acessar as fotos.'));
+        tx.onabort = () => reject(tx.error || new Error('Operação de fotos interrompida.'));
+    });
+}
+
+async function limparFotosSemReferencias(usuario) {
+    if (!usuario || usuario === 'guest' || dadosLocaisBloqueados || restaurandoBackup) return;
+    const protegidas = fotosProtegidasUsuario(usuario);
+    await percorrerFotosUsuario(usuario, cursor => {
+        if (!protegidas.has(cursor.value.fotoDocId)) {
+            const url = cacheUrlsFotos.get(cursor.value.chave);
+            if (url) URL.revokeObjectURL(url);
+            cacheUrlsFotos.delete(cursor.value.chave); cursor.delete();
+        }
+    }, 'readwrite');
+}
+
+async function atualizarUsoArmazenamento() {
+    const el = document.getElementById('storage-usage');
+    if (!el || !currentUser) return;
+    const usuario = currentUser.uid;
+    try {
+        let total = 0, fotos = 0;
+        await percorrerFotosUsuario(usuario, cursor => { total += cursor.value.blob?.size || 0; fotos++; });
+        total += new Blob([localStorage.getItem(LOCAL_BASE_KEY + '_' + usuario) || '', localStorage.getItem(BACKUP_INTERNO_BASE_KEY + '_' + usuario) || '']).size;
+        const estimativa = await navigator.storage?.estimate?.();
+        if (usuario !== currentUser?.uid) return;
+        el.innerText = (total / 1048576).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' MB nesta conta • ' + fotos + ' foto(s), incluindo cópias de recuperação.' +
+            (estimativa?.quota && estimativa?.usage / estimativa.quota > .85 ? ' O armazenamento do navegador está quase cheio.' : '');
+    } catch { if (usuario === currentUser?.uid) el.innerText = 'Não foi possível calcular o espaço ocupado.'; }
+}
+
+let restaurandoBackup = false;
+let erroBackupPasta = '';
+let backupPastaPendente = null;
+let executandoBackupPasta = false;
+let backupPastaTimer = null;
+let geracaoBackupPasta = 0;
+let copiasInternasDisponiveis = [];
+const checksumsFotos = new Map();
+
+
+
+function definirTrabalhoBackup(texto) {
+    const el = document.getElementById('backup-work-status');
+    if (el) { el.textContent = texto || ''; el.classList.toggle('hidden', !texto); }
+}
+
+function assegurarUsuario(usuario) {
+    if (sufixoUsuarioBackup() !== usuario || !currentUser) throw new Error('A conta mudou durante a operação. Repita na conta desejada.');
+}
+
+async function checksumFoto(blob) {
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    let crc = 0xffffffff;
+    for (const byte of bytes) {
+        crc ^= byte;
+        for (let i = 0; i < 8; i++) crc = (crc >>> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
+    }
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return { crc: (crc ^ 0xffffffff) >>> 0, sha256: Array.from(new Uint8Array(digest), n => n.toString(16).padStart(2, '0')).join('') };
+}
+
+async function dadosFotoBackup(usuario, referencia) {
+    const foto = await obterFotoDoCacheLocal(usuario, referencia.fotoDocId);
+    if (!foto?.blob) throw new Error('A foto "' + (referencia.fotoNome || referencia.fotoDocId) + '" não foi encontrada no aparelho. Nenhuma cópia externa será apagada. Restaure essa foto de um backup anterior.');
+    const chave = usuario + ':' + referencia.fotoDocId + ':' + foto.atualizadoEm;
+    let checksum = checksumsFotos.get(chave);
+    if (!checksum) { checksum = await checksumFoto(foto.blob); checksumsFotos.set(chave, checksum); }
+    const nome = 'pl_' + referencia.fotoDocId + '_' + checksum.sha256.slice(0, 12) + '.' + extensaoFotoBackup(foto);
+    return { blob: foto.blob, crc: checksum.crc, info: {
+        fotoDocId: referencia.fotoDocId, arquivo: 'fotos-projeto-leve/' + nome,
+        tamanho: foto.blob.size, sha256: checksum.sha256,
+        contentType: foto.contentType || foto.blob.type || 'image/jpeg',
+        nomeOriginal: foto.nomeOriginal || referencia.fotoNome || 'foto'
+    } };
+}
+
+async function montarBackupCompleto(dados, usuario) {
+    const pacote = { app: 'Projeto Leve', versao: 3, salvoEm: new Date().toISOString(), dados: normalizarDados(dados), fotos: [] };
+    const arquivos = [];
+    const referencias = referenciasFotos(pacote.dados);
+    for (const referencia of referencias.values()) {
+        assegurarUsuario(usuario);
+        definirTrabalhoBackup('Preparando foto ' + (arquivos.length + 1) + ' de ' + referencias.size + '...');
+        const foto = await dadosFotoBackup(usuario, referencia);
+        arquivos.push({ nome: foto.info.arquivo, blob: foto.blob, crc: foto.crc });
+        pacote.fotos.push(foto.info);
+    }
+    assegurarUsuario(usuario);
+    const json = new Blob([JSON.stringify(pacote)], { type: 'application/json' });
+    arquivos.unshift({ nome: 'dados.json', blob: json, crc: (await checksumFoto(json)).crc });
+    return { pacote, arquivo: criarZipBackup(arquivos) };
+}
+
+function criarZipBackup(arquivos) {
+    const partes = [], central = [];
+    let offset = 0, tamanhoCentral = 0;
+    const encoder = new TextEncoder();
+    if (arquivos.length > 65535) throw new Error('Quantidade de fotos acima do limite do backup.');
+    for (const arquivo of arquivos) {
+        const nome = encoder.encode(arquivo.nome), tamanho = arquivo.blob.size;
+        if (tamanho > 0xffffffff || offset + tamanho > 0xffffffff) throw new Error('O backup ultrapassa 4 GB. Use o backup em pasta.');
+        const cab = new Uint8Array(30 + nome.length), view = new DataView(cab.buffer);
+        view.setUint32(0, 0x04034b50, true); view.setUint16(4, 20, true); view.setUint16(6, 0x800, true);
+        view.setUint32(14, arquivo.crc, true); view.setUint32(18, tamanho, true); view.setUint32(22, tamanho, true);
+        view.setUint16(26, nome.length, true); cab.set(nome, 30);
+        partes.push(cab, arquivo.blob);
+        const centro = new Uint8Array(46 + nome.length), cv = new DataView(centro.buffer);
+        cv.setUint32(0, 0x02014b50, true); cv.setUint16(4, 20, true); cv.setUint16(6, 20, true); cv.setUint16(8, 0x800, true);
+        cv.setUint32(16, arquivo.crc, true); cv.setUint32(20, tamanho, true); cv.setUint32(24, tamanho, true);
+        cv.setUint16(28, nome.length, true); cv.setUint32(42, offset, true); centro.set(nome, 46);
+        central.push(centro); tamanhoCentral += centro.length; offset += cab.length + tamanho;
+    }
+    if (offset + tamanhoCentral + 22 > 0xffffffff) throw new Error('O backup ultrapassa 4 GB. Use o backup em pasta.');
+    const fim = new Uint8Array(22), fv = new DataView(fim.buffer);
+    fv.setUint32(0, 0x06054b50, true); fv.setUint16(8, arquivos.length, true); fv.setUint16(10, arquivos.length, true);
+    fv.setUint32(12, tamanhoCentral, true); fv.setUint32(16, offset, true);
+    return new Blob([...partes, ...central, fim], { type: 'application/zip' });
+}
+
+async function abrirZipBackup(file) {
+    const inicioCauda = Math.max(0, file.size - 65557);
+    const cauda = new DataView(await file.slice(inicioCauda).arrayBuffer());
+    let fim = -1;
+    for (let i = cauda.byteLength - 22; i >= 0; i--) {
+        if (cauda.getUint32(i, true) === 0x06054b50 && i + 22 + cauda.getUint16(i + 20, true) === cauda.byteLength) { fim = i; break; }
+    }
+    if (fim < 0) throw new Error('Backup ZIP incompleto ou inválido.');
+    const total = cauda.getUint16(fim + 10, true), pos = cauda.getUint32(fim + 16, true), tamanho = cauda.getUint32(fim + 12, true);
+    if (cauda.getUint16(fim + 4, true) || cauda.getUint16(fim + 6, true) || pos + tamanho > file.size || tamanho > 16000000) throw new Error('Formato ZIP não suportado.');
+    const bytes = new Uint8Array(await file.slice(pos, pos + tamanho).arrayBuffer()), dv = new DataView(bytes.buffer);
+    const arquivos = new Map(), decoder = new TextDecoder('utf-8', { fatal: true });
+    let at = 0;
+    for (let i = 0; i < total; i++) {
+        if (at + 46 > bytes.length || dv.getUint32(at, true) !== 0x02014b50) throw new Error('Índice ZIP inválido.');
+        const flags = dv.getUint16(at + 8, true), metodo = dv.getUint16(at + 10, true);
+        const crc = dv.getUint32(at + 16, true), size = dv.getUint32(at + 24, true);
+        const nomeLen = dv.getUint16(at + 28, true), extra = dv.getUint16(at + 30, true), comentario = dv.getUint16(at + 32, true);
+        const local = dv.getUint32(at + 42, true), fimEntrada = at + 46 + nomeLen + extra + comentario;
+        if (fimEntrada > bytes.length || flags & 1 || metodo !== 0 || dv.getUint32(at + 20, true) !== size) throw new Error('Use o ZIP original gerado pelo Projeto Leve, sem recomprimir.');
+        const nome = decoder.decode(bytes.slice(at + 46, at + 46 + nomeLen));
+        if (!/^(dados\.json|fotos-projeto-leve\/[A-Za-z0-9_.-]+)$/.test(nome) || nome.includes('..') || arquivos.has(nome)) throw new Error('Nome de arquivo inválido no backup.');
+        const lh = new DataView(await file.slice(local, local + 30).arrayBuffer());
+        if (lh.byteLength !== 30 || lh.getUint32(0, true) !== 0x04034b50) throw new Error('Arquivo ZIP danificado.');
+        const inicio = local + 30 + lh.getUint16(26, true) + lh.getUint16(28, true);
+        if (inicio + size > pos) throw new Error('Tamanho de arquivo inválido no backup.');
+        arquivos.set(nome, { blob: file.slice(inicio, inicio + size), crc });
+        at = fimEntrada;
+    }
+    const json = arquivos.get('dados.json');
+    if (!json || json.blob.size > 25000000) throw new Error('Dados do backup ausentes ou grandes demais.');
+    if ((await checksumFoto(json.blob)).crc !== json.crc) throw new Error('O arquivo de dados está corrompido.');
+    const pacote = JSON.parse(await json.blob.text());
+    return validarPacoteBackup(pacote, async info => {
+        const entry = arquivos.get(info.arquivo);
+        if (!entry) throw new Error('Foto ausente no ZIP: ' + info.nomeOriginal);
+        const blob = entry.blob.slice(0, entry.blob.size, info.contentType);
+        if ((await checksumFoto(blob)).crc !== entry.crc) throw new Error('Uma foto está corrompida no ZIP.');
+        return blob;
+    });
+}
+
+async function validarPacoteBackup(pacote, lerFoto) {
+    if (pacote?.app !== 'Projeto Leve' || pacote.versao !== 3 || !Array.isArray(pacote.fotos)) throw new Error('Versão de backup inválida.');
+    const dados = validarDadosImportados(pacote.dados), referencias = referenciasFotos(dados);
+    const fotos = new Map();
+    for (const info of pacote.fotos) {
+        if (!info || !referencias.has(info.fotoDocId) || fotos.has(info.fotoDocId) ||
+            !/^fotos-projeto-leve\/[A-Za-z0-9_.-]+$/.test(info.arquivo) || info.arquivo.includes('..') ||
+            !/^[a-f0-9]{64}$/.test(info.sha256) || !/^image\/[a-zA-Z0-9.+-]+$/.test(info.contentType) ||
+            !Number.isSafeInteger(info.tamanho) || info.tamanho < 1) throw new Error('Descrição de foto inválida no backup.');
+        const blob = await lerFoto(info);
+        if (blob.size !== info.tamanho || (await checksumFoto(blob)).sha256 !== info.sha256) throw new Error('Uma foto está incompleta ou corrompida. A restauração foi cancelada.');
+        fotos.set(info.fotoDocId, { blob, contentType: info.contentType, nomeOriginal: textoSeguro(info.nomeOriginal, 1000) || 'foto' });
+    }
+    if (fotos.size !== referencias.size) throw new Error('O backup não contém todas as fotos dos registros.');
+    return { dados, fotos, completo: true, salvoEm: pacote.salvoEm };
+}
+
+async function aplicarRestauracaoBackup(preparado, usuario) {
+    assegurarUsuario(usuario);
+    const quantidade = referenciasFotos(preparado.dados).size;
+    const faltantes = quantidade - preparado.fotos.size;
+    const mensagem = 'Restaurar ' + preparado.dados.pesos.length + ' peso(s), ' + preparado.dados.medidas.length + ' medida(s), ' +
+        preparado.dados.remedios.length + ' lançamento(s) de remédios e ' + preparado.fotos.size + ' foto(s)? Os registros atuais serão substituídos e uma cópia anterior será preservada.' +
+        (faltantes ? '\n\nEste JSON antigo não contém ' + faltantes + ' foto(s). Elas continuarão indisponíveis até serem recuperadas de uma pasta ou backup completo.' : '');
+    if (!confirm(mensagem)) return false;
+    const dados = normalizarDados(preparado.dados), idsNovos = [], mapa = new Map();
+    const estadoAnterior = appData, bloqueadoAntes = dadosLocaisBloqueados;
+    try {
+        for (const [id, foto] of preparado.fotos) {
+            assegurarUsuario(usuario);
+            const novoId = criarIdFoto('restaurada');
+            fotosEmPreparacao.add(novoId); idsNovos.push(novoId); mapa.set(id, novoId);
+            await salvarFotoNoCacheLocal(usuario, novoId, foto.blob, foto);
+        }
+        for (const registro of todosRegistrosComFotos(dados)) {
+            if (obterFotosRegistro(registro).length) registro.fotos = obterFotosRegistro(registro).map(foto => ({
+                ...foto, fotoDocId: mapa.get(foto.fotoDocId) || foto.fotoDocId,
+                fotoArmazenamento: 'indexeddb-local', fotoStatus: 'local'
+            }));
+        }
+        assegurarUsuario(usuario);
+        // Preserve unreadable raw bytes if a recovery replaces a damaged primary store.
+        if (bloqueadoAntes) {
+            const raw = localStorage.getItem(chaveLocalUsuario());
+            if (raw) localStorage.setItem(chaveLocalUsuario() + '_recuperacao', raw);
+            localStorage.removeItem(chaveLocalUsuario());
+        }
+        dadosLocaisBloqueados = false;
+        motivoProximaCopia = 'Antes de restaurar backup';
+        appData = dados;
+        salvarDados(true, true);
+        preencherCamposConfig();
+        limparFormularioRemedio(); redefinirFormularioPeso(); fecharModalMedida();
+        for (const controle of Object.values(controlesVisualizador)) controle.fechar();
+        alert(faltantes ? 'Registros restaurados. O JSON antigo não tinha todas as imagens; use Restaurar da pasta para recuperá-las.' : 'Backup restaurado com sucesso, incluindo as fotos.');
         return true;
     } catch (error) {
-        console.error('Erro ao ler localStorage do usuário:', error);
-        appData = normalizarDados({});
-        return false;
+        appData = estadoAnterior; dadosLocaisBloqueados = bloqueadoAntes;
+        await removerFotosDoCacheLocal(usuario, idsNovos, true).catch(console.warn);
+        throw error;
+    } finally {
+        idsNovos.forEach(id => fotosEmPreparacao.delete(id));
     }
+}
+
+async function confirmarRestauracaoInterna() {
+    const copia = copiasInternasDisponiveis[Number(document.getElementById('copia-interna-select').value)];
+    if (!copia || restaurandoBackup || !currentUser) return;
+    const usuario = currentUser.uid;
+    definirRestaurando(true);
+    try {
+        const dados = validarDadosImportados(copia.dados), fotos = new Map();
+        for (const ref of referenciasFotos(dados).values()) {
+            const foto = await obterFotoDoCacheLocal(usuario, ref.fotoDocId);
+            if (!foto?.blob) throw new Error('Uma foto desta versão não está disponível no aparelho. Use um backup completo ou da pasta.');
+            fotos.set(ref.fotoDocId, foto);
+        }
+        if (await aplicarRestauracaoBackup({ dados, fotos, completo: true }, usuario)) document.getElementById('copia-interna-escolha').classList.add('hidden');
+    } catch (error) { alert('Não foi possível restaurar: ' + error.message); }
+    finally { definirRestaurando(false); }
+}
+
+async function escreverArquivoPasta(handle, nome, conteudo) {
+    const arquivo = await handle.getFileHandle(nome, { create: true }), gravacao = await arquivo.createWritable();
+    try { await gravacao.write(conteudo); await gravacao.close(); }
+    catch (error) { try { await gravacao.abort(); } catch {} throw error; }
+}
+
+async function pastaUsuarioBackup(handle, usuario, criar = true) {
+    return handle.getDirectoryHandle('projeto-leve-' + String(usuario).replace(/[^A-Za-z0-9_-]/g, '_'), { create: criar });
+}
+
+async function executarFilaBackupPasta() {
+    clearTimeout(backupPastaTimer);
+    if (executandoBackupPasta) return filaBackupPasta;
+    executandoBackupPasta = true;
+    filaBackupPasta = (async () => {
+        let sucesso = true;
+        while (backupPastaPendente) {
+            const pedido = backupPastaPendente; backupPastaPendente = null;
+            try { sucesso = await gravarBackupAutomaticoNaPasta(pedido.conteudo, pedido.handle, pedido.usuario, pedido.geracao) && sucesso; }
+            catch (error) {
+                sucesso = false;
+                if (pedido.usuario === sufixoUsuarioBackup() && pedido.handle === backupPastaHandle) {
+                    erroBackupPasta = error.message;
+                    if (error.name === 'NotAllowedError' || error.name === 'SecurityError') backupPastaPermissao = 'prompt';
+                    atualizarInterfaceBackupAutomatico();
+                }
+            }
+        }
+        return sucesso;
+    })().finally(() => { executandoBackupPasta = false; });
+    return filaBackupPasta;
+}
+
+async function restaurarBackupDaPasta() {
+    if (!window.showDirectoryPicker) return alert('Este navegador não permite abrir pastas. Use um backup ZIP completo.');
+    if (restaurandoBackup || !currentUser) return;
+    const usuario = currentUser.uid;
+    let handle;
+    try { handle = await window.showDirectoryPicker({ mode: 'read' }); }
+    catch (error) { if (error.name !== 'AbortError') alert(error.message); return; }
+    definirRestaurando(true);
+    try {
+        let pasta = handle;
+        try { await pasta.getFileHandle(BACKUP_PASTA_ARQUIVO); }
+        catch (error) {
+            if (error.name !== 'NotFoundError') throw error;
+            pasta = await pastaUsuarioBackup(handle, usuario, false);
+        }
+        const opcoes = [{ nome: 'Mais recente', handle: await pasta.getFileHandle(BACKUP_PASTA_ARQUIVO) }];
+        try {
+            const versoes = await pasta.getDirectoryHandle('versoes');
+            const lista = [];
+            for await (const [nome, entrada] of versoes.entries()) if (entrada.kind === 'file' && /^backup-.*\.json$/.test(nome)) lista.push({ nome, handle: entrada });
+            lista.sort((a, b) => b.nome.localeCompare(a.nome));
+            opcoes.push(...lista.slice(0, 20));
+        } catch (error) { if (error.name !== 'NotFoundError') throw error; }
+        let indice = 0;
+        if (opcoes.length > 1) {
+            const resposta = prompt('Qual cópia deseja restaurar? Digite o número:\n' + opcoes.map((item, i) => i + ': ' + item.nome).join('\n'), '0');
+            if (resposta === null) return;
+            indice = Number(resposta);
+            if (!Number.isInteger(indice) || !opcoes[indice]) throw new Error('Selecione um número da lista.');
+        }
+        definirTrabalhoBackup('Conferindo os arquivos da pasta...');
+        const arquivo = await opcoes[indice].handle.getFile();
+        if (arquivo.size > 25000000) throw new Error('Arquivo de dados grande demais.');
+        const raw = JSON.parse(await arquivo.text());
+        const pastaFotos = await pasta.getDirectoryHandle('fotos-projeto-leve').catch(error => {
+            if (error.name === 'NotFoundError') return null; throw error;
+        });
+        let preparado;
+        if (raw.app === 'Projeto Leve') {
+            preparado = await validarPacoteBackup(raw, async info => {
+                if (!pastaFotos) throw new Error('A pasta de fotos não foi encontrada.');
+                const file = await (await pastaFotos.getFileHandle(info.arquivo.split('/')[1])).getFile();
+                return file.slice(0, file.size, info.contentType);
+            });
+        } else {
+            const dados = validarDadosImportados(raw), fotos = new Map();
+            for (const referencia of referenciasFotos(dados).values()) {
+                if (!pastaFotos) throw new Error('As imagens deste backup antigo não estão na pasta.');
+                const nome = 'pl_' + referencia.fotoDocId + '.' + extensaoFotoBackup({ nomeOriginal: referencia.fotoNome, contentType: referencia.fotoContentType });
+                const file = await (await pastaFotos.getFileHandle(nome)).getFile();
+                fotos.set(referencia.fotoDocId, { blob: file, contentType: referencia.fotoContentType || file.type, nomeOriginal: referencia.fotoNome || nome });
+            }
+            preparado = { dados, fotos, completo: true };
+        }
+        await aplicarRestauracaoBackup(preparado, usuario);
+        definirTrabalhoBackup('');
+    } catch (error) { definirTrabalhoBackup('Restauração não concluída: ' + error.message); alert(error.message); }
+    finally { definirRestaurando(false); }
+}
+
+function definirRestaurando(ativo) {
+    restaurandoBackup = ativo;
+    const app = document.getElementById('app'), nav = document.getElementById('bottom-nav');
+    if (app) app.inert = ativo;
+    if (nav) nav.inert = ativo;
+    const aviso = document.getElementById('restore-overlay');
+    if (aviso) aviso.classList.toggle('hidden', !ativo);
+}
+
+async function criarMiniaturaLocal(origem) {
+    if (!origem?.largura || !origem?.altura) return null;
+    const escala = Math.min(1, 1600 / Math.max(origem.largura, origem.altura));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(origem.largura * escala));
+    canvas.height = Math.max(1, Math.round(origem.altura * escala));
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(origem.fonte, 0, 0, canvas.width, canvas.height);
+    return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', .86));
+}
+
+function definirFotoInicialPrincipal() {
+    const fotos = obterFotosIniciaisConfiguradas();
+    if (!fotos[indiceFotoInicial] || !indiceFotoInicial) return;
+    const [escolhida] = fotos.splice(indiceFotoInicial, 1);
+    fotos.unshift(escolhida);
+    motivoProximaCopia = 'Antes de escolher a foto inicial';
+    appData.config.fotoInicial = { fotos };
+    try { salvarDados(true, true); indiceFotoInicial = 0; renderModalFotoInicial(); }
+    catch (error) { alert(error.message); }
+}
+
+function definirFotoPrincipalRegistro(tipo) {
+    const entradas = tipo === 'peso' ? fotosPesosCarrossel : (tipo === 'medida' ? fotosMedidasCarrossel : fotosRemediosCarrossel);
+    const indice = tipo === 'peso' ? indiceFotoPeso : (tipo === 'medida' ? indiceFotoMedida : indiceFotoRemedio);
+    const entrada = entradas[indice];
+    if (!entrada) return;
+    const lista = tipo === 'peso' ? appData.pesos : (tipo === 'medida' ? appData.medidas : appData.remedios);
+    const registro = lista.find(item => String(item.id) === String(entrada.registro.id));
+    if (!registro) return;
+    const fotos = obterFotosRegistro(registro), pos = fotos.findIndex(item => item.fotoDocId === entrada.foto.fotoDocId);
+    if (pos <= 0) return;
+    const [foto] = fotos.splice(pos, 1); fotos.unshift(foto); registro.fotos = fotos;
+    motivoProximaCopia = 'Antes de escolher a foto principal';
+    try {
+        salvarDados(true, true);
+        if (tipo === 'peso') abrirCarrosselFotosPesos(registro.id, foto.fotoDocId);
+        else if (tipo === 'medida') abrirCarrosselFotosMedidas(registro.id);
+        else abrirCarrosselFotos(registro.id);
+    } catch (error) { alert(error.message); }
 }
 
 /**
@@ -1933,80 +2495,55 @@ let appData = {
 
 // Persistence
 function normalizarDados(raw) {
-    const padrao = {
-        config: {
-            nome: "",
-            nascimento: "",
-            genero: "",
-            altura: "",
-            dataInicial: DATA_HOJE_INICIAL,
-            pesoInicial: "",
-            pesoMeta: "",
-            metaKgPorDia: "",
-            fotoInicial: {},
-            medidasIdeais: {
-                pescoco: "", peito: "", cintura: "", quadril: "", coxa: "", panturrilha: "", braco: ""
-            }
-        },
-        pesos: [],
-        medidas: [],
-        remedios: [],
-        nomesRemedios: [],
-        metasPersonalizadas: [],
-        ultimaAtualizacao: "",
-        apagadoEm: ""
-    };
-
-    const origem = raw && typeof raw === "object" ? raw : {};
-    const remedios = (Array.isArray(origem.remedios) ? origem.remedios : [])
+    const origem = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+    const config = origem.config && typeof origem.config === 'object' ? origem.config : {};
+    const medidasIdeais = {};
+    for (const campo of ['pescoco', 'peito', 'cintura', 'quadril', 'coxa', 'panturrilha', 'braco']) {
+        medidasIdeais[campo] = numeroOuVazio(config.medidasIdeais?.[campo]);
+    }
+    const registros = (nome) => (Array.isArray(origem[nome]) ? origem[nome] : [])
+        .filter(item => item && typeof item === 'object' && !Array.isArray(item))
         .map((item, indice) => {
-            const ordemExistente = Number(item?.ordemCadastro);
-            return {
-                ...item,
-                // Registros antigos não tinham ordem interna. A posição já persistida é usada como migração estável.
-                ordemCadastro: Number.isFinite(ordemExistente) && ordemExistente > 0 ? ordemExistente : indice + 1,
-                fotos: obterFotosRegistro(item)
+            const registro = {
+                id: idRegistroSeguro(item.id), data: textoSeguro(item.data, 10),
+                peso: numeroOuVazio(item.peso), fotos: obterFotosRegistro(item),
+                observacoes: textoSeguro(item.observacoes)
             };
+            if (nome === 'pesos') registro.meta = numeroOuVazio(item.meta);
+            if (nome === 'medidas') for (const campo of Object.keys(medidasIdeais)) registro[campo] = numeroOuVazio(item[campo]);
+            if (nome === 'remedios') {
+                registro.nome = textoSeguro(item.nome, 300).trim();
+                registro.mg = numeroOuVazio(item.mg);
+                registro.ordemCadastro = Number.isSafeInteger(item.ordemCadastro) && item.ordemCadastro > 0 ? item.ordemCadastro : indice + 1;
+            }
+            return registro;
         });
-    const pesos = (Array.isArray(origem.pesos) ? origem.pesos : [])
-        .map(item => ({ ...item, fotos: obterFotosRegistro(item) }));
-    const medidas = (Array.isArray(origem.medidas) ? origem.medidas : [])
-        .map(item => {
-            const normalizado = { ...item, fotos: obterFotosRegistro(item) };
-            // Campos corporais são opcionais. Versões antigas gravavam ausência como zero.
-            ['pescoco','peito','cintura','quadril','coxa','panturrilha','braco'].forEach(chave => {
-                if (normalizado[chave] !== '' && normalizado[chave] !== null && normalizado[chave] !== undefined && Number(normalizado[chave]) === 0) {
-                    normalizado[chave] = '';
-                }
-            });
-            return normalizado;
-        });
-    const fotosIniciais = obterFotosRegistro(origem.config?.fotoInicial || {});
-    const fotoInicial = fotosIniciais.length ? { fotos: fotosIniciais } : {};
-    const nomesHistoricos = remedios.map(item => String(item?.nome || '').trim()).filter(Boolean);
-    const nomesOrigem = Array.isArray(origem.nomesRemedios) ? origem.nomesRemedios : [];
-    const nomesRemedios = [...nomesOrigem, ...nomesHistoricos].reduce((lista, nome) => {
-        const nomeLimpo = String(nome || '').trim();
-        if (nomeLimpo && !lista.some(item => item.toLocaleLowerCase('pt-BR') === nomeLimpo.toLocaleLowerCase('pt-BR'))) lista.push(nomeLimpo);
-        return lista;
-    }, []).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    const remedios = registros('remedios');
+    const nomesRemedios = [];
+    for (const nome of [...(Array.isArray(origem.nomesRemedios) ? origem.nomesRemedios : []), ...remedios.map(item => item.nome)]) {
+        const limpo = textoSeguro(nome, 300).trim();
+        if (limpo && !nomesRemedios.some(atual => atual.toLocaleLowerCase('pt-BR') === limpo.toLocaleLowerCase('pt-BR'))) nomesRemedios.push(limpo);
+    }
+    const fotosIniciais = obterFotosRegistro(config.fotoInicial || {});
     return {
         config: {
-            ...padrao.config,
-            ...(origem.config || {}),
-            fotoInicial,
-            medidasIdeais: {
-                ...padrao.config.medidasIdeais,
-                ...((origem.config && origem.config.medidasIdeais) || {})
-            }
+            nome: textoSeguro(config.nome, 300), nascimento: textoSeguro(config.nascimento, 10),
+            genero: textoSeguro(config.genero, 80), altura: numeroOuVazio(config.altura),
+            dataInicial: dataISOValida(config.dataInicial) ? config.dataInicial : DATA_HOJE_INICIAL,
+            pesoInicial: numeroOuVazio(config.pesoInicial), pesoMeta: numeroOuVazio(config.pesoMeta),
+            metaKgPorDia: numeroOuVazio(config.metaKgPorDia),
+            fotoInicial: fotosIniciais.length ? { fotos: fotosIniciais } : {}, medidasIdeais
         },
-        pesos,
-        medidas,
-        remedios,
-        nomesRemedios,
-        metasPersonalizadas: Array.isArray(origem.metasPersonalizadas) ? origem.metasPersonalizadas : [],
-        ultimaAtualizacao: origem.ultimaAtualizacao || origem.updatedAt || '',
-        apagadoEm: origem.apagadoEm || ''
+        pesos: registros('pesos'), medidas: registros('medidas'), remedios,
+        nomesRemedios: nomesRemedios.sort((a, b) => a.localeCompare(b, 'pt-BR')),
+        metasPersonalizadas: (Array.isArray(origem.metasPersonalizadas) ? origem.metasPersonalizadas : [])
+            .filter(item => item && typeof item === 'object')
+            .map(item => ({
+                id: idRegistroSeguro(item.id), nome: textoSeguro(item.nome, 300),
+                data: textoSeguro(item.data, 10), meta: numeroOuVazio(item.meta), previsao: numeroOuVazio(item.previsao)
+            })),
+        ultimaAtualizacao: textoSeguro(origem.ultimaAtualizacao || origem.updatedAt, 40),
+        apagadoEm: textoSeguro(origem.apagadoEm, 40)
     };
 }
 
@@ -2255,7 +2792,12 @@ async function sairUsuario() {
 function observarLogin() {
     onAuthStateChanged(auth, async (user) => {
         const usuarioMudou = (currentUser?.uid || '') !== (user?.uid || '');
-        if (usuarioMudou) limparUrlsFotosEmMemoria();
+        if (usuarioMudou) {
+            limparUrlsFotosEmMemoria(); geracaoBackupPasta++; backupPastaPendente = null; clearTimeout(backupPastaTimer); clearTimeout(limpezaFotosTimer);
+            clearTimeout(autosaveAjustesTimer); clearTimeout(autosavePerfilTimer);
+            historicoMetasPeso = []; historicoMedidasIdeais = []; historicoPerfilConta = [];
+            erroBackupPasta = ''; checksumsFotos.clear(); fotosEmPreparacao.clear();
+        }
         currentUser = user;
         authInicializado = true;
         if (usuarioMudou) {
@@ -2309,8 +2851,12 @@ function traduzirErroApp(error) {
 /**
  * CALCULATIONS ENGINE
  */
+function dataLocalISO(data) {
+    if (!Number.isFinite(data.getTime())) return '';
+    return String(data.getFullYear()).padStart(4, '0') + '-' + String(data.getMonth() + 1).padStart(2, '0') + '-' + String(data.getDate()).padStart(2, '0');
+}
 function hojeISO() {
-    return dataLocalISO();
+    return dataLocalISO(new Date());
 }
 
 function parseDate(dateStr) {
@@ -2343,7 +2889,7 @@ function diffDays(d1, d2) {
 }
 
 function numeroValido(valor) {
-    if (valor === '' || valor === null || valor === undefined) return null;
+    if (valor === '' || valor === null || valor === undefined || (typeof valor === 'string' && !valor.trim())) return null;
     const n = Number(valor);
     return Number.isFinite(n) ? n : null;
 }
@@ -2355,27 +2901,27 @@ function numeroOuVazio(valor) {
 }
 
 function temConfigCalculo() {
-    return !!appData.config.dataInicial &&
-        numeroValido(appData.config.pesoInicial) !== null &&
-        numeroValido(appData.config.pesoMeta) !== null &&
+    return dataISOValida(appData.config.dataInicial) &&
+        numeroValido(appData.config.pesoInicial) > 0 &&
+        numeroValido(appData.config.pesoMeta) > 0 &&
         numeroValido(appData.config.metaKgPorDia) !== null;
 }
 
 function formatBR(num) {
     const n = numeroValido(num);
-    if (n === null) return '--';
+    if (!Number.isFinite(n)) return '--';
     return n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
 }
 
 function formatBR2(num) {
     const n = numeroValido(num);
-    if (n === null) return '--';
+    if (!Number.isFinite(n)) return '--';
     return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function formatComSinal(num) {
     const n = numeroValido(num);
-    if (n === null) return '--';
+    if (!Number.isFinite(n)) return '--';
     return (n >= 0 ? '+' : '') + formatBR(n);
 }
 
@@ -2551,7 +3097,7 @@ function updateUI() {
     atualizarEstadoBotoesDesfazer();
     
     document.getElementById('user-greeting').innerText = appData.config.nome ? `Bem-vindo, ${appData.config.nome}` : 'Bem-vindo';
-    document.getElementById('backup-info').innerText = appData.ultimaAtualizacao ? `Última alteração: ${formatarDataHoraBackup(appData.ultimaAtualizacao)}` : 'Nenhuma alteração salva ainda.';
+    document.getElementById('backup-info').innerText = `Última alteração: ${appData.ultimaAtualizacao ? formatarDataHoraBackup(appData.ultimaAtualizacao) : 'Nenhuma'}`;
 }
 
 function classeMetaComparadaAoPesoMeta(valor) {
@@ -2724,9 +3270,9 @@ function renderIMCDashboard() {
     const pesoAtual = obterPesoAtual();
     const alturaCm = numeroValido(appData.config.altura);
     const idade = calcularIdade(appData.config.nascimento);
-    const genero = appData.config.genero || '--';
+    const genero = escapeHtml(appData.config.genero || '--');
 
-    if (!Number.isFinite(pesoAtual) || !alturaCm) {
+    if (!Number.isFinite(pesoAtual) || pesoAtual <= 0 || !alturaCm || alturaCm <= 0) {
         card.className = 'card imc-card neutral';
         content.innerHTML = 'Preencha altura no perfil e registre seu peso atual para calcular o IMC completo.';
         return;
@@ -2753,7 +3299,7 @@ function renderIMCDashboard() {
             <div class="imc-badge">${imc.toFixed(1).replace('.', ',')}</div>
             <div>
                 <div class="value ${info.normal ? 'positive' : 'negative'}" style="font-size: 20px;">${info.categoria}</div>
-                <div class="imc-caption">${genero} - ${alturaFormatada} cm - ${idadeTexto}</div>
+                <div class="imc-caption">${genero} - ${alturaFormatada.replace('.', ',')} m - ${idadeTexto}</div>
             </div>
         </div>
         <div class="imc-detail-grid">
@@ -2829,27 +3375,25 @@ function renderMedidas() {
         ];
 
         containerComparativo.innerHTML = campos.map(c => {
-            const vAtual = numeroInformado(atual[c.key]);
-            const vAnterior = numeroInformado(anterior[c.key]);
-            const diff = vAtual !== null && vAnterior !== null ? vAtual - vAnterior : null;
-            const statusClass = diff === null ? 'neutral' : (diff < 0 ? 'positive' : (diff > 0 ? 'negative' : 'neutral'));
+            const vAtual = numeroValido(atual[c.key]);
+            const vAnterior = numeroValido(anterior[c.key]);
+            const diff = vAtual !== null && vAnterior !== null ? vAtual - vAnterior : NaN;
+            const statusClass = diff < 0 ? 'positive' : (diff > 0 ? 'negative' : 'neutral');
             const idealNumero = numeroValido(c.ideal);
 
             let idealTxt = "";
-            if (idealNumero !== null && vAtual !== null) {
+            if(idealNumero !== null && vAtual !== null) {
                 const diffIdeal = idealNumero - vAtual;
                 const unidade = c.unidade ? ` ${c.unidade}` : '';
                 idealTxt = `<div class="small ${diffIdeal >= 0 ? 'positive' : 'negative'}">Ideal: ${formatBR(idealNumero)}${unidade} (${formatComSinal(diffIdeal)}${unidade})</div>`;
             }
 
             const unidade = c.unidade ? ` ${c.unidade}` : '';
-            const valorAtualTexto = vAtual !== null ? `${formatBR(vAtual)}${unidade}` : '--';
-            const comparacaoTexto = diff !== null ? `${formatComSinal(diff)}${unidade} vs ant.` : '-- vs ant.';
             return `
                 <div class="card" style="padding: 10px;">
                     <div class="label">${c.label}</div>
-                    <div class="value" style="font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${valorAtualTexto}</div>
-                    <div class="small ${statusClass}">${comparacaoTexto}</div>
+                    <div class="value" style="font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${formatBR(vAtual)}${unidade}</div>
+                    <div class="small ${statusClass}">${formatComSinal(diff)}${unidade} vs ant.</div>
                     ${idealTxt}
                 </div>
             `;
@@ -2899,34 +3443,11 @@ function obterFotosRegistro(item = {}) {
         if (!foto || typeof foto !== 'object') return lista;
         const campos = obterCamposFotoRegistro(foto);
         const id = String(campos.fotoDocId || foto.id || '');
-        if (!id || vistos.has(id)) return lista;
+        if (!/^[A-Za-z0-9_-]{1,180}$/.test(id) || vistos.has(id)) return lista;
         vistos.add(id);
         lista.push({ ...campos, fotoDocId: id });
         return lista;
     }, []);
-}
-
-function obterOrdemCadastroRemedio(item) {
-    const ordem = Number(item?.ordemCadastro);
-    return Number.isFinite(ordem) ? ordem : 0;
-}
-
-function proximaOrdemCadastroRemedio() {
-    return (appData.remedios || []).reduce((maior, item) => Math.max(maior, obterOrdemCadastroRemedio(item)), 0) + 1;
-}
-
-function compararRemediosMaisRecentes(a, b) {
-    const porData = String(b?.data || '').localeCompare(String(a?.data || ''));
-    if (porData) return porData;
-    const porOrdem = obterOrdemCadastroRemedio(b) - obterOrdemCadastroRemedio(a);
-    return porOrdem || String(b?.id || '').localeCompare(String(a?.id || ''));
-}
-
-function compararRemediosMaisAntigos(a, b) {
-    const porData = String(a?.data || '').localeCompare(String(b?.data || ''));
-    if (porData) return porData;
-    const porOrdem = obterOrdemCadastroRemedio(a) - obterOrdemCadastroRemedio(b);
-    return porOrdem || String(a?.id || '').localeCompare(String(b?.id || ''));
 }
 
 function renderResumoRemedioAtual() {
@@ -2934,7 +3455,10 @@ function renderResumoRemedioAtual() {
     if (!container) return;
     const remedios = [...(appData.remedios || [])]
         .filter(item => item && item.data && Number.isFinite(Number(item.mg)))
-        .sort(compararRemediosMaisRecentes);
+        .sort((a, b) => {
+            const porData = String(b.data || '').localeCompare(String(a.data || ''));
+            return porData || (Number(b.ordemCadastro) || 0) - (Number(a.ordemCadastro) || 0);
+        });
     const atual = remedios[0];
     if (!atual) {
         container.innerHTML = '';
@@ -2960,7 +3484,10 @@ function renderRemedios() {
 
     const lista = document.getElementById('lista-remedios');
     if (!lista) return;
-    const remedios = [...(appData.remedios || [])].sort(compararRemediosMaisRecentes);
+    const remedios = [...(appData.remedios || [])].sort((a, b) => {
+        const porData = String(b.data || '').localeCompare(String(a.data || ''));
+        return porData || (Number(b.ordemCadastro) || 0) - (Number(a.ordemCadastro) || 0);
+    });
 
     if (!remedios.length) {
         lista.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-secondary);">Nenhum remédio lançado ainda.</td></tr>';
@@ -3007,11 +3534,12 @@ async function prepararFotoRegistro(file, idRemedio) {
     const uid = currentUser.uid;
     let largura = 0;
     let altura = 0;
+    let miniatura = null;
     try {
         const origem = await carregarFonteDaFoto(file);
         largura = origem.largura;
         altura = origem.altura;
-        origem.liberar();
+        try { miniatura = await criarMiniaturaLocal(origem); } finally { origem.liberar(); }
     } catch (error) {
         console.warn('A foto original será salva sem leitura prévia das dimensões:', error);
     }
@@ -3020,7 +3548,7 @@ async function prepararFotoRegistro(file, idRemedio) {
         contentType: file.type || 'image/jpeg',
         largura,
         altura,
-        nomeOriginal: file.name || 'foto'
+        nomeOriginal: file.name || 'foto', miniatura
     });
 
     return {
@@ -3049,18 +3577,19 @@ function criarIdFoto(prefixo = 'foto') {
 async function prepararFotosRegistro(arquivos, prefixo) {
     const lista = Array.from(arquivos || []);
     if (!lista.length) return null;
-    const uid = currentUser?.uid || '';
-    const fotos = [];
+    const uid = currentUser?.uid || '', fotos = [], ids = [];
     try {
         for (const arquivo of lista) {
-            const preparada = await prepararFotoRegistro(arquivo, criarIdFoto(prefixo));
+            const id = criarIdFoto(prefixo);
+            ids.push(id); fotosEmPreparacao.add(id);
+            const preparada = await prepararFotoRegistro(arquivo, id);
             fotos.push(preparada.dadosFoto);
         }
         return { uid, fotos };
     } catch (error) {
-        await removerFotosDoCacheLocal(uid, fotos.map(foto => foto.fotoDocId));
+        await removerFotosDoCacheLocal(uid, ids, true).catch(console.warn);
         throw error;
-    }
+    } finally { ids.forEach(id => fotosEmPreparacao.delete(id)); }
 }
 
 function abrirBancoFotos() {
@@ -3073,9 +3602,13 @@ function abrirBancoFotos() {
             const banco = request.result;
             if (!banco.objectStoreNames.contains(FOTO_DB_STORE)) banco.createObjectStore(FOTO_DB_STORE, { keyPath: 'chave' });
         };
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error || new Error('Não foi possível abrir o armazenamento local de fotos.'));
-        request.onblocked = () => reject(new Error('O armazenamento local de fotos está bloqueado por outra aba do aplicativo.'));
+        request.onsuccess = () => {
+            const banco = request.result;
+            banco.onversionchange = () => { banco.close(); bancoFotosPromise = null; };
+            resolve(banco);
+        };
+        request.onerror = () => { bancoFotosPromise = null; reject(request.error || new Error('Não foi possível abrir o armazenamento local de fotos.')); };
+        request.onblocked = () => { bancoFotosPromise = null; reject(new Error('Feche outras abas do aplicativo e tente novamente.')); };
     });
     return bancoFotosPromise;
 }
@@ -3104,6 +3637,7 @@ async function salvarFotoNoCacheLocal(uid, fotoDocId, blob, metadados = {}) {
             uid,
             fotoDocId,
             blob,
+            miniatura: metadados.miniatura || null,
             contentType: metadados.contentType || blob.type || 'image/jpeg',
             largura: metadados.largura || 0,
             altura: metadados.altura || 0,
@@ -3136,29 +3670,23 @@ async function obterFotoDoCacheLocal(uid, fotoDocId) {
     }
 }
 
-async function removerFotosDoCacheLocal(uid, fotoDocIds) {
-    const ids = [...new Set((fotoDocIds || []).filter(Boolean))];
+async function removerFotosDoCacheLocal(uid, fotoDocIds, forcar = false) {
+    const referencias = forcar ? new Set() : fotosProtegidasUsuario(uid);
+    const ids = [...new Set((fotoDocIds || []).filter(id => id && !referencias.has(id)))];
     if (!uid || !ids.length) return;
-    try {
-        const banco = await abrirBancoFotos();
-        await new Promise((resolve, reject) => {
-            const transacao = banco.transaction(FOTO_DB_STORE, 'readwrite');
-            const store = transacao.objectStore(FOTO_DB_STORE);
-            ids.forEach(id => store.delete(chaveFotoLocal(uid, id)));
-            transacao.oncomplete = () => resolve(true);
-            transacao.onerror = () => reject(transacao.error || new Error('Não foi possível remover as fotos deste aparelho.'));
-            transacao.onabort = () => reject(transacao.error || new Error('A remoção local das fotos foi interrompida.'));
-        });
-    } catch (error) {
-        console.warn('Não foi possível limpar o cache local de fotos:', error);
-    }
-
-    ids.forEach(id => {
-        const chave = chaveFotoLocal(uid, id);
-        const url = cacheUrlsFotos.get(chave);
+    const banco = await abrirBancoFotos();
+    await new Promise((resolve, reject) => {
+        const tx = banco.transaction(FOTO_DB_STORE, 'readwrite'), store = tx.objectStore(FOTO_DB_STORE);
+        ids.forEach(id => store.delete(chaveFotoLocal(uid, id)));
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error || new Error('Não foi possível remover as fotos.'));
+        tx.onabort = () => reject(tx.error || new Error('A remoção das fotos foi interrompida.'));
+    });
+    for (const id of ids) {
+        const chave = chaveFotoLocal(uid, id), url = cacheUrlsFotos.get(chave);
         if (url) URL.revokeObjectURL(url);
         cacheUrlsFotos.delete(chave);
-    });
+    }
 }
 
 function limparUrlsFotosEmMemoria() {
@@ -3180,7 +3708,7 @@ async function carregarFonteDaFoto(file) {
     const imagem = new Image();
     await new Promise((resolve, reject) => {
         imagem.onload = resolve;
-        imagem.onerror = () => reject(new Error('Não foi possível abrir a foto selecionada.'));
+        imagem.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Não foi possível abrir a foto selecionada.')); };
         imagem.src = url;
     });
     return {
@@ -3200,7 +3728,7 @@ async function obterUrlFotoRemedio(item) {
     const fotoLocal = await obterFotoDoCacheLocal(currentUser.uid, item.fotoDocId);
     if (!fotoLocal?.blob) throw new Error('A foto não foi encontrada no armazenamento local deste aparelho.');
 
-    const url = URL.createObjectURL(fotoLocal.blob);
+    const url = URL.createObjectURL(fotoLocal.miniatura || fotoLocal.blob);
     cacheUrlsFotos.set(chave, url);
     return url;
 }
@@ -3521,7 +4049,7 @@ async function removerFotoInicial() {
     const indiceRemover = indiceFotoInicial;
     const fotoSelecionada = fotos[indiceRemover];
     const nomeFoto = fotoSelecionada?.fotoNome || `Foto ${indiceRemover + 1}`;
-    if (!confirm(`Remover somente ${nomeFoto} deste aparelho?`)) return;
+    if (!confirm(`Remover somente ${nomeFoto} do registro? Uma cópia de recuperação será mantida.`)) return;
 
     try {
         if (fotoSelecionada?.fotoDocId) {
@@ -3529,6 +4057,7 @@ async function removerFotoInicial() {
         }
 
         const restantes = fotos.filter((_, indice) => indice !== indiceRemover);
+        motivoProximaCopia = 'Antes de remover foto inicial';
         appData.config.fotoInicial = restantes.length ? { fotos: restantes } : {};
 
         if (!restantes.length) {
@@ -3651,6 +4180,7 @@ async function excluirRemedio(id) {
         return alert('Não foi possível excluir a foto deste lançamento. O registro foi mantido para evitar uma exclusão incompleta.');
     }
 
+    motivoProximaCopia = 'Antes de excluir remédio';
     appData.remedios = (appData.remedios || []).filter(registro => String(registro.id) !== String(id));
     fecharCarrosselFotos();
     limparFormularioRemedio();
@@ -3665,9 +4195,7 @@ function montarItensCarrossel(registros) {
     return [...(registros || [])]
         .sort((a, b) => {
             const porData = String(a.data || '').localeCompare(String(b.data || ''));
-            if (porData) return porData;
-            const porOrdem = obterOrdemCadastroRemedio(a) - obterOrdemCadastroRemedio(b);
-            return porOrdem || String(a.id || '').localeCompare(String(b.id || ''));
+            return porData || (Number(a.ordemCadastro) || 0) - (Number(b.ordemCadastro) || 0);
         })
         .flatMap(registro => obterFotosRegistro(registro).map(foto => ({ registro, foto })));
 }
@@ -3870,10 +4398,11 @@ async function excluirFotoAtual(tipo) {
     const lista = ehRemedio ? fotosRemediosCarrossel : (ehMedida ? fotosMedidasCarrossel : fotosPesosCarrossel);
     const indice = ehRemedio ? indiceFotoRemedio : (ehMedida ? indiceFotoMedida : indiceFotoPeso);
     const entrada = lista[indice];
-    if (!entrada || !confirm('Excluir somente esta foto original? O lançamento será mantido.')) return;
+    if (!entrada || !confirm('Excluir esta foto do registro? O lançamento e uma cópia de recuperação serão mantidos.')) return;
 
     try {
         await removerFotosDoCacheLocal(currentUser?.uid || '', [entrada.foto.fotoDocId]);
+        motivoProximaCopia = 'Antes de excluir foto';
         entrada.registro.fotos = obterFotosRegistro(entrada.registro)
             .filter(foto => String(foto.fotoDocId) !== String(entrada.foto.fotoDocId));
         limparCamposFotoUnica(entrada.registro, entrada.foto.fotoDocId);
@@ -3922,9 +4451,9 @@ function carregarChartJs() {
 
     chartJsPromise = new Promise((resolve, reject) => {
         const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js';
         script.onload = resolve;
-        script.onerror = () => reject(new Error('Não foi possível carregar o Chart.js.'));
+        script.onerror = () => { chartJsPromise = null; script.remove(); reject(new Error('Não foi possível carregar os gráficos. Verifique a conexão e tente abrir a aba novamente.')); };
         document.head.appendChild(script);
     });
 
@@ -3981,12 +4510,12 @@ function renderGraficos() {
         data: {
             labels: labelsMed,
             datasets: [
-                { label: 'Barriga', data: sortedMedidas.map(m => m.cintura), borderColor: '#ef4444' },
-                { label: 'Coxa', data: sortedMedidas.map(m => m.coxa), borderColor: '#22c55e' },
-                { label: 'Quadril', data: sortedMedidas.map(m => m.quadril), borderColor: '#38bdf8' },
-                { label: 'Peito', data: sortedMedidas.map(m => m.peito), borderColor: '#a855f7' },
-                { label: 'Panturrilha', data: sortedMedidas.map(m => m.panturrilha), borderColor: '#f59e0b' },
-                { label: 'Braço', data: sortedMedidas.map(m => m.braco), borderColor: '#14b8a6' }
+                { label: 'Barriga', data: sortedMedidas.map(m => numeroValido(m.cintura)), borderColor: '#ef4444' },
+                { label: 'Coxa', data: sortedMedidas.map(m => numeroValido(m.coxa)), borderColor: '#22c55e' },
+                { label: 'Quadril', data: sortedMedidas.map(m => numeroValido(m.quadril)), borderColor: '#38bdf8' },
+                { label: 'Peito', data: sortedMedidas.map(m => numeroValido(m.peito)), borderColor: '#a855f7' },
+                { label: 'Panturrilha', data: sortedMedidas.map(m => numeroValido(m.panturrilha)), borderColor: '#f59e0b' },
+                { label: 'Braço', data: sortedMedidas.map(m => numeroValido(m.braco)), borderColor: '#14b8a6' }
             ]
         },
         options: {
@@ -4086,6 +4615,7 @@ if (inputFotoInicial) inputFotoInicial.addEventListener('change', async () => {
         const preparada = await prepararFotosRegistro(arquivos, 'foto_inicial');
         if (!preparada || currentUser?.uid !== preparada.uid) throw new Error('A sessão mudou durante o salvamento das fotos. Entre novamente e repita.');
         // A ordem escolhida pelo navegador é preservada: a primeira selecionada é a Foto 1.
+        motivoProximaCopia = 'Antes de trocar as fotos iniciais';
         appData.config.fotoInicial = { fotos: preparada.fotos };
         salvarDados(true, true);
         const novosIds = new Set(preparada.fotos.map(foto => foto.fotoDocId));
@@ -4122,12 +4652,12 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
     const editId = document.getElementById('edit-remedio-id')?.value || '';
     const data = document.getElementById('remedio-data')?.value || '';
     const nome = document.getElementById('remedio-nome')?.value.trim() || '';
-    const mg = Number(document.getElementById('remedio-mg')?.value);
-    const peso = Number(document.getElementById('remedio-peso')?.value);
+    const mg = numeroValido(document.getElementById('remedio-mg')?.value);
+    const peso = numeroValido(document.getElementById('remedio-peso')?.value);
     const arquivosFoto = Array.from(inputFotoRemedio?.files || []);
 
-    if (!data || !nome || !Number.isFinite(mg) || mg <= 0 || !Number.isFinite(peso) || peso <= 0) {
-        return alert('Preencha data, nome do remédio, dose em mg e peso com valores válidos.');
+    if (!dataISOValida(data) || !nome || !Number.isFinite(mg) || mg <= 0 || !Number.isFinite(peso) || peso <= 0) {
+        return alert('Preencha data, nome do remédio, dose em mg e peso.');
     }
 
     const botaoSalvar = document.getElementById('btn-salvar-remedio');
@@ -4156,9 +4686,7 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
             nome,
             mg,
             peso,
-            // Metadados internos para desempatar dois lançamentos na mesma data. Não são exibidos no app.
-            ordemCadastro: registroAnterior?.ordemCadastro || proximaOrdemCadastroRemedio(),
-            criadoEm: registroAnterior?.criadoEm || new Date().toISOString(),
+            ordemCadastro: registroAnterior?.ordemCadastro || Math.max(0, ...(appData.remedios || []).map(item => Number(item.ordemCadastro) || 0)) + 1,
             fotos: [...fotosAnteriores, ...(fotoPreparada?.fotos || [])]
         };
         appData.remedios = Array.isArray(appData.remedios) ? appData.remedios : [];
@@ -4310,6 +4838,7 @@ async function excluirPeso(id) {
         return alert('Não foi possível excluir a foto deste lançamento. O registro foi mantido para evitar uma exclusão incompleta.');
     }
 
+    motivoProximaCopia = 'Antes de excluir peso';
     appData.pesos = appData.pesos.filter(registro => String(registro.id) !== String(id));
     fecharCarrosselFotosPesos();
     redefinirFormularioPeso();
@@ -4451,7 +4980,7 @@ function agendarSalvarAjustes() {
         if (status) status.innerText = '';
     });
     clearTimeout(autosaveAjustesTimer);
-    autosaveAjustesTimer = setTimeout(salvarAjustesAutomaticamente, 350);
+    autosaveAjustesTimer = setTimeout(() => { try { salvarAjustesAutomaticamente(); } catch (error) { registrarFalhaArmazenamento(error); } }, 350);
 }
 
 function limparPerfilMetas() {
@@ -4525,7 +5054,7 @@ function salvarPerfilAutomaticamente() {
 
 function agendarSalvarPerfil() {
     clearTimeout(autosavePerfilTimer);
-    autosavePerfilTimer = setTimeout(salvarPerfilAutomaticamente, 350);
+    autosavePerfilTimer = setTimeout(() => { try { salvarPerfilAutomaticamente(); } catch (error) { registrarFalhaArmazenamento(error); } }, 350);
 }
 
 const camposMetasPeso = ['cfg-data-init','cfg-peso-init','cfg-peso-meta','cfg-meta-dia'];
@@ -4574,7 +5103,7 @@ function abrirModalMedida() {
     document.getElementById('medida-modal-title').innerText = 'Nova Medição';
     document.getElementById('modal-medida').classList.remove('hidden');
     document.getElementById('med-data').value = hojeISO();
-    document.getElementById('med-peso').value = numeroInformado(obterPesoAtual()) ?? '';
+    document.getElementById('med-peso').value = obterPesoAtual();
     document.getElementById('med-foto-nome').innerText = 'Nenhuma foto selecionada. Você pode escolher várias.';
     const botao = document.getElementById('btn-salvar-medida');
     if (botao) { botao.disabled = false; botao.innerText = 'Salvar'; }
@@ -4592,7 +5121,7 @@ function limparFormularioMedidas() {
     document.getElementById('form-medidas').reset();
     document.getElementById('edit-medida-id').value = "";
     document.getElementById('med-data').value = hojeISO();
-    document.getElementById('med-peso').value = numeroInformado(obterPesoAtual()) ?? '';
+    document.getElementById('med-peso').value = obterPesoAtual();
     document.getElementById('med-foto-nome').innerText = 'Nenhuma foto selecionada. Você pode escolher várias.';
     document.getElementById('medida-modal-title').innerText = 'Nova Medição';
     document.getElementById('med-pescoco').focus();
@@ -4604,7 +5133,8 @@ document.getElementById('form-medidas').onsubmit = async function(e) {
     const data = document.getElementById('med-data').value;
     const peso = Number(document.getElementById('med-peso').value);
     const arquivosFoto = Array.from(inputFotoMedida?.files || []);
-    if (!data || !Number.isFinite(peso) || peso <= 0) return alert('Preencha a data e o peso com valores válidos.');
+    if (!dataISOValida(data) || !Number.isFinite(peso) || peso <= 0) return alert('Preencha a data e o peso com valores válidos.');
+    if (['pescoco','peito','cintura','quadril','coxa','panturrilha','braco'].some(campo => Number(document.getElementById('med-' + campo).value) < 0)) return alert('As medidas não podem ser negativas.');
 
     appData.medidas = Array.isArray(appData.medidas) ? appData.medidas : [];
     const indiceExistente = editId ? appData.medidas.findIndex(m => String(m.id) === String(editId)) : -1;
@@ -4638,8 +5168,8 @@ document.getElementById('form-medidas').onsubmit = async function(e) {
         };
         if (indiceExistente > -1) appData.medidas[indiceExistente] = novaMed;
         else appData.medidas.push(novaMed);
-        fecharModalMedida();
         salvarDados(true, true);
+        fecharModalMedida();
     } catch (error) {
         console.error(error);
         alert('Não foi possível salvar a medição: ' + traduzirErroApp(error));
@@ -4649,7 +5179,7 @@ document.getElementById('form-medidas').onsubmit = async function(e) {
 };
 
 function editarMedida(id) {
-    const m = appData.medidas.find(x => x.id === id);
+    const m = appData.medidas.find(x => String(x.id) === String(id));
     if(!m) return;
     abrirModalMedida();
     document.getElementById('medida-modal-title').innerText = "Editar Medição";
@@ -4680,6 +5210,7 @@ async function excluirMedida(id) {
         console.error(error);
         return alert('Não foi possível excluir as fotos desta medição. O registro foi mantido.');
     }
+    motivoProximaCopia = 'Antes de excluir medição';
     appData.medidas = appData.medidas.filter(x => String(x.id) !== String(id));
     fecharCarrosselFotosMedidas();
     salvarDados(true, true);
@@ -4972,35 +5503,29 @@ function formatarDataHoraBackup(valor) {
     return data.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'medium' });
 }
 
-function lerCopiaInternaAutomatica() {
+function lerCopiaInternaAutomatica(usuario = sufixoUsuarioBackup()) {
     try {
-        const texto = localStorage.getItem(chaveBackupInternoUsuario());
+        const texto = localStorage.getItem(BACKUP_INTERNO_BASE_KEY + '_' + usuario);
         if (!texto) return null;
-        const pacote = JSON.parse(texto);
-        return pacote && pacote.dados ? pacote : { versao: 1, salvoEm: '', dados: pacote };
-    } catch (error) {
-        console.warn('Não foi possível ler a cópia interna automática:', error);
-        return null;
-    }
+        const pacote = JSON.parse(texto), dados = pacote?.dados || pacote;
+        return {
+            versao: 2, salvoEm: pacote.salvoEm || '', dados: validarDadosImportados(dados),
+            anteriores: (Array.isArray(pacote.anteriores) ? pacote.anteriores : []).filter(copia => {
+                try { validarDadosImportados(copia.dados); return true; } catch { return false; }
+            }).slice(0, LIMITE_COPIAS_INTERNAS)
+        };
+    } catch (error) { console.warn('Não foi possível ler a cópia interna:', error); return null; }
 }
 
-function salvarCopiaInternaAutomatica() {
-    try {
-        const pacote = {
-            versao: 1,
-            salvoEm: new Date().toISOString(),
-            dados: normalizarDados(appData)
-        };
-        localStorage.setItem(chaveBackupInternoUsuario(), JSON.stringify(pacote));
-        ultimoBackupInternoEm = pacote.salvoEm;
-        atualizarInterfaceBackupAutomatico();
-        return true;
-    } catch (error) {
-        console.warn('Não foi possível atualizar a cópia interna automática:', error);
-        ultimoBackupInternoEm = '';
-        atualizarInterfaceBackupAutomatico();
-        return false;
-    }
+function salvarCopiaInternaAutomatica(dados = appData, anteriores = null) {
+    const existente = lerCopiaInternaAutomatica();
+    const pacote = {
+        versao: 2, salvoEm: new Date().toISOString(), dados: normalizarDados(dados),
+        anteriores: anteriores || existente?.anteriores || []
+    };
+    localStorage.setItem(chaveBackupInternoUsuario(), JSON.stringify(pacote));
+    ultimoBackupInternoEm = pacote.salvoEm;
+    return pacote;
 }
 
 function abrirBancoBackupPasta() {
@@ -5066,9 +5591,10 @@ function atualizarInterfaceBackupAutomatico() {
     const dotInterno = document.getElementById('backup-interno-dot');
     const dataInterna = ultimoBackupInternoEm || copia?.salvoEm || '';
     if (statusInterno) statusInterno.innerText = dataInterna
-        ? `Protegido em ${formatarDataHoraBackup(dataInterna)}`
+        ? `Cópia em ${formatarDataHoraBackup(dataInterna)}`
         : 'A cópia interna ainda não pôde ser criada.';
-    if (dotInterno) dotInterno.className = `automatic-backup-dot${dataInterna ? ' ok' : ' warning'}`;
+    if (falhaArmazenamento && statusInterno) statusInterno.innerText = falhaArmazenamento;
+    if (dotInterno) dotInterno.className = 'automatic-backup-dot' + (dataInterna && !falhaArmazenamento ? ' ok' : ' warning');
 
     const suportaPasta = typeof window.showDirectoryPicker === 'function';
     const statusPasta = document.getElementById('backup-pasta-status');
@@ -5100,6 +5626,7 @@ function atualizarInterfaceBackupAutomatico() {
     } else if (backupPastaHandle) {
         texto = 'Pasta lembrada. Toque em “Salvar agora” para reautorizar, se necessário.';
     }
+    if (erroBackupPasta) { texto = 'Falha no backup: ' + erroBackupPasta; classe = 'warning'; }
     if (statusPasta) statusPasta.innerText = texto;
     if (dotPasta) dotPasta.className = `automatic-backup-dot ${classe}`;
 }
@@ -5122,9 +5649,10 @@ async function inicializarBackupAutomatico() {
             console.warn('Não foi possível recuperar a pasta de backup:', error);
         }
     }
-    if (!copia) salvarCopiaInternaAutomatica();
+    if (!copia && !dadosLocaisBloqueados) { try { salvarCopiaInternaAutomatica(); } catch (error) { registrarFalhaArmazenamento(error); } }
     atualizarInterfaceBackupAutomatico();
-    if (backupPastaHandle && backupPastaPermissao === 'granted') await enfileirarBackupAutomaticoNaPasta();
+    if (backupPastaHandle && backupPastaPermissao === 'granted' && !dadosLocaisBloqueados) enfileirarBackupAutomaticoNaPasta();
+    atualizarUsoArmazenamento();
 }
 
 async function selecionarPastaBackup() {
@@ -5135,6 +5663,7 @@ async function selecionarPastaBackup() {
         const handle = await window.showDirectoryPicker({ id: 'projeto-leve-backup', mode: 'readwrite' });
         const permissao = await verificarPermissaoBackupPasta(handle, true);
         if (permissao !== 'granted') return alert('A pasta não foi autorizada para gravação.');
+        geracaoBackupPasta++; backupPastaPendente = null; erroBackupPasta = '';
         backupPastaHandle = handle;
         backupPastaPermissao = permissao;
         await guardarHandleBackupPasta(handle);
@@ -5166,90 +5695,46 @@ function extensaoFotoBackup(foto) {
 }
 
 async function copiarFotosOriginaisParaPasta(handle, usuario, dados) {
-    const registros = [
-        ...(dados?.remedios || []),
-        ...(dados?.pesos || []),
-        ...(dados?.medidas || []),
-        ...(obterFotosRegistro(dados?.config?.fotoInicial || {}).length ? [dados.config.fotoInicial] : [])
-    ];
-    const ids = [...new Set(registros.flatMap(obterFotosRegistro).map(item => item?.fotoDocId).filter(Boolean))];
-
-    const pastaFotos = await handle.getDirectoryHandle('fotos-projeto-leve', { create: true });
-    let copiadas = 0;
-    const arquivosAtivos = new Set();
-    for (const fotoDocId of ids) {
-        const foto = await obterFotoDoCacheLocal(usuario, fotoDocId);
-        if (!foto?.blob) continue;
-        const idSeguro = String(fotoDocId).replace(/[^a-zA-Z0-9_-]/g, '_');
-        const nomeArquivo = `pl_${idSeguro}.${extensaoFotoBackup(foto)}`;
-        arquivosAtivos.add(nomeArquivo);
-        const arquivo = await pastaFotos.getFileHandle(nomeArquivo, { create: true });
+    const manifest = [], pastaFotos = await handle.getDirectoryHandle('fotos-projeto-leve', { create: true });
+    for (const referencia of referenciasFotos(dados).values()) {
+        const foto = await dadosFotoBackup(usuario, referencia);
+        const nome = foto.info.arquivo.split('/')[1];
+        let existe = false;
         try {
-            const existente = await arquivo.getFile();
-            if (existente.size === foto.blob.size) {
-                copiadas++;
-                continue;
-            }
-        } catch (error) {
-            // O arquivo novo será gravado abaixo.
-        }
-        const gravacao = await arquivo.createWritable();
-        try {
-            await gravacao.write(foto.blob);
-            await gravacao.close();
-            copiadas++;
-        } catch (error) {
-            try { await gravacao.abort(); } catch (abortError) { /* nada a fazer */ }
-            throw error;
-        }
+            const anterior = await (await pastaFotos.getFileHandle(nome)).getFile();
+            existe = anterior.size === foto.blob.size && (await checksumFoto(anterior)).sha256 === foto.info.sha256;
+        } catch (error) { if (error.name !== 'NotFoundError') throw error; }
+        if (!existe) await escreverArquivoPasta(pastaFotos, nome, foto.blob);
+        manifest.push(foto.info);
     }
-    if (typeof pastaFotos.entries === 'function' && typeof pastaFotos.removeEntry === 'function') {
-        for await (const [nome, entrada] of pastaFotos.entries()) {
-            if (entrada.kind === 'file' && nome.startsWith('pl_') && !arquivosAtivos.has(nome)) {
-                await pastaFotos.removeEntry(nome);
-            }
-        }
-    }
-    return copiadas;
+    // Files are immutable snapshots. A missing local photo never triggers external deletion.
+    return manifest;
 }
 
-async function gravarBackupAutomaticoNaPasta(conteudo, handle, usuario) {
-    if (!handle) return false;
-    const arquivo = await handle.getFileHandle(BACKUP_PASTA_ARQUIVO, { create: true });
-    const gravacao = await arquivo.createWritable();
-    try {
-        await gravacao.write(conteudo);
-        await gravacao.close();
-    } catch (error) {
-        try { await gravacao.abort(); } catch (abortError) { /* nada a fazer */ }
-        throw error;
-    }
-    await copiarFotosOriginaisParaPasta(handle, usuario, JSON.parse(conteudo));
-    const salvoEm = new Date().toISOString();
+async function gravarBackupAutomaticoNaPasta(conteudo, handle, usuario, geracao = geracaoBackupPasta) {
+    if (!handle || geracao !== geracaoBackupPasta) return false;
+    const dados = validarDadosImportados(JSON.parse(conteudo));
+    const pasta = await pastaUsuarioBackup(handle, usuario);
+    const fotos = await copiarFotosOriginaisParaPasta(pasta, usuario, dados);
+    if (geracao !== geracaoBackupPasta) return false;
+    const salvoEm = new Date().toISOString(), pacote = { app: 'Projeto Leve', versao: 3, salvoEm, dados, fotos };
+    const texto = JSON.stringify(pacote);
+    const versoes = await pasta.getDirectoryHandle('versoes', { create: true });
+    const nome = 'backup-' + salvoEm.replace(/[:.]/g, '-') + '-' + criarIdFoto('v').slice(-8) + '.json';
+    await escreverArquivoPasta(versoes, nome, texto);
+    await escreverArquivoPasta(pasta, BACKUP_PASTA_ARQUIVO, texto);
     localStorage.setItem(chaveStatusBackupPastaUsuario(usuario), salvoEm);
-    if (usuarioBackupInicializado === usuario && backupPastaHandle === handle) {
-        ultimoBackupPastaEm = salvoEm;
-        atualizarInterfaceBackupAutomatico();
+    if (usuario === sufixoUsuarioBackup() && handle === backupPastaHandle) {
+        ultimoBackupPastaEm = salvoEm; erroBackupPasta = ''; atualizarInterfaceBackupAutomatico();
     }
     return true;
 }
 
 function enfileirarBackupAutomaticoNaPasta() {
-    if (!backupPastaHandle || backupPastaPermissao !== 'granted') return Promise.resolve(false);
-    const conteudo = JSON.stringify(appData, null, 2);
-    const handle = backupPastaHandle;
-    const usuario = sufixoUsuarioBackup();
-    filaBackupPasta = filaBackupPasta
-        .catch(() => false)
-        .then(() => gravarBackupAutomaticoNaPasta(conteudo, handle, usuario))
-        .catch(error => {
-            console.warn('Não foi possível atualizar o backup automático na pasta:', error);
-            if (usuarioBackupInicializado === usuario && backupPastaHandle === handle) {
-                if (error?.name === 'NotAllowedError' || error?.name === 'SecurityError') backupPastaPermissao = 'prompt';
-                atualizarInterfaceBackupAutomatico();
-            }
-            return false;
-        });
+    if (!backupPastaHandle || backupPastaPermissao !== 'granted' || dadosLocaisBloqueados) return Promise.resolve(false);
+    backupPastaPendente = { conteudo: JSON.stringify(appData), handle: backupPastaHandle, usuario: sufixoUsuarioBackup(), geracao: geracaoBackupPasta };
+    clearTimeout(backupPastaTimer);
+    backupPastaTimer = setTimeout(() => executarFilaBackupPasta(), 800);
     return filaBackupPasta;
 }
 
@@ -5257,20 +5742,17 @@ async function salvarBackupNaPastaAgora(mostrarMensagem = true) {
     if (!backupPastaHandle) return selecionarPastaBackup();
     try {
         backupPastaPermissao = await verificarPermissaoBackupPasta(backupPastaHandle, true);
-        if (backupPastaPermissao !== 'granted') return alert('Autorize o acesso à pasta para salvar o backup.');
-        atualizarInterfaceBackupAutomatico();
-        const salvou = await enfileirarBackupAutomaticoNaPasta();
-        if (mostrarMensagem && salvou) alert(`Backup salvo em “${backupPastaHandle.name}”.`);
-    } catch (error) {
-        console.error(error);
-        backupPastaPermissao = 'prompt';
-        atualizarInterfaceBackupAutomatico();
-        alert('Não foi possível salvar na pasta: ' + (error?.message || 'erro desconhecido.'));
-    }
+        if (backupPastaPermissao !== 'granted') throw new Error('Autorize o acesso à pasta para salvar.');
+        enfileirarBackupAutomaticoNaPasta();
+        const salvou = await executarFilaBackupPasta();
+        if (!salvou) throw new Error(erroBackupPasta || 'O backup não foi concluído.');
+        if (mostrarMensagem) alert('Backup completo salvo em "' + backupPastaHandle.name + '".');
+    } catch (error) { erroBackupPasta = error.message; atualizarInterfaceBackupAutomatico(); alert('Falha no backup: ' + error.message); }
 }
 
 async function desativarPastaBackup() {
     if (!backupPastaHandle || !confirm('Desativar o backup automático nesta pasta? A cópia interna continuará ativa.')) return;
+    geracaoBackupPasta++; backupPastaPendente = null; clearTimeout(backupPastaTimer); erroBackupPasta = '';
     try {
         await removerHandleBackupPasta();
     } catch (error) {
@@ -5285,79 +5767,81 @@ async function desativarPastaBackup() {
 
 function restaurarCopiaInterna() {
     const pacote = lerCopiaInternaAutomatica();
-    if (!pacote?.dados) return alert('Nenhuma cópia interna válida foi encontrada.');
-    const quando = pacote.salvoEm ? ` de ${formatarDataHoraBackup(pacote.salvoEm)}` : '';
-    if (!confirm(`Restaurar a cópia interna${quando}? Os dados atuais serão substituídos.`)) return;
-    appData = normalizarDados(pacote.dados);
-    preencherCamposConfig();
-    salvarDados(true, true);
-    alert('Cópia interna restaurada com sucesso.');
+    if (!pacote) return alert('Nenhuma cópia interna válida foi encontrada.');
+    copiasInternasDisponiveis = [...pacote.anteriores, { dados: pacote.dados, salvoEm: pacote.salvoEm, motivo: 'Cópia mais recente' }];
+    const select = document.getElementById('copia-interna-select');
+    select.replaceChildren();
+    for (let i = 0; i < copiasInternasDisponiveis.length; i++) {
+        const copia = copiasInternasDisponiveis[i], option = document.createElement('option');
+        option.value = String(i);
+        option.textContent = formatarDataHoraBackup(copia.salvoEm) + ' — ' + copia.motivo;
+        select.appendChild(option);
+    }
+    document.getElementById('copia-interna-escolha').classList.remove('hidden');
 }
 
-function exportarBackup() {
-    baixarArquivo(
-        "peso_medidas_backup_" + hojeISO() + ".json",
-        JSON.stringify(appData, null, 2),
-        'application/json;charset=utf-8'
-    );
+async function exportarBackup() {
+    if (!currentUser) return alert('Faça login antes de exportar.');
+    const usuario = currentUser.uid, dados = normalizarDados(appData);
+    try {
+        definirTrabalhoBackup('Preparando backup completo...');
+        const { arquivo } = await montarBackupCompleto(dados, usuario);
+        assegurarUsuario(usuario);
+        baixarBlob('Projeto_Leve_backup_completo_' + hojeISO() + '.zip', arquivo);
+        definirTrabalhoBackup('Backup completo preparado para download, com todas as fotos originais.');
+    } catch (error) { definirTrabalhoBackup('Falha no backup: ' + error.message); alert(error.message); }
 }
 
-function importarBackup(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const imported = JSON.parse(e.target.result);
-            if (imported.config && imported.pesos) {
-                appData = normalizarDados(imported);
-                salvarDados(true, true);
-                preencherCamposConfig();
-                updateUI();
-                alert("Backup importado com sucesso!");
-            } else {
-                alert("Arquivo de backup inválido.");
+async function importarBackup(event) {
+    const file = event.target.files?.[0];
+    if (!file || restaurandoBackup) return;
+    const usuario = currentUser?.uid;
+    if (!usuario) return alert('Faça login antes de restaurar.');
+    definirRestaurando(true);
+    try {
+        definirTrabalhoBackup('Validando o backup e as fotos...');
+        let preparado;
+        if (/\.zip$/i.test(file.name)) preparado = await abrirZipBackup(file);
+        else {
+            if (file.size > 25000000) throw new Error('Arquivo JSON grande demais. Selecione um backup ZIP completo.');
+            const raw = JSON.parse(await file.text());
+            if (raw.app === 'Projeto Leve' && raw.versao === 3) throw new Error('Este JSON pertence a um backup em pasta. Use Restaurar da pasta para incluir as imagens.');
+            const dados = validarDadosImportados(raw.dados || raw), fotos = new Map();
+            for (const referencia of referenciasFotos(dados).values()) {
+                const foto = await obterFotoDoCacheLocal(usuario, referencia.fotoDocId);
+                if (foto?.blob) fotos.set(referencia.fotoDocId, foto);
             }
-        } catch (err) {
-            alert("Erro ao ler arquivo.");
-        } finally {
-            event.target.value = '';
+            preparado = { dados, fotos, completo: false };
         }
-    };
-    reader.readAsText(file);
+        await aplicarRestauracaoBackup(preparado, usuario);
+        definirTrabalhoBackup('');
+    } catch (error) { definirTrabalhoBackup('Restauração não concluída: ' + error.message); alert(error.message); }
+    finally { definirRestaurando(false); event.target.value = ''; atualizarUsoArmazenamento(); }
 }
 
 function gerarRelatorioCSV() {
-    const linhas = [];
-    linhas.push(['Tipo','Data','Peso (kg)','Meta (kg)','Remédio','Dose (mg)','Pescoço (cm)','Peito (cm)','Barriga (cm)','Quadril (cm)','Coxa (cm)','Panturrilha (cm)','Braço (cm)','Observações'].join(';'));
-
-    [...appData.pesos].sort((a, b) => String(a.data || '').localeCompare(String(b.data || ''))).forEach(p => {
-        linhas.push(['Peso', formatDateBR(p.data), p.peso ?? '', p.meta ?? '', '', '', '', '', '', '', '', '', '', p.observacoes || ''].map(campoCSV).join(';'));
-    });
-
-    [...appData.medidas].sort((a, b) => String(a.data || '').localeCompare(String(b.data || ''))).forEach(m => {
-        linhas.push([
-            'Medida', formatDateBR(m.data), m.peso ?? '', '', '', '', m.pescoco ?? '', m.peito ?? '', m.cintura ?? '', m.quadril ?? '', m.coxa ?? '', m.panturrilha ?? '', m.braco ?? '', m.observacoes || ''
-        ].map(campoCSV).join(';'));
-    });
-
-    [...(appData.remedios || [])].sort(compararRemediosMaisAntigos).forEach(r => {
-        linhas.push([
-            'Remédio', formatDateBR(r.data), r.peso ?? '', '', r.nome ?? '', r.mg ?? '', '', '', '', '', '', '', '', ''
-        ].map(campoCSV).join(';'));
-    });
-
+    const linhas = [['Tipo','Data','Remédio','Dose (mg)','Peso (kg)','Meta (kg)','Pescoço (cm)','Peito (cm)','Barriga (cm)','Quadril (cm)','Coxa (cm)','Panturrilha (cm)','Braço (cm)','Fotos','Observações'].join(';')];
+    const registros = [
+        ...appData.pesos.map(item => ({ tipo: 'Peso', item })),
+        ...appData.medidas.map(item => ({ tipo: 'Medida', item })),
+        ...appData.remedios.map(item => ({ tipo: 'Remédio', item }))
+    ].sort((a, b) => a.item.data.localeCompare(b.item.data) || (Number(a.item.ordemCadastro) || 0) - (Number(b.item.ordemCadastro) || 0));
+    for (const { tipo, item } of registros) linhas.push([
+        tipo, formatDateBR(item.data), item.nome || '', item.mg ?? '', item.peso ?? '', item.meta ?? '',
+        item.pescoco ?? '', item.peito ?? '', item.cintura ?? '', item.quadril ?? '', item.coxa ?? '',
+        item.panturrilha ?? '', item.braco ?? '', obterFotosRegistro(item).length, item.observacoes || ''
+    ].map(campoCSV).join(';'));
     baixarArquivo('relatorio_projeto_leve_' + hojeISO() + '.csv', '\uFEFF' + linhas.join('\n'), 'text/csv;charset=utf-8');
 }
 
 function campoCSV(valor) {
-    const texto = String(valor ?? '').replace(/"/g, '""');
-    return `"${texto}"`;
+    let texto = typeof valor === 'number' ? valor.toLocaleString('pt-BR', { useGrouping: false, maximumFractionDigits: 8 }) : String(valor ?? '');
+    if (typeof valor !== 'number' && /^[\s]*[=+@-]/.test(texto)) texto = "'" + texto;
+    return '"' + texto.replace(/"/g, '""') + '"';
 }
 
 function formatValorComUnidade(valor, unidade) {
-    const numero = numeroInformado(valor);
-    return numero !== null ? `${formatBR(numero)} ${unidade}` : '--';
+    return numeroValido(valor) !== null ? formatBR(valor) + ' ' + unidade : '--';
 }
 
 function codificarPdfWinAnsi(texto) {
@@ -5493,7 +5977,10 @@ function criarPdfRelatorio() {
 
     const pesos = [...appData.pesos].sort((a, b) => String(a.data || '').localeCompare(String(b.data || '')));
     const medidas = [...appData.medidas].sort((a, b) => String(a.data || '').localeCompare(String(b.data || '')));
-    const remedios = [...(appData.remedios || [])].sort(compararRemediosMaisAntigos);
+    const remedios = [...(appData.remedios || [])].sort((a, b) => {
+        const porData = String(a.data || '').localeCompare(String(b.data || ''));
+        return porData || String(a.id || '').localeCompare(String(b.id || ''));
+    });
     const colunasPeso = [74, 64, 64, larguraUtil - 202];
     const cabecalhosPeso = ['Data', 'Peso', 'Meta', 'Observações'];
 
@@ -5635,6 +6122,7 @@ async function limparRegistrosAteData() {
         console.error(error);
         return alert('Não foi possível excluir todas as fotos do armazenamento local. Nenhum registro foi removido.');
     }
+    motivoProximaCopia = 'Antes da limpeza por data';
     appData.pesos = appData.pesos.filter(item => !item.data || item.data > data);
     appData.medidas = appData.medidas.filter(item => !item.data || item.data > data);
     appData.remedios = (appData.remedios || []).filter(item => !item.data || item.data > data);
@@ -5644,37 +6132,38 @@ async function limparRegistrosAteData() {
 }
 
 async function limparTudo() {
-    if(!confirm("ATENÇÃO: Isso apagará TODOS os dados e fotos locais deste usuário permanentemente. Continuar?")) return;
-
-    clearTimeout(autosaveAjustesTimer);
-    clearTimeout(autosavePerfilTimer);
-    const registrosComFotos = [
-        ...(appData.remedios || []),
-        ...(appData.pesos || []),
-        ...(appData.medidas || []),
-        ...(obterFotosRegistro(appData.config?.fotoInicial || {}).length ? [appData.config.fotoInicial] : [])
-    ].filter(temFotoRemedio);
-
+    if (!currentUser || !confirm('Apagar TODOS os registros, fotos e cópias internas desta conta no aparelho? Os backups externos serão preservados. Esta limpeza local não pode ser desfeita.')) return;
+    const usuario = currentUser.uid;
+    clearTimeout(autosaveAjustesTimer); clearTimeout(autosavePerfilTimer); clearTimeout(limpezaFotosTimer);
+    geracaoBackupPasta++; backupPastaPendente = null; clearTimeout(backupPastaTimer);
+    const chave = chaveLocalUsuario(), chaveCopia = chaveBackupInternoUsuario();
+    const antes = localStorage.getItem(chave), copiaAntes = localStorage.getItem(chaveCopia), dadosAntes = appData;
+    definirRestaurando(true);
     try {
-        await excluirFotosLocais(registrosComFotos);
+        const vazios = normalizarDados({});
+        vazios.ultimaAtualizacao = new Date().toISOString(); vazios.apagadoEm = vazios.ultimaAtualizacao;
+        localStorage.setItem(chave, JSON.stringify(vazios));
+        try { await percorrerFotosUsuario(usuario, cursor => cursor.delete(), 'readwrite'); }
+        catch (error) {
+            if (antes !== null) localStorage.setItem(chave, antes); else localStorage.removeItem(chave);
+            throw error;
+        }
+        localStorage.removeItem(chaveCopia);
+        localStorage.removeItem(chave + '_recuperacao');
+        assegurarUsuario(usuario);
+        appData = vazios; dadosLocaisBloqueados = false; falhaArmazenamento = ''; ultimoBackupInternoEm = '';
+        fotosEmPreparacao.clear(); checksumsFotos.clear(); limparUrlsFotosEmMemoria();
+        historicoMetasPeso = []; historicoMedidasIdeais = []; historicoPerfilConta = [];
+        document.getElementById('storage-error')?.classList.add('hidden');
+        preencherCamposConfig(); limparFormularioRemedio(); redefinirFormularioPeso(); fecharModalMedida();
+        for (const controle of Object.values(controlesVisualizador)) controle.fechar();
+        updateUI(); atualizarInterfaceBackupAutomatico(); atualizarUsoArmazenamento();
+        showView('dashboard', document.querySelector('[data-view="dashboard"]'));
+        alert('Todos os dados, fotos e cópias internas desta conta foram apagados do aparelho. Os backups externos foram mantidos.');
     } catch (error) {
-        console.error(error);
-        return alert('Não foi possível excluir todas as fotos locais. A limpeza foi interrompida para evitar uma exclusão incompleta.');
-    }
-
-    const dadosVazios = normalizarDados({});
-    const agora = new Date().toISOString();
-    dadosVazios.ultimaAtualizacao = agora;
-    dadosVazios.apagadoEm = agora;
-    appData = dadosVazios;
-    salvarDadosLocalmente();
-    preencherCamposConfig();
-    limparFormularioRemedio();
-    redefinirFormularioPeso();
-    updateUI();
-
-    showView('dashboard', document.querySelector('[data-view="dashboard"]'));
-    alert('Todos os dados e fotos locais deste usuário foram apagados.');
+        if (usuario === currentUser?.uid) { appData = dadosAntes; registrarFalhaArmazenamento(error); }
+        alert('Não foi possível concluir a limpeza: ' + error.message);
+    } finally { definirRestaurando(false); }
 }
 
 /**
@@ -5768,6 +6257,10 @@ window.limparMedidasIdeais = limparMedidasIdeais;
 window.desfazerMetasPeso = desfazerMetasPeso;
 window.desfazerMedidasIdeais = desfazerMedidasIdeais;
 window.voltarInicio = voltarInicio;
+window.confirmarRestauracaoInterna = confirmarRestauracaoInterna;
+window.restaurarBackupDaPasta = restaurarBackupDaPasta;
+window.definirFotoInicialPrincipal = definirFotoInicialPrincipal;
+window.definirFotoPrincipalRegistro = definirFotoPrincipalRegistro;
 window.exportarBackup = exportarBackup;
 window.importarBackup = importarBackup;
 window.restaurarCopiaInterna = restaurarCopiaInterna;
@@ -5791,18 +6284,17 @@ const PWA_CHAVE_PREPARACAO = 'projetoLevePwaPreparacaoEm';
 const PWA_CHAVE_RECARREGOU = 'projetoLevePwaRecarregou';
 const PWA_INICIO_PAGINA = Date.now();
 
+function executarComTempoLimite(promise, tempoMs, mensagem) {
+    let timer;
+    return Promise.race([promise, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(mensagem)), tempoMs); })])
+        .finally(() => clearTimeout(timer));
+}
 async function registrarServiceWorkerPWA() {
     if (!('serviceWorker' in navigator)) return null;
-    if (registroServiceWorkerPWA) return registroServiceWorkerPWA;
-
-    const registro = await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
+    const registro = registroServiceWorkerPWA || await navigator.serviceWorker.register('./service-worker.js', { scope: './' });
+    await executarComTempoLimite(navigator.serviceWorker.ready, 10000, 'O aplicativo demorou para preparar o modo offline. Verifique a conexão.');
     registroServiceWorkerPWA = registro;
-    registro.update().catch(error => console.warn('Não foi possível verificar a atualização do PWA:', error));
-    await executarComTempoLimite(
-        navigator.serviceWorker.ready,
-        10000,
-        'O componente de instalação demorou além do esperado para ficar pronto.'
-    );
+    registro.update().catch(error => console.warn('Não foi possível verificar atualizações:', error));
     return registro;
 }
 
