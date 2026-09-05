@@ -1425,11 +1425,11 @@
                         </div>
                         <div class="form-group">
                             <label>Dose (mg)</label>
-                            <input type="number" min="0" step="0.01" id="remedio-mg" placeholder="Ex: 10" required>
+                            <input type="number" min="0.01" step="0.01" id="remedio-mg" placeholder="Ex: 10" required>
                         </div>
                         <div class="form-group">
                             <label>Peso (kg)</label>
-                            <input type="number" min="0" step="0.1" id="remedio-peso" required>
+                            <input type="number" min="0.1" step="0.1" id="remedio-peso" required>
                         </div>
                     </div>
                     <div class="form-group">
@@ -1838,13 +1838,21 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+function dataLocalISO(data = new Date()) {
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const dia = String(data.getDate()).padStart(2, '0');
+    return `${ano}-${mes}-${dia}`;
+}
+
 let currentUser = null;
 let authInicializado = false;
 let ultimoStatusSync = "Os dados e as fotos ficam somente neste aparelho.";
 let activeViewId = "dashboard";
 let chartJsPromise = null;
 let filtroGraficoAtual = "inicio";
-const DATA_HOJE_INICIAL = new Date().toISOString().split("T")[0];
+const DATA_HOJE_INICIAL = dataLocalISO();
 const LOCAL_BASE_KEY = 'peso_medidas_app_data';
 const FOTO_DB_NAME = 'projeto_leve_fotos';
 const FOTO_DB_STORE = 'fotos';
@@ -1951,11 +1959,28 @@ function normalizarDados(raw) {
 
     const origem = raw && typeof raw === "object" ? raw : {};
     const remedios = (Array.isArray(origem.remedios) ? origem.remedios : [])
-        .map(item => ({ ...item, fotos: obterFotosRegistro(item) }));
+        .map((item, indice) => {
+            const ordemExistente = Number(item?.ordemCadastro);
+            return {
+                ...item,
+                // Registros antigos não tinham ordem interna. A posição já persistida é usada como migração estável.
+                ordemCadastro: Number.isFinite(ordemExistente) && ordemExistente > 0 ? ordemExistente : indice + 1,
+                fotos: obterFotosRegistro(item)
+            };
+        });
     const pesos = (Array.isArray(origem.pesos) ? origem.pesos : [])
         .map(item => ({ ...item, fotos: obterFotosRegistro(item) }));
     const medidas = (Array.isArray(origem.medidas) ? origem.medidas : [])
-        .map(item => ({ ...item, fotos: obterFotosRegistro(item) }));
+        .map(item => {
+            const normalizado = { ...item, fotos: obterFotosRegistro(item) };
+            // Campos corporais são opcionais. Versões antigas gravavam ausência como zero.
+            ['pescoco','peito','cintura','quadril','coxa','panturrilha','braco'].forEach(chave => {
+                if (normalizado[chave] !== '' && normalizado[chave] !== null && normalizado[chave] !== undefined && Number(normalizado[chave]) === 0) {
+                    normalizado[chave] = '';
+                }
+            });
+            return normalizado;
+        });
     const fotosIniciais = obterFotosRegistro(origem.config?.fotoInicial || {});
     const fotoInicial = fotosIniciais.length ? { fotos: fotosIniciais } : {};
     const nomesHistoricos = remedios.map(item => String(item?.nome || '').trim()).filter(Boolean);
@@ -2285,7 +2310,7 @@ function traduzirErroApp(error) {
  * CALCULATIONS ENGINE
  */
 function hojeISO() {
-    return new Date().toISOString().split('T')[0];
+    return dataLocalISO();
 }
 
 function parseDate(dateStr) {
@@ -2296,19 +2321,19 @@ function parseDate(dateStr) {
 function addDiasISO(iso, dias) {
     const dt = parseDate(iso);
     dt.setDate(dt.getDate() + dias);
-    return dt.toISOString().split('T')[0];
+    return dataLocalISO(dt);
 }
 
 function addMesesISO(iso, meses) {
     const dt = parseDate(iso);
     dt.setMonth(dt.getMonth() + meses);
-    return dt.toISOString().split('T')[0];
+    return dataLocalISO(dt);
 }
 
 function addAnosISO(iso, anos) {
     const dt = parseDate(iso);
     dt.setFullYear(dt.getFullYear() + anos);
-    return dt.toISOString().split('T')[0];
+    return dataLocalISO(dt);
 }
 
 function diffDays(d1, d2) {
@@ -2318,6 +2343,7 @@ function diffDays(d1, d2) {
 }
 
 function numeroValido(valor) {
+    if (valor === '' || valor === null || valor === undefined) return null;
     const n = Number(valor);
     return Number.isFinite(n) ? n : null;
 }
@@ -2336,20 +2362,20 @@ function temConfigCalculo() {
 }
 
 function formatBR(num) {
-    const n = Number(num);
-    if (!Number.isFinite(n)) return '--';
+    const n = numeroValido(num);
+    if (n === null) return '--';
     return n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
 }
 
 function formatBR2(num) {
-    const n = Number(num);
-    if (!Number.isFinite(n)) return '--';
+    const n = numeroValido(num);
+    if (n === null) return '--';
     return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function formatComSinal(num) {
-    const n = Number(num);
-    if (!Number.isFinite(n)) return '--';
+    const n = numeroValido(num);
+    if (n === null) return '--';
     return (n >= 0 ? '+' : '') + formatBR(n);
 }
 
@@ -2525,7 +2551,7 @@ function updateUI() {
     atualizarEstadoBotoesDesfazer();
     
     document.getElementById('user-greeting').innerText = appData.config.nome ? `Bem-vindo, ${appData.config.nome}` : 'Bem-vindo';
-    document.getElementById('backup-info').innerText = `Última alteração: ${new Date().toLocaleTimeString()}`;
+    document.getElementById('backup-info').innerText = appData.ultimaAtualizacao ? `Última alteração: ${formatarDataHoraBackup(appData.ultimaAtualizacao)}` : 'Nenhuma alteração salva ainda.';
 }
 
 function classeMetaComparadaAoPesoMeta(valor) {
@@ -2803,25 +2829,27 @@ function renderMedidas() {
         ];
 
         containerComparativo.innerHTML = campos.map(c => {
-            const vAtual = parseFloat(atual[c.key] || 0);
-            const vAnterior = parseFloat(anterior[c.key] || 0);
-            const diff = vAtual - vAnterior;
-            const statusClass = diff < 0 ? 'positive' : (diff > 0 ? 'negative' : 'neutral');
+            const vAtual = numeroInformado(atual[c.key]);
+            const vAnterior = numeroInformado(anterior[c.key]);
+            const diff = vAtual !== null && vAnterior !== null ? vAtual - vAnterior : null;
+            const statusClass = diff === null ? 'neutral' : (diff < 0 ? 'positive' : (diff > 0 ? 'negative' : 'neutral'));
             const idealNumero = numeroValido(c.ideal);
 
             let idealTxt = "";
-            if(idealNumero !== null) {
+            if (idealNumero !== null && vAtual !== null) {
                 const diffIdeal = idealNumero - vAtual;
                 const unidade = c.unidade ? ` ${c.unidade}` : '';
                 idealTxt = `<div class="small ${diffIdeal >= 0 ? 'positive' : 'negative'}">Ideal: ${formatBR(idealNumero)}${unidade} (${formatComSinal(diffIdeal)}${unidade})</div>`;
             }
 
             const unidade = c.unidade ? ` ${c.unidade}` : '';
+            const valorAtualTexto = vAtual !== null ? `${formatBR(vAtual)}${unidade}` : '--';
+            const comparacaoTexto = diff !== null ? `${formatComSinal(diff)}${unidade} vs ant.` : '-- vs ant.';
             return `
                 <div class="card" style="padding: 10px;">
                     <div class="label">${c.label}</div>
-                    <div class="value" style="font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${formatBR(vAtual)}${unidade}</div>
-                    <div class="small ${statusClass}">${formatComSinal(diff)}${unidade} vs ant.</div>
+                    <div class="value" style="font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${valorAtualTexto}</div>
+                    <div class="small ${statusClass}">${comparacaoTexto}</div>
                     ${idealTxt}
                 </div>
             `;
@@ -2878,15 +2906,35 @@ function obterFotosRegistro(item = {}) {
     }, []);
 }
 
+function obterOrdemCadastroRemedio(item) {
+    const ordem = Number(item?.ordemCadastro);
+    return Number.isFinite(ordem) ? ordem : 0;
+}
+
+function proximaOrdemCadastroRemedio() {
+    return (appData.remedios || []).reduce((maior, item) => Math.max(maior, obterOrdemCadastroRemedio(item)), 0) + 1;
+}
+
+function compararRemediosMaisRecentes(a, b) {
+    const porData = String(b?.data || '').localeCompare(String(a?.data || ''));
+    if (porData) return porData;
+    const porOrdem = obterOrdemCadastroRemedio(b) - obterOrdemCadastroRemedio(a);
+    return porOrdem || String(b?.id || '').localeCompare(String(a?.id || ''));
+}
+
+function compararRemediosMaisAntigos(a, b) {
+    const porData = String(a?.data || '').localeCompare(String(b?.data || ''));
+    if (porData) return porData;
+    const porOrdem = obterOrdemCadastroRemedio(a) - obterOrdemCadastroRemedio(b);
+    return porOrdem || String(a?.id || '').localeCompare(String(b?.id || ''));
+}
+
 function renderResumoRemedioAtual() {
     const container = document.getElementById('resumo-remedio-atual');
     if (!container) return;
     const remedios = [...(appData.remedios || [])]
         .filter(item => item && item.data && Number.isFinite(Number(item.mg)))
-        .sort((a, b) => {
-            const porData = String(b.data || '').localeCompare(String(a.data || ''));
-            return porData || String(b.id || '').localeCompare(String(a.id || ''));
-        });
+        .sort(compararRemediosMaisRecentes);
     const atual = remedios[0];
     if (!atual) {
         container.innerHTML = '';
@@ -2912,10 +2960,7 @@ function renderRemedios() {
 
     const lista = document.getElementById('lista-remedios');
     if (!lista) return;
-    const remedios = [...(appData.remedios || [])].sort((a, b) => {
-        const porData = String(b.data || '').localeCompare(String(a.data || ''));
-        return porData || String(b.id || '').localeCompare(String(a.id || ''));
-    });
+    const remedios = [...(appData.remedios || [])].sort(compararRemediosMaisRecentes);
 
     if (!remedios.length) {
         lista.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-secondary);">Nenhum remédio lançado ainda.</td></tr>';
@@ -3620,7 +3665,9 @@ function montarItensCarrossel(registros) {
     return [...(registros || [])]
         .sort((a, b) => {
             const porData = String(a.data || '').localeCompare(String(b.data || ''));
-            return porData || String(a.id || '').localeCompare(String(b.id || ''));
+            if (porData) return porData;
+            const porOrdem = obterOrdemCadastroRemedio(a) - obterOrdemCadastroRemedio(b);
+            return porOrdem || String(a.id || '').localeCompare(String(b.id || ''));
         })
         .flatMap(registro => obterFotosRegistro(registro).map(foto => ({ registro, foto })));
 }
@@ -4079,8 +4126,8 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
     const peso = Number(document.getElementById('remedio-peso')?.value);
     const arquivosFoto = Array.from(inputFotoRemedio?.files || []);
 
-    if (!data || !nome || !Number.isFinite(mg) || !Number.isFinite(peso)) {
-        return alert('Preencha data, nome do remédio, dose em mg e peso.');
+    if (!data || !nome || !Number.isFinite(mg) || mg <= 0 || !Number.isFinite(peso) || peso <= 0) {
+        return alert('Preencha data, nome do remédio, dose em mg e peso com valores válidos.');
     }
 
     const botaoSalvar = document.getElementById('btn-salvar-remedio');
@@ -4109,6 +4156,9 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
             nome,
             mg,
             peso,
+            // Metadados internos para desempatar dois lançamentos na mesma data. Não são exibidos no app.
+            ordemCadastro: registroAnterior?.ordemCadastro || proximaOrdemCadastroRemedio(),
+            criadoEm: registroAnterior?.criadoEm || new Date().toISOString(),
             fotos: [...fotosAnteriores, ...(fotoPreparada?.fotos || [])]
         };
         appData.remedios = Array.isArray(appData.remedios) ? appData.remedios : [];
@@ -4524,7 +4574,7 @@ function abrirModalMedida() {
     document.getElementById('medida-modal-title').innerText = 'Nova Medição';
     document.getElementById('modal-medida').classList.remove('hidden');
     document.getElementById('med-data').value = hojeISO();
-    document.getElementById('med-peso').value = obterPesoAtual();
+    document.getElementById('med-peso').value = numeroInformado(obterPesoAtual()) ?? '';
     document.getElementById('med-foto-nome').innerText = 'Nenhuma foto selecionada. Você pode escolher várias.';
     const botao = document.getElementById('btn-salvar-medida');
     if (botao) { botao.disabled = false; botao.innerText = 'Salvar'; }
@@ -4542,7 +4592,7 @@ function limparFormularioMedidas() {
     document.getElementById('form-medidas').reset();
     document.getElementById('edit-medida-id').value = "";
     document.getElementById('med-data').value = hojeISO();
-    document.getElementById('med-peso').value = obterPesoAtual();
+    document.getElementById('med-peso').value = numeroInformado(obterPesoAtual()) ?? '';
     document.getElementById('med-foto-nome').innerText = 'Nenhuma foto selecionada. Você pode escolher várias.';
     document.getElementById('medida-modal-title').innerText = 'Nova Medição';
     document.getElementById('med-pescoco').focus();
@@ -4576,13 +4626,13 @@ document.getElementById('form-medidas').onsubmit = async function(e) {
             id,
             data,
             peso,
-            pescoco: parseFloat(document.getElementById('med-pescoco').value || 0),
-            peito: parseFloat(document.getElementById('med-peito').value || 0),
-            cintura: parseFloat(document.getElementById('med-cintura').value || 0),
-            quadril: parseFloat(document.getElementById('med-quadril').value || 0),
-            coxa: parseFloat(document.getElementById('med-coxa').value || 0),
-            panturrilha: parseFloat(document.getElementById('med-panturrilha').value || 0),
-            braco: parseFloat(document.getElementById('med-braco').value || 0),
+            pescoco: numeroOuVazio(document.getElementById('med-pescoco').value),
+            peito: numeroOuVazio(document.getElementById('med-peito').value),
+            cintura: numeroOuVazio(document.getElementById('med-cintura').value),
+            quadril: numeroOuVazio(document.getElementById('med-quadril').value),
+            coxa: numeroOuVazio(document.getElementById('med-coxa').value),
+            panturrilha: numeroOuVazio(document.getElementById('med-panturrilha').value),
+            braco: numeroOuVazio(document.getElementById('med-braco').value),
             observacoes: document.getElementById('med-obs').value,
             fotos: [...fotosAnteriores, ...(fotoPreparada?.fotos || [])]
         };
@@ -4645,7 +4695,7 @@ function simularMeta() {
     const meta = calcularMetaDaData(data);
     const media = calcularMediaRealDia();
     const pesoAtual = obterPesoAtual();
-    const dias = diffDays(data, new Date().toISOString().split('T')[0]);
+    const dias = diffDays(data, hojeISO());
     const previsao = pesoAtual + (dias * media);
     ultimaSimulacao = { data, meta, previsao };
 
@@ -5120,7 +5170,7 @@ async function copiarFotosOriginaisParaPasta(handle, usuario, dados) {
         ...(dados?.remedios || []),
         ...(dados?.pesos || []),
         ...(dados?.medidas || []),
-        ...(dados?.config?.fotoInicial?.fotoDocId ? [dados.config.fotoInicial] : [])
+        ...(obterFotosRegistro(dados?.config?.fotoInicial || {}).length ? [dados.config.fotoInicial] : [])
     ];
     const ids = [...new Set(registros.flatMap(obterFotosRegistro).map(item => item?.fotoDocId).filter(Boolean))];
 
@@ -5279,15 +5329,21 @@ function importarBackup(event) {
 
 function gerarRelatorioCSV() {
     const linhas = [];
-    linhas.push(['Tipo','Data','Peso (kg)','Meta (kg)','Pescoço (cm)','Peito (cm)','Barriga (cm)','Quadril (cm)','Coxa (cm)','Panturrilha (cm)','Braço (cm)','Observações'].join(';'));
+    linhas.push(['Tipo','Data','Peso (kg)','Meta (kg)','Remédio','Dose (mg)','Pescoço (cm)','Peito (cm)','Barriga (cm)','Quadril (cm)','Coxa (cm)','Panturrilha (cm)','Braço (cm)','Observações'].join(';'));
 
-    [...appData.pesos].sort((a, b) => a.data.localeCompare(b.data)).forEach(p => {
-        linhas.push(['Peso', formatDateBR(p.data), p.peso ?? '', p.meta ?? '', '', '', '', '', '', '', '', p.observacoes || ''].map(campoCSV).join(';'));
+    [...appData.pesos].sort((a, b) => String(a.data || '').localeCompare(String(b.data || ''))).forEach(p => {
+        linhas.push(['Peso', formatDateBR(p.data), p.peso ?? '', p.meta ?? '', '', '', '', '', '', '', '', '', '', p.observacoes || ''].map(campoCSV).join(';'));
     });
 
-    [...appData.medidas].sort((a, b) => a.data.localeCompare(b.data)).forEach(m => {
+    [...appData.medidas].sort((a, b) => String(a.data || '').localeCompare(String(b.data || ''))).forEach(m => {
         linhas.push([
-            'Medida', formatDateBR(m.data), m.peso ?? '', '', m.pescoco ?? '', m.peito ?? '', m.cintura ?? '', m.quadril ?? '', m.coxa ?? '', m.panturrilha ?? '', m.braco ?? '', m.observacoes || ''
+            'Medida', formatDateBR(m.data), m.peso ?? '', '', '', '', m.pescoco ?? '', m.peito ?? '', m.cintura ?? '', m.quadril ?? '', m.coxa ?? '', m.panturrilha ?? '', m.braco ?? '', m.observacoes || ''
+        ].map(campoCSV).join(';'));
+    });
+
+    [...(appData.remedios || [])].sort(compararRemediosMaisAntigos).forEach(r => {
+        linhas.push([
+            'Remédio', formatDateBR(r.data), r.peso ?? '', '', r.nome ?? '', r.mg ?? '', '', '', '', '', '', '', '', ''
         ].map(campoCSV).join(';'));
     });
 
@@ -5300,7 +5356,8 @@ function campoCSV(valor) {
 }
 
 function formatValorComUnidade(valor, unidade) {
-    return Number.isFinite(Number(valor)) ? `${formatBR(valor)} ${unidade}` : '--';
+    const numero = numeroInformado(valor);
+    return numero !== null ? `${formatBR(numero)} ${unidade}` : '--';
 }
 
 function codificarPdfWinAnsi(texto) {
@@ -5436,10 +5493,7 @@ function criarPdfRelatorio() {
 
     const pesos = [...appData.pesos].sort((a, b) => String(a.data || '').localeCompare(String(b.data || '')));
     const medidas = [...appData.medidas].sort((a, b) => String(a.data || '').localeCompare(String(b.data || '')));
-    const remedios = [...(appData.remedios || [])].sort((a, b) => {
-        const porData = String(a.data || '').localeCompare(String(b.data || ''));
-        return porData || String(a.id || '').localeCompare(String(b.id || ''));
-    });
+    const remedios = [...(appData.remedios || [])].sort(compararRemediosMaisAntigos);
     const colunasPeso = [74, 64, 64, larguraUtil - 202];
     const cabecalhosPeso = ['Data', 'Peso', 'Meta', 'Observações'];
 
@@ -5598,7 +5652,7 @@ async function limparTudo() {
         ...(appData.remedios || []),
         ...(appData.pesos || []),
         ...(appData.medidas || []),
-        ...(appData.config?.fotoInicial?.fotoDocId ? [appData.config.fotoInicial] : [])
+        ...(obterFotosRegistro(appData.config?.fotoInicial || {}).length ? [appData.config.fotoInicial] : [])
     ].filter(temFotoRemedio);
 
     try {

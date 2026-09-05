@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v18-exclusao-foto-individual';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v18-exclusao-foto-individual';
+const CACHE_VERSION = 'projeto-leve-v19-auditoria-final';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v19-auditoria-final';
 const APP_SHELL = [
   '/',
   '/index.html',
