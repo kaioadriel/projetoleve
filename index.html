@@ -3187,7 +3187,7 @@ function renderDashboard() {
     elFalta.className = 'value ' + classePositivoNegativo(falta, true);
 
     const statusEl = document.getElementById('dash-status');
-    if (saldo >= -0.5) {
+    if (saldo >= 0) {
         statusEl.innerText = "META EM DIA ✅";
         statusEl.className = "value positive";
     } else {
