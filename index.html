@@ -1089,9 +1089,21 @@
         #copia-interna-select { width: 100%; min-height: 44px; }
 
         .metric-summary-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:16px; }
-        .metric-summary-card { min-width:0; padding:13px; border-top:4px solid var(--accent); }
+        /* Cartões de composição: todos ocupam a mesma estrutura, sem a faixa azul no topo. */
+        .metric-summary-card { min-width:0; min-height:132px; padding:14px 13px 12px; border:1px solid var(--border); border-top:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 5px 16px rgba(15,23,42,.045); }
+        .metric-summary-card .label { min-height:32px; line-height:1.18; }
         .metric-summary-card .value { font-size:18px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .metric-summary-card .small { margin-top:4px; color:var(--text-secondary); }
+        .metric-summary-card .metric-delta { min-height:16px; margin-top:6px; font-size:11px; font-weight:800; line-height:1.25; }
+        .metric-summary-card .metric-delta.neutral { color:var(--text-secondary); }
+        .metric-summary-card .metric-delta.positive { color:var(--success); }
+        .metric-summary-card .metric-delta.negative { color:var(--danger); }
+        /* A remoção da faixa colorida vale para a composição corporal; os
+           resumos de calorias preservam o desenho próprio da respectiva aba. */
+        #resumo-calorias .metric-summary-card { min-height:0; border-top:4px solid var(--accent); }
+        /* Evita que erros de imagem pareçam uma área vazia em telas AMOLED. */
+        .modal.photo-viewer .photo-carousel-stage { background:#0f172a !important; }
+        .modal.photo-viewer .photo-carousel-stage .photo-carousel-loading { color:#e2e8f0 !important; }
         .form-section-title { margin:8px 0 14px; font-size:14px; color:var(--accent-hover); text-transform:uppercase; letter-spacing:.06em; }
         .photo-category-list { display:grid; gap:8px; margin-top:10px; }
         .photo-category-row { display:grid; grid-template-columns:minmax(0,1fr) 132px; gap:8px; align-items:center; padding:8px; border:1px solid var(--border); border-radius:12px; background:var(--soft-bg); }
@@ -3818,9 +3830,30 @@ async function obterUrlFotoRemedio(item) {
     const fotoLocal = await obterFotoDoCacheLocal(currentUser.uid, item.fotoDocId);
     if (!fotoLocal?.blob) throw new Error('A foto não foi encontrada no armazenamento local deste aparelho.');
 
-    const url = URL.createObjectURL(fotoLocal.miniatura || fotoLocal.blob);
-    cacheUrlsFotos.set(chave, url);
-    return url;
+    /* A miniatura serve somente como reserva. Alguns aparelhos Android podem
+       reabrir uma miniatura antiga de forma inválida; a foto original é a
+       fonte confiável para a visualização. Validamos a decodificação antes de
+       entregar a URL ao carrossel, para ele nunca ficar aparentemente vazio. */
+    const fontes = [fotoLocal.blob, fotoLocal.miniatura]
+        .filter((fonte, indice, lista) => fonte instanceof Blob && fonte.size > 0 && lista.indexOf(fonte) === indice);
+    let ultimoErro = null;
+    for (const fonte of fontes) {
+        const url = URL.createObjectURL(fonte);
+        try {
+            await new Promise((resolve, reject) => {
+                const imagem = new Image();
+                imagem.onload = () => resolve(true);
+                imagem.onerror = () => reject(new Error('O arquivo de imagem não pôde ser decodificado.'));
+                imagem.src = url;
+            });
+            cacheUrlsFotos.set(chave, url);
+            return url;
+        } catch (erro) {
+            ultimoErro = erro;
+            URL.revokeObjectURL(url);
+        }
+    }
+    throw ultimoErro || new Error('A foto salva neste aparelho está vazia ou em formato inválido.');
 }
 
 let renderAntesDepoisToken = 0;
@@ -6481,7 +6514,37 @@ limparFormularioMedidas=function(){limparFormularioMedidasAnteriorV20();categori
 editarMedida=function(id){editarMedidaAnteriorV20(id);const m=appData.medidas.find(x=>String(x.id)===String(id));if(!m)return;['peso','pescoco','peito','cintura','quadril','coxa','panturrilha','braco'].forEach(k=>{const el=document.getElementById('med-'+k);if(el)el.value=numeroValido(m[k])===null?'':formatBR(m[k]);});};
 document.getElementById('form-medidas').onsubmit=async function(e){e.preventDefault();const editId=document.getElementById('edit-medida-id').value||'',data=document.getElementById('med-data').value,peso=numeroValido(document.getElementById('med-peso').value),arquivos=Array.from(document.getElementById('med-foto').files||[]);if(!dataISOValida(data)||peso===null||peso<=0)return alert('Preencha a data e o peso com valores válidos.');let indice=editId?appData.medidas.findIndex(x=>String(x.id)===String(editId)):-1,anterior=indice>-1?appData.medidas[indice]:null,id=anterior?.id||crypto.randomUUID?.()||String(Date.now()),botao=document.getElementById('btn-salvar-medida');botao.disabled=true;try{const preparada=arquivos.length?await prepararFotosRegistro(arquivos,`medida_${id}`):null;const novas=(preparada?.fotos||[]).map((f,i)=>({...f,fotoCategoria:categoriasFotosMedidaSelecionadas[i]||'outros'}));const registro={...(anterior||{}),id,data,peso,observacoes:document.getElementById('med-obs').value,fotos:[...obterFotosRegistro(anterior||{}),...novas]};for(const k of ['pescoco','peito','cintura','quadril','coxa','panturrilha','braco'])registro[k]=validarOpcional('med-'+k);if(indice>-1)appData.medidas[indice]=registro;else appData.medidas.push(registro);salvarDados(true,true);fecharModalMedida();}catch(error){alert('Não foi possível salvar: '+traduzirErroApp(error));}finally{botao.disabled=false;botao.innerText='Salvar';}};
 
-function renderResumoComposicao(){const container=document.getElementById('resumo-composicao-corporal');if(!container)return;const registros=[...appData.pesos].sort((a,b)=>b.data.localeCompare(a.data));const itens=[['Músculo esquelético','musculoEsqueletico','kg'],['Massa gorda','massaGorda','kg'],['Água corporal','aguaCorporal','%'],['Gordura corporal','gorduraCorporalPercentual','%'],['IMC','imc',''],['TMB','tmb','kcal']];container.innerHTML=itens.map(([nome,chave,unidade])=>{const atual=registros.find(r=>numeroValido(r[chave])!==null),valor=atual?numeroValido(atual[chave]):null;return `<div class="card metric-summary-card"><div class="label">${nome}</div><div class="value">${valor===null?'--':(chave==='tmb'?Math.round(valor):formatBR(valor))+(unidade?' '+unidade:'')}</div><div class="small">${atual?formatDateBR(atual.data):'Sem registro'}</div></div>`;}).join('');}
+function distanciaFaixaImc(valor) {
+    if (valor < 18.5) return 18.5 - valor;
+    if (valor > 24.9) return valor - 24.9;
+    return 0;
+}
+function compararComposicaoAnterior(chave, atual, anterior) {
+    if (anterior === null) return { texto: 'Sem comparação anterior', classe: 'neutral' };
+    const diferenca = atual - anterior;
+    const unidade = chave === 'tmb' ? ' kcal' : (['aguaCorporal', 'gorduraCorporalPercentual'].includes(chave) ? ' p.p.' : (chave === 'imc' ? '' : ' kg'));
+    const textoValor = chave === 'tmb' ? String(Math.round(Math.abs(diferenca))) : formatBR(Math.abs(diferenca));
+    if (Math.abs(diferenca) < 0.005) return { texto: 'Sem alteração vs anterior', classe: 'neutral' };
+    let favoravel;
+    if (chave === 'massaGorda' || chave === 'gorduraCorporalPercentual') favoravel = diferenca < 0;
+    else if (chave === 'imc') favoravel = distanciaFaixaImc(atual) < distanciaFaixaImc(anterior);
+    else favoravel = diferenca > 0;
+    const seta = diferenca > 0 ? '↑' : '↓';
+    return { texto: `${seta} ${diferenca > 0 ? '+' : '−'}${textoValor}${unidade} vs anterior`, classe: favoravel ? 'positive' : 'negative' };
+}
+function renderResumoComposicao(){
+    const container=document.getElementById('resumo-composicao-corporal'); if(!container)return;
+    const registros=[...appData.pesos].sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')));
+    const itens=[['Músculo esquelético','musculoEsqueletico','kg'],['Massa gorda','massaGorda','kg'],['Água corporal','aguaCorporal','%'],['Gordura corporal','gorduraCorporalPercentual','%'],['IMC','imc',''],['TMB','tmb','kcal']];
+    container.innerHTML=itens.map(([nome,chave,unidade])=>{
+        const indiceAtual=registros.findIndex(r=>numeroValido(r[chave])!==null);
+        const atual=indiceAtual<0?null:registros[indiceAtual], valor=atual?numeroValido(atual[chave]):null;
+        const anterior=indiceAtual<0?null:numeroValido((registros.slice(indiceAtual+1).find(r=>numeroValido(r[chave])!==null)||{})[chave]);
+        const comparacao=valor===null?{texto:'Sem registro',classe:'neutral'}:compararComposicaoAnterior(chave,valor,anterior);
+        const exibicao=valor===null?'--':(chave==='tmb'?Math.round(valor):formatBR(valor))+(unidade?' '+unidade:'');
+        return `<div class="card metric-summary-card"><div class="label">${nome}</div><div class="value">${exibicao}</div><div class="small">${atual?formatDateBR(atual.data):'Sem registro'}</div><div class="metric-delta ${comparacao.classe}" title="Comparação com o último registro que contém este indicador.">${comparacao.texto}</div></div>`;
+    }).join('');
+}
 
 function totalCaloriasDia(dia){return (dia?.refeicoes||[]).reduce((s,r)=>s+(numeroValido(r.calorias)||0),0);}
 function renderCalorias(){const lista=document.getElementById('lista-calorias'),resumo=document.getElementById('resumo-calorias');if(!lista||!resumo)return;const dias=[...(appData.calorias||[])].sort((a,b)=>b.data.localeCompare(a.data)),meta=numeroValido(appData.config.metaCalorias),ultimo=dias[0],total=ultimo?totalCaloriasDia(ultimo):null,saldo=total===null||meta===null?null:meta-total;resumo.innerHTML=[['Último total',total===null?'--':Math.round(total)+' kcal',ultimo?formatDateBR(ultimo.data):'Sem registro','neutral'],['Meta diária',meta===null?'--':Math.round(meta)+' kcal','Configurações','neutral'],['Saldo',saldo===null?'--':(saldo>=0?'+':'')+Math.round(saldo)+' kcal',saldo===null?'Configure a meta':saldo>=0?'Dentro da meta':'Acima da meta',saldo===null?'neutral':saldo>=0?'positive':'negative']].map(x=>`<div class="card metric-summary-card"><div class="label">${x[0]}</div><div class="value ${x[3]}">${x[1]}</div><div class="small">${x[2]}</div></div>`).join('');if(!dias.length){lista.innerHTML='<tr><td colspan="4" style="text-align:center">Nenhuma refeição lançada.</td></tr>';return;}lista.innerHTML=dias.map(d=>{const t=totalCaloriasDia(d),s=meta===null?null:meta-t;return `<tr><td>${formatDateCurtaBR(d.data)}</td><td>${Math.round(t)} kcal</td><td class="${s===null?'neutral':s>=0?'positive':'negative'}">${s===null?'--':(s>=0?'+':'')+Math.round(s)}</td><td><div class="calorie-action-buttons"><button class="btn btn-outline compact-action" title="Visualizar" onclick="visualizarRegistro('caloria','${d.id}')">${PL_ICONE_VISUALIZAR}</button><button class="btn btn-outline compact-action" title="Excluir" style="border-color:var(--danger);color:var(--danger)" onclick="excluirCaloria('${d.id}')">−</button></div></td></tr>`;}).join('');}
