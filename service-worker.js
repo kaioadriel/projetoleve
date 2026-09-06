@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v20-historicos-fotos-br';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v20-historicos-fotos-br';
+const CACHE_VERSION = 'projeto-leve-v21-visualizar-registros';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v21-visualizar-registros';
 const BASE = new URL('./', self.location.href);
 const localUrl = name => new URL(name, BASE).href;
 const APP_SHELL = ['./', 'index.html', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png'].map(localUrl);
