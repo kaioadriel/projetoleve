@@ -1359,8 +1359,9 @@
                         <input type="text" inputmode="decimal" id="peso-valor" placeholder="Ex: 87,80" required>
                     </div>
                     <div class="form-group">
-                        <label>Meta (kg)</label>
-                        <input type="text" inputmode="decimal" id="peso-meta" placeholder="Meta atual">
+                        <label>Meta usada neste registro (kg)</label>
+                        <input type="text" inputmode="decimal" id="peso-meta" placeholder="Preenchida pelas Configurações">
+                        <div class="small" style="margin-top:6px;color:var(--text-secondary)">Preenchida automaticamente com a meta atual e salva junto com este registro.</div>
                     </div>
                     <div class="form-section-title">Composição corporal (opcional)</div>
                     <div class="grid-2">
@@ -2035,7 +2036,7 @@ function carregarDadosLocaisDoUsuario() {
     try {
         const texto = localStorage.getItem(chaveLocalUsuario());
         if (texto) {
-            try { appData = validarDadosImportados(JSON.parse(texto)); return true; }
+            try { appData = validarDadosImportados(JSON.parse(texto)); localStorage.setItem(chaveLocalUsuario(), JSON.stringify(appData)); return true; }
             catch (error) { console.warn('Dados principais inválidos. Tentando a cópia interna.', error); }
         }
         const copia = lerCopiaInternaAutomatica();
@@ -6242,7 +6243,7 @@ function criarPdfRelatorio() {
     if (!calorias.length) {
         texto('Nenhuma refeição registrada.', margem + 4, y - 2, 9, false, '0.39 0.45 0.54'); y -= 22;
     } else calorias.forEach((dia, indice) => {
-        const total = totalCaloriasDia(dia), meta = numeroValido(appData.config.metaCalorias), saldo = meta === null ? null : meta - total;
+        const total = totalCaloriasDia(dia), meta = obterMetaCaloriasDia(dia), saldo = meta === null ? null : meta - total;
         const detalhes = dia.refeicoes.map(r => r.tipo + ': ' + Math.round(r.calorias) + ' kcal' + (r.observacoes ? ' (' + r.observacoes + ')' : '')).join('  |  ');
         if (y < 72) { novaPagina(); tituloSecao('Histórico de Calorias — continuação'); }
         if (indice % 2) preencher(margem, y - 40, larguraUtil, 44, '0.97 0.98 0.99');
@@ -6575,6 +6576,213 @@ const updateUIAnteriorV20=updateUI;
 updateUI=function(){updateUIAnteriorV20();renderResumoComposicao();renderCalorias();};
 
 function inicializarMelhoriasV20(){filtroGraficoAtual='ciclo';configurarCategoriasFotos();configurarCamposVirgula();document.getElementById('cfg-meta-calorias')?.addEventListener('input',agendarSalvarAjustes);document.getElementById('cfg-meta-calorias')?.addEventListener('change',agendarSalvarAjustes);document.getElementById('modal-detalhes-registro')?.addEventListener('click',e=>{if(e.target.id==='modal-detalhes-registro')fecharDetalhesRegistro();});}
+
+/**
+ * MELHORIAS V22 — metas históricas congeladas e variação neutra da TMB
+ *
+ * Regras de integridade:
+ * 1) Cada peso guarda a meta de peso usada no dia do lançamento.
+ * 2) Cada dia de calorias guarda a meta calórica usada naquele dia.
+ * 3) Registros antigos sem snapshot recebem, uma única vez, a meta atual existente
+ *    no momento da migração. Depois disso, mudanças em Configurações não os recalculam.
+ */
+const normalizarDadosAnteriorV22 = normalizarDados;
+normalizarDados = function(raw) {
+    const origem = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+    const dados = normalizarDadosAnteriorV22(origem);
+    const metaPesoMigracao = numeroValido(origem.config?.pesoMeta);
+    const metaCaloriasMigracao = numeroValido(origem.config?.metaCalorias);
+
+    dados.pesos = (dados.pesos || []).map((registro, indice) => {
+        const fonte = (Array.isArray(origem.pesos) ? origem.pesos : []).find(item => String(item?.id) === String(registro.id))
+            || (Array.isArray(origem.pesos) ? origem.pesos[indice] : null)
+            || {};
+        const temMetaSalva = Object.prototype.hasOwnProperty.call(fonte, 'meta');
+        const metaSalva = numeroValido(fonte.meta);
+        return {
+            ...registro,
+            meta: temMetaSalva ? (metaSalva !== null ? metaSalva : '') : (metaPesoMigracao !== null ? metaPesoMigracao : '')
+        };
+    });
+
+    dados.calorias = (dados.calorias || []).map((dia, indice) => {
+        const fonte = (Array.isArray(origem.calorias) ? origem.calorias : []).find(item => String(item?.id) === String(dia.id))
+            || (Array.isArray(origem.calorias) ? origem.calorias.find(item => item?.data === dia.data) : null)
+            || (Array.isArray(origem.calorias) ? origem.calorias[indice] : null)
+            || {};
+        const temMetaSalva = Object.prototype.hasOwnProperty.call(fonte, 'metaCalorias');
+        const metaSalva = numeroValido(fonte.metaCalorias);
+        return {
+            ...dia,
+            metaCalorias: temMetaSalva ? (metaSalva !== null ? metaSalva : '') : (metaCaloriasMigracao !== null ? metaCaloriasMigracao : '')
+        };
+    });
+    return dados;
+};
+
+const validarDadosImportadosAnteriorV22 = validarDadosImportados;
+validarDadosImportados = function(raw) {
+    for (const dia of raw?.calorias || []) {
+        if (dia?.metaCalorias !== undefined && dia.metaCalorias !== '') {
+            const meta = numeroValido(dia.metaCalorias);
+            if (meta === null || meta < 0) throw new Error('Meta histórica de calorias inválida no backup.');
+        }
+    }
+    return validarDadosImportadosAnteriorV22(raw);
+};
+
+function obterMetaCaloriasDia(dia) {
+    const meta = numeroValido(dia?.metaCalorias);
+    return meta !== null ? meta : null;
+}
+
+function metaCaloriasParaNovoDia() {
+    const meta = numeroValido(appData.config?.metaCalorias);
+    return meta !== null ? meta : '';
+}
+
+// A TMB pode subir ou cair por vários motivos; a seta continua informativa, mas sem julgar como bom/ruim.
+const compararComposicaoAnteriorAnteriorV22 = compararComposicaoAnterior;
+compararComposicaoAnterior = function(chave, atual, anterior) {
+    const resultado = compararComposicaoAnteriorAnteriorV22(chave, atual, anterior);
+    if (chave === 'tmb' && anterior !== null && numeroValido(atual) !== null && numeroValido(anterior) !== null) {
+        return { ...resultado, classe: 'neutral' };
+    }
+    return resultado;
+};
+
+// Exibe a meta realmente usada pelo último registro e calcula cada linha com sua própria meta histórica.
+renderCalorias = function() {
+    const lista = document.getElementById('lista-calorias');
+    const resumo = document.getElementById('resumo-calorias');
+    if (!lista || !resumo) return;
+
+    const dias = [...(appData.calorias || [])].sort((a, b) => b.data.localeCompare(a.data));
+    const ultimo = dias[0];
+    const total = ultimo ? totalCaloriasDia(ultimo) : null;
+    const metaUltimo = ultimo ? obterMetaCaloriasDia(ultimo) : numeroValido(appData.config?.metaCalorias);
+    const saldoUltimo = total === null || metaUltimo === null ? null : metaUltimo - total;
+
+    resumo.innerHTML = [
+        ['Último total', total === null ? '--' : Math.round(total) + ' kcal', ultimo ? formatDateBR(ultimo.data) : 'Sem registro', 'neutral'],
+        [ultimo ? 'Meta usada' : 'Meta diária', metaUltimo === null ? '--' : Math.round(metaUltimo) + ' kcal', ultimo ? 'Congelada neste registro' : 'Configurações', 'neutral'],
+        ['Saldo', saldoUltimo === null ? '--' : (saldoUltimo >= 0 ? '+' : '') + Math.round(saldoUltimo) + ' kcal', saldoUltimo === null ? 'Sem meta no registro' : saldoUltimo >= 0 ? 'Dentro da meta' : 'Acima da meta', saldoUltimo === null ? 'neutral' : saldoUltimo >= 0 ? 'positive' : 'negative']
+    ].map(item => `<div class="card metric-summary-card"><div class="label">${item[0]}</div><div class="value ${item[3]}">${item[1]}</div><div class="small">${item[2]}</div></div>`).join('');
+
+    if (!dias.length) {
+        lista.innerHTML = '<tr><td colspan="4" style="text-align:center">Nenhuma refeição lançada.</td></tr>';
+        return;
+    }
+
+    lista.innerHTML = dias.map(dia => {
+        const totalDia = totalCaloriasDia(dia);
+        const metaDia = obterMetaCaloriasDia(dia);
+        const saldoDia = metaDia === null ? null : metaDia - totalDia;
+        const saldoTexto = saldoDia === null ? '--' : (saldoDia >= 0 ? '+' : '') + Math.round(saldoDia);
+        const metaTexto = metaDia === null ? 'Meta --' : 'Meta ' + Math.round(metaDia) + ' kcal';
+        return `<tr>
+            <td>${formatDateCurtaBR(dia.data)}</td>
+            <td>${Math.round(totalDia)} kcal</td>
+            <td class="${saldoDia === null ? 'neutral' : saldoDia >= 0 ? 'positive' : 'negative'}">
+                <div>${saldoTexto}</div>
+                <div class="small" style="color:var(--text-secondary);font-size:9px">${metaTexto}</div>
+            </td>
+            <td><div class="calorie-action-buttons"><button class="btn btn-outline compact-action" title="Visualizar" onclick="visualizarRegistro('caloria','${dia.id}')">${PL_ICONE_VISUALIZAR}</button><button class="btn btn-outline compact-action" title="Excluir" style="border-color:var(--danger);color:var(--danger)" onclick="excluirCaloria('${dia.id}')">−</button></div></td>
+        </tr>`;
+    }).join('');
+};
+
+// No detalhe de calorias, mostra explicitamente a meta congelada do próprio dia.
+const visualizarRegistroAnteriorV22 = visualizarRegistro;
+visualizarRegistro = function(tipo, id) {
+    if (tipo !== 'caloria') return visualizarRegistroAnteriorV22(tipo, id);
+    const item = (appData.calorias || []).find(x => String(x.id) === String(id));
+    if (!item) return alert('Registro não encontrado.');
+    registroVisualizado = { tipo, id: item.id };
+    const total = totalCaloriasDia(item);
+    const meta = obterMetaCaloriasDia(item);
+    const saldo = meta === null ? null : meta - total;
+    const refeicoes = item.refeicoes.map(r => `<div class="meal-detail"><div class="meal-detail-head"><div><div class="label">${escapeHtml(r.tipo)}</div><div class="value">${Math.round(r.calorias)} kcal</div></div><button class="btn btn-outline" onclick="editarRefeicao('${item.id}','${r.id}')">Editar</button></div>${r.observacoes ? `<div class="small" style="margin-top:8px">${escapeHtml(r.observacoes)}</div>` : ''}</div>`).join('');
+    abrirModalDetalhes('Calorias de ' + formatDateBR(item.data), `<div class="detail-grid">${valorDetalhe('Total', Math.round(total) + ' kcal')}${valorDetalhe('Meta usada', meta === null ? '--' : Math.round(meta) + ' kcal', 'neutral')}${valorDetalhe('Saldo', saldo === null ? '--' : (saldo >= 0 ? '+' : '') + Math.round(saldo) + ' kcal', saldo === null ? 'neutral' : saldo >= 0 ? 'positive' : 'negative')}</div>${refeicoes}`, true, 'Adicionar refeição');
+};
+
+// Salva a meta calórica apenas quando o dia nasce. Refeições futuras nesse mesmo dia reutilizam o snapshot.
+document.getElementById('form-caloria').onsubmit = function(e) {
+    e.preventDefault();
+    const data = document.getElementById('caloria-data').value;
+    const tipo = document.getElementById('caloria-refeicao').value;
+    const calorias = numeroValido(document.getElementById('caloria-valor').value);
+    const obs = document.getElementById('caloria-observacoes').value;
+    const editDia = document.getElementById('edit-caloria-dia-id').value;
+    const editRef = document.getElementById('edit-refeicao-id').value;
+    if (!dataISOValida(data) || calorias === null || calorias <= 0) return alert('Preencha data e calorias com valores válidos.');
+
+    appData.calorias = appData.calorias || [];
+    let refeicaoAnterior = null;
+    let dataAnterior = '';
+    let metaAnterior = null;
+
+    if (editDia && editRef) {
+        const diaOrigem = appData.calorias.find(d => String(d.id) === String(editDia));
+        refeicaoAnterior = diaOrigem?.refeicoes.find(r => String(r.id) === String(editRef)) || null;
+        dataAnterior = diaOrigem?.data || '';
+        metaAnterior = diaOrigem ? obterMetaCaloriasDia(diaOrigem) : null;
+        if (diaOrigem) diaOrigem.refeicoes = diaOrigem.refeicoes.filter(r => String(r.id) !== String(editRef));
+        appData.calorias = appData.calorias.filter(d => d.refeicoes.length);
+    }
+
+    let dia = appData.calorias.find(d => d.data === data);
+    if (!dia) {
+        const mesmaDataEditada = !!(editRef && dataAnterior && dataAnterior === data);
+        dia = {
+            id: mesmaDataEditada && editDia ? editDia : (crypto.randomUUID?.() || `caloria_${Date.now()}`),
+            data,
+            metaCalorias: mesmaDataEditada && metaAnterior !== null ? metaAnterior : metaCaloriasParaNovoDia(),
+            refeicoes: []
+        };
+        appData.calorias.push(dia);
+    } else if (!Object.prototype.hasOwnProperty.call(dia, 'metaCalorias')) {
+        dia.metaCalorias = metaCaloriasParaNovoDia();
+    }
+
+    const ordem = refeicaoAnterior?.ordemCadastro || Math.max(0, ...dia.refeicoes.map(r => Number(r.ordemCadastro) || 0)) + 1;
+    dia.refeicoes.push({
+        id: refeicaoAnterior?.id || crypto.randomUUID?.() || `ref_${Date.now()}`,
+        tipo,
+        calorias,
+        observacoes: obs,
+        ordemCadastro: ordem
+    });
+    motivoProximaCopia = editRef ? 'Antes de editar refeição' : 'Antes de adicionar refeição';
+    salvarDados(true, true);
+    fecharLancamentoCaloria();
+};
+
+// Ao editar um peso antigo, nunca substitui silenciosamente a meta histórica pela configuração atual.
+const editarPesoAnteriorV22 = editarPeso;
+editarPeso = function(id) {
+    editarPesoAnteriorV22(id);
+    const item = (appData.pesos || []).find(x => String(x.id) === String(id));
+    if (!item) return;
+    const metaHistorica = numeroValido(item.meta);
+    const campoMeta = document.getElementById('peso-meta');
+    if (campoMeta) campoMeta.value = metaHistorica === null ? '' : formatBR(metaHistorica);
+};
+
+// Garantia extra: mesmo se o campo de meta do peso estiver vazio, usa a meta atual das Configurações somente em um novo lançamento.
+const formPesoV22 = document.getElementById('form-peso');
+if (formPesoV22) {
+    const salvarPesoAnteriorV22 = formPesoV22.onsubmit;
+    formPesoV22.onsubmit = async function(e) {
+        const campoMeta = document.getElementById('peso-meta');
+        const editId = document.getElementById('edit-peso-id')?.value || '';
+        if (!editId && campoMeta && numeroValido(campoMeta.value) === null) {
+            const metaAtual = numeroValido(appData.config?.pesoMeta);
+            if (metaAtual !== null) campoMeta.value = formatBR(metaAtual);
+        }
+        return salvarPesoAnteriorV22.call(this, e);
+    };
+}
 
 window.onload = function() {
     agendarOcultarSplashInicial();
