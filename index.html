@@ -114,9 +114,9 @@
         nav::-webkit-scrollbar { display: none; }
         .nav-item {
             display: flex;
-            flex: 1 1 16.6667%;
+            flex: 1 1 14.2857%;
             min-width: 0;
-            max-width: 16.6667%;
+            max-width: 14.2857%;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -327,6 +327,12 @@
             margin: 0; padding: 10px; border-radius: 20px; overflow: hidden;
             display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; gap: 8px;
             min-height: 0; min-width: 0;
+        }
+        /* Peso e Medidas têm um filtro extra. Sem esta quinta linha, o filtro
+           ocupava o espaço reservado à foto e deixava o palco com altura zero. */
+        #modal-fotos-pesos .photo-carousel-card,
+        #modal-fotos-medidas .photo-carousel-card {
+            grid-template-rows: auto auto minmax(0, 1fr) auto auto;
         }
         .photo-carousel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
         .photo-carousel-head h3 { font-size: clamp(13px, 3.7vw, 18px); line-height: 1.2; margin: 0; min-width: 0; }
@@ -1087,6 +1093,75 @@
         }
         .photo-history-icon { min-height: 44px; height: 44px; }
         #copia-interna-select { width: 100%; min-height: 44px; }
+
+        .metric-summary-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:16px; }
+        /* Cartões de composição: todos ocupam a mesma estrutura, sem a faixa azul no topo. */
+        .metric-summary-card { min-width:0; min-height:132px; padding:14px 13px 12px; border:1px solid var(--border); border-top:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 5px 16px rgba(15,23,42,.045); }
+        .metric-summary-card .label { min-height:32px; line-height:1.18; }
+        .metric-summary-card .value { font-size:18px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .metric-summary-card .small { margin-top:4px; color:var(--text-secondary); }
+        .metric-summary-card .metric-delta { min-height:16px; margin-top:6px; font-size:11px; font-weight:800; line-height:1.25; }
+        .metric-summary-card .metric-delta.neutral { color:var(--text-secondary); }
+        .metric-summary-card .metric-delta.positive { color:var(--success); }
+        .metric-summary-card .metric-delta.negative { color:var(--danger); }
+        /* Os resumos não usam faixa colorida no topo: a cor fica reservada
+           para a variação do resultado, deixando todos os quadrados coerentes. */
+        #resumo-calorias .metric-summary-card { min-height:0; border-top:1px solid var(--border); }
+        /* V21: cartões compactos e homogêneos para resultados atuais. */
+        .weight-meta-snapshot-info { min-height:48px; display:flex; align-items:center; padding:11px 12px; border:1px solid var(--border); border-radius:10px; background:var(--soft-bg); color:var(--text-secondary); font-size:13px; font-weight:700; }
+        .composition-summary-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+        .peso-summary-card, .composition-summary-card, .record-summary-card { min-width:0; min-height:0; margin:0; padding:10px; border:1px solid var(--border); border-top:1px solid var(--border); box-shadow:var(--shadow); }
+        .composition-summary-card .label, .record-summary-card .label { min-height:0; line-height:1.2; }
+        .composition-summary-card .value, .record-summary-card .value { margin-top:5px; font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .composition-summary-card .small, .record-summary-card .small { margin-top:6px; line-height:1.28; }
+        .composition-summary-card .metric-delta, .record-summary-card .metric-delta { min-height:0; margin-top:6px; font-size:11px; font-weight:800; line-height:1.25; }
+        .composition-summary-card .metric-target { color:var(--text-secondary); }
+        #resumo-calorias { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+        #resumo-calorias .metric-summary-card { min-height:0; padding:10px; margin:0; border:1px solid var(--border); box-shadow:var(--shadow); }
+        #resumo-calorias .metric-summary-card .label { min-height:0; }
+        #resumo-calorias .metric-summary-card .value { margin-top:5px; font-size:16px; }
+        #resumo-calorias .metric-summary-card .small { line-height:1.28; }
+        .photo-category-existing-title { grid-column:1/-1; margin-top:6px; color:var(--text-secondary); font-size:12px; font-weight:800; }
+        .photo-category-existing-row { grid-template-columns:minmax(0,1fr) 132px; }
+        @media (max-width:430px) {
+            .composition-summary-grid, #resumo-calorias { gap:10px; }
+            .composition-summary-card, .record-summary-card, #resumo-calorias .metric-summary-card { padding:9px; }
+            .composition-summary-card .value, .record-summary-card .value, #resumo-calorias .metric-summary-card .value { font-size:15px; }
+            .composition-summary-card .metric-delta, .record-summary-card .metric-delta { font-size:10px; }
+        }
+        /* Evita que erros de imagem pareçam uma área vazia em telas AMOLED. */
+        .modal.photo-viewer .photo-carousel-stage { background:#0f172a !important; }
+        .modal.photo-viewer .photo-carousel-stage .photo-carousel-loading { color:#e2e8f0 !important; }
+        .form-section-title { margin:8px 0 14px; font-size:14px; color:var(--accent-hover); text-transform:uppercase; letter-spacing:.06em; }
+        .photo-category-list { display:grid; gap:8px; margin-top:10px; }
+        .photo-category-row { display:grid; grid-template-columns:minmax(0,1fr) 132px; gap:8px; align-items:center; padding:8px; border:1px solid var(--border); border-radius:12px; background:var(--soft-bg); }
+        .photo-category-name { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; font-weight:700; }
+        .photo-category-row select { padding:8px; font-size:13px; }
+        .photo-filter { margin:0 0 8px; }
+        .photo-filter select { min-height:42px; padding:8px 10px; font-size:14px; }
+        .detail-card { width:100%; max-width:620px; max-height:90vh; overflow-y:auto; }
+        .detail-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:14px 0; }
+        .detail-field { padding:11px; border:1px solid var(--border); background:var(--soft-bg); border-radius:14px; min-width:0; }
+        .detail-field.wide { grid-column:1/-1; }
+        .detail-field .detail-value { margin-top:3px; font-size:15px; font-weight:800; overflow-wrap:anywhere; }
+        .detail-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+        .meal-detail { border:1px solid var(--border); border-radius:14px; padding:12px; margin-top:9px; background:#fff; }
+        .meal-detail-head { display:flex; justify-content:space-between; gap:10px; align-items:center; }
+        .meal-detail .btn { width:auto; padding:8px 12px; min-height:38px; }
+        .calorie-history-table { overflow-x:hidden; }
+        .calorie-history-table table { table-layout:fixed; min-width:0; }
+        .calorie-history-table th,.calorie-history-table td { padding:8px 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:11px; }
+        .calorie-col-date { width:23%; }.calorie-col-total { width:22%; }.calorie-col-balance { width:22%; }.calorie-col-actions { width:33%; }
+        .calorie-action-buttons { display:flex; gap:4px; align-items:center; justify-content:center; }
+        .chart-subtitle { min-height:18px; margin-top:-6px; margin-bottom:8px; color:var(--text-secondary); font-size:12px; }
+        .chart-filter-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .eye-icon { width:19px; height:19px; }
+        @media (max-width:430px) {
+            .nav-item { font-size:8px; }
+            .nav-item svg { width:20px; height:20px; }
+            .detail-grid { grid-template-columns:1fr 1fr; gap:8px; }
+            .photo-category-row { grid-template-columns:minmax(0,1fr) 116px; }
+        }
     </style>
 </head>
 <body>
@@ -1309,11 +1384,21 @@
                     </div>
                     <div class="form-group">
                         <label>Peso (kg)</label>
-                        <input type="number" step="0.1" id="peso-valor" placeholder="00.0" required>
+                        <input type="text" inputmode="decimal" id="peso-valor" placeholder="Ex: 87,80" required>
                     </div>
-                    <div class="form-group">
-                        <label>Meta (kg)</label>
-                        <input type="number" step="0.1" id="peso-meta" placeholder="Meta atual" required>
+                    <div class="form-group weight-meta-snapshot">
+                        <label>Meta deste registro</label>
+                        <div id="peso-meta-info" class="weight-meta-snapshot-info">A meta configurada será registrada automaticamente.</div>
+                        <input type="hidden" id="peso-meta">
+                    </div>
+                    <div class="form-section-title">Composição corporal (opcional)</div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>Músculo esquelético (kg)</label><input type="text" inputmode="decimal" id="peso-musculo" placeholder="Ex: 29,50"></div>
+                        <div class="form-group"><label>Massa gorda (kg)</label><input type="text" inputmode="decimal" id="peso-massa-gorda" placeholder="Ex: 24,10"></div>
+                        <div class="form-group"><label>Água corporal (%)</label><input type="text" inputmode="decimal" id="peso-agua" placeholder="Ex: 52,30"></div>
+                        <div class="form-group"><label>Gordura corporal calculada (%)</label><input type="text" id="peso-gordura-percentual" readonly placeholder="Calculada automaticamente"></div>
+                        <div class="form-group"><label>IMC</label><input type="text" inputmode="decimal" id="peso-imc" placeholder="Ex: 32,30"></div>
+                        <div class="form-group"><label>Taxa metabólica basal (kcal)</label><input type="text" inputmode="numeric" id="peso-tmb" placeholder="Ex: 1750"></div>
                     </div>
                     <div class="form-group">
                         <label>Observações</label>
@@ -1327,6 +1412,8 @@
                         </label>
                         <input type="file" id="peso-foto" class="hidden" accept="image/*" multiple>
                         <div id="peso-foto-nome" class="medicine-photo-name">Nenhuma foto selecionada. Você pode escolher várias.</div>
+                        <div id="peso-foto-categorias" class="photo-category-list"></div>
+                        <div id="peso-foto-categorias-existentes" class="photo-category-list"></div>
                     </div>
                     <button type="button" class="btn btn-clear-outline" style="margin-bottom: 10px;" onclick="limparFormularioPeso()">Limpar</button>
                     <div class="grid-2">
@@ -1344,6 +1431,7 @@
                 <button class="btn btn-primary" onclick="abrirLancamentoPeso()">Lançar Peso</button>
             </div>
             <div id="resumo-peso-atual" class="grid-2"></div>
+            <div id="resumo-composicao-corporal" class="composition-summary-grid"></div>
             <div class="card primary-action-card">
                 <button type="button" class="btn btn-outline compare-photos-button" onclick="abrirCarrosselFotosPesos()">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="m21 15-5-5L5 19"></path></svg>
@@ -1460,13 +1548,6 @@
                 </form>
             </div>
 
-            <div class="card primary-action-card">
-                <button type="button" class="btn btn-outline compare-photos-button" onclick="abrirCarrosselFotos()">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="m21 15-5-5L5 19"></path></svg>
-                    Comparar Fotos
-                </button>
-            </div>
-
             <h3 class="section-title">Histórico</h3>
             <div class="table-container medicine-history-table">
                 <table>
@@ -1491,6 +1572,31 @@
                     <tbody id="lista-remedios"></tbody>
                 </table>
             </div>
+            <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
+        </section>
+
+        <!-- Calorias -->
+        <section id="view-calorias" class="view hidden">
+            <div id="calorias-acoes-principais">
+                <div class="card primary-action-card"><button class="btn btn-primary" onclick="abrirLancamentoCaloria()">Lançar Refeição</button></div>
+                <div id="resumo-calorias" class="metric-summary-grid"></div>
+            </div>
+            <div id="card-lancamento-caloria" class="card feature-card hidden">
+                <h3 id="caloria-form-title">Nova Refeição</h3>
+                <form id="form-caloria">
+                    <input type="hidden" id="edit-caloria-dia-id"><input type="hidden" id="edit-refeicao-id">
+                    <div class="grid-2">
+                        <div class="form-group"><label>Data</label><input type="date" id="caloria-data" required></div>
+                        <div class="form-group"><label>Refeição</label><select id="caloria-refeicao" required><option value="Café da Manhã">Café da Manhã</option><option value="Almoço">Almoço</option><option value="Café da Tarde">Café da Tarde</option><option value="Jantar">Jantar</option><option value="Outros">Outros</option></select></div>
+                    </div>
+                    <div class="form-group"><label>Calorias consumidas (kcal)</label><input type="text" inputmode="numeric" id="caloria-valor" placeholder="Ex: 450" required></div>
+                    <div class="form-group"><label>Observações</label><textarea id="caloria-observacoes" rows="3" placeholder="Alimentos, quantidade ou outra informação"></textarea></div>
+                    <button type="button" class="btn btn-clear-outline" style="margin-bottom:10px" onclick="limparFormularioCaloria()">Limpar</button>
+                    <div class="grid-2"><button type="submit" class="btn btn-primary" id="btn-salvar-caloria">Salvar Refeição</button><button type="button" class="btn btn-outline" onclick="fecharLancamentoCaloria()">Cancelar</button></div>
+                </form>
+            </div>
+            <h3 class="section-title">Histórico</h3>
+            <div class="table-container calorie-history-table"><table><colgroup><col class="calorie-col-date"><col class="calorie-col-total"><col class="calorie-col-balance"><col class="calorie-col-actions"></colgroup><thead><tr><th>Data</th><th>Total</th><th>Saldo</th><th>Ações</th></tr></thead><tbody id="lista-calorias"></tbody></table></div>
             <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
@@ -1536,8 +1642,10 @@
             <div class="card">
                 <h3>Filtrar Gráficos</h3>
                 <div class="form-group" style="margin-bottom: 0;">
+                    <div class="chart-filter-grid">
                     <select id="grafico-filtro-select" onchange="alterarFiltroGrafico(this.value)">
-                        <option value="inicio">Início</option>
+                        <option value="ciclo">Ciclo Atual</option>
+                        <option value="todos">Todo o Histórico</option>
                         <option value="7d">7 dias</option>
                         <option value="1m">1 mês</option>
                         <option value="3m">3 meses</option>
@@ -1545,10 +1653,15 @@
                         <option value="1a">1 ano</option>
                         <option value="5a">5 anos</option>
                     </select>
+                    <select id="grafico-indicador-select" onchange="alterarIndicadorGrafico(this.value)">
+                        <option value="peso">Peso</option><option value="musculoEsqueletico">Músculo esquelético</option><option value="massaGorda">Massa gorda</option><option value="aguaCorporal">Água corporal</option><option value="gorduraCorporalPercentual">Gordura corporal</option><option value="imc">IMC</option><option value="tmb">Taxa metabólica basal</option>
+                    </select>
+                    </div>
                 </div>
             </div>
             <div class="card">
-                <h3>Pesos Registrados</h3>
+                <h3 id="chart-peso-title">Peso</h3>
+                <div id="chart-peso-subtitle" class="chart-subtitle"></div>
                 <div class="chart-container"><canvas id="chartPeso"></canvas></div>
             </div>
             <div class="card">
@@ -1571,6 +1684,7 @@
                         <div class="form-group"><label>Peso Meta</label><input type="number" step="0.1" id="cfg-peso-meta"></div>
                         <div class="form-group"><label>Meta kg/dia</label><input type="number" step="0.01" id="cfg-meta-dia"></div>
                     </div>
+                    <div class="form-group"><label>Meta Calorias (kcal/dia)</label><input type="text" inputmode="numeric" id="cfg-meta-calorias" placeholder="Ex: 1800"></div>
                     <div class="settings-action-row">
                         <button type="button" id="btn-desfazer-metas" class="btn btn-undo" onclick="desfazerMetasPeso()" aria-label="Desfazer Metas de Peso" title="Desfazer">↶</button>
                         <button type="button" class="btn btn-clear-outline" onclick="limparPerfilMetas()">Limpar</button>
@@ -1632,7 +1746,7 @@
                     </div>
                     <div class="grid-2">
                         <div class="form-group"><label>Gênero</label><select id="perfil-genero"><option value="">Selecione</option><option value="Homem">Homem</option><option value="Mulher">Mulher</option></select></div>
-                        <div class="form-group"><label>Altura (cm)</label><input type="number" step="0.1" id="perfil-altura" placeholder="Ex: 165"></div>
+                        <div class="form-group"><label>Altura (m)</label><input type="text" inputmode="decimal" id="perfil-altura" placeholder="Ex: 1,65"></div>
                     </div>
                     <div class="profile-action-row">
                         <button type="button" id="btn-desfazer-perfil" class="btn btn-undo" onclick="desfazerPerfilConta()" aria-label="Desfazer Perfil e Conta" title="Desfazer">↶</button>
@@ -1655,7 +1769,7 @@
             </div>
             <div class="card">
                 <h3>Limpeza por Data</h3>
-                <p class="small" style="margin-bottom: 10px; color: var(--text-secondary)">Exclui pesos, medidas, remédios, fotos e metas personalizadas da data escolhida e anteriores.</p>
+                <p class="small" style="margin-bottom: 10px; color: var(--text-secondary)">Exclui pesos, medidas, remédios, calorias, fotos e metas personalizadas da data escolhida e anteriores.</p>
                 <div class="backup-danger-zone" style="margin-top: 0;">
                     <div class="inline-action-row">
                         <input type="date" id="limpar-ate-data">
@@ -1687,19 +1801,32 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
         Medidas
     </a>
+    <a class="nav-item" data-view="calorias" onclick="showView('calorias', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11h16"></path><path d="M6 11a6 6 0 0 1 12 0"></path><path d="M3 11h18l-2 9H5z"></path><path d="M12 5V2"></path></svg>
+        Calorias
+    </a>
     <a class="nav-item" data-view="remedio" onclick="showView('remedio', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7.1-7.1l7 7a5 5 0 0 1-7.1 7.1Z"></path><path d="m7 10 7 7"></path><path d="m14.5 6.5 3-3a2.1 2.1 0 0 1 3 3l-3 3"></path></svg>
         Remédio
-    </a>
-    <a class="nav-item" data-view="metas" onclick="showView('metas', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        Simular
     </a>
     <a class="nav-item" data-view="graficos" onclick="showView('graficos', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
         Gráficos
     </a>
+    <a class="nav-item" data-view="metas" onclick="showView('metas', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Simular
+    </a>
 </nav>
+
+<!-- Visualização organizada dos históricos -->
+<div id="modal-detalhes-registro" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="detalhes-registro-titulo">
+    <div class="card detail-card">
+        <div class="photo-carousel-head"><h3 id="detalhes-registro-titulo">Detalhes</h3><button type="button" class="photo-icon-button" onclick="fecharDetalhesRegistro()" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"></path></svg></button></div>
+        <div id="detalhes-registro-conteudo"></div>
+        <div class="detail-actions"><button type="button" id="btn-editar-registro-detalhe" class="btn btn-primary" onclick="editarRegistroVisualizado()">Editar</button><button type="button" class="btn btn-outline" onclick="fecharDetalhesRegistro()">Fechar</button></div>
+    </div>
+</div>
 
 <!-- Modal Medidas -->
 <div id="modal-medida" class="modal hidden">
@@ -1726,7 +1853,9 @@
                     Selecionar ou tirar fotos
                 </label>
                 <input type="file" id="med-foto" class="hidden" accept="image/*" multiple>
-                <div id="med-foto-nome" class="medicine-photo-name">Nenhuma foto selecionada. Você pode escolher várias.</div>
+                        <div id="med-foto-nome" class="medicine-photo-name">Nenhuma foto selecionada. Você pode escolher várias.</div>
+                        <div id="med-foto-categorias" class="photo-category-list"></div>
+                        <div id="med-foto-categorias-existentes" class="photo-category-list"></div>
             </div>
             <button type="button" class="btn btn-clear-outline" style="margin-bottom: 10px;" onclick="limparFormularioMedidas()">Limpar</button>
             <div class="grid-2">
@@ -1771,6 +1900,7 @@
                 <button type="button" class="photo-icon-button photo-carousel-close" onclick="fecharCarrosselFotosPesos()" title="Fechar" aria-label="Fechar comparação"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
             </div>
         </div>
+        <div class="photo-filter"><select id="filtro-fotos-peso" onchange="filtrarFotosPeso(this.value)" aria-label="Filtrar fotos de peso por categoria"><option value="todas">Todas as categorias</option><option value="frente">Frente</option><option value="lateral-e">Lateral E</option><option value="lateral-d">Lateral D</option><option value="costas">Costas</option><option value="rosto">Rosto</option><option value="outros">Outros</option></select></div>
         <div id="foto-peso-carousel-stage" class="photo-carousel-stage" tabindex="0" role="group" aria-label="Foto: arraste para os lados ou use as setas do teclado"></div>
         <div id="foto-peso-carousel-info" class="photo-carousel-info"></div>
         <div class="photo-carousel-toolbar">
@@ -1795,6 +1925,7 @@
                 <button type="button" class="photo-icon-button photo-carousel-close" onclick="fecharCarrosselFotosMedidas()" title="Fechar" aria-label="Fechar comparação"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
             </div>
         </div>
+        <div class="photo-filter"><select id="filtro-fotos-medidas" onchange="filtrarFotosMedidas(this.value)" aria-label="Filtrar fotos de medidas por categoria"><option value="pescoco">Pescoço</option><option value="peito">Peito</option><option value="barriga" selected>Barriga</option><option value="quadril">Quadril</option><option value="coxa">Coxa</option><option value="panturrilha">Panturrilha</option><option value="braco">Braço</option><option value="outros">Outros</option><option value="todas">Todas as categorias</option></select></div>
         <div id="foto-medida-carousel-stage" class="photo-carousel-stage" tabindex="0" role="group" aria-label="Foto: arraste para os lados ou use as setas do teclado"></div>
         <div id="foto-medida-carousel-info" class="photo-carousel-info"></div>
         <div class="photo-carousel-toolbar">
@@ -2479,6 +2610,7 @@ let appData = {
         pesoInicial: "",
         pesoMeta: "",
         metaKgPorDia: "",
+        metaCalorias: "",
         fotoInicial: {},
         medidasIdeais: {
             pescoco: "", peito: "", cintura: "", quadril: "", coxa: "", panturrilha: "", braco: ""
@@ -2487,6 +2619,7 @@ let appData = {
     pesos: [],
     medidas: [],
     remedios: [],
+    calorias: [],
     nomesRemedios: [],
     metasPersonalizadas: [],
     ultimaAtualizacao: "",
@@ -3187,7 +3320,7 @@ function renderDashboard() {
     elFalta.className = 'value ' + classePositivoNegativo(falta, true);
 
     const statusEl = document.getElementById('dash-status');
-    if (saldo >= 0) {
+    if (saldo >= -0.5) {
         statusEl.innerText = "META EM DIA ✅";
         statusEl.className = "value positive";
     } else {
@@ -3195,7 +3328,7 @@ function renderDashboard() {
         statusEl.className = "value negative";
     }
 
-    document.getElementById('dash-info-meta').innerHTML = `Meta Final: ${formatBR(pesoMeta)} kg | Meta/Dia: ${metaDia} kg/dia`;
+    document.getElementById('dash-info-meta').innerHTML = `Meta Final: ${formatBR(pesoMeta)} kg | Meta/Dia: ${formatBR(metaDia)} kg/dia`;
 
     const previsaoMetaEl = document.getElementById('dash-previsao-meta');
     const previsaoPlanejada = calcularDataPlanejadaParaMeta();
@@ -3330,7 +3463,7 @@ function renderHistoricoPeso() {
     }
 
     lista.innerHTML = sorted.map(p => {
-        const metaRegistro = Number.isFinite(Number(p.meta)) ? Number(p.meta) : pesoMeta;
+        const metaRegistro = numeroValido(p.meta) !== null ? numeroValido(p.meta) : pesoMeta;
         const falta = Number.isFinite(metaRegistro) ? metaRegistro - Number(p.peso) : NaN;
         const temFoto = temFotoRemedio(p);
         const quantidadeFotos = obterFotosRegistro(p).length;
@@ -3728,9 +3861,30 @@ async function obterUrlFotoRemedio(item) {
     const fotoLocal = await obterFotoDoCacheLocal(currentUser.uid, item.fotoDocId);
     if (!fotoLocal?.blob) throw new Error('A foto não foi encontrada no armazenamento local deste aparelho.');
 
-    const url = URL.createObjectURL(fotoLocal.miniatura || fotoLocal.blob);
-    cacheUrlsFotos.set(chave, url);
-    return url;
+    /* A miniatura serve somente como reserva. Alguns aparelhos Android podem
+       reabrir uma miniatura antiga de forma inválida; a foto original é a
+       fonte confiável para a visualização. Validamos a decodificação antes de
+       entregar a URL ao carrossel, para ele nunca ficar aparentemente vazio. */
+    const fontes = [fotoLocal.blob, fotoLocal.miniatura]
+        .filter((fonte, indice, lista) => fonte instanceof Blob && fonte.size > 0 && lista.indexOf(fonte) === indice);
+    let ultimoErro = null;
+    for (const fonte of fontes) {
+        const url = URL.createObjectURL(fonte);
+        try {
+            await new Promise((resolve, reject) => {
+                const imagem = new Image();
+                imagem.onload = () => resolve(true);
+                imagem.onerror = () => reject(new Error('O arquivo de imagem não pôde ser decodificado.'));
+                imagem.src = url;
+            });
+            cacheUrlsFotos.set(chave, url);
+            return url;
+        } catch (erro) {
+            ultimoErro = erro;
+            URL.revokeObjectURL(url);
+        }
+    }
+    throw ultimoErro || new Error('A foto salva neste aparelho está vazia ou em formato inválido.');
 }
 
 let renderAntesDepoisToken = 0;
@@ -4097,6 +4251,7 @@ function obterCamposFotoRegistro(item = {}) {
         fotoTamanhoArmazenado: Number(item.fotoTamanhoArmazenado) || Number(item.fotoTamanhoComprimido) || 0,
         fotoTamanhoComprimido: Number(item.fotoTamanhoComprimido) || 0,
         fotoContentType: item.fotoContentType || '',
+        fotoCategoria: textoSeguro(item.fotoCategoria || item.categoria || 'outros', 40),
         fotoLargura: Number(item.fotoLargura) || 0,
         fotoAltura: Number(item.fotoAltura) || 0
     };
@@ -4552,6 +4707,7 @@ function showView(viewId, navEl) {
         historico: "Peso",
         medidas: "Medidas Corporais",
         remedio: "Remédio",
+        calorias: "Calorias",
         metas: "Simulador",
         graficos: "Evolução",
         configs: "Ajustes",
@@ -4858,7 +5014,8 @@ function snapshotMetasPeso() {
         dataInicial: appData.config.dataInicial || hojeISO(),
         pesoInicial: appData.config.pesoInicial ?? '',
         pesoMeta: appData.config.pesoMeta ?? '',
-        metaKgPorDia: appData.config.metaKgPorDia ?? ''
+        metaKgPorDia: appData.config.metaKgPorDia ?? '',
+        metaCalorias: appData.config.metaCalorias ?? ''
     };
 }
 
@@ -4916,6 +5073,7 @@ function aplicarCamposMetasPeso(snapshot) {
     document.getElementById('cfg-peso-init').value = snapshot.pesoInicial ?? '';
     document.getElementById('cfg-peso-meta').value = snapshot.pesoMeta ?? '';
     document.getElementById('cfg-meta-dia').value = snapshot.metaKgPorDia ?? '';
+    document.getElementById('cfg-meta-calorias').value = snapshot.metaCalorias ?? '';
 }
 
 function aplicarCamposMedidasIdeais(snapshot) {
@@ -4990,6 +5148,7 @@ function limparPerfilMetas() {
     document.getElementById('cfg-peso-init').value = '';
     document.getElementById('cfg-peso-meta').value = '';
     document.getElementById('cfg-meta-dia').value = '';
+    document.getElementById('cfg-meta-calorias').value = '';
     pausandoAutosave = false;
     salvarAjustesAutomaticamente();
 }
@@ -5057,7 +5216,7 @@ function agendarSalvarPerfil() {
     autosavePerfilTimer = setTimeout(() => { try { salvarPerfilAutomaticamente(); } catch (error) { registrarFalhaArmazenamento(error); } }, 350);
 }
 
-const camposMetasPeso = ['cfg-data-init','cfg-peso-init','cfg-peso-meta','cfg-meta-dia'];
+const camposMetasPeso = ['cfg-data-init','cfg-peso-init','cfg-peso-meta','cfg-meta-dia','cfg-meta-calorias'];
 const camposMedidasIdeais = ['id-pescoco','id-peito','id-cintura','id-quadril','id-coxa','id-panturrilha','id-braco'];
 camposMetasPeso.forEach(id => {
     const el = document.getElementById(id);
@@ -6014,7 +6173,7 @@ function criarPdfRelatorio() {
             linhaPeso([
                 formatDateBR(item.data),
                 formatValorComUnidade(item.peso, 'kg'),
-                Number.isFinite(Number(item.meta)) ? formatValorComUnidade(item.meta, 'kg') : '--',
+                metaPesoUsadaV21(item) !== null ? formatValorComUnidade(metaPesoUsadaV21(item), 'kg') : '--',
                 item.observacoes || ''
             ], false, indice % 2 === 1);
         });
@@ -6095,6 +6254,34 @@ function criarPdfRelatorio() {
         });
     }
 
+    const composicoes = pesos.filter(item => ['musculoEsqueletico','massaGorda','aguaCorporal','gorduraCorporalPercentual','imc','tmb'].some(campo => numeroValido(item[campo]) !== null));
+    y -= 16;
+    tituloSecao('Composição Corporal');
+    if (!composicoes.length) {
+        texto('Nenhum dado de composição corporal registrado.', margem + 4, y - 2, 9, false, '0.39 0.45 0.54'); y -= 22;
+    } else composicoes.forEach((item, indice) => {
+        if (y < 66) { novaPagina(); tituloSecao('Composição Corporal — continuação'); }
+        if (indice % 2) preencher(margem, y - 34, larguraUtil, 38, '0.97 0.98 0.99');
+        texto(formatDateBR(item.data) + '  |  Músculo: ' + formatValorComUnidade(item.musculoEsqueletico,'kg') + '  |  Massa gorda: ' + formatValorComUnidade(item.massaGorda,'kg') + '  |  Água: ' + formatValorComUnidade(item.aguaCorporal,'%'), margem + 5, y - 11, 8.2, true);
+        texto('Gordura: ' + formatValorComUnidade(item.gorduraCorporalPercentual,'%') + '  |  IMC: ' + (numeroValido(item.imc)!==null?formatBR(item.imc):'--') + '  |  TMB: ' + (numeroValido(item.tmb)!==null?Math.round(item.tmb)+' kcal':'--'), margem + 5, y - 27, 8.2);
+        y -= 38;
+    });
+
+    const calorias = [...(appData.calorias || [])].sort((a,b) => a.data.localeCompare(b.data));
+    y -= 16;
+    tituloSecao('Histórico de Calorias');
+    if (!calorias.length) {
+        texto('Nenhuma refeição registrada.', margem + 4, y - 2, 9, false, '0.39 0.45 0.54'); y -= 22;
+    } else calorias.forEach((dia, indice) => {
+        const total = totalCaloriasDia(dia), meta = metaCaloriasUsadaV21(dia), saldo = meta === null ? null : meta - total;
+        const detalhes = dia.refeicoes.map(r => r.tipo + ': ' + Math.round(r.calorias) + ' kcal' + (r.observacoes ? ' (' + r.observacoes + ')' : '')).join('  |  ');
+        if (y < 72) { novaPagina(); tituloSecao('Histórico de Calorias — continuação'); }
+        if (indice % 2) preencher(margem, y - 40, larguraUtil, 44, '0.97 0.98 0.99');
+        texto(formatDateBR(dia.data) + '  |  Total: ' + Math.round(total) + ' kcal  |  Meta: ' + (meta===null?'--':Math.round(meta)+' kcal') + '  |  Saldo: ' + (saldo===null?'--':(saldo>=0?'+':'')+Math.round(saldo)+' kcal'), margem + 5, y - 12, 8.5, true);
+        texto(truncarTextoPdf(detalhes, larguraUtil - 10, 8), margem + 5, y - 29, 8);
+        y -= 44;
+    });
+
     return criarArquivoPdf(paginas.map(pagina => pagina.join('\n')));
 }
 
@@ -6111,7 +6298,7 @@ function gerarRelatorioPDF() {
 async function limparRegistrosAteData() {
     const data = document.getElementById('limpar-ate-data')?.value;
     if (!data) return alert('Selecione uma data para limpar os registros.');
-    if(!confirm(`Excluir pesos, medidas, remédios, fotos e metas personalizadas de ${formatDateBR(data)} e datas anteriores?`)) return;
+    if(!confirm(`Excluir pesos, medidas, remédios, calorias, fotos e metas personalizadas de ${formatDateBR(data)} e datas anteriores?`)) return;
 
     const remediosRemovidos = (appData.remedios || []).filter(item => item.data && item.data <= data);
     const pesosRemovidos = (appData.pesos || []).filter(item => item.data && item.data <= data);
@@ -6126,6 +6313,7 @@ async function limparRegistrosAteData() {
     appData.pesos = appData.pesos.filter(item => !item.data || item.data > data);
     appData.medidas = appData.medidas.filter(item => !item.data || item.data > data);
     appData.remedios = (appData.remedios || []).filter(item => !item.data || item.data > data);
+    appData.calorias = (appData.calorias || []).filter(item => !item.data || item.data > data);
     appData.metasPersonalizadas = (appData.metasPersonalizadas || []).filter(item => !item.data || item.data > data);
     salvarDados(true, true);
     alert('Registros removidos.');
@@ -6180,9 +6368,968 @@ function agendarOcultarSplashInicial() {
     setTimeout(ocultarSplashInicial, 1200);
 }
 
+/**
+ * MELHORIAS V20 — composição corporal, categorias, visualização e calorias
+ */
+const PL_CATEGORIAS_PESO = [
+    ['frente','Frente'],['lateral-e','Lateral E'],['lateral-d','Lateral D'],['costas','Costas'],['rosto','Rosto'],['outros','Outros']
+];
+const PL_CATEGORIAS_MEDIDAS = [
+    ['pescoco','Pescoço'],['peito','Peito'],['barriga','Barriga'],['quadril','Quadril'],['coxa','Coxa'],['panturrilha','Panturrilha'],['braco','Braço'],['outros','Outros']
+];
+const PL_ICONE_VISUALIZAR = '<svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+let filtroIndicadorGrafico = 'peso';
+let registroVisualizado = null;
+let categoriasFotosPesoSelecionadas = [];
+let categoriasFotosMedidaSelecionadas = [];
+let filtroCategoriaPesoAtual = 'todas';
+let filtroCategoriaMedidaAtual = 'barriga';
+
+numeroValido = function(valor) {
+    if (valor === '' || valor === null || valor === undefined || (typeof valor === 'string' && !valor.trim())) return null;
+    const texto = typeof valor === 'string' ? valor.trim().replace(/\s/g, '').replace(',', '.') : valor;
+    const n = Number(texto);
+    return Number.isFinite(n) ? n : null;
+};
+numeroOuVazio = function(valor) {
+    const n = numeroValido(valor);
+    return n === null ? '' : n;
+};
+formatBR = function(valor) {
+    const n = numeroValido(valor);
+    return n === null ? '--' : n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+formatBR2 = formatBR;
+
+const normalizarDadosAnteriorV20 = normalizarDados;
+normalizarDados = function(raw) {
+    const origem = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+    const dados = normalizarDadosAnteriorV20(origem);
+    dados.config.metaCalorias = numeroOuVazio(origem.config?.metaCalorias);
+    dados.pesos = dados.pesos.map((item, indice) => {
+        const fonte = (origem.pesos || []).find(x => String(x?.id) === String(item.id)) || origem.pesos?.[indice] || {};
+        return { ...item,
+            musculoEsqueletico: numeroOuVazio(fonte.musculoEsqueletico), massaGorda: numeroOuVazio(fonte.massaGorda),
+            aguaCorporal: numeroOuVazio(fonte.aguaCorporal), gorduraCorporalPercentual: numeroOuVazio(fonte.gorduraCorporalPercentual),
+            imc: numeroOuVazio(fonte.imc), tmb: numeroOuVazio(fonte.tmb)
+        };
+    });
+    dados.calorias = (Array.isArray(origem.calorias) ? origem.calorias : []).filter(dia => dia && typeof dia === 'object' && dataISOValida(dia.data)).map((dia, indiceDia) => ({
+        id: idRegistroSeguro(dia.id || `caloria_${dia.data}_${indiceDia}`), data: dia.data,
+        refeicoes: (Array.isArray(dia.refeicoes) ? dia.refeicoes : []).filter(r => r && typeof r === 'object').map((r, indice) => ({
+            id: idRegistroSeguro(r.id || `refeicao_${indice}`), tipo: ['Café da Manhã','Almoço','Café da Tarde','Jantar','Outros'].includes(r.tipo) ? r.tipo : 'Outros',
+            calorias: Math.max(0, numeroValido(r.calorias) || 0), observacoes: textoSeguro(r.observacoes, 20000),
+            ordemCadastro: Number.isSafeInteger(r.ordemCadastro) && r.ordemCadastro > 0 ? r.ordemCadastro : indice + 1
+        }))
+    })).filter(dia => dia.refeicoes.length);
+    const caloriasPorData = new Map();
+    for (const dia of dados.calorias) {
+        const existente = caloriasPorData.get(dia.data);
+        if (existente) existente.refeicoes.push(...dia.refeicoes);
+        else caloriasPorData.set(dia.data, dia);
+    }
+    dados.calorias = [...caloriasPorData.values()];
+    return dados;
+};
+
+const validarDadosImportadosAnteriorV20 = validarDadosImportados;
+validarDadosImportados = function(raw) {
+    const metaCalorias = numeroValido(raw?.config?.metaCalorias);
+    if (raw?.config?.metaCalorias !== undefined && raw.config.metaCalorias !== '' && (metaCalorias === null || metaCalorias < 0)) throw new Error('Meta de calorias inválida.');
+    for (const peso of raw?.pesos || []) {
+        for (const campo of ['musculoEsqueletico','massaGorda','aguaCorporal','gorduraCorporalPercentual','imc','tmb']) {
+            const valor = numeroValido(peso?.[campo]);
+            if (peso?.[campo] !== undefined && peso[campo] !== '' && (valor === null || valor < 0)) throw new Error('Composição corporal inválida no backup.');
+        }
+        if (numeroValido(peso?.aguaCorporal) > 100 || numeroValido(peso?.gorduraCorporalPercentual) > 100) throw new Error('Percentual corporal inválido no backup.');
+    }
+    if (raw?.calorias !== undefined && !Array.isArray(raw.calorias)) throw new Error('Histórico de calorias inválido.');
+    for (const dia of raw?.calorias || []) {
+        if (!dia || !dataISOValida(dia.data) || !Array.isArray(dia.refeicoes)) throw new Error('Registro diário de calorias inválido.');
+        for (const refeicao of dia.refeicoes) if (!refeicao || numeroValido(refeicao.calorias) === null || numeroValido(refeicao.calorias) < 0) throw new Error('Refeição inválida no backup.');
+    }
+    return validarDadosImportadosAnteriorV20(raw);
+};
+
+function rotuloCategoria(lista, valor) { return lista.find(item => item[0] === valor)?.[1] || 'Outros'; }
+function opcoesCategorias(lista, selecionada = 'outros') { return lista.map(([valor, nome]) => `<option value="${valor}" ${valor === selecionada ? 'selected' : ''}>${nome}</option>`).join(''); }
+function renderSeletoresCategorias(arquivos, containerId, lista, estado) {
+    const container = document.getElementById(containerId); if (!container) return;
+    container.innerHTML = arquivos.map((arquivo, i) => `<div class="photo-category-row"><div class="photo-category-name" title="${escapeHtml(arquivo.name)}">${i + 1}. ${escapeHtml(arquivo.name)}</div><select data-foto-indice="${i}">${opcoesCategorias(lista, estado[i] || 'outros')}</select></div>`).join('');
+    container.querySelectorAll('select').forEach(select => select.addEventListener('change', () => { estado[Number(select.dataset.fotoIndice)] = select.value; }));
+}
+function configurarCategoriasFotos() {
+    const peso = document.getElementById('peso-foto'), medida = document.getElementById('med-foto');
+    peso?.addEventListener('change', () => { categoriasFotosPesoSelecionadas = Array.from(peso.files || []).map(() => 'outros'); renderSeletoresCategorias(Array.from(peso.files || []), 'peso-foto-categorias', PL_CATEGORIAS_PESO, categoriasFotosPesoSelecionadas); });
+    medida?.addEventListener('change', () => { categoriasFotosMedidaSelecionadas = Array.from(medida.files || []).map(() => 'outros'); renderSeletoresCategorias(Array.from(medida.files || []), 'med-foto-categorias', PL_CATEGORIAS_MEDIDAS, categoriasFotosMedidaSelecionadas); });
+}
+
+function valorDetalhe(rotulo, valor, classe = '') { return `<div class="detail-field"><div class="label">${rotulo}</div><div class="detail-value ${classe}">${valor}</div></div>`; }
+function abrirModalDetalhes(titulo, conteudo, mostrarEditar = true, textoEditar = 'Editar') {
+    document.getElementById('detalhes-registro-titulo').innerText = titulo;
+    document.getElementById('detalhes-registro-conteudo').innerHTML = conteudo;
+    const botao = document.getElementById('btn-editar-registro-detalhe'); botao.classList.toggle('hidden', !mostrarEditar); botao.innerText = textoEditar;
+    document.getElementById('modal-detalhes-registro').classList.remove('hidden');
+}
+function visualizarRegistro(tipo, id) {
+    const colecao = tipo === 'peso' ? appData.pesos : tipo === 'medida' ? appData.medidas : tipo === 'remedio' ? appData.remedios : appData.calorias;
+    const item = (colecao || []).find(x => String(x.id) === String(id)); if (!item) return alert('Registro não encontrado.');
+    registroVisualizado = { tipo, id: item.id };
+    if (tipo === 'peso') {
+        const campos = [['Data',formatDateBR(item.data)],['Peso',formatBR(item.peso)+' kg'],['Meta',numeroValido(item.meta)!==null?formatBR(item.meta)+' kg':'--'],['Músculo esquelético',numeroValido(item.musculoEsqueletico)!==null?formatBR(item.musculoEsqueletico)+' kg':'--'],['Massa gorda',numeroValido(item.massaGorda)!==null?formatBR(item.massaGorda)+' kg':'--'],['Água corporal',numeroValido(item.aguaCorporal)!==null?formatBR(item.aguaCorporal)+'%':'--'],['Gordura corporal',numeroValido(item.gorduraCorporalPercentual)!==null?formatBR(item.gorduraCorporalPercentual)+'%':'--'],['IMC',numeroValido(item.imc)!==null?formatBR(item.imc):'--'],['TMB',numeroValido(item.tmb)!==null?Math.round(item.tmb)+' kcal':'--'],['Fotos',obterFotosRegistro(item).length]];
+        abrirModalDetalhes('Registro de Peso', `<div class="detail-grid">${campos.map(x=>valorDetalhe(...x)).join('')}<div class="detail-field wide"><div class="label">Observações</div><div class="detail-value">${escapeHtml(item.observacoes||'--')}</div></div></div>`);
+    } else if (tipo === 'medida') {
+        const campos = [['Data',formatDateBR(item.data)],['Peso',formatBR(item.peso)+' kg'],['Pescoço',formatBR(item.pescoco)+' cm'],['Peito',formatBR(item.peito)+' cm'],['Barriga',formatBR(item.cintura)+' cm'],['Quadril',formatBR(item.quadril)+' cm'],['Coxa',formatBR(item.coxa)+' cm'],['Panturrilha',formatBR(item.panturrilha)+' cm'],['Braço',formatBR(item.braco)+' cm'],['Fotos',obterFotosRegistro(item).length]];
+        abrirModalDetalhes('Medição Corporal', `<div class="detail-grid">${campos.map(x=>valorDetalhe(...x)).join('')}<div class="detail-field wide"><div class="label">Observações</div><div class="detail-value">${escapeHtml(item.observacoes||'--')}</div></div></div>`);
+    } else if (tipo === 'remedio') {
+        abrirModalDetalhes('Lançamento de Remédio', `<div class="detail-grid">${valorDetalhe('Data',formatDateBR(item.data))}${valorDetalhe('Remédio',escapeHtml(item.nome))}${valorDetalhe('Dose',formatBR(item.mg)+' mg')}${valorDetalhe('Peso',formatBR(item.peso)+' kg')}${valorDetalhe('Fotos',obterFotosRegistro(item).length)}</div>`);
+    } else {
+        const total = totalCaloriasDia(item), meta = numeroValido(appData.config.metaCalorias), saldo = meta === null ? null : meta-total;
+        const refeicoes = item.refeicoes.map(r => `<div class="meal-detail"><div class="meal-detail-head"><div><div class="label">${escapeHtml(r.tipo)}</div><div class="value">${Math.round(r.calorias)} kcal</div></div><button class="btn btn-outline" onclick="editarRefeicao('${item.id}','${r.id}')">Editar</button></div>${r.observacoes?`<div class="small" style="margin-top:8px">${escapeHtml(r.observacoes)}</div>`:''}</div>`).join('');
+        abrirModalDetalhes('Calorias de '+formatDateBR(item.data), `<div class="detail-grid">${valorDetalhe('Total',Math.round(total)+' kcal')}${valorDetalhe('Saldo',saldo===null?'--':(saldo>=0?'+':'')+Math.round(saldo)+' kcal',saldo===null?'neutral':saldo>=0?'positive':'negative')}</div>${refeicoes}`, true, 'Adicionar refeição');
+    }
+}
+function fecharDetalhesRegistro() { document.getElementById('modal-detalhes-registro').classList.add('hidden'); registroVisualizado = null; }
+function editarRegistroVisualizado() {
+    if (!registroVisualizado) return; const atual = {...registroVisualizado}; fecharDetalhesRegistro();
+    if (atual.tipo === 'peso') editarPeso(atual.id); else if (atual.tipo === 'medida') editarMedida(atual.id); else if (atual.tipo === 'remedio') editarRemedio(atual.id); else abrirLancamentoCaloria((appData.calorias||[]).find(x=>String(x.id)===String(atual.id))?.data);
+}
+function trocarBotoesEdicao(containerId, prefixo, tipo) {
+    document.querySelectorAll(`#${containerId} button[onclick^="${prefixo}"]`).forEach(botao => { const id = botao.getAttribute('onclick').match(/\('([^']+)'\)/)?.[1]; if (!id) return; botao.title='Visualizar'; botao.setAttribute('aria-label','Visualizar registro'); botao.setAttribute('onclick',`visualizarRegistro('${tipo}','${id}')`); botao.innerHTML=PL_ICONE_VISUALIZAR; });
+}
+const renderHistoricoPesoAnteriorV20 = renderHistoricoPeso;
+renderHistoricoPeso = function(){ renderHistoricoPesoAnteriorV20(); trocarBotoesEdicao('lista-historico','editarPeso','peso'); };
+const renderMedidasAnteriorV20 = renderMedidas;
+renderMedidas = function(){ renderMedidasAnteriorV20(); trocarBotoesEdicao('lista-medidas','editarMedida','medida'); };
+const renderRemediosAnteriorV20 = renderRemedios;
+renderRemedios = function(){ renderRemediosAnteriorV20(); trocarBotoesEdicao('lista-remedios','editarRemedio','remedio'); };
+const editarRemedioAnteriorV20 = editarRemedio;
+editarRemedio = function(id){ editarRemedioAnteriorV20(id); const item=(appData.remedios||[]).find(x=>String(x.id)===String(id)); if(item&&numeroValido(item.peso)!==null)document.getElementById('remedio-peso').value=formatBR(item.peso); };
+
+function montarFotosFiltradas(registros, categoria) {
+    return [...(registros||[])].sort((a,b)=>String(b.data||'').localeCompare(String(a.data||''))).flatMap(registro => obterFotosRegistro(registro).map(foto=>({registro,foto}))).filter(item => categoria==='todas' || (item.foto.fotoCategoria||'outros')===categoria);
+}
+abrirCarrosselFotosPesos = function(idInicial='', fotoInicialId='') {
+    filtroCategoriaPesoAtual = 'todas'; document.getElementById('filtro-fotos-peso').value='todas'; fotosPesosCarrossel=montarFotosFiltradas(appData.pesos,'todas');
+    if(!fotosPesosCarrossel.length)return alert('Nenhuma foto foi adicionada aos lançamentos de peso.');
+    indiceFotoPeso=idInicial?Math.max(0,fotosPesosCarrossel.findIndex(x=>String(x.registro.id)===String(idInicial)&&(!fotoInicialId||x.foto.fotoDocId===fotoInicialId))):0; abrirVisualizadorFoto('modal-fotos-pesos'); renderCarrosselFotosPesos();
+};
+function filtrarFotosPeso(categoria){ filtroCategoriaPesoAtual=categoria||'todas'; fotosPesosCarrossel=montarFotosFiltradas(appData.pesos,filtroCategoriaPesoAtual); indiceFotoPeso=0; renderCarrosselFotosPesos(); }
+abrirCarrosselFotosMedidas = function(idInicial='') {
+    filtroCategoriaMedidaAtual=idInicial?'todas':'barriga'; document.getElementById('filtro-fotos-medidas').value=filtroCategoriaMedidaAtual; fotosMedidasCarrossel=montarFotosFiltradas(appData.medidas,filtroCategoriaMedidaAtual);
+    if(!fotosMedidasCarrossel.length && !idInicial){ abrirVisualizadorFoto('modal-fotos-medidas'); document.getElementById('foto-medida-carousel-stage').innerHTML='<div class="photo-carousel-loading">Nenhuma foto classificada como Barriga.</div>'; document.getElementById('foto-medida-carousel-contador').innerText='0 de 0'; return; }
+    if(!fotosMedidasCarrossel.length)return alert('Nenhuma foto foi adicionada aos lançamentos de medidas.'); indiceFotoMedida=idInicial?Math.max(0,fotosMedidasCarrossel.findIndex(x=>String(x.registro.id)===String(idInicial))):0; abrirVisualizadorFoto('modal-fotos-medidas'); renderCarrosselFotosMedidas();
+};
+function filtrarFotosMedidas(categoria){ filtroCategoriaMedidaAtual=categoria||'barriga'; fotosMedidasCarrossel=montarFotosFiltradas(appData.medidas,filtroCategoriaMedidaAtual); indiceFotoMedida=0; if(!fotosMedidasCarrossel.length){document.getElementById('foto-medida-carousel-stage').innerHTML=`<div class="photo-carousel-loading">Nenhuma foto nesta categoria.</div>`;document.getElementById('foto-medida-carousel-info').innerHTML='';document.getElementById('foto-medida-carousel-contador').innerText='0 de 0';return;} renderCarrosselFotosMedidas(); }
+
+const renderCarrosselFotosPesosAnteriorV20 = renderCarrosselFotosPesos;
+renderCarrosselFotosPesos = async function(){ if(!fotosPesosCarrossel.length){document.getElementById('foto-peso-carousel-stage').innerHTML='<div class="photo-carousel-loading">Nenhuma foto nesta categoria.</div>';document.getElementById('foto-peso-carousel-info').innerHTML='';document.getElementById('foto-peso-carousel-contador').innerText='0 de 0';return;} await renderCarrosselFotosPesosAnteriorV20(); const e=fotosPesosCarrossel[indiceFotoPeso]; document.getElementById('foto-peso-carousel-info').insertAdjacentHTML('beforeend',`<div class="small" style="margin-top:6px">Categoria: <select id="categoria-foto-atual-peso" onchange="atualizarCategoriaFotoAtual('peso',this.value)" style="width:auto;padding:5px">${opcoesCategorias(PL_CATEGORIAS_PESO,e.foto.fotoCategoria||'outros')}</select></div>`); };
+const renderCarrosselFotosMedidasAnteriorV20 = renderCarrosselFotosMedidas;
+renderCarrosselFotosMedidas = async function(){ if(!fotosMedidasCarrossel.length)return; await renderCarrosselFotosMedidasAnteriorV20(); const e=fotosMedidasCarrossel[indiceFotoMedida]; document.getElementById('foto-medida-carousel-info').insertAdjacentHTML('beforeend',`<div class="small" style="margin-top:6px">Categoria: <select id="categoria-foto-atual-medida" onchange="atualizarCategoriaFotoAtual('medida',this.value)" style="width:auto;padding:5px">${opcoesCategorias(PL_CATEGORIAS_MEDIDAS,e.foto.fotoCategoria||'outros')}</select></div>`); };
+function atualizarCategoriaFotoAtual(tipo,categoria){ const entrada=tipo==='peso'?fotosPesosCarrossel[indiceFotoPeso]:fotosMedidasCarrossel[indiceFotoMedida]; if(!entrada)return; const foto=(entrada.registro.fotos||[]).find(f=>f.fotoDocId===entrada.foto.fotoDocId); if(foto)foto.fotoCategoria=categoria; salvarDados(true,true); if(tipo==='peso'){document.getElementById('filtro-fotos-peso').value=categoria;filtrarFotosPeso(categoria);}else{document.getElementById('filtro-fotos-medidas').value=categoria;filtrarFotosMedidas(categoria);} }
+
+function atualizarGorduraCalculada(){ const peso=numeroValido(document.getElementById('peso-valor')?.value),massa=numeroValido(document.getElementById('peso-massa-gorda')?.value),campo=document.getElementById('peso-gordura-percentual'); if(campo)campo.value=peso>0&&massa!==null?formatBR((massa/peso)*100):''; }
+function limparComposicaoForm(){ ['peso-musculo','peso-massa-gorda','peso-agua','peso-gordura-percentual','peso-imc','peso-tmb'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); categoriasFotosPesoSelecionadas=[]; const c=document.getElementById('peso-foto-categorias');if(c)c.innerHTML=''; }
+const redefinirFormularioPesoAnteriorV20 = redefinirFormularioPeso;
+redefinirFormularioPeso = function(opcoes={}){ redefinirFormularioPesoAnteriorV20(opcoes); limparComposicaoForm(); const meta=document.getElementById('peso-meta');if(meta&&numeroValido(meta.value)!==null)meta.value=formatBR(meta.value); };
+const editarPesoAnteriorV20 = editarPeso;
+editarPeso = function(id){ editarPesoAnteriorV20(id); const item=appData.pesos.find(x=>String(x.id)===String(id)); if(!item)return; const mapa={musculoEsqueletico:'peso-musculo',massaGorda:'peso-massa-gorda',aguaCorporal:'peso-agua',gorduraCorporalPercentual:'peso-gordura-percentual',imc:'peso-imc',tmb:'peso-tmb'}; Object.entries(mapa).forEach(([k,idCampo])=>document.getElementById(idCampo).value=numeroValido(item[k])===null?'':formatBR(item[k])); document.getElementById('peso-valor').value=formatBR(item.peso); const meta=numeroValido(item.meta)??numeroValido(appData.config.pesoMeta);document.getElementById('peso-meta').value=meta===null?'':formatBR(meta); };
+
+function validarOpcional(id,maximo=null){ const n=numeroValido(document.getElementById(id)?.value); if(n!==null&&(n<0||(maximo!==null&&n>maximo)))throw new Error('Revise os valores opcionais informados.'); return n===null?'':n; }
+document.getElementById('form-peso').onsubmit = async function(e){ e.preventDefault(); const editId=document.getElementById('edit-peso-id').value||'',data=document.getElementById('peso-data').value,peso=numeroValido(document.getElementById('peso-valor').value),meta=numeroOuVazio(document.getElementById('peso-meta').value),arquivos=Array.from(document.getElementById('peso-foto').files||[]); if(!dataISOValida(data)||peso===null||peso<=0)return alert('Preencha a data e o peso com valores válidos.'); let indice=editId?appData.pesos.findIndex(x=>String(x.id)===String(editId)):appData.pesos.findIndex(x=>x.data===data); if(!editId&&indice>-1&&!confirm('Já existe um peso nesta data. Deseja atualizar esse registro?'))return; const anterior=indice>-1?appData.pesos[indice]:null,id=anterior?.id||crypto.randomUUID?.()||String(Date.now()),botao=document.getElementById('btn-salvar-peso'); botao.disabled=true; try{const preparada=arquivos.length?await prepararFotosRegistro(arquivos,`peso_${id}`):null;const novas=(preparada?.fotos||[]).map((f,i)=>({...f,fotoCategoria:categoriasFotosPesoSelecionadas[i]||'outros'}));const massa=validarOpcional('peso-massa-gorda'),gordura=massa!==''?(massa/peso)*100:'';const registro={...(anterior||{}),id,data,peso,meta,observacoes:document.getElementById('peso-obs').value,musculoEsqueletico:validarOpcional('peso-musculo'),massaGorda:massa,aguaCorporal:validarOpcional('peso-agua',100),gorduraCorporalPercentual:gordura,imc:validarOpcional('peso-imc'),tmb:validarOpcional('peso-tmb'),fotos:[...obterFotosRegistro(anterior||{}),...novas]};if(indice>-1)appData.pesos[indice]=registro;else appData.pesos.push(registro);salvarDados(true,true);redefinirFormularioPeso();showView('historico',document.querySelector('[data-view="historico"]'));}catch(error){alert('Não foi possível salvar: '+traduzirErroApp(error));}finally{botao.disabled=false;botao.innerText='Salvar';} };
+
+const abrirModalMedidaAnteriorV20=abrirModalMedida, fecharModalMedidaAnteriorV20=fecharModalMedida, limparFormularioMedidasAnteriorV20=limparFormularioMedidas, editarMedidaAnteriorV20=editarMedida;
+abrirModalMedida=function(){abrirModalMedidaAnteriorV20();const p=document.getElementById('med-peso');if(p&&numeroValido(p.value)!==null)p.value=formatBR(p.value);};
+fecharModalMedida=function(){fecharModalMedidaAnteriorV20();categoriasFotosMedidaSelecionadas=[];document.getElementById('med-foto-categorias').innerHTML='';};
+limparFormularioMedidas=function(){limparFormularioMedidasAnteriorV20();categoriasFotosMedidaSelecionadas=[];document.getElementById('med-foto-categorias').innerHTML='';};
+editarMedida=function(id){editarMedidaAnteriorV20(id);const m=appData.medidas.find(x=>String(x.id)===String(id));if(!m)return;['peso','pescoco','peito','cintura','quadril','coxa','panturrilha','braco'].forEach(k=>{const el=document.getElementById('med-'+k);if(el)el.value=numeroValido(m[k])===null?'':formatBR(m[k]);});};
+document.getElementById('form-medidas').onsubmit=async function(e){e.preventDefault();const editId=document.getElementById('edit-medida-id').value||'',data=document.getElementById('med-data').value,peso=numeroValido(document.getElementById('med-peso').value),arquivos=Array.from(document.getElementById('med-foto').files||[]);if(!dataISOValida(data)||peso===null||peso<=0)return alert('Preencha a data e o peso com valores válidos.');let indice=editId?appData.medidas.findIndex(x=>String(x.id)===String(editId)):-1,anterior=indice>-1?appData.medidas[indice]:null,id=anterior?.id||crypto.randomUUID?.()||String(Date.now()),botao=document.getElementById('btn-salvar-medida');botao.disabled=true;try{const preparada=arquivos.length?await prepararFotosRegistro(arquivos,`medida_${id}`):null;const novas=(preparada?.fotos||[]).map((f,i)=>({...f,fotoCategoria:categoriasFotosMedidaSelecionadas[i]||'outros'}));const registro={...(anterior||{}),id,data,peso,observacoes:document.getElementById('med-obs').value,fotos:[...obterFotosRegistro(anterior||{}),...novas]};for(const k of ['pescoco','peito','cintura','quadril','coxa','panturrilha','braco'])registro[k]=validarOpcional('med-'+k);if(indice>-1)appData.medidas[indice]=registro;else appData.medidas.push(registro);salvarDados(true,true);fecharModalMedida();}catch(error){alert('Não foi possível salvar: '+traduzirErroApp(error));}finally{botao.disabled=false;botao.innerText='Salvar';}};
+
+function distanciaFaixaImc(valor) {
+    if (valor < 18.5) return 18.5 - valor;
+    if (valor > 24.9) return valor - 24.9;
+    return 0;
+}
+function compararComposicaoAnterior(chave, atual, anterior) {
+    if (anterior === null) return { texto: 'Sem comparação anterior', classe: 'neutral' };
+    const diferenca = atual - anterior;
+    const unidade = chave === 'tmb' ? ' kcal' : (['aguaCorporal', 'gorduraCorporalPercentual'].includes(chave) ? ' p.p.' : (chave === 'imc' ? '' : ' kg'));
+    const textoValor = chave === 'tmb' ? String(Math.round(Math.abs(diferenca))) : formatBR(Math.abs(diferenca));
+    if (Math.abs(diferenca) < 0.005) return { texto: 'Sem alteração vs anterior', classe: 'neutral' };
+    let favoravel;
+    if (chave === 'massaGorda' || chave === 'gorduraCorporalPercentual') favoravel = diferenca < 0;
+    else if (chave === 'imc') favoravel = distanciaFaixaImc(atual) < distanciaFaixaImc(anterior);
+    else favoravel = diferenca > 0;
+    const seta = diferenca > 0 ? '↑' : '↓';
+    return { texto: `${seta} ${diferenca > 0 ? '+' : '−'}${textoValor}${unidade} vs anterior`, classe: favoravel ? 'positive' : 'negative' };
+}
+function renderResumoComposicao(){
+    const container=document.getElementById('resumo-composicao-corporal'); if(!container)return;
+    const registros=[...appData.pesos].sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')));
+    const itens=[['Músculo esquelético','musculoEsqueletico','kg'],['Massa gorda','massaGorda','kg'],['Água corporal','aguaCorporal','%'],['Gordura corporal','gorduraCorporalPercentual','%'],['IMC','imc',''],['TMB','tmb','kcal']];
+    container.innerHTML=itens.map(([nome,chave,unidade])=>{
+        const indiceAtual=registros.findIndex(r=>numeroValido(r[chave])!==null);
+        const atual=indiceAtual<0?null:registros[indiceAtual], valor=atual?numeroValido(atual[chave]):null;
+        const anterior=indiceAtual<0?null:numeroValido((registros.slice(indiceAtual+1).find(r=>numeroValido(r[chave])!==null)||{})[chave]);
+        const comparacao=valor===null?{texto:'Sem registro',classe:'neutral'}:compararComposicaoAnterior(chave,valor,anterior);
+        const exibicao=valor===null?'--':(chave==='tmb'?Math.round(valor):formatBR(valor))+(unidade?' '+unidade:'');
+        return `<div class="card metric-summary-card"><div class="label">${nome}</div><div class="value">${exibicao}</div><div class="small">${atual?formatDateBR(atual.data):'Sem registro'}</div><div class="metric-delta ${comparacao.classe}" title="Comparação com o último registro que contém este indicador.">${comparacao.texto}</div></div>`;
+    }).join('');
+}
+
+function totalCaloriasDia(dia){return (dia?.refeicoes||[]).reduce((s,r)=>s+(numeroValido(r.calorias)||0),0);}
+function renderCalorias(){const lista=document.getElementById('lista-calorias'),resumo=document.getElementById('resumo-calorias');if(!lista||!resumo)return;const dias=[...(appData.calorias||[])].sort((a,b)=>b.data.localeCompare(a.data)),meta=numeroValido(appData.config.metaCalorias),ultimo=dias[0],total=ultimo?totalCaloriasDia(ultimo):null,saldo=total===null||meta===null?null:meta-total;resumo.innerHTML=[['Último total',total===null?'--':Math.round(total)+' kcal',ultimo?formatDateBR(ultimo.data):'Sem registro','neutral'],['Meta diária',meta===null?'--':Math.round(meta)+' kcal','Configurações','neutral'],['Saldo',saldo===null?'--':(saldo>=0?'+':'')+Math.round(saldo)+' kcal',saldo===null?'Configure a meta':saldo>=0?'Dentro da meta':'Acima da meta',saldo===null?'neutral':saldo>=0?'positive':'negative']].map(x=>`<div class="card metric-summary-card"><div class="label">${x[0]}</div><div class="value ${x[3]}">${x[1]}</div><div class="small">${x[2]}</div></div>`).join('');if(!dias.length){lista.innerHTML='<tr><td colspan="4" style="text-align:center">Nenhuma refeição lançada.</td></tr>';return;}lista.innerHTML=dias.map(d=>{const t=totalCaloriasDia(d),s=meta===null?null:meta-t;return `<tr><td>${formatDateCurtaBR(d.data)}</td><td>${Math.round(t)} kcal</td><td class="${s===null?'neutral':s>=0?'positive':'negative'}">${s===null?'--':(s>=0?'+':'')+Math.round(s)}</td><td><div class="calorie-action-buttons"><button class="btn btn-outline compact-action" title="Visualizar" onclick="visualizarRegistro('caloria','${d.id}')">${PL_ICONE_VISUALIZAR}</button><button class="btn btn-outline compact-action" title="Excluir" style="border-color:var(--danger);color:var(--danger)" onclick="excluirCaloria('${d.id}')">−</button></div></td></tr>`;}).join('');}
+function limparFormularioCaloria(){document.getElementById('form-caloria').reset();document.getElementById('edit-caloria-dia-id').value='';document.getElementById('edit-refeicao-id').value='';document.getElementById('caloria-data').value=hojeISO();document.getElementById('caloria-form-title').innerText='Nova Refeição';document.getElementById('btn-salvar-caloria').innerText='Salvar Refeição';}
+function abrirLancamentoCaloria(data=''){limparFormularioCaloria();document.getElementById('caloria-data').value=data||hojeISO();document.getElementById('card-lancamento-caloria').classList.remove('hidden');document.getElementById('calorias-acoes-principais').classList.add('hidden');}
+function fecharLancamentoCaloria(){limparFormularioCaloria();document.getElementById('card-lancamento-caloria').classList.add('hidden');document.getElementById('calorias-acoes-principais').classList.remove('hidden');}
+function editarRefeicao(diaId,refeicaoId){const dia=(appData.calorias||[]).find(d=>String(d.id)===String(diaId)),r=dia?.refeicoes.find(x=>String(x.id)===String(refeicaoId));if(!r)return;fecharDetalhesRegistro();showView('calorias',document.querySelector('[data-view="calorias"]'));abrirLancamentoCaloria(dia.data);document.getElementById('edit-caloria-dia-id').value=dia.id;document.getElementById('edit-refeicao-id').value=r.id;document.getElementById('caloria-refeicao').value=r.tipo;document.getElementById('caloria-valor').value=Math.round(r.calorias);document.getElementById('caloria-observacoes').value=r.observacoes||'';document.getElementById('caloria-form-title').innerText='Editar Refeição';document.getElementById('btn-salvar-caloria').innerText='Salvar Alterações';}
+document.getElementById('form-caloria').onsubmit=function(e){e.preventDefault();const data=document.getElementById('caloria-data').value,tipo=document.getElementById('caloria-refeicao').value,calorias=numeroValido(document.getElementById('caloria-valor').value),obs=document.getElementById('caloria-observacoes').value,editDia=document.getElementById('edit-caloria-dia-id').value,editRef=document.getElementById('edit-refeicao-id').value;if(!dataISOValida(data)||calorias===null||calorias<=0)return alert('Preencha data e calorias com valores válidos.');appData.calorias=appData.calorias||[];let refeicaoAnterior=null;if(editDia&&editRef){const diaOrigem=appData.calorias.find(d=>String(d.id)===String(editDia));refeicaoAnterior=diaOrigem?.refeicoes.find(r=>String(r.id)===String(editRef));if(diaOrigem)diaOrigem.refeicoes=diaOrigem.refeicoes.filter(r=>String(r.id)!==String(editRef));appData.calorias=appData.calorias.filter(d=>d.refeicoes.length);}let dia=appData.calorias.find(d=>d.data===data);if(!dia){dia={id:crypto.randomUUID?.()||`caloria_${Date.now()}`,data,refeicoes:[]};appData.calorias.push(dia);}const ordem=refeicaoAnterior?.ordemCadastro||Math.max(0,...dia.refeicoes.map(r=>Number(r.ordemCadastro)||0))+1;dia.refeicoes.push({id:refeicaoAnterior?.id||crypto.randomUUID?.()||`ref_${Date.now()}`,tipo,calorias,observacoes:obs,ordemCadastro:ordem});motivoProximaCopia=editRef?'Antes de editar refeição':'Antes de adicionar refeição';salvarDados(true,true);fecharLancamentoCaloria();};
+function excluirCaloria(id){if(!confirm('Excluir todas as refeições deste dia?'))return;motivoProximaCopia='Antes de excluir calorias';appData.calorias=(appData.calorias||[]).filter(d=>String(d.id)!==String(id));salvarDados(true,true);fecharDetalhesRegistro();}
+
+gerarRelatorioCSV=function(){const cab=['Tipo','Data','Refeição/Remédio','Calorias/Dose','Peso (kg)','Meta (kg)','Músculo (kg)','Massa gorda (kg)','Água (%)','Gordura (%)','IMC','TMB (kcal)','Pescoço (cm)','Peito (cm)','Barriga (cm)','Quadril (cm)','Coxa (cm)','Panturrilha (cm)','Braço (cm)','Fotos','Observações'];const linhas=[cab.join(';')];for(const p of appData.pesos)linhas.push(['Peso',formatDateBR(p.data),'','',p.peso,p.meta,p.musculoEsqueletico,p.massaGorda,p.aguaCorporal,p.gorduraCorporalPercentual,p.imc,p.tmb,'','','','','','','',obterFotosRegistro(p).length,p.observacoes].map(campoCSV).join(';'));for(const m of appData.medidas)linhas.push(['Medida',formatDateBR(m.data),'','',m.peso,'','','','','','','',m.pescoco,m.peito,m.cintura,m.quadril,m.coxa,m.panturrilha,m.braco,obterFotosRegistro(m).length,m.observacoes].map(campoCSV).join(';'));for(const r of appData.remedios)linhas.push(['Remédio',formatDateBR(r.data),r.nome,r.mg,r.peso,'','','','','','','','','','','','','','',obterFotosRegistro(r).length,''].map(campoCSV).join(';'));for(const dia of appData.calorias||[])for(const r of dia.refeicoes)linhas.push(['Caloria',formatDateBR(dia.data),r.tipo,r.calorias,'','','','','','','','','','','','','','','',0,r.observacoes].map(campoCSV).join(';'));baixarArquivo('relatorio_projeto_leve_'+hojeISO()+'.csv','\uFEFF'+linhas.join('\n'),'text/csv;charset=utf-8');};
+
+obterInicioFiltroGrafico=function(){const hoje=hojeISO();if(filtroGraficoAtual==='ciclo')return appData.config.dataInicial||hoje;if(filtroGraficoAtual==='todos')return '0000-01-01';if(filtroGraficoAtual==='7d')return addDiasISO(hoje,-7);if(filtroGraficoAtual==='1m')return addMesesISO(hoje,-1);if(filtroGraficoAtual==='3m')return addMesesISO(hoje,-3);if(filtroGraficoAtual==='6m')return addMesesISO(hoje,-6);if(filtroGraficoAtual==='1a')return addAnosISO(hoje,-1);if(filtroGraficoAtual==='5a')return addAnosISO(hoje,-5);return '0000-01-01';};
+function alterarIndicadorGrafico(valor){filtroIndicadorGrafico=valor||'peso';renderGraficos();}
+const pluginRotulosPontos={id:'rotulosPontos',afterDatasetsDraw(chart){const ctx=chart.ctx;ctx.save();ctx.font='8px Segoe UI';ctx.textAlign='center';ctx.fillStyle='#475569';chart.data.datasets.forEach((dataset,di)=>{const meta=chart.getDatasetMeta(di);if(meta.hidden)return;meta.data.forEach((p,i)=>{const v=dataset.data[i];if(v===null||v===undefined||!Number.isFinite(Number(v)))return;ctx.fillText(filtroIndicadorGrafico==='tmb'?Math.round(v):formatBR(v),p.x,p.y-7-(di%2)*9);});});ctx.restore();}};
+renderGraficos=function(){if(activeViewId!=='graficos')return;if(!window.Chart){carregarChartJs().then(renderGraficos).catch(e=>alert(e.message));return;}const inicio=obterInicioFiltroGrafico(),indicadores={peso:['Peso','kg'],musculoEsqueletico:['Músculo esquelético','kg'],massaGorda:['Massa gorda','kg'],aguaCorporal:['Água corporal','%'],gorduraCorporalPercentual:['Gordura corporal','%'],imc:['IMC',''],tmb:['Taxa metabólica basal','kcal']},def=indicadores[filtroIndicadorGrafico]||indicadores.peso,pesos=[...appData.pesos].filter(p=>p.data>=inicio&&numeroValido(p[filtroIndicadorGrafico])!==null).sort((a,b)=>a.data.localeCompare(b.data)),medidas=[...appData.medidas].filter(m=>m.data>=inicio).sort((a,b)=>a.data.localeCompare(b.data));document.getElementById('chart-peso-title').innerText=def[0];document.getElementById('chart-peso-subtitle').innerText=`${filtroGraficoAtual==='ciclo'?'Ciclo atual':filtroGraficoAtual==='todos'?'Todo o histórico':'Período selecionado'} • ${pesos.length} ponto(s)`;if(chartPesoRef)chartPesoRef.destroy();chartPesoRef=new Chart(document.getElementById('chartPeso').getContext('2d'),{type:'line',data:{labels:pesos.map(p=>formatDateChart(p.data)),datasets:[{label:def[0],data:pesos.map(p=>numeroValido(p[filtroIndicadorGrafico])),borderColor:'#0284c7',backgroundColor:'rgba(2,132,199,.12)',tension:.3}]},plugins:[pluginRotulosPontos],options:{responsive:true,maintainAspectRatio:false,animation:false,scales:{y:{beginAtZero:false}},plugins:{legend:{display:false}},elements:{point:{radius:3},line:{borderWidth:2}}}});if(chartMedidasRef)chartMedidasRef.destroy();const series=[['Barriga','cintura','#ef4444'],['Coxa','coxa','#22c55e'],['Quadril','quadril','#38bdf8'],['Peito','peito','#a855f7'],['Panturrilha','panturrilha','#f59e0b'],['Braço','braco','#14b8a6']];chartMedidasRef=new Chart(document.getElementById('chartMedidas').getContext('2d'),{type:'line',data:{labels:medidas.map(m=>formatDateChart(m.data)),datasets:series.map(s=>({label:s[0],data:medidas.map(m=>numeroValido(m[s[1]])),borderColor:s[2]}))},plugins:[pluginRotulosPontos],options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{labels:{boxWidth:10,padding:8,font:{size:10}}}},elements:{point:{radius:2},line:{borderWidth:2}}}});};
+
+function configurarCamposVirgula(){const ids=['peso-valor','peso-musculo','peso-massa-gorda','peso-agua','peso-imc','remedio-peso','med-peso','med-pescoco','med-peito','med-cintura','med-quadril','med-coxa','med-panturrilha','med-braco','cfg-peso-init','cfg-peso-meta','cfg-meta-dia','id-pescoco','id-peito','id-cintura','id-quadril','id-coxa','id-panturrilha','id-braco','perfil-altura'];ids.forEach(id=>{const el=document.getElementById(id);if(!el)return;el.type='text';el.inputMode='decimal';el.addEventListener('blur',()=>{const n=numeroValido(el.value);if(n!==null)el.value=formatBR(n);});});document.getElementById('peso-valor')?.addEventListener('input',atualizarGorduraCalculada);document.getElementById('peso-massa-gorda')?.addEventListener('input',atualizarGorduraCalculada);}
+const preencherCamposPerfilAnteriorV20=preencherCamposPerfil;
+preencherCamposPerfil=function(){preencherCamposPerfilAnteriorV20();const altura=document.getElementById('perfil-altura');if(altura&&numeroValido(appData.config.altura)!==null)altura.value=formatBR(numeroValido(appData.config.altura)/100);};
+const preencherCamposConfigAnteriorV20=preencherCamposConfig;
+preencherCamposConfig=function(){preencherCamposConfigAnteriorV20();document.getElementById('cfg-meta-calorias').value=numeroValido(appData.config.metaCalorias)===null?'':Math.round(appData.config.metaCalorias);for(const id of ['cfg-peso-init','cfg-peso-meta','cfg-meta-dia','id-pescoco','id-peito','id-cintura','id-quadril','id-coxa','id-panturrilha','id-braco']){const el=document.getElementById(id);if(el&&numeroValido(el.value)!==null)el.value=formatBR(el.value);}const altura=document.getElementById('perfil-altura');if(altura&&numeroValido(appData.config.altura)!==null)altura.value=formatBR(numeroValido(appData.config.altura)/100);};
+const salvarAjustesAutomaticamenteAnteriorV20=salvarAjustesAutomaticamente;
+salvarAjustesAutomaticamente=function(){appData.config.metaCalorias=numeroOuVazio(document.getElementById('cfg-meta-calorias').value);return salvarAjustesAutomaticamenteAnteriorV20();};
+const salvarPerfilAutomaticamenteAnteriorV20=salvarPerfilAutomaticamente;
+salvarPerfilAutomaticamente=function(){const campo=document.getElementById('perfil-altura'),n=numeroValido(campo?.value);if(campo&&n!==null)campo.value=n<=3?String(n*100):String(n);const resultado=salvarPerfilAutomaticamenteAnteriorV20();if(campo&&numeroValido(appData.config.altura)!==null)campo.value=formatBR(numeroValido(appData.config.altura)/100);return resultado;};
+const updateUIAnteriorV20=updateUI;
+updateUI=function(){updateUIAnteriorV20();renderResumoComposicao();renderCalorias();};
+
+function inicializarMelhoriasV20(){filtroGraficoAtual='ciclo';configurarCategoriasFotos();configurarCamposVirgula();document.getElementById('cfg-meta-calorias')?.addEventListener('input',agendarSalvarAjustes);document.getElementById('cfg-meta-calorias')?.addEventListener('change',agendarSalvarAjustes);document.getElementById('modal-detalhes-registro')?.addEventListener('click',e=>{if(e.target.id==='modal-detalhes-registro')fecharDetalhesRegistro();});}
+
+/* V21 — metas históricas, cartões e imagens resilientes */
+function temPropriedadeV21(objeto, chave) {
+    return !!objeto && Object.prototype.hasOwnProperty.call(objeto, chave);
+}
+function encontrarFonteV21(lista, item, indice) {
+    const origem = Array.isArray(lista) ? lista : [];
+    return origem.find(registro => String(registro?.id || '') === String(item?.id || '')) ||
+        origem.find(registro => String(registro?.data || '') === String(item?.data || '')) ||
+        origem[indice] || {};
+}
+function metaPesoUsadaV21(registro) {
+    if (!registro) return null;
+    if (temPropriedadeV21(registro, 'metaPesoUsada')) return numeroValido(registro.metaPesoUsada);
+    return numeroValido(registro.meta);
+}
+function metaCaloriasUsadaV21(dia) {
+    if (!dia) return null;
+    if (temPropriedadeV21(dia, 'metaCaloriasUsada')) return numeroValido(dia.metaCaloriasUsada);
+    return null;
+}
+
+const normalizarDadosAnteriorV21 = normalizarDados;
+normalizarDados = function(raw) {
+    const origem = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+    const dados = normalizarDadosAnteriorV21(origem);
+    const metaPesoConfigurada = numeroValido(dados.config?.pesoMeta);
+    const metaCaloriasConfigurada = numeroValido(dados.config?.metaCalorias);
+
+    dados.pesos = (dados.pesos || []).map((registro, indice) => {
+        const fonte = encontrarFonteV21(origem.pesos, registro, indice);
+        let meta;
+        if (temPropriedadeV21(fonte, 'metaPesoUsada')) meta = numeroOuVazio(fonte.metaPesoUsada);
+        else if (numeroValido(fonte.meta) !== null) meta = numeroValido(fonte.meta);
+        else meta = metaPesoConfigurada === null ? '' : metaPesoConfigurada;
+        return { ...registro, meta, metaPesoUsada: meta };
+    });
+
+    dados.calorias = (dados.calorias || []).map((dia, indice) => {
+        const fonte = encontrarFonteV21(origem.calorias, dia, indice);
+        const meta = temPropriedadeV21(fonte, 'metaCaloriasUsada')
+            ? numeroOuVazio(fonte.metaCaloriasUsada)
+            : (metaCaloriasConfigurada === null ? '' : metaCaloriasConfigurada);
+        return { ...dia, metaCaloriasUsada: meta };
+    });
+    return dados;
+};
+
+const validarDadosImportadosAnteriorV21 = validarDadosImportados;
+validarDadosImportados = function(raw) {
+    for (const peso of raw?.pesos || []) {
+        for (const chave of ['metaPesoUsada', 'meta']) {
+            const valor = numeroValido(peso?.[chave]);
+            if (peso?.[chave] !== undefined && peso[chave] !== '' && (valor === null || valor < 0)) {
+                throw new Error('Meta de peso inválida no backup.');
+            }
+        }
+    }
+    for (const dia of raw?.calorias || []) {
+        const valor = numeroValido(dia?.metaCaloriasUsada);
+        if (dia?.metaCaloriasUsada !== undefined && dia.metaCaloriasUsada !== '' && (valor === null || valor < 0)) {
+            throw new Error('Meta de calorias usada inválida no backup.');
+        }
+    }
+    return validarDadosImportadosAnteriorV21(raw);
+};
+
+const carregarDadosAnteriorV21 = carregarDados;
+carregarDados = function() {
+    const resultado = carregarDadosAnteriorV21();
+    try {
+        const salvo = localStorage.getItem(chaveLocalUsuario());
+        if (salvo !== JSON.stringify(appData)) salvarDadosLocalmente();
+    } catch (erro) {
+        console.warn('Não foi possível concluir a migração das metas históricas:', erro);
+    }
+    return resultado;
+};
+
+function ordenarPorDataV21(registros) {
+    return [...(registros || [])].sort((a, b) => {
+        const porData = String(b?.data || '').localeCompare(String(a?.data || ''));
+        return porData || (Number(b?.ordemCadastro) || 0) - (Number(a?.ordemCadastro) || 0);
+    });
+}
+function atualEAnteriorV21(registros, chave) {
+    const ordenados = ordenarPorDataV21(registros);
+    const indice = ordenados.findIndex(registro => numeroValido(registro?.[chave]) !== null);
+    if (indice < 0) return { atual: null, anterior: null, valor: null, valorAnterior: null };
+    const atual = ordenados[indice];
+    const anterior = ordenados.slice(indice + 1).find(registro => numeroValido(registro?.[chave]) !== null) || null;
+    return {
+        atual,
+        anterior,
+        valor: numeroValido(atual[chave]),
+        valorAnterior: anterior ? numeroValido(anterior[chave]) : null
+    };
+}
+function distanciaFaixaV21(valor, faixa) {
+    if (!faixa || valor === null) return null;
+    if (valor < faixa.min) return faixa.min - valor;
+    if (valor > faixa.max) return valor - faixa.max;
+    return 0;
+}
+function textoNumeroV21(valor, unidade, inteiro) {
+    const numero = Math.abs(valor);
+    return inteiro ? String(Math.round(numero)) + unidade : formatBR(numero) + unidade;
+}
+function comparacaoV21(atual, anterior, unidade, avaliar, inteiro) {
+    if (atual === null || anterior === null) return { texto: 'Sem comparação anterior', classe: 'neutral' };
+    const delta = atual - anterior;
+    if (Math.abs(delta) < 0.005) return { texto: 'Sem alteração vs anterior', classe: 'neutral' };
+    const resultado = avaliar ? avaliar(atual, anterior, delta) : null;
+    const classe = resultado === true ? 'positive' : (resultado === false ? 'negative' : 'neutral');
+    return {
+        texto: (delta > 0 ? '↑ +' : '↓ −') + textoNumeroV21(delta, unidade, inteiro) + ' vs anterior',
+        classe
+    };
+}
+function sexoConfiguradoV21() {
+    const valor = String(appData.config?.genero || '').toLocaleLowerCase('pt-BR');
+    if (valor.includes('masc') || valor === 'm') return 'masculino';
+    if (valor.includes('fem') || valor === 'f') return 'feminino';
+    return '';
+}
+function referenciasBioimpedanciaV21() {
+    const sexo = sexoConfiguradoV21();
+    if (sexo === 'masculino') return {
+        gordura: { min: 18, max: 24, unidade: ' p.p.' },
+        agua: { min: 50, max: 65, unidade: ' p.p.' }
+    };
+    if (sexo === 'feminino') return {
+        gordura: { min: 25, max: 31, unidade: ' p.p.' },
+        agua: { min: 45, max: 60, unidade: ' p.p.' }
+    };
+    return { gordura: null, agua: null };
+}
+function estimarTmbNoPesoMetaV21() {
+    const peso = numeroValido(appData.config?.pesoMeta);
+    const altura = numeroValido(appData.config?.altura);
+    const idade = Number(calcularIdade(appData.config?.nascimento));
+    const sexo = sexoConfiguradoV21();
+    if (peso === null || altura === null || !Number.isFinite(idade) || idade <= 0 || !sexo) return null;
+    const base = (10 * peso) + (6.25 * altura) - (5 * idade);
+    return sexo === 'masculino' ? base + 5 : base - 161;
+}
+function maiorMusculoRegistradoV21() {
+    const valores = (appData.pesos || []).map(registro => numeroValido(registro.musculoEsqueletico)).filter(valor => valor !== null);
+    return valores.length ? Math.max(...valores) : null;
+}
+function textoMetaExataV21(valor, meta, unidade, rotulo, inteiro) {
+    if (valor === null || meta === null) return 'Meta: não configurada';
+    const diferenca = meta - valor;
+    if (Math.abs(diferenca) < 0.005) return rotulo + ': atingida';
+    const verbo = diferenca < 0 ? 'reduzir ' : 'aumentar ';
+    return rotulo + ': ' + (inteiro ? Math.round(meta) : formatBR(meta)) + unidade + ' • ' + verbo + textoNumeroV21(diferenca, unidade, inteiro);
+}
+function textoMetaFaixaV21(valor, faixa, rotulo) {
+    if (valor === null || !faixa) return rotulo + ': configure sexo no perfil';
+    const intervalo = formatBR(faixa.min) + '–' + formatBR(faixa.max) + '%';
+    if (valor < faixa.min) return rotulo + ': ' + intervalo + ' • aumentar ' + formatBR(faixa.min - valor) + ' p.p.';
+    if (valor > faixa.max) return rotulo + ': ' + intervalo + ' • reduzir ' + formatBR(valor - faixa.max) + ' p.p.';
+    return rotulo + ': ' + intervalo + ' • dentro da faixa';
+}
+function alvoImcV21() {
+    const peso = numeroValido(appData.config?.pesoMeta);
+    const altura = numeroValido(appData.config?.altura);
+    if (peso === null || altura === null || altura <= 0) return null;
+    return peso / Math.pow(altura / 100, 2);
+}
+
+function renderResumoPesoAtual() {
+    const container = document.getElementById('resumo-peso-atual');
+    if (!container) return;
+    const leitura = atualEAnteriorV21(appData.pesos, 'peso');
+    if (leitura.valor === null) { container.innerHTML = ''; return; }
+    const meta = metaPesoUsadaV21(leitura.atual);
+    const comparacao = comparacaoV21(leitura.valor, leitura.valorAnterior, ' kg', (atual, anterior) => {
+        if (meta !== null) return Math.abs(atual - meta) < Math.abs(anterior - meta);
+        return atual < anterior;
+    });
+    container.innerHTML = '<div class="card peso-summary-card record-summary-card">' +
+        '<div class="label">Peso Atual</div>' +
+        '<div class="value">' + formatBR(leitura.valor) + ' kg</div>' +
+        '<div class="metric-delta ' + comparacao.classe + '">' + comparacao.texto + '</div>' +
+        '<div class="small metric-target">' + textoMetaExataV21(leitura.valor, meta, ' kg', 'Meta usada', false) + '</div>' +
+        '</div>';
+}
+
+function renderResumoComposicao() {
+    const container = document.getElementById('resumo-composicao-corporal');
+    if (!container) return;
+    const referencia = referenciasBioimpedanciaV21();
+    const pesoMeta = numeroValido(appData.config?.pesoMeta);
+    const alvoGordura = referencia.gordura ? (referencia.gordura.min + referencia.gordura.max) / 2 : null;
+    const alvoMassaGorda = pesoMeta !== null && alvoGordura !== null ? pesoMeta * alvoGordura / 100 : null;
+    const alvoMusculo = maiorMusculoRegistradoV21();
+    const alvoImc = alvoImcV21();
+    const alvoTmb = estimarTmbNoPesoMetaV21();
+    const itens = [
+        { nome: 'Músculo esquelético', chave: 'musculoEsqueletico', unidade: ' kg', alvo: alvoMusculo, texto: (v) => v === null || alvoMusculo === null ? 'Meta: registrar massa muscular' : (v >= alvoMusculo ? 'Meta: manter ≥ ' + formatBR(alvoMusculo) + ' kg • preservado' : 'Meta: manter ≥ ' + formatBR(alvoMusculo) + ' kg • recuperar ' + formatBR(alvoMusculo - v) + ' kg'), avaliar: (a, b) => a > b },
+        { nome: 'Massa gorda', chave: 'massaGorda', unidade: ' kg', alvo: alvoMassaGorda, texto: (v) => textoMetaExataV21(v, alvoMassaGorda, ' kg', 'Meta estimada', false), avaliar: (a, b) => alvoMassaGorda === null ? a < b : Math.abs(a - alvoMassaGorda) < Math.abs(b - alvoMassaGorda) },
+        { nome: 'Água corporal', chave: 'aguaCorporal', unidade: ' p.p.', alvoFaixa: referencia.agua, texto: (v) => textoMetaFaixaV21(v, referencia.agua, 'Referência'), avaliar: (a, b) => {
+            const da = distanciaFaixaV21(a, referencia.agua), db = distanciaFaixaV21(b, referencia.agua);
+            return da === null || db === null || (da === 0 && db === 0) ? null : da < db;
+        }},
+        { nome: 'Gordura corporal', chave: 'gorduraCorporalPercentual', unidade: ' p.p.', alvoFaixa: referencia.gordura, texto: (v) => textoMetaFaixaV21(v, referencia.gordura, 'Referência'), avaliar: (a, b) => {
+            const da = distanciaFaixaV21(a, referencia.gordura), db = distanciaFaixaV21(b, referencia.gordura);
+            return da === null || db === null || (da === 0 && db === 0) ? null : da < db;
+        }},
+        { nome: 'IMC', chave: 'imc', unidade: '', alvo: alvoImc, texto: (v) => textoMetaExataV21(v, alvoImc, '', 'Meta pelo peso', false), avaliar: (a, b) => alvoImc === null ? null : Math.abs(a - alvoImc) < Math.abs(b - alvoImc) },
+        { nome: 'TMB', chave: 'tmb', unidade: ' kcal', alvo: alvoTmb, inteiro: true, texto: (v) => alvoTmb === null ? 'Estimativa: complete perfil e peso-meta' : 'Est. no peso-meta: ' + Math.round(alvoTmb) + ' kcal', avaliar: () => null }
+    ];
+    container.innerHTML = itens.map(item => {
+        const leitura = atualEAnteriorV21(appData.pesos, item.chave);
+        const exibicao = leitura.valor === null ? '--' : (item.inteiro ? Math.round(leitura.valor) : formatBR(leitura.valor)) + (item.chave === 'aguaCorporal' || item.chave === 'gorduraCorporalPercentual' ? ' %' : item.unidade);
+        const comparacao = comparacaoV21(leitura.valor, leitura.valorAnterior, item.unidade, item.avaliar, item.inteiro);
+        return '<div class="card composition-summary-card">' +
+            '<div class="label">' + item.nome + '</div>' +
+            '<div class="value">' + exibicao + '</div>' +
+            '<div class="metric-delta ' + comparacao.classe + '">' + comparacao.texto + '</div>' +
+            '<div class="small metric-target">' + item.texto(leitura.valor) + '</div>' +
+            '</div>';
+    }).join('');
+}
+
+function saldoCaloriasV21(dia) {
+    const meta = metaCaloriasUsadaV21(dia);
+    const total = totalCaloriasDia(dia);
+    return meta === null ? null : meta - total;
+}
+function textoMetaCaloriasV21(dia) {
+    const meta = metaCaloriasUsadaV21(dia);
+    return meta === null ? 'Meta usada: não informada' : 'Meta usada: ' + Math.round(meta) + ' kcal';
+}
+function renderCalorias() {
+    const lista = document.getElementById('lista-calorias');
+    const resumo = document.getElementById('resumo-calorias');
+    if (!lista || !resumo) return;
+    const dias = ordenarPorDataV21(appData.calorias);
+    const atual = dias[0] || null, anterior = dias[1] || null;
+    const totalAtual = atual ? totalCaloriasDia(atual) : null;
+    const totalAnterior = anterior ? totalCaloriasDia(anterior) : null;
+    const saldoAtual = atual ? saldoCaloriasV21(atual) : null;
+    const saldoAnterior = anterior ? saldoCaloriasV21(anterior) : null;
+    const classeTotal = saldoAtual === null ? 'neutral' : (saldoAtual >= 0 ? 'positive' : 'negative');
+    const deltaTotal = comparacaoV21(totalAtual, totalAnterior, ' kcal', () => saldoAtual === null ? null : saldoAtual >= 0, true);
+    const deltaSaldo = comparacaoV21(saldoAtual, saldoAnterior, ' kcal', (a, b) => a > b, true);
+    resumo.innerHTML = [
+        ['Total do Dia', totalAtual === null ? '--' : Math.round(totalAtual) + ' kcal', atual ? textoMetaCaloriasV21(atual) : 'Sem registro', deltaTotal, classeTotal],
+        ['Saldo', saldoAtual === null ? '--' : (saldoAtual >= 0 ? '+' : '') + Math.round(saldoAtual) + ' kcal', atual ? textoMetaCaloriasV21(atual) : 'Sem registro', deltaSaldo, saldoAtual === null ? 'neutral' : (saldoAtual >= 0 ? 'positive' : 'negative')]
+    ].map(item => '<div class="card metric-summary-card">' +
+        '<div class="label">' + item[0] + '</div>' +
+        '<div class="value ' + item[4] + '">' + item[1] + '</div>' +
+        '<div class="metric-delta ' + item[3].classe + '">' + item[3].texto + '</div>' +
+        '<div class="small">' + item[2] + '</div>' +
+        '</div>').join('');
+    if (!dias.length) {
+        lista.innerHTML = '<tr><td colspan="4" style="text-align:center">Nenhuma refeição lançada.</td></tr>';
+        return;
+    }
+    lista.innerHTML = dias.map(dia => {
+        const total = totalCaloriasDia(dia), saldo = saldoCaloriasV21(dia);
+        const classe = saldo === null ? 'neutral' : (saldo >= 0 ? 'positive' : 'negative');
+        return '<tr><td>' + formatDateCurtaBR(dia.data) + '</td><td>' + Math.round(total) + ' kcal</td>' +
+            '<td class="' + classe + '" title="' + textoMetaCaloriasV21(dia) + '">' + (saldo === null ? '--' : (saldo >= 0 ? '+' : '') + Math.round(saldo)) + '</td>' +
+            '<td><div class="calorie-action-buttons"><button class="btn btn-outline compact-action" title="Visualizar" onclick="visualizarRegistro(\'caloria\',\'' + dia.id + '\')">' + PL_ICONE_VISUALIZAR + '</button><button class="btn btn-outline compact-action" title="Excluir" style="border-color:var(--danger);color:var(--danger)" onclick="excluirCaloria(\'' + dia.id + '\')">−</button></div></td></tr>';
+    }).join('');
+}
+
+function renderCardsMedidasV21() {
+    const container = document.getElementById('comparativo-medidas');
+    if (!container) return;
+    const ideais = appData.config?.medidasIdeais || {};
+    const campos = [
+        { label: 'Peso', chave: 'peso', meta: numeroValido(appData.config?.pesoMeta), unidade: ' kg' },
+        { label: 'Pescoço', chave: 'pescoco', meta: numeroValido(ideais.pescoco), unidade: ' cm' },
+        { label: 'Peito', chave: 'peito', meta: numeroValido(ideais.peito), unidade: ' cm' },
+        { label: 'Barriga', chave: 'cintura', meta: numeroValido(ideais.cintura), unidade: ' cm' },
+        { label: 'Quadril', chave: 'quadril', meta: numeroValido(ideais.quadril), unidade: ' cm' },
+        { label: 'Coxa', chave: 'coxa', meta: numeroValido(ideais.coxa), unidade: ' cm' },
+        { label: 'Panturrilha', chave: 'panturrilha', meta: numeroValido(ideais.panturrilha), unidade: ' cm' },
+        { label: 'Braço', chave: 'braco', meta: numeroValido(ideais.braco), unidade: ' cm' }
+    ];
+    container.innerHTML = campos.map(campo => {
+        const leitura = atualEAnteriorV21(appData.medidas, campo.chave);
+        const comparacao = comparacaoV21(leitura.valor, leitura.valorAnterior, campo.unidade, (a, b) => {
+            if (campo.meta !== null) return Math.abs(a - campo.meta) < Math.abs(b - campo.meta);
+            return a < b;
+        });
+        const valor = leitura.valor === null ? '--' : formatBR(leitura.valor) + campo.unidade;
+        return '<div class="card record-summary-card"><div class="label">' + campo.label + '</div><div class="value">' + valor + '</div><div class="metric-delta ' + comparacao.classe + '">' + comparacao.texto + '</div><div class="small metric-target">' + textoMetaExataV21(leitura.valor, campo.meta, campo.unidade, 'Meta', false) + '</div></div>';
+    }).join('');
+}
+const renderMedidasAnteriorV21 = renderMedidas;
+renderMedidas = function() {
+    renderMedidasAnteriorV21();
+    renderCardsMedidasV21();
+};
+
+function renderResumoRemedioAtualV21() {
+    const container = document.getElementById('resumo-remedio-atual');
+    if (!container) return;
+    const remedios = ordenarPorDataV21(appData.remedios);
+    const atual = remedios[0];
+    if (!atual) { container.innerHTML = ''; return; }
+    const anterior = remedios.slice(1).find(item => String(item.nome || '').toLocaleLowerCase('pt-BR') === String(atual.nome || '').toLocaleLowerCase('pt-BR')) || null;
+    const comparacao = comparacaoV21(numeroValido(atual.mg), numeroValido(anterior?.mg), ' mg', () => null);
+    container.innerHTML = '<div class="card medicine-summary-card record-summary-card"><div class="label">Dose Atual</div><div class="value medicine-current-dose">' + formatBR(atual.mg) + ' mg</div><div class="medicine-current-name">' + escapeHtml(atual.nome || 'Remédio') + '</div><div class="metric-delta ' + comparacao.classe + '">' + comparacao.texto + '</div></div>';
+}
+const renderRemediosAnteriorV21 = renderRemedios;
+renderRemedios = function() {
+    renderRemediosAnteriorV21();
+    renderResumoRemedioAtualV21();
+};
+
+function renderCategoriasExistentesV21(item, tipo) {
+    const container = document.getElementById(tipo === 'peso' ? 'peso-foto-categorias-existentes' : 'med-foto-categorias-existentes');
+    if (!container) return;
+    const fotos = obterFotosRegistro(item || {});
+    if (!fotos.length) { container.innerHTML = ''; return; }
+    const lista = tipo === 'peso' ? PL_CATEGORIAS_PESO : PL_CATEGORIAS_MEDIDAS;
+    container.innerHTML = '<div class="photo-category-existing-title">Fotos já anexadas — altere a categoria se precisar</div>' +
+        fotos.map((foto, indice) => '<div class="photo-category-row photo-category-existing-row"><div class="photo-category-name" title="' + escapeHtml(foto.fotoNome || 'Foto') + '">' + (indice + 1) + '. ' + escapeHtml(foto.fotoNome || 'Foto') + '</div><select data-foto-existente="' + escapeHtml(foto.fotoDocId) + '">' + opcoesCategorias(lista, foto.fotoCategoria || 'outros') + '</select></div>').join('');
+}
+function fotosExistentesComCategoriasV21(item, tipo) {
+    const container = document.getElementById(tipo === 'peso' ? 'peso-foto-categorias-existentes' : 'med-foto-categorias-existentes');
+    const escolhas = new Map(Array.from(container?.querySelectorAll('select[data-foto-existente]') || []).map(select => [select.dataset.fotoExistente, select.value]));
+    return obterFotosRegistro(item || {}).map(foto => ({ ...foto, fotoCategoria: escolhas.get(foto.fotoDocId) || foto.fotoCategoria || 'outros' }));
+}
+function atualizarMetaFormularioPesoV21(registro) {
+    const info = document.getElementById('peso-meta-info');
+    const campo = document.getElementById('peso-meta');
+    const meta = registro ? metaPesoUsadaV21(registro) : numeroValido(appData.config?.pesoMeta);
+    if (campo) campo.value = meta === null ? '' : formatBR(meta);
+    if (info) info.innerText = meta === null ? 'Defina o Peso Meta nas Configurações antes de salvar.' : (registro ? 'Meta histórica deste registro: ' + formatBR(meta) + ' kg' : 'Será registrada a meta atual: ' + formatBR(meta) + ' kg');
+}
+const redefinirFormularioPesoAnteriorV21 = redefinirFormularioPeso;
+redefinirFormularioPeso = function(opcoes) {
+    redefinirFormularioPesoAnteriorV21(opcoes);
+    atualizarMetaFormularioPesoV21(null);
+    const existentes = document.getElementById('peso-foto-categorias-existentes');
+    if (existentes) existentes.innerHTML = '';
+};
+const editarPesoAnteriorV21 = editarPeso;
+editarPeso = function(id) {
+    editarPesoAnteriorV21(id);
+    const registro = (appData.pesos || []).find(item => String(item.id) === String(id));
+    if (!registro) return;
+    atualizarMetaFormularioPesoV21(registro);
+    renderCategoriasExistentesV21(registro, 'peso');
+};
+const editarMedidaAnteriorV21 = editarMedida;
+editarMedida = function(id) {
+    editarMedidaAnteriorV21(id);
+    const registro = (appData.medidas || []).find(item => String(item.id) === String(id));
+    if (registro) renderCategoriasExistentesV21(registro, 'medida');
+};
+const limparFormularioMedidasAnteriorV21 = limparFormularioMedidas;
+limparFormularioMedidas = function() {
+    limparFormularioMedidasAnteriorV21();
+    const existentes = document.getElementById('med-foto-categorias-existentes');
+    if (existentes) existentes.innerHTML = '';
+};
+
+document.getElementById('form-peso').onsubmit = async function(evento) {
+    evento.preventDefault();
+    const editId = document.getElementById('edit-peso-id').value || '';
+    const data = document.getElementById('peso-data').value;
+    const peso = numeroValido(document.getElementById('peso-valor').value);
+    const arquivos = Array.from(document.getElementById('peso-foto').files || []);
+    if (!dataISOValida(data) || peso === null || peso <= 0) return alert('Preencha a data e o peso com valores válidos.');
+    const indice = editId ? appData.pesos.findIndex(item => String(item.id) === String(editId)) : appData.pesos.findIndex(item => item.data === data);
+    if (!editId && indice > -1 && !confirm('Já existe um peso nesta data. Deseja atualizar esse registro?')) return;
+    const anterior = indice > -1 ? appData.pesos[indice] : null;
+    const meta = anterior ? metaPesoUsadaV21(anterior) : numeroValido(appData.config?.pesoMeta);
+    if (meta === null) return alert('Defina o Peso Meta nas Configurações antes de salvar um novo peso.');
+    const id = anterior?.id || crypto.randomUUID?.() || String(Date.now());
+    const botao = document.getElementById('btn-salvar-peso');
+    botao.disabled = true;
+    try {
+        const preparada = arquivos.length ? await prepararFotosRegistro(arquivos, 'peso_' + id) : null;
+        const novas = (preparada?.fotos || []).map((foto, indiceFoto) => ({ ...foto, fotoCategoria: categoriasFotosPesoSelecionadas[indiceFoto] || 'outros' }));
+        const massaGorda = validarOpcional('peso-massa-gorda');
+        const gordura = massaGorda === '' ? '' : (massaGorda / peso) * 100;
+        const registro = {
+            ...(anterior || {}), id, data, peso, meta, metaPesoUsada: meta,
+            observacoes: document.getElementById('peso-obs').value,
+            musculoEsqueletico: validarOpcional('peso-musculo'),
+            massaGorda, aguaCorporal: validarOpcional('peso-agua', 100),
+            gorduraCorporalPercentual: gordura, imc: validarOpcional('peso-imc'),
+            tmb: validarOpcional('peso-tmb'),
+            fotos: [...fotosExistentesComCategoriasV21(anterior, 'peso'), ...novas]
+        };
+        if (indice > -1) appData.pesos[indice] = registro; else appData.pesos.push(registro);
+        motivoProximaCopia = editId ? 'Antes de editar peso' : 'Antes de registrar peso';
+        salvarDados(true, true);
+        redefinirFormularioPeso();
+        showView('historico', document.querySelector('[data-view="historico"]'));
+    } catch (erro) {
+        alert('Não foi possível salvar: ' + traduzirErroApp(erro));
+    } finally {
+        botao.disabled = false;
+        botao.innerText = 'Salvar';
+    }
+};
+
+document.getElementById('form-medidas').onsubmit = async function(evento) {
+    evento.preventDefault();
+    const editId = document.getElementById('edit-medida-id').value || '';
+    const data = document.getElementById('med-data').value, peso = numeroValido(document.getElementById('med-peso').value);
+    const arquivos = Array.from(document.getElementById('med-foto').files || []);
+    if (!dataISOValida(data) || peso === null || peso <= 0) return alert('Preencha a data e o peso com valores válidos.');
+    const indice = editId ? appData.medidas.findIndex(item => String(item.id) === String(editId)) : -1;
+    const anterior = indice > -1 ? appData.medidas[indice] : null, id = anterior?.id || crypto.randomUUID?.() || String(Date.now());
+    const botao = document.getElementById('btn-salvar-medida');
+    botao.disabled = true;
+    try {
+        const preparada = arquivos.length ? await prepararFotosRegistro(arquivos, 'medida_' + id) : null;
+        const novas = (preparada?.fotos || []).map((foto, indiceFoto) => ({ ...foto, fotoCategoria: categoriasFotosMedidaSelecionadas[indiceFoto] || 'outros' }));
+        const registro = { ...(anterior || {}), id, data, peso, observacoes: document.getElementById('med-obs').value, fotos: [...fotosExistentesComCategoriasV21(anterior, 'medida'), ...novas] };
+        for (const campo of ['pescoco','peito','cintura','quadril','coxa','panturrilha','braco']) registro[campo] = validarOpcional('med-' + campo);
+        if (indice > -1) appData.medidas[indice] = registro; else appData.medidas.push(registro);
+        motivoProximaCopia = editId ? 'Antes de editar medidas' : 'Antes de registrar medidas';
+        salvarDados(true, true);
+        fecharModalMedida();
+    } catch (erro) {
+        alert('Não foi possível salvar: ' + traduzirErroApp(erro));
+    } finally {
+        botao.disabled = false;
+        botao.innerText = 'Salvar';
+    }
+};
+
+document.getElementById('form-caloria').onsubmit = function(evento) {
+    evento.preventDefault();
+    const data = document.getElementById('caloria-data').value;
+    const tipo = document.getElementById('caloria-refeicao').value;
+    const calorias = numeroValido(document.getElementById('caloria-valor').value);
+    const observacoes = document.getElementById('caloria-observacoes').value;
+    const editDia = document.getElementById('edit-caloria-dia-id').value;
+    const editRefeicao = document.getElementById('edit-refeicao-id').value;
+    if (!dataISOValida(data) || calorias === null || calorias <= 0) return alert('Preencha data e calorias com valores válidos.');
+    appData.calorias = appData.calorias || [];
+    let refeicaoAnterior = null;
+    if (editDia && editRefeicao) {
+        const diaOrigem = appData.calorias.find(dia => String(dia.id) === String(editDia));
+        refeicaoAnterior = diaOrigem?.refeicoes.find(refeicao => String(refeicao.id) === String(editRefeicao));
+        if (diaOrigem) diaOrigem.refeicoes = diaOrigem.refeicoes.filter(refeicao => String(refeicao.id) !== String(editRefeicao));
+        appData.calorias = appData.calorias.filter(dia => dia.refeicoes.length);
+    }
+    let dia = appData.calorias.find(item => item.data === data);
+    if (!dia) {
+        dia = { id: crypto.randomUUID?.() || 'caloria_' + Date.now(), data, refeicoes: [], metaCaloriasUsada: numeroOuVazio(appData.config?.metaCalorias) };
+        appData.calorias.push(dia);
+    }
+    const ordem = refeicaoAnterior?.ordemCadastro || Math.max(0, ...dia.refeicoes.map(refeicao => Number(refeicao.ordemCadastro) || 0)) + 1;
+    dia.refeicoes.push({ id: refeicaoAnterior?.id || crypto.randomUUID?.() || 'ref_' + Date.now(), tipo, calorias, observacoes, ordemCadastro: ordem });
+    motivoProximaCopia = editRefeicao ? 'Antes de editar refeição' : 'Antes de adicionar refeição';
+    salvarDados(true, true);
+    fecharLancamentoCaloria();
+};
+
+const visualizarRegistroAnteriorV21 = visualizarRegistro;
+visualizarRegistro = function(tipo, id) {
+    if (tipo === 'caloria') {
+        const dia = (appData.calorias || []).find(item => String(item.id) === String(id));
+        if (!dia) return alert('Registro não encontrado.');
+        registroVisualizado = { tipo, id: dia.id };
+        const total = totalCaloriasDia(dia), saldo = saldoCaloriasV21(dia);
+        const refeicoes = dia.refeicoes.map(refeicao => '<div class="meal-detail"><div class="meal-detail-head"><div><div class="label">' + escapeHtml(refeicao.tipo) + '</div><div class="value">' + Math.round(refeicao.calorias) + ' kcal</div></div><button class="btn btn-outline" onclick="editarRefeicao(\'' + dia.id + '\',\'' + refeicao.id + '\')">Editar</button></div>' + (refeicao.observacoes ? '<div class="small" style="margin-top:8px">' + escapeHtml(refeicao.observacoes) + '</div>' : '') + '</div>').join('');
+        abrirModalDetalhes('Calorias de ' + formatDateBR(dia.data), '<div class="detail-grid">' + valorDetalhe('Total', Math.round(total) + ' kcal') + valorDetalhe('Meta usada', metaCaloriasUsadaV21(dia) === null ? '--' : Math.round(metaCaloriasUsadaV21(dia)) + ' kcal') + valorDetalhe('Saldo', saldo === null ? '--' : (saldo >= 0 ? '+' : '') + Math.round(saldo) + ' kcal', saldo === null ? 'neutral' : (saldo >= 0 ? 'positive' : 'negative')) + '</div>' + refeicoes, true, 'Adicionar refeição');
+        return;
+    }
+    if (tipo === 'peso') {
+        const item = (appData.pesos || []).find(registro => String(registro.id) === String(id));
+        if (!item) return alert('Registro não encontrado.');
+        registroVisualizado = { tipo, id: item.id };
+        const fotos = obterFotosRegistro(item);
+        const campos = [['Data',formatDateBR(item.data)],['Peso',formatBR(item.peso) + ' kg'],['Meta usada',metaPesoUsadaV21(item) === null ? '--' : formatBR(metaPesoUsadaV21(item)) + ' kg'],['Músculo esquelético',numeroValido(item.musculoEsqueletico) === null ? '--' : formatBR(item.musculoEsqueletico) + ' kg'],['Massa gorda',numeroValido(item.massaGorda) === null ? '--' : formatBR(item.massaGorda) + ' kg'],['Água corporal',numeroValido(item.aguaCorporal) === null ? '--' : formatBR(item.aguaCorporal) + '%'],['Gordura corporal',numeroValido(item.gorduraCorporalPercentual) === null ? '--' : formatBR(item.gorduraCorporalPercentual) + '%'],['IMC',numeroValido(item.imc) === null ? '--' : formatBR(item.imc)],['TMB',numeroValido(item.tmb) === null ? '--' : Math.round(item.tmb) + ' kcal'],['Fotos',fotos.length]];
+        const fotosDetalhe = fotos.length ? '<div class="detail-field wide"><div class="label">Categorias das fotos</div><div class="detail-value">' + fotos.map((foto, indice) => 'Foto ' + (indice + 1) + ': ' + escapeHtml(rotuloCategoria(PL_CATEGORIAS_PESO, foto.fotoCategoria || 'outros'))).join('<br>') + '</div></div>' : '';
+        abrirModalDetalhes('Registro de Peso', '<div class="detail-grid">' + campos.map(campo => valorDetalhe(campo[0], campo[1])).join('') + fotosDetalhe + '<div class="detail-field wide"><div class="label">Observações</div><div class="detail-value">' + escapeHtml(item.observacoes || '--') + '</div></div></div>');
+        return;
+    }
+    return visualizarRegistroAnteriorV21(tipo, id);
+};
+
+function reordenarConfiguracoesV21() {
+    const foto = document.getElementById('foto-inicial-section');
+    const cabecalho = Array.from(document.querySelectorAll('#form-config h3')).find(elemento => elemento.textContent.trim() === 'Medidas Ideais');
+    const acoes = document.getElementById('btn-desfazer-medidas')?.parentElement;
+    const status = document.getElementById('salvar-medidas-status');
+    if (!foto || !cabecalho || !acoes || !status || foto.dataset.ordemV21) return;
+    const grade = cabecalho.nextElementSibling;
+    const separadorAntesFoto = foto.previousElementSibling;
+    const separadorDepoisFoto = foto.nextElementSibling;
+    if (!grade || !separadorAntesFoto || !separadorDepoisFoto) return;
+    separadorAntesFoto.after(cabecalho, grade, acoes, status, separadorDepoisFoto, foto);
+    foto.dataset.ordemV21 = '1';
+}
+
+async function obterFonteFotoV21(foto) {
+    if (currentUser?.uid && foto?.fotoDocId) {
+        const local = await obterFotoDoCacheLocal(currentUser.uid, foto.fotoDocId);
+        /* Alguns WebViews devolvem o Blob do IndexedDB por uma ponte interna
+           que não passa no instanceof Blob. Tamanho e URL de objeto são a
+           verificação compatível que realmente importa para renderizar. */
+        const blobs = [local?.blob, local?.miniatura]
+            .filter((arquivo, indice, lista) => arquivo && typeof arquivo.size === 'number' && arquivo.size > 0 && lista.indexOf(arquivo) === indice);
+        if (blobs.length) return { blobs };
+    }
+    const url = String(foto?.fotoUrl || '');
+    if (/^(data:image\/|https?:\/\/)/i.test(url)) return { url };
+    throw new Error('A foto não foi encontrada neste aparelho. Restaure um backup que contenha as imagens.');
+}
+function blobParaDataUrlV21(blob) {
+    return new Promise((resolve, reject) => {
+        const leitor = new FileReader();
+        leitor.onload = () => resolve(String(leitor.result || ''));
+        leitor.onerror = () => reject(leitor.error || new Error('Não foi possível ler a imagem.'));
+        leitor.readAsDataURL(blob);
+    });
+}
+const urlsVisuaisV21 = new WeakMap();
+function limparUrlVisualV21(container) {
+    const anterior = urlsVisuaisV21.get(container);
+    if (anterior) URL.revokeObjectURL(anterior);
+    urlsVisuaisV21.delete(container);
+}
+function carregarImagemV21(imagem, origem) {
+    return new Promise((resolve, reject) => {
+        imagem.onload = () => resolve(true);
+        imagem.onerror = () => reject(new Error('O navegador não conseguiu exibir este arquivo de imagem.'));
+        imagem.src = origem;
+    });
+}
+async function mostrarImagemResilienteV21(container, foto, textoAlternativo, opcoes) {
+    const configuracao = opcoes || {};
+    const ativa = typeof configuracao.ativa === 'function' ? configuracao.ativa : () => true;
+    if (!container) return false;
+    limparUrlVisualV21(container);
+    container.innerHTML = '<div class="photo-carousel-loading">Carregando foto...</div>';
+    try {
+        const fonte = await obterFonteFotoV21(foto);
+        if (!ativa()) return false;
+        const imagem = new Image();
+        imagem.alt = textoAlternativo || 'Foto do registro';
+        imagem.decoding = 'async';
+        if (configuracao.aoClicar) {
+            imagem.role = 'button';
+            imagem.tabIndex = 0;
+            imagem.addEventListener('click', configuracao.aoClicar);
+            imagem.addEventListener('keydown', evento => { if (evento.key === 'Enter' || evento.key === ' ') { evento.preventDefault(); configuracao.aoClicar(); } });
+        }
+        container.replaceChildren(imagem);
+        if (fonte.url) {
+            await carregarImagemV21(imagem, fonte.url);
+        } else {
+            let exibida = false;
+            let ultimoErro = null;
+            for (const blob of fonte.blobs || []) {
+                const objectUrl = URL.createObjectURL(blob);
+                try {
+                    await carregarImagemV21(imagem, objectUrl);
+                    urlsVisuaisV21.set(container, objectUrl);
+                    exibida = true;
+                    break;
+                } catch (erroObjectUrl) {
+                    URL.revokeObjectURL(objectUrl);
+                    try {
+                        const dataUrl = await blobParaDataUrlV21(blob);
+                        await carregarImagemV21(imagem, dataUrl);
+                        exibida = true;
+                        break;
+                    } catch (erroDataUrl) {
+                        ultimoErro = erroDataUrl || erroObjectUrl;
+                    }
+                }
+            }
+            if (!exibida) throw ultimoErro || new Error('O arquivo de imagem não pôde ser aberto.');
+        }
+        if (!ativa()) {
+            limparUrlVisualV21(container);
+            return false;
+        }
+        return true;
+    } catch (erro) {
+        if (ativa()) {
+            container.innerHTML = '<div class="photo-carousel-loading">Não foi possível abrir esta foto.<br><span style="font-size:12px;font-weight:600">Verifique se ela existe neste aparelho ou restaure um backup com as imagens.</span></div>';
+        }
+        console.error('Falha ao exibir foto:', erro);
+        return false;
+    }
+}
+
+renderCarrosselFotos = async function() {
+    const entrada = fotosRemediosCarrossel[indiceFotoRemedio];
+    if (!entrada) return;
+    const item = entrada.registro, foto = entrada.foto, token = ++renderFotoCarrosselToken;
+    const stage = document.getElementById('foto-carousel-stage'), info = document.getElementById('foto-carousel-info'), contador = document.getElementById('foto-carousel-contador');
+    if (info) info.innerHTML = '<div class="label">' + formatDateBR(item.data) + '</div><div class="value" style="font-size:18px;margin-top:3px">' + escapeHtml(item.nome || '') + ' • ' + formatBR(item.mg) + ' mg</div><div class="small" style="margin-top:4px;color:var(--text-secondary)">Peso: ' + formatBR(item.peso) + ' kg • ' + escapeHtml(foto.fotoNome || 'foto original') + '</div>';
+    if (contador) contador.innerText = (indiceFotoRemedio + 1) + ' de ' + fotosRemediosCarrossel.length;
+    await mostrarImagemResilienteV21(stage, foto, 'Foto de ' + (item.nome || 'remédio'), { ativa: () => token === renderFotoCarrosselToken });
+};
+renderCarrosselFotosPesos = async function() {
+    const entrada = fotosPesosCarrossel[indiceFotoPeso];
+    if (!entrada) return;
+    const item = entrada.registro, foto = entrada.foto, token = ++renderFotoPesoCarrosselToken;
+    const stage = document.getElementById('foto-peso-carousel-stage'), info = document.getElementById('foto-peso-carousel-info'), contador = document.getElementById('foto-peso-carousel-contador');
+    if (info) info.innerHTML = '<div class="label">' + formatDateBR(item.data) + '</div><div class="value" style="font-size:18px;margin-top:3px">' + formatBR(item.peso) + ' kg</div><div class="small" style="margin-top:4px;color:var(--text-secondary)">Meta usada: ' + (metaPesoUsadaV21(item) === null ? '--' : formatBR(metaPesoUsadaV21(item)) + ' kg') + ' • ' + escapeHtml(foto.fotoNome || 'foto original') + '</div><div class="small" style="margin-top:6px">Categoria: <select id="categoria-foto-atual-peso" onchange="atualizarCategoriaFotoAtual(\'peso\',this.value)" style="width:auto;padding:5px">' + opcoesCategorias(PL_CATEGORIAS_PESO, foto.fotoCategoria || 'outros') + '</select></div>';
+    if (contador) contador.innerText = (indiceFotoPeso + 1) + ' de ' + fotosPesosCarrossel.length;
+    await mostrarImagemResilienteV21(stage, foto, 'Foto do peso de ' + formatBR(item.peso) + ' kg', { ativa: () => token === renderFotoPesoCarrosselToken });
+};
+renderCarrosselFotosMedidas = async function() {
+    const entrada = fotosMedidasCarrossel[indiceFotoMedida];
+    if (!entrada) return;
+    const item = entrada.registro, foto = entrada.foto, token = ++renderFotoMedidaCarrosselToken;
+    const stage = document.getElementById('foto-medida-carousel-stage'), info = document.getElementById('foto-medida-carousel-info'), contador = document.getElementById('foto-medida-carousel-contador');
+    if (info) info.innerHTML = '<div class="label">' + formatDateBR(item.data) + '</div><div class="value" style="font-size:18px;margin-top:3px">' + formatBR(item.peso) + ' kg</div><div class="small" style="margin-top:4px;color:var(--text-secondary)">Barriga: ' + formatBR(item.cintura) + ' cm • ' + escapeHtml(foto.fotoNome || 'foto original') + '</div><div class="small" style="margin-top:6px">Categoria: <select id="categoria-foto-atual-medida" onchange="atualizarCategoriaFotoAtual(\'medida\',this.value)" style="width:auto;padding:5px">' + opcoesCategorias(PL_CATEGORIAS_MEDIDAS, foto.fotoCategoria || 'outros') + '</select></div>';
+    if (contador) contador.innerText = (indiceFotoMedida + 1) + ' de ' + fotosMedidasCarrossel.length;
+    await mostrarImagemResilienteV21(stage, foto, 'Foto de medidas em ' + formatDateBR(item.data), { ativa: () => token === renderFotoMedidaCarrosselToken });
+};
+renderModalFotoInicial = async function() {
+    const fotos = obterFotosIniciaisConfiguradas(), stage = document.getElementById('foto-inicial-modal-stage'), info = document.getElementById('foto-inicial-modal-info'), contador = document.getElementById('foto-inicial-modal-contador');
+    if (!stage || !info || !fotos.length) return;
+    if (indiceFotoInicial < 0 || indiceFotoInicial >= fotos.length) indiceFotoInicial = 0;
+    const foto = fotos[indiceFotoInicial], token = ++renderFotoInicialModalToken;
+    if (contador) contador.innerText = (indiceFotoInicial + 1) + ' de ' + fotos.length;
+    info.innerHTML = '<div class="label">' + formatDateBR(appData.config?.dataInicial) + '</div><div class="value" style="font-size:18px;margin-top:3px">' + (numeroInformado(appData.config?.pesoInicial) === null ? '--' : formatBR(appData.config.pesoInicial) + ' kg') + '</div><div class="small" style="margin-top:4px;color:var(--text-secondary)">' + escapeHtml(foto.fotoNome || 'Foto inicial') + '</div>';
+    await mostrarImagemResilienteV21(stage, foto, 'Foto inicial', { ativa: () => token === renderFotoInicialModalToken });
+};
+renderFotoInicialConfiguracoes = async function() {
+    const preview = document.getElementById('foto-inicial-config-preview'), visualizar = document.getElementById('btn-visualizar-foto-inicial'), remover = document.getElementById('btn-remover-foto-inicial'), status = document.getElementById('foto-inicial-status');
+    if (!preview || !visualizar || !remover || !status) return;
+    const foto = obterFotoInicialConfigurada(), token = ++renderFotoInicialConfigToken;
+    visualizar.disabled = !foto; remover.disabled = !foto;
+    if (!foto) { preview.innerHTML = '<div class="small">Nenhuma foto inicial anexada.</div>'; status.innerText = 'A imagem original ficará salva somente neste aparelho.'; return; }
+    status.innerText = obterFotosIniciaisConfiguradas().length > 1 ? obterFotosIniciaisConfiguradas().length + ' fotos iniciais salvas.' : (foto.fotoNome || 'Foto inicial salva neste aparelho.');
+    await mostrarImagemResilienteV21(preview, foto, 'Foto inicial configurada', { ativa: () => token === renderFotoInicialConfigToken, aoClicar: abrirVisualizacaoFotoInicial });
+};
+renderAntesDepoisDashboard = async function() {
+    const antes = document.getElementById('foto-antes-dashboard'), depois = document.getElementById('foto-depois-dashboard'), infoAntes = document.getElementById('info-antes-dashboard'), infoDepois = document.getElementById('info-depois-dashboard');
+    if (!antes || !depois || !infoAntes || !infoDepois) return;
+    const token = ++renderAntesDepoisToken;
+    const inicialConfigurada = obterFotoInicialConfigurada(), registroAntes = inicialConfigurada ? null : obterPrimeiroPesoComFotoDesdeDataInicial(), fotoAntes = inicialConfigurada || obterFotosRegistro(registroAntes || {})[0] || null;
+    const registroDepois = obterPesoMaisRecenteComFoto(), fotoDepois = obterFotosRegistro(registroDepois || {})[0] || null;
+    const pesoInicial = numeroInformado(appData.config?.pesoInicial), pesoDepois = numeroInformado(registroDepois?.peso), variacao = pesoInicial !== null && pesoDepois !== null ? pesoDepois - pesoInicial : null;
+    infoAntes.innerHTML = registroAntes ? '<div>' + formatDateBR(registroAntes.data) + '</div><strong>' + formatBR(registroAntes.peso) + ' kg</strong>' : '<div>' + formatDateBR(appData.config?.dataInicial) + '</div><strong>' + (pesoInicial === null ? '--' : formatBR(pesoInicial) + ' kg') + '</strong>';
+    infoDepois.innerHTML = registroDepois ? '<div>' + formatDateBR(registroDepois.data) + '</div><strong>' + formatBR(registroDepois.peso) + ' kg</strong>' + (variacao === null ? '' : '<div class="before-after-change ' + (variacao < 0 ? 'negative' : 'positive') + '">' + formatBR(Math.abs(variacao)) + ' kg ' + (variacao < 0 ? 'perdidos' : 'ganhos') + '</div>') : '<div>--</div><strong>--</strong>';
+    if (fotoAntes) await mostrarImagemResilienteV21(antes, fotoAntes, 'Foto inicial', { ativa: () => token === renderAntesDepoisToken, aoClicar: inicialConfigurada ? abrirVisualizacaoFotoInicial : () => abrirCarrosselFotosPesos(registroAntes.id, fotoAntes.fotoDocId) });
+    else antes.innerHTML = '<div class="before-after-placeholder">Nenhuma foto inicial.<button type="button" class="btn btn-outline" onclick="irParaFotoInicialConfiguracoes()">Anexar nas configurações</button></div>';
+    if (fotoDepois) await mostrarImagemResilienteV21(depois, fotoDepois, 'Foto mais recente do peso', { ativa: () => token === renderAntesDepoisToken, aoClicar: () => abrirCarrosselFotosPesos(registroDepois.id, fotoDepois.fotoDocId) });
+    else depois.innerHTML = '<div class="before-after-placeholder">Nenhuma foto de peso.<button type="button" class="btn btn-outline" onclick="abrirLancamentoPeso()">Anexar na aba Peso</button></div>';
+};
+
+/* V22 — exportação com metas históricas e liberação segura das imagens */
+gerarRelatorioCSV = function() {
+    const cabecalho = [
+        'Tipo', 'Data', 'Item', 'Calorias/Dose', 'Peso (kg)',
+        'Meta de peso usada (kg)', 'Meta de calorias usada (kcal)',
+        'Músculo esquelético (kg)', 'Massa gorda (kg)', 'Água corporal (%)',
+        'Gordura corporal (%)', 'IMC', 'TMB (kcal)', 'Pescoço (cm)',
+        'Peito (cm)', 'Barriga (cm)', 'Quadril (cm)', 'Coxa (cm)',
+        'Panturrilha (cm)', 'Braço (cm)', 'Fotos', 'Observações'
+    ];
+    const linhas = [cabecalho.map(campoCSV).join(';')];
+    for (const peso of appData.pesos || []) {
+        linhas.push([
+            'Peso', formatDateBR(peso.data), '', '', peso.peso,
+            metaPesoUsadaV21(peso) ?? '', '', peso.musculoEsqueletico,
+            peso.massaGorda, peso.aguaCorporal, peso.gorduraCorporalPercentual,
+            peso.imc, peso.tmb, '', '', '', '', '', '', '',
+            obterFotosRegistro(peso).length, peso.observacoes
+        ].map(campoCSV).join(';'));
+    }
+    for (const medida of appData.medidas || []) {
+        linhas.push([
+            'Medida', formatDateBR(medida.data), '', '', medida.peso, '', '',
+            '', '', '', '', '', '', medida.pescoco, medida.peito, medida.cintura,
+            medida.quadril, medida.coxa, medida.panturrilha, medida.braco,
+            obterFotosRegistro(medida).length, medida.observacoes
+        ].map(campoCSV).join(';'));
+    }
+    for (const remedio of appData.remedios || []) {
+        linhas.push([
+            'Remédio', formatDateBR(remedio.data), remedio.nome, remedio.mg,
+            remedio.peso, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+            obterFotosRegistro(remedio).length, remedio.observacoes
+        ].map(campoCSV).join(';'));
+    }
+    for (const dia of appData.calorias || []) {
+        for (const refeicao of dia.refeicoes || []) {
+            linhas.push([
+                'Caloria', formatDateBR(dia.data), refeicao.tipo, refeicao.calorias,
+                '', '', metaCaloriasUsadaV21(dia) ?? '', '', '', '', '', '', '',
+                '', '', '', '', '', '', '', 0, refeicao.observacoes
+            ].map(campoCSV).join(';'));
+        }
+    }
+    baixarArquivo('relatorio_projeto_leve_' + hojeISO() + '.csv', '\uFEFF' + linhas.join('\n'), 'text/csv;charset=utf-8');
+};
+
+const fecharVisualizadorFotoAnteriorV22 = fecharVisualizadorFoto;
+fecharVisualizadorFoto = function(id) {
+    const palcos = {
+        'modal-fotos-remedios': 'foto-carousel-stage',
+        'modal-fotos-pesos': 'foto-peso-carousel-stage',
+        'modal-fotos-medidas': 'foto-medida-carousel-stage',
+        'modal-foto-inicial': 'foto-inicial-modal-stage'
+    };
+    const palco = document.getElementById(palcos[id] || '');
+    if (palco) limparUrlVisualV21(palco);
+    return fecharVisualizadorFotoAnteriorV22(id);
+};
+
+function inicializarMelhoriasV21() {
+    reordenarConfiguracoesV21();
+}
+
 window.onload = function() {
     agendarOcultarSplashInicial();
     inicializarVisualizadoresFotos();
+    inicializarMelhoriasV20();
+    inicializarMelhoriasV21();
     carregarDados();
     preencherCamposConfig();
     document.getElementById('peso-data').value = hojeISO();
@@ -6271,6 +7418,18 @@ window.gerarRelatorioPDF = gerarRelatorioPDF;
 window.gerarRelatorioCSV = gerarRelatorioCSV;
 window.limparRegistrosAteData = limparRegistrosAteData;
 window.limparTudo = limparTudo;
+window.visualizarRegistro = visualizarRegistro;
+window.fecharDetalhesRegistro = fecharDetalhesRegistro;
+window.editarRegistroVisualizado = editarRegistroVisualizado;
+window.editarRefeicao = editarRefeicao;
+window.abrirLancamentoCaloria = abrirLancamentoCaloria;
+window.fecharLancamentoCaloria = fecharLancamentoCaloria;
+window.limparFormularioCaloria = limparFormularioCaloria;
+window.excluirCaloria = excluirCaloria;
+window.filtrarFotosPeso = filtrarFotosPeso;
+window.filtrarFotosMedidas = filtrarFotosMedidas;
+window.atualizarCategoriaFotoAtual = atualizarCategoriaFotoAtual;
+window.alterarIndicadorGrafico = alterarIndicadorGrafico;
 
 /**
  * PWA SETUP
