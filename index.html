@@ -19,6 +19,15 @@
             event.preventDefault();
             window.__projetoLeveInstallPrompt = event;
         });
+
+        // Se uma falha inesperada impedir o módulo principal de iniciar, não deixa
+        // o usuário preso na tela de abertura sem nenhuma alternativa.
+        window.__projetoLeveSplashTimer = window.setTimeout(function() {
+            const splash = document.getElementById('startup-splash');
+            const recovery = document.getElementById('startup-splash-recovery');
+            if (!splash || splash.classList.contains('hidden') || !recovery) return;
+            recovery.hidden = false;
+        }, 9000);
     </script>
     <!-- Chart.js será carregado sob demanda na aba Gráficos para acelerar a abertura do app -->
     <style>
@@ -482,6 +491,26 @@
             font-weight: 950;
             letter-spacing: -.05em;
             font-family: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+        }
+        .startup-splash-recovery {
+            display: none;
+            max-width: 280px;
+            gap: 10px;
+            margin-top: 12px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .startup-splash-recovery:not([hidden]) { display: grid; }
+        .startup-splash-recovery button {
+            justify-self: center;
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 8px 12px;
+            color: var(--accent);
+            background: #fff;
+            font: inherit;
+            font-weight: 700;
         }
         .startup-splash-footer {
             color: var(--text-secondary);
@@ -1171,6 +1200,10 @@
         <div class="startup-splash-main">
             <div class="startup-splash-icon"><img class="pl-icon-svg" src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Projeto Leve"></div>
             <div class="startup-splash-title">Projeto Leve</div>
+            <div id="startup-splash-recovery" class="startup-splash-recovery" hidden aria-live="polite">
+                <span>A abertura está demorando mais do que o esperado.</span>
+                <button type="button" onclick="window.location.reload()">Tentar novamente</button>
+            </div>
         </div>
         <div class="startup-splash-footer">
             © 2026 Kaio Adriel<br>
@@ -6358,6 +6391,10 @@ async function limparTudo() {
  * INITIALIZATION
  */
 function ocultarSplashInicial() {
+    if (window.__projetoLeveSplashTimer) {
+        window.clearTimeout(window.__projetoLeveSplashTimer);
+        window.__projetoLeveSplashTimer = null;
+    }
     const splash = document.getElementById('startup-splash');
     if (!splash) return;
     splash.classList.add('hidden');
@@ -6777,7 +6814,7 @@ function alvoImcV21() {
     return peso / Math.pow(altura / 100, 2);
 }
 
-function renderResumoPesoAtual() {
+renderResumoPesoAtual = function() {
     const container = document.getElementById('resumo-peso-atual');
     if (!container) return;
     const leitura = atualEAnteriorV21(appData.pesos, 'peso');
@@ -6793,9 +6830,9 @@ function renderResumoPesoAtual() {
         '<div class="metric-delta ' + comparacao.classe + '">' + comparacao.texto + '</div>' +
         '<div class="small metric-target">' + textoMetaExataV21(leitura.valor, meta, ' kg', 'Meta usada', false) + '</div>' +
         '</div>';
-}
+};
 
-function renderResumoComposicao() {
+renderResumoComposicao = function() {
     const container = document.getElementById('resumo-composicao-corporal');
     if (!container) return;
     const referencia = referenciasBioimpedanciaV21();
@@ -6830,7 +6867,7 @@ function renderResumoComposicao() {
             '<div class="small metric-target">' + item.texto(leitura.valor) + '</div>' +
             '</div>';
     }).join('');
-}
+};
 
 function saldoCaloriasV21(dia) {
     const meta = metaCaloriasUsadaV21(dia);
@@ -6841,7 +6878,7 @@ function textoMetaCaloriasV21(dia) {
     const meta = metaCaloriasUsadaV21(dia);
     return meta === null ? 'Meta usada: não informada' : 'Meta usada: ' + Math.round(meta) + ' kcal';
 }
-function renderCalorias() {
+renderCalorias = function() {
     const lista = document.getElementById('lista-calorias');
     const resumo = document.getElementById('resumo-calorias');
     if (!lista || !resumo) return;
@@ -6874,7 +6911,7 @@ function renderCalorias() {
             '<td class="' + classe + '" title="' + textoMetaCaloriasV21(dia) + '">' + (saldo === null ? '--' : (saldo >= 0 ? '+' : '') + Math.round(saldo)) + '</td>' +
             '<td><div class="calorie-action-buttons"><button class="btn btn-outline compact-action" title="Visualizar" onclick="visualizarRegistro(\'caloria\',\'' + dia.id + '\')">' + PL_ICONE_VISUALIZAR + '</button><button class="btn btn-outline compact-action" title="Excluir" style="border-color:var(--danger);color:var(--danger)" onclick="excluirCaloria(\'' + dia.id + '\')">−</button></div></td></tr>';
     }).join('');
-}
+};
 
 function renderCardsMedidasV21() {
     const container = document.getElementById('comparativo-medidas');
