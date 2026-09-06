@@ -1135,6 +1135,22 @@
             .photo-category-row { grid-template-columns:minmax(0,1fr) 116px; }
         }
     </style>
+
+<style id="projeto-leve-v23-style">
+/* V23: cartões uniformes, discretos e sem faixa azul em Calorias. */
+#resumo-peso-atual, #resumo-composicao-corporal, #comparativo-medidas, #resumo-calorias, #resumo-remedio-atual { grid-template-columns: repeat(2,minmax(0,1fr)); gap:10px; }
+.pl-v23-summary-card, #resumo-calorias .metric-summary-card { min-height:132px; padding:14px 13px 12px; border:1px solid var(--border) !important; border-top:1px solid var(--border) !important; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 5px 16px rgba(15,23,42,.045); }
+.pl-v23-summary-card .label { min-height:30px; line-height:1.18; }
+.pl-v23-summary-card .value { font-size:18px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.metric-delta { margin-top:6px; font-size:11px; font-weight:800; line-height:1.25; }
+.metric-goal { margin-top:5px; font-size:10.5px; line-height:1.28; font-weight:700; color:var(--text-secondary); }
+.metric-delta.positive,.metric-goal.positive{color:var(--success)}
+.metric-delta.negative,.metric-goal.negative{color:var(--danger)}
+.metric-delta.neutral,.metric-goal.neutral{color:var(--text-secondary)}
+.existing-photo-category-box { margin:10px 0 2px; padding:10px; border:1px dashed var(--border); border-radius:14px; background:var(--soft-bg); }
+.existing-photo-category-title { margin-bottom:8px; font-size:11px; font-weight:900; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.04em; }
+@media(max-width:390px){.pl-v23-summary-card{padding:12px 10px;min-height:126px}.pl-v23-summary-card .value{font-size:16px}.metric-delta{font-size:10px}.metric-goal{font-size:9.7px}}
+</style>
 </head>
 <body>
 
@@ -1895,7 +1911,7 @@
                 <button type="button" class="photo-icon-button photo-carousel-close" onclick="fecharCarrosselFotosMedidas()" title="Fechar" aria-label="Fechar comparação"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
             </div>
         </div>
-        <div class="photo-filter"><select id="filtro-fotos-medidas" onchange="filtrarFotosMedidas(this.value)" aria-label="Filtrar fotos de medidas por categoria"><option value="pescoco">Pescoço</option><option value="peito">Peito</option><option value="barriga" selected>Barriga</option><option value="quadril">Quadril</option><option value="coxa">Coxa</option><option value="panturrilha">Panturrilha</option><option value="braco">Braço</option><option value="outros">Outros</option><option value="todas">Todas as categorias</option></select></div>
+        <div class="photo-filter"><select id="filtro-fotos-medidas" onchange="filtrarFotosMedidas(this.value)" aria-label="Filtrar fotos de medidas por categoria"><option value="todas" selected>Todas as categorias</option><option value="pescoco">Pescoço</option><option value="peito">Peito</option><option value="barriga">Barriga</option><option value="quadril">Quadril</option><option value="coxa">Coxa</option><option value="panturrilha">Panturrilha</option><option value="braco">Braço</option><option value="outros">Outros</option></select></div>
         <div id="foto-medida-carousel-stage" class="photo-carousel-stage" tabindex="0" role="group" aria-label="Foto: arraste para os lados ou use as setas do teclado"></div>
         <div id="foto-medida-carousel-info" class="photo-carousel-info"></div>
         <div class="photo-carousel-toolbar">
@@ -7136,6 +7152,473 @@ atualizarEstadoInstalacao();
 if (lerSessaoPWA(PWA_CHAVE_PREPARACAO) && lerSessaoPWA(PWA_CHAVE_RECARREGOU) === '1' && !appEstaInstalado() && !deferredInstallPrompt) {
     setTimeout(() => iniciarPreparoInstalacaoPWA({ retomar: true }), 600);
 }
+
+
+/* ============================================================
+   PROJETO LEVE V23 — auditoria de cards, referências e fotos
+   ============================================================ */
+
+function configurarEstruturaV23() {
+    // Ordem solicitada: Início, Peso, Medidas, Calorias, Remédio, Gráficos, Simular.
+    const nav = document.getElementById('bottom-nav');
+    if (nav) {
+        ['dashboard','historico','medidas','calorias','remedio','graficos','metas'].forEach(view => {
+            const item = nav.querySelector(`[data-view="${view}"]`);
+            if (item) nav.appendChild(item);
+        });
+    }
+
+    // Medidas Ideais antes da Foto Inicial.
+    const fotoInicial = document.getElementById('foto-inicial-section');
+    const statusMedidas = document.getElementById('salvar-medidas-status');
+    if (fotoInicial && statusMedidas && !fotoInicial.dataset.v23Reordenada) {
+        const hrDepoisFoto = fotoInicial.nextElementSibling;
+        if (hrDepoisFoto?.tagName === 'HR') hrDepoisFoto.remove();
+        const separador = document.createElement('hr');
+        separador.style.cssText = 'margin:15px 0;border:0;border-top:1px solid var(--border)';
+        statusMedidas.insertAdjacentElement('afterend', separador);
+        separador.insertAdjacentElement('afterend', fotoInicial);
+        fotoInicial.dataset.v23Reordenada = '1';
+    }
+
+    // Categorias das fotos já existentes também ficam editáveis no formulário.
+    const criarBox = (ancoraId, boxId) => {
+        if (document.getElementById(boxId)) return;
+        const ancora = document.getElementById(ancoraId);
+        if (!ancora) return;
+        const box = document.createElement('div');
+        box.id = boxId;
+        box.className = 'existing-photo-category-box hidden';
+        ancora.insertAdjacentElement('afterend', box);
+    };
+    criarBox('peso-foto-categorias', 'peso-fotos-existentes-categorias');
+    criarBox('med-foto-categorias', 'med-fotos-existentes-categorias');
+
+    // Fotos de medidas: mostrar tudo por padrão, inclusive registros antigos sem categoria.
+    const filtroMedidas = document.getElementById('filtro-fotos-medidas');
+    if (filtroMedidas) {
+        const opcaoTodas = Array.from(filtroMedidas.options).find(o => o.value === 'todas');
+        if (opcaoTodas) {
+            filtroMedidas.prepend(opcaoTodas);
+            filtroMedidas.value = 'todas';
+        }
+    }
+}
+
+configurarEstruturaV23();
+
+function generoMasculinoV23() {
+    const genero = String(appData.config?.genero || '').toLocaleLowerCase('pt-BR');
+    return genero.includes('homem') || genero.includes('mascul');
+}
+
+function perfilReferenciaV23() {
+    const idade = Number(calcularIdade(appData.config?.nascimento));
+    const alturaCm = numeroValido(appData.config?.altura);
+    return {
+        idade: Number.isFinite(idade) && idade > 0 ? idade : null,
+        alturaCm: alturaCm !== null && alturaCm > 0 ? alturaCm : null,
+        homem: generoMasculinoV23()
+    };
+}
+
+function faixaGorduraPercentualV23() {
+    const { idade, homem } = perfilReferenciaV23();
+    if (!idade) return null;
+    if (homem) {
+        if (idade < 40) return [8, 19];
+        if (idade < 60) return [11, 21];
+        return [13, 24];
+    }
+    if (idade < 40) return [21, 32];
+    if (idade < 60) return [23, 33];
+    return [24, 35];
+}
+
+function faixaAguaCorporalV23() {
+    const { homem } = perfilReferenciaV23();
+    return homem ? [50, 65] : [45, 60];
+}
+
+function referenciaMusculoKgV23() {
+    const { idade, alturaCm, homem } = perfilReferenciaV23();
+    if (!alturaCm) return null;
+    const alturaM = alturaCm / 100;
+    // Referência central aproximada de SMMI por BIA. Em homens cai gradualmente com a idade;
+    // em mulheres a mediana muda pouco na faixa adulta. É referência populacional, não prescrição.
+    let smmi;
+    if (homem) {
+        const idadeAjustada = Math.max(40, Math.min(69, idade || 40));
+        smmi = 8.98 - ((idadeAjustada - 40) / 29) * (8.98 - 8.31);
+    } else {
+        smmi = 6.80;
+    }
+    return smmi * alturaM * alturaM;
+}
+
+function referenciaTmbV23(peso) {
+    const { idade, alturaCm, homem } = perfilReferenciaV23();
+    const p = numeroValido(peso);
+    if (!idade || !alturaCm || p === null || p <= 0) return null;
+    return 10 * p + 6.25 * alturaCm - 5 * idade + (homem ? 5 : -161);
+}
+
+function distanciaFaixaV23(valor, faixa) {
+    const v = numeroValido(valor);
+    if (v === null || !faixa) return null;
+    if (v < faixa[0]) return faixa[0] - v;
+    if (v > faixa[1]) return v - faixa[1];
+    return 0;
+}
+
+function referenciaIndicadorV23(chave, valor, registroAtual) {
+    const pesoMeta = numeroValido(appData.config?.pesoMeta);
+    const gordura = faixaGorduraPercentualV23();
+    if (chave === 'musculoEsqueletico') {
+        const alvo = referenciaMusculoKgV23();
+        if (alvo === null) return null;
+        return { tipo:'minimo', alvo, rotulo:`Ref. estimada: ≥ ${formatBR(alvo)} kg` };
+    }
+    if (chave === 'massaGorda') {
+        if (!gordura) return null;
+        const base = pesoMeta !== null && pesoMeta > 0 ? pesoMeta : numeroValido(registroAtual?.peso);
+        if (base === null || base <= 0) return null;
+        const faixa = [base * gordura[0] / 100, base * gordura[1] / 100];
+        return { tipo:'faixa', faixa, rotulo:`Faixa ref.: ${formatBR(faixa[0])}–${formatBR(faixa[1])} kg` };
+    }
+    if (chave === 'aguaCorporal') {
+        const faixa = faixaAguaCorporalV23();
+        return { tipo:'faixa', faixa, rotulo:`Faixa ref.: ${formatBR(faixa[0])}–${formatBR(faixa[1])}%` };
+    }
+    if (chave === 'gorduraCorporalPercentual') {
+        if (!gordura) return null;
+        return { tipo:'faixa', faixa:gordura, rotulo:`Faixa ref.: ${formatBR(gordura[0])}–${formatBR(gordura[1])}%` };
+    }
+    if (chave === 'imc') {
+        return { tipo:'faixa', faixa:[18.5,24.9], rotulo:'Faixa ref.: 18,5–24,9' };
+    }
+    if (chave === 'tmb') {
+        const alvo = referenciaTmbV23(registroAtual?.peso);
+        return alvo === null ? null : { tipo:'referencia', alvo, rotulo:`Ref. estimada: ${Math.round(alvo)} kcal` };
+    }
+    return null;
+}
+
+function distanciaReferenciaV23(chave, valor, registroAtual) {
+    const ref = referenciaIndicadorV23(chave, valor, registroAtual);
+    const v = numeroValido(valor);
+    if (!ref || v === null || ref.tipo === 'referencia') return null;
+    if (ref.tipo === 'minimo') return Math.max(0, ref.alvo - v);
+    return distanciaFaixaV23(v, ref.faixa);
+}
+
+function linhaReferenciaV23(chave, valor, registroAtual) {
+    const ref = referenciaIndicadorV23(chave, valor, registroAtual);
+    const v = numeroValido(valor);
+    if (!ref || v === null) return '<div class="metric-goal neutral">Referência indisponível: complete Perfil/Meta.</div>';
+    if (ref.tipo === 'referencia') {
+        const diff = v - ref.alvo;
+        return `<div class="metric-goal neutral">${ref.rotulo} • Δ ${formatComSinal(diff)} kcal</div>`;
+    }
+    if (ref.tipo === 'minimo') {
+        const falta = Math.max(0, ref.alvo - v);
+        return `<div class="metric-goal ${falta > 0 ? 'negative' : 'positive'}">${ref.rotulo} • ${falta > 0 ? `falta ${formatBR(falta)} kg` : 'atingida'}</div>`;
+    }
+    const distancia = distanciaFaixaV23(v, ref.faixa);
+    let detalhe = 'na faixa';
+    if (v < ref.faixa[0]) detalhe = `falta ${formatBR(ref.faixa[0] - v)}`;
+    if (v > ref.faixa[1]) detalhe = `acima ${formatBR(v - ref.faixa[1])}`;
+    const unidade = chave === 'massaGorda' ? ' kg' : (chave === 'imc' ? '' : '%');
+    if (detalhe !== 'na faixa') detalhe += unidade;
+    return `<div class="metric-goal ${distancia === 0 ? 'positive' : 'negative'}">${ref.rotulo} • ${detalhe}</div>`;
+}
+
+function comparacaoIndicadorV23(chave, atual, anterior, registroAtual, registroAnterior) {
+    const a = numeroValido(atual), b = numeroValido(anterior);
+    if (a === null || b === null) return { texto:'Sem comparação anterior', classe:'neutral' };
+    const diff = a - b;
+    if (Math.abs(diff) < 0.005) return { texto:'Sem alteração vs anterior', classe:'neutral' };
+    const unidade = chave === 'tmb' ? ' kcal' : (['aguaCorporal','gorduraCorporalPercentual'].includes(chave) ? ' p.p.' : (chave === 'imc' ? '' : ' kg'));
+    const valorTexto = chave === 'tmb' ? Math.round(Math.abs(diff)) : formatBR(Math.abs(diff));
+    if (chave === 'tmb') return { texto:`${diff > 0 ? '↑ +' : '↓ −'}${valorTexto}${unidade} vs anterior`, classe:'neutral' };
+    const da = distanciaReferenciaV23(chave, a, registroAtual);
+    const db = distanciaReferenciaV23(chave, b, registroAnterior);
+    let classe = 'neutral';
+    if (da !== null && db !== null) {
+        if (da < db - 0.005) classe = 'positive';
+        else if (da > db + 0.005) classe = 'negative';
+    } else if (chave === 'massaGorda' || chave === 'gorduraCorporalPercentual') {
+        classe = diff < 0 ? 'positive' : 'negative';
+    } else if (chave === 'musculoEsqueletico') {
+        classe = diff > 0 ? 'positive' : 'negative';
+    }
+    return { texto:`${diff > 0 ? '↑ +' : '↓ −'}${valorTexto}${unidade} vs anterior`, classe };
+}
+
+renderResumoPesoAtual = function() {
+    const container = document.getElementById('resumo-peso-atual');
+    if (!container) return;
+    const registros = [...(appData.pesos || [])]
+        .filter(p => p?.data && numeroValido(p.peso) !== null)
+        .sort((a,b) => String(b.data).localeCompare(String(a.data)));
+    const atual = registros[0];
+    if (!atual) { container.innerHTML=''; return; }
+    const anterior = registros[1] || null;
+    const peso = numeroValido(atual.peso);
+    const pesoAnt = numeroValido(anterior?.peso);
+    const diff = pesoAnt === null ? null : peso - pesoAnt;
+    const meta = numeroValido(atual.meta);
+    const falta = meta === null ? null : meta - peso;
+    const metaAnterior = numeroValido(anterior?.meta);
+    let classeDelta = 'neutral';
+    if (diff !== null && Math.abs(diff) >= 0.005) {
+        if (meta !== null && metaAnterior !== null) {
+            const distanciaAtual = Math.abs(peso - meta);
+            const distanciaAnterior = Math.abs(pesoAnt - metaAnterior);
+            classeDelta = distanciaAtual < distanciaAnterior - 0.005 ? 'positive' : distanciaAtual > distanciaAnterior + 0.005 ? 'negative' : 'neutral';
+        } else classeDelta = diff < 0 ? 'positive' : 'negative';
+    }
+    const delta = diff === null ? {texto:'Sem comparação anterior',classe:'neutral'} : {
+        texto:`${diff > 0 ? '↑ +' : diff < 0 ? '↓ −' : ''}${formatBR(Math.abs(diff))} kg vs anterior`,
+        classe: classeDelta
+    };
+    container.className = 'metric-summary-grid';
+    container.innerHTML = `<div class="card metric-summary-card pl-v23-summary-card">
+        <div class="label">Peso Atual</div>
+        <div class="value">${formatBR(peso)} kg</div>
+        <div class="metric-delta ${delta.classe}">${delta.texto}</div>
+        <div class="metric-goal ${falta === null ? 'neutral' : falta < 0 ? 'negative' : 'positive'}">${meta === null ? 'Meta usada: --' : `Meta usada: ${formatBR(meta)} kg • ${Math.abs(falta) < 0.005 ? 'atingida' : falta < 0 ? `faltam ${formatBR(Math.abs(falta))} kg` : `abaixo da meta em ${formatBR(falta)} kg`}`}</div>
+    </div>`;
+};
+
+renderResumoComposicao = function() {
+    const container = document.getElementById('resumo-composicao-corporal');
+    if (!container) return;
+    const registros = [...(appData.pesos || [])].sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')));
+    const itens = [
+        ['Músculo esquelético','musculoEsqueletico','kg'],
+        ['Massa gorda','massaGorda','kg'],
+        ['Água corporal','aguaCorporal','%'],
+        ['Gordura corporal','gorduraCorporalPercentual','%'],
+        ['IMC','imc',''],
+        ['TMB','tmb','kcal']
+    ];
+    container.innerHTML = itens.map(([nome,chave,unidade]) => {
+        const indice = registros.findIndex(r => numeroValido(r[chave]) !== null);
+        const atual = indice >= 0 ? registros[indice] : null;
+        const valor = atual ? numeroValido(atual[chave]) : null;
+        const anterior = indice >= 0 ? registros.slice(indice + 1).find(r => numeroValido(r[chave]) !== null) : null;
+        const comparacao = valor === null ? {texto:'Sem registro',classe:'neutral'} : comparacaoIndicadorV23(chave, valor, anterior?.[chave], atual, anterior);
+        const exibicao = valor === null ? '--' : `${chave === 'tmb' ? Math.round(valor) : formatBR(valor)}${unidade ? ' ' + unidade : ''}`;
+        return `<div class="card metric-summary-card pl-v23-summary-card">
+            <div class="label">${nome}</div>
+            <div class="value">${exibicao}</div>
+            <div class="metric-delta ${comparacao.classe}">${comparacao.texto}</div>
+            ${valor === null ? '<div class="metric-goal neutral">Sem referência até existir um registro.</div>' : linhaReferenciaV23(chave, valor, atual)}
+        </div>`;
+    }).join('');
+};
+
+function qualidadeSaldoCaloriasV23(saldo) {
+    const s = numeroValido(saldo);
+    if (s === null) return null;
+    return s >= 0 ? Math.abs(s) : 100000 + Math.abs(s);
+}
+
+function deltaCaloriaV23(valorAtual, valorAnterior, saldoAtual, saldoAnterior, unidade='kcal') {
+    if (valorAtual === null || valorAnterior === null) return {texto:'Sem comparação anterior',classe:'neutral'};
+    const diff = valorAtual - valorAnterior;
+    if (Math.abs(diff) < 0.5) return {texto:'Sem alteração vs anterior',classe:'neutral'};
+    const qa = qualidadeSaldoCaloriasV23(saldoAtual), qb = qualidadeSaldoCaloriasV23(saldoAnterior);
+    let classe='neutral';
+    if (qa !== null && qb !== null) classe = qa < qb ? 'positive' : qa > qb ? 'negative' : 'neutral';
+    return {texto:`${diff > 0 ? '↑ +' : '↓ −'}${Math.round(Math.abs(diff))} ${unidade} vs anterior`,classe};
+}
+
+renderCalorias = function() {
+    const lista=document.getElementById('lista-calorias'), resumo=document.getElementById('resumo-calorias');
+    if(!lista||!resumo)return;
+    const dias=[...(appData.calorias||[])].sort((a,b)=>String(b.data).localeCompare(String(a.data)));
+    const atual=dias[0]||null, anterior=dias[1]||null;
+    const total=atual?totalCaloriasDia(atual):null, totalAnterior=anterior?totalCaloriasDia(anterior):null;
+    const meta=atual?obterMetaCaloriasDia(atual):numeroValido(appData.config?.metaCalorias);
+    const metaAnterior=anterior?obterMetaCaloriasDia(anterior):null;
+    const saldo=total===null||meta===null?null:meta-total;
+    const saldoAnterior=totalAnterior===null||metaAnterior===null?null:metaAnterior-totalAnterior;
+    const deltaTotal=deltaCaloriaV23(total,totalAnterior,saldo,saldoAnterior);
+    const deltaSaldo=deltaCaloriaV23(saldo,saldoAnterior,saldo,saldoAnterior);
+    resumo.innerHTML = `
+      <div class="card metric-summary-card pl-v23-summary-card">
+        <div class="label">Total do Dia</div>
+        <div class="value">${total===null?'--':Math.round(total)+' kcal'}</div>
+        <div class="metric-delta ${deltaTotal.classe}">${deltaTotal.texto}</div>
+        <div class="metric-goal neutral">${atual?formatDateBR(atual.data):'Sem registro'}</div>
+      </div>
+      <div class="card metric-summary-card pl-v23-summary-card">
+        <div class="label">Saldo</div>
+        <div class="value ${saldo===null?'neutral':saldo>=0?'positive':'negative'}">${saldo===null?'--':(saldo>=0?'+':'')+Math.round(saldo)+' kcal'}</div>
+        <div class="metric-delta ${deltaSaldo.classe}">${deltaSaldo.texto}</div>
+        <div class="metric-goal ${saldo===null?'neutral':saldo>=0?'positive':'negative'}">${meta===null?'Meta usada: --':`Meta usada: ${Math.round(meta)} kcal`}</div>
+      </div>`;
+    if(!dias.length){lista.innerHTML='<tr><td colspan="4" style="text-align:center">Nenhuma refeição lançada.</td></tr>';return;}
+    lista.innerHTML=dias.map(d=>{const t=totalCaloriasDia(d),m=obterMetaCaloriasDia(d),s=m===null?null:m-t;return `<tr><td>${formatDateCurtaBR(d.data)}</td><td>${Math.round(t)} kcal</td><td class="${s===null?'neutral':s>=0?'positive':'negative'}"><div>${s===null?'--':(s>=0?'+':'')+Math.round(s)}</div><div class="small" style="font-size:9px;color:var(--text-secondary)">${m===null?'Meta --':'Meta '+Math.round(m)+' kcal'}</div></td><td><div class="calorie-action-buttons"><button class="btn btn-outline compact-action" title="Visualizar" onclick="visualizarRegistro('caloria','${d.id}')">${PL_ICONE_VISUALIZAR}</button><button class="btn btn-outline compact-action" title="Excluir" style="border-color:var(--danger);color:var(--danger)" onclick="excluirCaloria('${d.id}')">−</button></div></td></tr>`;}).join('');
+};
+
+renderResumoRemedioAtual = function() {
+    const container=document.getElementById('resumo-remedio-atual'); if(!container)return;
+    const registros=[...(appData.remedios||[])].filter(r=>r?.data).sort((a,b)=>String(b.data).localeCompare(String(a.data)) || (Number(b.ordemCadastro)||0)-(Number(a.ordemCadastro)||0));
+    const atual=registros[0]; if(!atual){container.innerHTML='';return;}
+    const anteriorMesmo=registros.slice(1).find(r=>String(r.nome||'').toLocaleLowerCase('pt-BR')===String(atual.nome||'').toLocaleLowerCase('pt-BR'))||null;
+    const anteriorPeso=registros[1]||null;
+    const dose=numeroValido(atual.mg), doseAnt=numeroValido(anteriorMesmo?.mg), peso=numeroValido(atual.peso), pesoAnt=numeroValido(anteriorPeso?.peso);
+    const diffDose=dose!==null&&doseAnt!==null?dose-doseAnt:null, diffPeso=peso!==null&&pesoAnt!==null?peso-pesoAnt:null;
+    const textoDose=diffDose===null?'Sem comparação anterior':Math.abs(diffDose)<0.005?'Sem alteração vs anterior':`${diffDose>0?'↑ +':'↓ −'}${formatBR(Math.abs(diffDose))} mg vs mesma medicação`;
+    const textoPeso=diffPeso===null?'Sem comparação anterior':Math.abs(diffPeso)<0.005?'Sem alteração vs anterior':`${diffPeso>0?'↑ +':'↓ −'}${formatBR(Math.abs(diffPeso))} kg vs anterior`;
+    container.innerHTML=`<div class="card metric-summary-card pl-v23-summary-card"><div class="label">Dose Atual</div><div class="value">${dose===null?'--':formatBR(dose)+' mg'}</div><div class="metric-delta neutral">${textoDose}</div><div class="metric-goal neutral">${escapeHtml(atual.nome||'Remédio')} • ${formatDateBR(atual.data)}</div></div><div class="card metric-summary-card pl-v23-summary-card"><div class="label">Peso no Lançamento</div><div class="value">${peso===null?'--':formatBR(peso)+' kg'}</div><div class="metric-delta ${diffPeso===null||Math.abs(diffPeso)<0.005?'neutral':diffPeso<0?'positive':'negative'}">${textoPeso}</div><div class="metric-goal neutral">Comparação com o lançamento anterior</div></div>`;
+};
+
+function renderResumoMedidasV23() {
+    const container=document.getElementById('comparativo-medidas'); if(!container)return;
+    const registros=[...(appData.medidas||[])].sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')));
+    if(!registros.length){container.innerHTML='';return;}
+    const atual=registros[0], anterior=registros[1]||null, ideais=appData.config?.medidasIdeais||{};
+    const campos=[
+      ['Peso','peso',numeroValido(appData.config?.pesoMeta),'kg'],['Pescoço','pescoco',numeroValido(ideais.pescoco),'cm'],['Peito','peito',numeroValido(ideais.peito),'cm'],['Barriga','cintura',numeroValido(ideais.cintura),'cm'],['Quadril','quadril',numeroValido(ideais.quadril),'cm'],['Coxa','coxa',numeroValido(ideais.coxa),'cm'],['Panturrilha','panturrilha',numeroValido(ideais.panturrilha),'cm'],['Braço','braco',numeroValido(ideais.braco),'cm']
+    ];
+    container.className='metric-summary-grid';
+    container.innerHTML=campos.map(([label,key,ideal,unidade])=>{
+      const v=numeroValido(atual[key]), p=numeroValido(anterior?.[key]);
+      const diff=v!==null&&p!==null?v-p:null;
+      let classe='neutral';
+      if(diff!==null&&Math.abs(diff)>=0.005&&ideal!==null){const da=Math.abs(v-ideal),db=Math.abs(p-ideal);classe=da<db?'positive':da>db?'negative':'neutral';}
+      const delta=diff===null?'Sem comparação anterior':Math.abs(diff)<0.005?'Sem alteração vs anterior':`${diff>0?'↑ +':'↓ −'}${formatBR(Math.abs(diff))} ${unidade} vs anterior`;
+      const falta=v===null||ideal===null?null:ideal-v;
+      return `<div class="card metric-summary-card pl-v23-summary-card"><div class="label">${label}</div><div class="value">${v===null?'--':formatBR(v)+' '+unidade}</div><div class="metric-delta ${classe}">${delta}</div><div class="metric-goal ${falta===null?'neutral':Math.abs(falta)<0.05?'positive':'neutral'}">${ideal===null?'Ideal: --':`Ideal: ${formatBR(ideal)} ${unidade} • ${Math.abs(falta)<0.05?'atingido':`${falta>0?'falta':'diferença'} ${formatBR(Math.abs(falta))} ${unidade}`}`}</div></div>`;
+    }).join('');
+}
+
+const renderMedidasAnteriorV23 = renderMedidas;
+renderMedidas = function(){ renderMedidasAnteriorV23(); renderResumoMedidasV23(); };
+
+// ---------- Edição de categorias de fotos existentes ----------
+let categoriasExistentesPesoV23 = new Map();
+let categoriasExistentesMedidaV23 = new Map();
+
+function renderCategoriasExistentesV23(tipo, registro) {
+    const peso = tipo === 'peso';
+    const box=document.getElementById(peso?'peso-fotos-existentes-categorias':'med-fotos-existentes-categorias');
+    if(!box)return;
+    const fotos=obterFotosRegistro(registro||{}), lista=peso?PL_CATEGORIAS_PESO:PL_CATEGORIAS_MEDIDAS;
+    const estado=peso?categoriasExistentesPesoV23:categoriasExistentesMedidaV23;
+    estado.clear();
+    fotos.forEach(f=>estado.set(String(f.fotoDocId),f.fotoCategoria||'outros'));
+    if(!fotos.length){box.classList.add('hidden');box.innerHTML='';return;}
+    box.classList.remove('hidden');
+    box.innerHTML=`<div class="existing-photo-category-title">Fotos atuais — altere a categoria se desejar</div><div class="photo-category-list">${fotos.map((f,i)=>`<div class="photo-category-row"><div class="photo-category-name">${i+1}. ${escapeHtml(f.fotoNome||'foto')}</div><select data-v23-foto-id="${escapeHtml(f.fotoDocId)}">${opcoesCategorias(lista,f.fotoCategoria||'outros')}</select></div>`).join('')}</div>`;
+    box.querySelectorAll('select').forEach(sel=>sel.addEventListener('change',()=>estado.set(sel.dataset.v23FotoId,sel.value)));
+}
+
+function aplicarCategoriasExistentesV23(tipo) {
+    const peso=tipo==='peso', editId=document.getElementById(peso?'edit-peso-id':'edit-medida-id')?.value||'';
+    if(!editId)return;
+    const colecao=peso?appData.pesos:appData.medidas, registro=(colecao||[]).find(r=>String(r.id)===String(editId));
+    if(!registro)return;
+    const estado=peso?categoriasExistentesPesoV23:categoriasExistentesMedidaV23;
+    if(Array.isArray(registro.fotos)) registro.fotos.forEach(f=>{const c=estado.get(String(f.fotoDocId));if(c)f.fotoCategoria=c;});
+    if(registro.fotoDocId){const c=estado.get(String(registro.fotoDocId));if(c)registro.fotoCategoria=c;}
+}
+
+const editarPesoAnteriorV23 = editarPeso;
+editarPeso = function(id){ editarPesoAnteriorV23(id); const r=(appData.pesos||[]).find(x=>String(x.id)===String(id)); if(r)renderCategoriasExistentesV23('peso',r); };
+const editarMedidaAnteriorV23 = editarMedida;
+editarMedida = function(id){ editarMedidaAnteriorV23(id); const r=(appData.medidas||[]).find(x=>String(x.id)===String(id)); if(r)renderCategoriasExistentesV23('medida',r); };
+
+const formPesoV23=document.getElementById('form-peso');
+if(formPesoV23){const onsubmitAnterior=formPesoV23.onsubmit;formPesoV23.onsubmit=async function(e){aplicarCategoriasExistentesV23('peso');return onsubmitAnterior.call(this,e);};}
+const formMedidaV23=document.getElementById('form-medidas');
+if(formMedidaV23){const onsubmitAnterior=formMedidaV23.onsubmit;formMedidaV23.onsubmit=async function(e){aplicarCategoriasExistentesV23('medida');return onsubmitAnterior.call(this,e);};}
+
+// ---------- Recuperação compatível de fotos antigas ----------
+async function localizarFotoPorDocIdV23(fotoDocId) {
+    if(!fotoDocId)return null;
+    const banco=await abrirBancoFotos();
+    return await new Promise((resolve,reject)=>{
+        const tx=banco.transaction(FOTO_DB_STORE,'readonly');
+        const req=tx.objectStore(FOTO_DB_STORE).openCursor();
+        let concluido=false;
+        req.onsuccess=()=>{const cursor=req.result;if(!cursor){if(!concluido){concluido=true;resolve(null);}return;}if(String(cursor.value?.fotoDocId)===String(fotoDocId)){concluido=true;resolve(cursor.value);return;}cursor.continue();};
+        req.onerror=()=>{if(!concluido){concluido=true;reject(req.error||new Error('Falha ao procurar a foto antiga.'));}};
+    });
+}
+
+async function obterFotoLocalCompativelV23(item) {
+    const id=String(item?.fotoDocId||''); if(!id)return null;
+    const uids=[item?.fotoUid,currentUser?.uid,'guest'].filter(Boolean);
+    for(const uid of [...new Set(uids)]){const encontrada=await obterFotoDoCacheLocal(uid,id);if(encontrada?.blob)return encontrada;}
+    const encontrada=await localizarFotoPorDocIdV23(id).catch(()=>null);
+    if(encontrada?.blob && currentUser?.uid && encontrada.uid!==currentUser.uid){
+        try{await salvarFotoNoCacheLocal(currentUser.uid,id,encontrada.blob,{miniatura:encontrada.miniatura,contentType:encontrada.contentType,largura:encontrada.largura,altura:encontrada.altura,nomeOriginal:encontrada.nomeOriginal});return await obterFotoDoCacheLocal(currentUser.uid,id);}catch(error){console.warn('A foto antiga foi encontrada, mas não pôde ser reindexada:',error);}
+    }
+    return encontrada;
+}
+
+const obterCamposFotoRegistroAnteriorV23=obterCamposFotoRegistro;
+obterCamposFotoRegistro=function(item={}){return {...obterCamposFotoRegistroAnteriorV23(item),fotoUid:textoSeguro(item.fotoUid||item.uid||'',180)};};
+const prepararFotosRegistroAnteriorV23=prepararFotosRegistro;
+prepararFotosRegistro=async function(arquivos,prefixo){const preparada=await prepararFotosRegistroAnteriorV23(arquivos,prefixo);if(preparada?.fotos)preparada.fotos=preparada.fotos.map(f=>({...f,fotoUid:preparada.uid||currentUser?.uid||''}));return preparada;};
+
+obterUrlFotoRemedio = async function(item) {
+    if(!item)throw new Error('A referência desta foto não está disponível.');
+    const id=String(item.fotoDocId||'');
+    if(id){
+        const fotoLocal=await obterFotoLocalCompativelV23(item);
+        if(fotoLocal?.blob){
+            const cacheKey=`v23:${fotoLocal.uid||currentUser?.uid||'local'}:${id}`;
+            if(cacheUrlsFotos.has(cacheKey))return cacheUrlsFotos.get(cacheKey);
+            const fontes=[fotoLocal.blob,fotoLocal.miniatura].filter((f,i,a)=>f instanceof Blob&&f.size>0&&a.indexOf(f)===i);
+            let ultimoErro=null;
+            for(const fonte of fontes){const url=URL.createObjectURL(fonte);try{await new Promise((resolve,reject)=>{const img=new Image();img.onload=resolve;img.onerror=()=>reject(new Error('O arquivo de imagem não pôde ser decodificado.'));img.src=url;});cacheUrlsFotos.set(cacheKey,url);return url;}catch(error){ultimoErro=error;URL.revokeObjectURL(url);}}
+            if(ultimoErro)console.warn(ultimoErro);
+        }
+    }
+    const legado=String(item.fotoUrl||'').trim();
+    if(/^(https?:|data:image\/|blob:)/i.test(legado))return legado;
+    throw new Error('A referência da foto existe, mas o arquivo não foi localizado neste aparelho. Se houver backup com fotos, restaure-o uma vez.');
+};
+
+// Medidas devem abrir todas as categorias por padrão, incluindo fotos antigas classificadas como "Outros".
+abrirCarrosselFotosMedidas = function(idInicial='') {
+    filtroCategoriaMedidaAtual='todas';
+    const filtro=document.getElementById('filtro-fotos-medidas'); if(filtro)filtro.value='todas';
+    fotosMedidasCarrossel=montarFotosFiltradas(appData.medidas,'todas');
+    if(!fotosMedidasCarrossel.length)return alert('Nenhuma foto foi adicionada aos lançamentos de medidas.');
+    indiceFotoMedida=idInicial?Math.max(0,fotosMedidasCarrossel.findIndex(x=>String(x.registro.id)===String(idInicial))):0;
+    abrirVisualizadorFoto('modal-fotos-medidas');renderCarrosselFotosMedidas();
+};
+
+// Limpa a área de categorias antigas ao cancelar/começar um novo lançamento.
+function limparCategoriasExistentesUIV23(tipo) {
+    const peso=tipo==='peso';
+    (peso?categoriasExistentesPesoV23:categoriasExistentesMedidaV23).clear();
+    const box=document.getElementById(peso?'peso-fotos-existentes-categorias':'med-fotos-existentes-categorias');
+    if(box){box.innerHTML='';box.classList.add('hidden');}
+}
+const redefinirFormularioPesoAnteriorV23=redefinirFormularioPeso;
+redefinirFormularioPeso=function(opcoes={}){const r=redefinirFormularioPesoAnteriorV23(opcoes);limparCategoriasExistentesUIV23('peso');return r;};
+const abrirModalMedidaAnteriorV23=abrirModalMedida;
+abrirModalMedida=function(){limparCategoriasExistentesUIV23('medida');return abrirModalMedidaAnteriorV23();};
+const fecharModalMedidaAnteriorV23=fecharModalMedida;
+fecharModalMedida=function(){const r=fecharModalMedidaAnteriorV23();limparCategoriasExistentesUIV23('medida');return r;};
+const limparFormularioMedidasAnteriorV23=limparFormularioMedidas;
+limparFormularioMedidas=function(){const r=limparFormularioMedidasAnteriorV23();limparCategoriasExistentesUIV23('medida');return r;};
+
+// Expor as versões finais usadas pelos atributos onclick do HTML.
+window.editarPeso=editarPeso;
+window.editarMedida=editarMedida;
+window.abrirModalMedida=abrirModalMedida;
+window.fecharModalMedida=fecharModalMedida;
+window.limparFormularioMedidas=limparFormularioMedidas;
+window.abrirCarrosselFotosMedidas=abrirCarrosselFotosMedidas;
 
 </script>
 

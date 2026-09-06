@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v22-metas-congeladas';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v22-metas-congeladas';
+const CACHE_VERSION = 'projeto-leve-v23-cards-fotos-referencias';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v23-cards-fotos-referencias';
 const BASE = new URL('./', self.location.href);
 const localUrl = name => new URL(name, BASE).href;
 const APP_SHELL = ['./', 'index.html', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png'].map(localUrl);
