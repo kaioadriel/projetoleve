@@ -360,31 +360,6 @@
         .photo-swipe-hint { font-size: 10px; color: var(--text-secondary); text-align: center; line-height: 1.2; }
         .compare-photos-button { gap: 8px; white-space: nowrap; }
         .compare-photos-button svg { width: 20px; height: 20px; flex: 0 0 20px; }
-        .compact-action svg { width: 17px; height: 17px; }
-        .photo-category-list { display: grid; gap: 8px; margin-top: 10px; }
-        .photo-category-row { display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 8px; align-items: center; padding: 9px; border: 1px solid var(--border); border-radius: 13px; background: #f8fcff; }
-        .photo-category-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--text-secondary); }
-        .photo-category-row select { padding: 9px 8px; font-size: 12px; }
-        .photo-filter-box { margin-bottom: 8px; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; }
-        .photo-filter-box .label { white-space: nowrap; }
-        .photo-filter-box select { padding: 8px 10px; font-size: 12px; }
-        .record-detail-card { width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
-        .record-detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-        .record-detail-head h3 { margin: 2px 0 0; }
-        .record-detail-close { width: 42px !important; min-width: 42px; height: 42px; min-height: 42px !important; padding: 0 !important; font-size: 22px; }
-        .record-detail-hero { padding: 15px; margin-bottom: 12px; border-radius: 18px; background: linear-gradient(180deg, #f8fdff 0%, #eef8ff 100%); border: 1px solid var(--border); }
-        .record-detail-hero .value { margin-top: 3px; }
-        .record-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
-        .record-detail-item { min-width: 0; padding: 11px; border-radius: 15px; background: var(--soft-bg); border: 1px solid var(--border); }
-        .record-detail-item .value { margin-top: 3px; font-size: 15px; overflow-wrap: anywhere; }
-        .record-detail-wide { grid-column: 1 / -1; }
-        .record-detail-note { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; color: var(--text-primary); }
-        .record-detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
-        .record-detail-photo-btn { margin-top: 10px; }
-        @media (max-width:430px) {
-            .photo-category-row { grid-template-columns: minmax(0, 1fr) 116px; }
-            .record-detail-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-        }
         .settings-save-status { min-height: 18px; margin: -6px 0 12px; font-size: 12px; color: var(--success); }
         .settings-save-status.error { color: var(--danger); }
         @media (max-height: 460px) {
@@ -1334,11 +1309,11 @@
                     </div>
                     <div class="form-group">
                         <label>Peso (kg)</label>
-                        <input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="peso-valor" placeholder="50,00" required>
+                        <input type="number" step="0.1" id="peso-valor" placeholder="00.0" required>
                     </div>
                     <div class="form-group">
                         <label>Meta (kg)</label>
-                        <input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="peso-meta" placeholder="Meta atual" required>
+                        <input type="number" step="0.1" id="peso-meta" placeholder="Meta atual" required>
                     </div>
                     <div class="form-group">
                         <label>Observações</label>
@@ -1352,7 +1327,6 @@
                         </label>
                         <input type="file" id="peso-foto" class="hidden" accept="image/*" multiple>
                         <div id="peso-foto-nome" class="medicine-photo-name">Nenhuma foto selecionada. Você pode escolher várias.</div>
-                        <div id="peso-foto-categorias" class="photo-category-list hidden"></div>
                     </div>
                     <button type="button" class="btn btn-clear-outline" style="margin-bottom: 10px;" onclick="limparFormularioPeso()">Limpar</button>
                     <div class="grid-2">
@@ -1466,7 +1440,7 @@
                         </div>
                         <div class="form-group">
                             <label>Peso (kg)</label>
-                            <input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="remedio-peso" required>
+                            <input type="number" min="0" step="0.1" id="remedio-peso" required>
                         </div>
                     </div>
                     <div class="form-group">
@@ -1591,11 +1565,11 @@
                 <form id="form-config">
                     <div class="grid-2">
                         <div class="form-group"><label>Data Inicial</label><input type="date" id="cfg-data-init"></div>
-                        <div class="form-group"><label>Peso Inicial</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="cfg-peso-init"></div>
+                        <div class="form-group"><label>Peso Inicial</label><input type="number" step="0.1" id="cfg-peso-init"></div>
                     </div>
                     <div class="grid-2">
-                        <div class="form-group"><label>Peso Meta</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="cfg-peso-meta"></div>
-                        <div class="form-group"><label>Meta kg/dia</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="cfg-meta-dia"></div>
+                        <div class="form-group"><label>Peso Meta</label><input type="number" step="0.1" id="cfg-peso-meta"></div>
+                        <div class="form-group"><label>Meta kg/dia</label><input type="number" step="0.01" id="cfg-meta-dia"></div>
                     </div>
                     <div class="settings-action-row">
                         <button type="button" id="btn-desfazer-metas" class="btn btn-undo" onclick="desfazerMetasPeso()" aria-label="Desfazer Metas de Peso" title="Desfazer">↶</button>
@@ -1622,13 +1596,13 @@
                     <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border);">
                     <h3>Medidas Ideais</h3>
                     <div class="grid-2">
-                        <div class="form-group"><label>Pescoço (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="id-pescoco"></div>
-                        <div class="form-group"><label>Peito (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="id-peito"></div>
-                        <div class="form-group"><label>Barriga (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="id-cintura"></div>
-                        <div class="form-group"><label>Quadril (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="id-quadril"></div>
-                        <div class="form-group"><label>Coxa (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="id-coxa"></div>
-                        <div class="form-group"><label>Panturrilha (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="id-panturrilha"></div>
-                        <div class="form-group"><label>Braço (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="id-braco"></div>
+                        <div class="form-group"><label>Pescoço (cm)</label><input type="number" step="0.1" id="id-pescoco"></div>
+                        <div class="form-group"><label>Peito (cm)</label><input type="number" step="0.1" id="id-peito"></div>
+                        <div class="form-group"><label>Barriga (cm)</label><input type="number" step="0.1" id="id-cintura"></div>
+                        <div class="form-group"><label>Quadril (cm)</label><input type="number" step="0.1" id="id-quadril"></div>
+                        <div class="form-group"><label>Coxa (cm)</label><input type="number" step="0.1" id="id-coxa"></div>
+                        <div class="form-group"><label>Panturrilha (cm)</label><input type="number" step="0.1" id="id-panturrilha"></div>
+                        <div class="form-group"><label>Braço (cm)</label><input type="number" step="0.1" id="id-braco"></div>
                     </div>
                     <div class="settings-action-row">
                         <button type="button" id="btn-desfazer-medidas" class="btn btn-undo" onclick="desfazerMedidasIdeais()" aria-label="Desfazer Medidas Ideais" title="Desfazer">↶</button>
@@ -1658,7 +1632,7 @@
                     </div>
                     <div class="grid-2">
                         <div class="form-group"><label>Gênero</label><select id="perfil-genero"><option value="">Selecione</option><option value="Homem">Homem</option><option value="Mulher">Mulher</option></select></div>
-                        <div class="form-group"><label>Altura (m)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="perfil-altura" placeholder="Ex: 1,65"></div>
+                        <div class="form-group"><label>Altura (cm)</label><input type="number" step="0.1" id="perfil-altura" placeholder="Ex: 165"></div>
                     </div>
                     <div class="profile-action-row">
                         <button type="button" id="btn-desfazer-perfil" class="btn btn-undo" onclick="desfazerPerfilConta()" aria-label="Desfazer Perfil e Conta" title="Desfazer">↶</button>
@@ -1727,24 +1701,6 @@
     </a>
 </nav>
 
-<!-- Modal de visualização dos registros -->
-<div id="modal-detalhes-registro" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="registro-detalhes-titulo">
-    <div class="card record-detail-card">
-        <div class="record-detail-head">
-            <div>
-                <div class="label" id="registro-detalhes-tipo">Registro</div>
-                <h3 id="registro-detalhes-titulo">Detalhes</h3>
-            </div>
-            <button type="button" class="btn btn-outline record-detail-close" onclick="fecharDetalhesRegistro()" aria-label="Fechar">×</button>
-        </div>
-        <div id="registro-detalhes-conteudo"></div>
-        <div class="record-detail-actions">
-            <button type="button" class="btn btn-primary" onclick="editarRegistroVisualizado()">Editar</button>
-            <button type="button" class="btn btn-outline" onclick="fecharDetalhesRegistro()">Fechar</button>
-        </div>
-    </div>
-</div>
-
 <!-- Modal Medidas -->
 <div id="modal-medida" class="modal hidden">
     <div class="card" style="width: 100%; max-height: 90vh; overflow-y: auto;">
@@ -1752,15 +1708,15 @@
         <form id="form-medidas">
             <input type="hidden" id="edit-medida-id">
             <div class="form-group"><label>Data</label><input type="date" id="med-data" required></div>
-            <div class="form-group"><label>Peso (kg)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="med-peso" required></div>
+            <div class="form-group"><label>Peso (kg)</label><input type="number" step="0.1" id="med-peso" required></div>
             <div class="grid-2">
-                <div class="form-group"><label>Pescoço (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="med-pescoco"></div>
-                <div class="form-group"><label>Peito (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="med-peito"></div>
-                <div class="form-group"><label>Barriga (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="med-cintura"></div>
-                <div class="form-group"><label>Quadril (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="med-quadril"></div>
-                <div class="form-group"><label>Coxa (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="med-coxa"></div>
-                <div class="form-group"><label>Panturrilha (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="med-panturrilha"></div>
-                <div class="form-group"><label>Braço (cm)</label><input type="text" inputmode="decimal" class="decimal-br" data-decimals="2" id="med-braco"></div>
+                <div class="form-group"><label>Pescoço (cm)</label><input type="number" step="0.1" id="med-pescoco"></div>
+                <div class="form-group"><label>Peito (cm)</label><input type="number" step="0.1" id="med-peito"></div>
+                <div class="form-group"><label>Barriga (cm)</label><input type="number" step="0.1" id="med-cintura"></div>
+                <div class="form-group"><label>Quadril (cm)</label><input type="number" step="0.1" id="med-quadril"></div>
+                <div class="form-group"><label>Coxa (cm)</label><input type="number" step="0.1" id="med-coxa"></div>
+                <div class="form-group"><label>Panturrilha (cm)</label><input type="number" step="0.1" id="med-panturrilha"></div>
+                <div class="form-group"><label>Braço (cm)</label><input type="number" step="0.1" id="med-braco"></div>
             </div>
             <div class="form-group"><label>Obs</label><input type="text" id="med-obs"></div>
             <div class="form-group">
@@ -2043,7 +1999,6 @@ function validarDadosImportados(raw) {
         for (const foto of (Array.isArray(item.fotos) ? item.fotos : (item.fotoDocId ? [item] : []))) {
             if (!objeto(foto) || !/^[A-Za-z0-9_-]{1,180}$/.test(String(foto.fotoDocId || foto.id || ''))) throw new Error('Referência de foto inválida.');
             validarTexto(foto.fotoNome, 'Nome da foto', 1000);
-            validarTexto(foto.fotoCategoria, 'Categoria da foto', 30);
         }
     };
     validarTexto(raw.config.nome, 'Nome', 300);
@@ -2573,7 +2528,7 @@ function normalizarDados(raw) {
     return {
         config: {
             nome: textoSeguro(config.nome, 300), nascimento: textoSeguro(config.nascimento, 10),
-            genero: textoSeguro(config.genero, 80), altura: normalizarAlturaCm(config.altura),
+            genero: textoSeguro(config.genero, 80), altura: numeroOuVazio(config.altura),
             dataInicial: dataISOValida(config.dataInicial) ? config.dataInicial : DATA_HOJE_INICIAL,
             pesoInicial: numeroOuVazio(config.pesoInicial), pesoMeta: numeroOuVazio(config.pesoMeta),
             metaKgPorDia: numeroOuVazio(config.metaKgPorDia),
@@ -2595,16 +2550,16 @@ function normalizarDados(raw) {
 function preencherCamposConfig() {
     preencherCamposPerfil();
     document.getElementById('cfg-data-init').value = appData.config.dataInicial || DATA_HOJE_INICIAL;
-    document.getElementById('cfg-peso-init').value = formatarEntradaDecimalBR(appData.config.pesoInicial, 2);
-    document.getElementById('cfg-peso-meta').value = formatarEntradaDecimalBR(appData.config.pesoMeta, 2);
-    document.getElementById('cfg-meta-dia').value = formatarEntradaDecimalBR(appData.config.metaKgPorDia, 2);
-    document.getElementById('id-pescoco').value = formatarEntradaDecimalBR(appData.config.medidasIdeais.pescoco, 2);
-    document.getElementById('id-peito').value = formatarEntradaDecimalBR(appData.config.medidasIdeais.peito, 2);
-    document.getElementById('id-cintura').value = formatarEntradaDecimalBR(appData.config.medidasIdeais.cintura, 2);
-    document.getElementById('id-quadril').value = formatarEntradaDecimalBR(appData.config.medidasIdeais.quadril, 2);
-    document.getElementById('id-coxa').value = formatarEntradaDecimalBR(appData.config.medidasIdeais.coxa, 2);
-    document.getElementById('id-panturrilha').value = formatarEntradaDecimalBR(appData.config.medidasIdeais.panturrilha, 2);
-    document.getElementById('id-braco').value = formatarEntradaDecimalBR(appData.config.medidasIdeais.braco, 2);
+    document.getElementById('cfg-peso-init').value = appData.config.pesoInicial ?? "";
+    document.getElementById('cfg-peso-meta').value = appData.config.pesoMeta ?? "";
+    document.getElementById('cfg-meta-dia').value = appData.config.metaKgPorDia ?? "";
+    document.getElementById('id-pescoco').value = appData.config.medidasIdeais.pescoco ?? "";
+    document.getElementById('id-peito').value = appData.config.medidasIdeais.peito ?? "";
+    document.getElementById('id-cintura').value = appData.config.medidasIdeais.cintura ?? "";
+    document.getElementById('id-quadril').value = appData.config.medidasIdeais.quadril ?? "";
+    document.getElementById('id-coxa').value = appData.config.medidasIdeais.coxa ?? "";
+    document.getElementById('id-panturrilha').value = appData.config.medidasIdeais.panturrilha ?? "";
+    document.getElementById('id-braco').value = appData.config.medidasIdeais.braco ?? "";
 }
 
 
@@ -2625,7 +2580,7 @@ function preencherCamposPerfil() {
     document.getElementById('perfil-nascimento').value = appData.config.nascimento || '';
     atualizarIdadePerfil();
     document.getElementById('perfil-genero').value = appData.config.genero || '';
-    document.getElementById('perfil-altura').value = alturaCmParaEntrada(appData.config.altura);
+    document.getElementById('perfil-altura').value = appData.config.altura ?? '';
 }
 
 function atualizarIdadePerfil() {
@@ -2653,7 +2608,7 @@ function salvarPerfilUsuario() {
     appData.config.nome = document.getElementById('perfil-nome')?.value.trim() || '';
     appData.config.nascimento = document.getElementById('perfil-nascimento')?.value || '';
     appData.config.genero = document.getElementById('perfil-genero')?.value || '';
-    appData.config.altura = alturaEntradaParaCm(document.getElementById('perfil-altura')?.value);
+    appData.config.altura = numeroOuVazio(document.getElementById('perfil-altura')?.value);
     salvarDados();
     preencherCamposConfig();
     fecharPerfil();
@@ -2933,67 +2888,16 @@ function diffDays(d1, d2) {
     return Math.floor((t1 - t2) / (1000 * 60 * 60 * 24));
 }
 
-function parseNumeroBR(valor) {
-    if (valor === '' || valor === null || valor === undefined) return null;
-    if (typeof valor === 'number') return Number.isFinite(valor) ? valor : null;
-    let texto = String(valor).trim().replace(/\s+/g, '');
-    if (!texto) return null;
-    texto = texto.replace(/[^0-9,.+-]/g, '');
-    const temVirgula = texto.includes(',');
-    const temPonto = texto.includes('.');
-    if (temVirgula && temPonto) {
-        if (texto.lastIndexOf(',') > texto.lastIndexOf('.')) texto = texto.replace(/\./g, '').replace(',', '.');
-        else texto = texto.replace(/,/g, '');
-    } else if (temVirgula) {
-        texto = texto.replace(',', '.');
-    }
-    const n = Number(texto);
+function numeroValido(valor) {
+    if (valor === '' || valor === null || valor === undefined || (typeof valor === 'string' && !valor.trim())) return null;
+    const n = Number(valor);
     return Number.isFinite(n) ? n : null;
 }
 
-function numeroValido(valor) {
-    return parseNumeroBR(valor);
-}
-
 function numeroOuVazio(valor) {
-    const n = parseNumeroBR(valor);
-    return n === null ? '' : n;
-}
-
-function formatarEntradaDecimalBR(valor, casas = 2) {
-    const n = parseNumeroBR(valor);
-    if (n === null) return '';
-    return n.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas, useGrouping: false });
-}
-
-function normalizarAlturaCm(valor) {
-    const n = parseNumeroBR(valor);
-    if (n === null) return '';
-    return n <= 3 ? Math.round(n * 10000) / 100 : n;
-}
-
-function alturaCmParaEntrada(valorCm) {
-    const cm = normalizarAlturaCm(valorCm);
-    return cm === '' ? '' : formatarEntradaDecimalBR(cm / 100, 2);
-}
-
-function alturaEntradaParaCm(valor) {
-    return normalizarAlturaCm(valor);
-}
-
-function formatarCampoDecimalBR(campo) {
-    if (!campo || campo.value === '') return;
-    const casas = Number(campo.dataset.decimals || 2);
-    const n = parseNumeroBR(campo.value);
-    if (n !== null) campo.value = formatarEntradaDecimalBR(n, casas);
-}
-
-function configurarCamposDecimaisBR() {
-    document.querySelectorAll('.decimal-br').forEach(campo => {
-        if (campo.dataset.decimalBrAtivo === '1') return;
-        campo.dataset.decimalBrAtivo = '1';
-        campo.addEventListener('blur', () => formatarCampoDecimalBR(campo));
-    });
+    if (valor === null || valor === undefined || valor === '') return '';
+    const n = Number(valor);
+    return Number.isFinite(n) ? n : '';
 }
 
 function temConfigCalculo() {
@@ -3006,7 +2910,7 @@ function temConfigCalculo() {
 function formatBR(num) {
     const n = numeroValido(num);
     if (!Number.isFinite(n)) return '--';
-    return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
 }
 
 function formatBR2(num) {
@@ -3113,7 +3017,9 @@ function calcularMediaRealDia() {
 }
 
 function numeroInformado(valor) {
-    return parseNumeroBR(valor);
+    if (valor === '' || valor === null || valor === undefined) return null;
+    const numero = Number(valor);
+    return Number.isFinite(numero) ? numero : null;
 }
 
 function calcularVariacaoDesdePesoInicial(valorPeso) {
@@ -3289,7 +3195,7 @@ function renderDashboard() {
         statusEl.className = "value negative";
     }
 
-    document.getElementById('dash-info-meta').innerHTML = `Meta Final: ${formatBR(pesoMeta)} kg | Meta/Dia: ${formatBR(metaDia)} kg/dia`;
+    document.getElementById('dash-info-meta').innerHTML = `Meta Final: ${formatBR(pesoMeta)} kg | Meta/Dia: ${metaDia} kg/dia`;
 
     const previsaoMetaEl = document.getElementById('dash-previsao-meta');
     const previsaoPlanejada = calcularDataPlanejadaParaMeta();
@@ -3439,7 +3345,7 @@ function renderHistoricoPeso() {
                 <td class="weight-col-photo">${foto}</td>
                 <td class="weight-col-actions actions-cell">
                     <div class="weight-history-action-buttons">
-                        <button class="btn btn-outline compact-action" title="Visualizar" aria-label="Visualizar registro" onclick="abrirDetalhesRegistro('peso', '${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg></button>
+                        <button class="btn btn-outline compact-action" title="Editar" onclick="editarPeso('${p.id}')">✎</button>
                         <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirPeso('${p.id}')">−</button>
                     </div>
                 </td>
@@ -3515,7 +3421,7 @@ function renderMedidas() {
                 <td class="medidas-col-foto">${foto}</td>
                 <td class="medidas-col-acoes actions-cell">
                     <div class="medidas-action-buttons">
-                        <button class="btn btn-outline compact-action" title="Visualizar" aria-label="Visualizar medição" onclick="abrirDetalhesRegistro('medida', '${m.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg></button>
+                        <button class="btn btn-outline compact-action" title="Editar" onclick="editarMedida('${m.id}')">✎</button>
                         <button class="btn btn-outline compact-action" title="Excluir" style="border-color: var(--danger); color: var(--danger);" onclick="excluirMedida('${m.id}')">−</button>
                     </div>
                 </td>
@@ -3526,25 +3432,6 @@ function renderMedidas() {
 
 function temFotoRemedio(item) {
     return obterFotosRegistro(item).length > 0;
-}
-
-const CATEGORIAS_FOTO_PESO = [
-    { valor: 'frente', rotulo: 'Frente' },
-    { valor: 'lateral-e', rotulo: 'Lateral E' },
-    { valor: 'lateral-d', rotulo: 'Lateral D' },
-    { valor: 'costas', rotulo: 'Costas' },
-    { valor: 'rosto', rotulo: 'Rosto' },
-    { valor: 'outros', rotulo: 'Outros' }
-];
-
-function normalizarCategoriaFotoPeso(valor) {
-    const v = String(valor || '').trim().toLowerCase();
-    return CATEGORIAS_FOTO_PESO.some(item => item.valor === v) ? v : 'outros';
-}
-
-function rotuloCategoriaFotoPeso(valor) {
-    const normalizada = normalizarCategoriaFotoPeso(valor);
-    return CATEGORIAS_FOTO_PESO.find(item => item.valor === normalizada)?.rotulo || 'Outros';
 }
 
 function obterFotosRegistro(item = {}) {
@@ -3622,145 +3509,13 @@ function renderRemedios() {
                 <td class="medicine-col-photo">${foto}</td>
                 <td class="medicine-col-actions actions-cell">
                     <div class="medicine-action-buttons">
-                        <button class="btn btn-outline compact-action" title="Visualizar" aria-label="Visualizar lançamento" onclick="abrirDetalhesRegistro('remedio', '${item.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg></button>
+                        <button class="btn btn-outline compact-action" title="Editar" aria-label="Editar lançamento" onclick="editarRemedio('${item.id}')">✎</button>
                         <button class="btn btn-outline compact-action" title="Excluir" aria-label="Excluir lançamento" style="border-color: var(--danger); color: var(--danger);" onclick="excluirRemedio('${item.id}')">−</button>
                     </div>
                 </td>
             </tr>
         `;
     }).join('');
-}
-
-let registroDetalheAtual = null;
-
-function itemDetalheHtml(rotulo, valor, classeExtra = '') {
-    return `
-        <div class="record-detail-item ${classeExtra}">
-            <div class="label">${escapeHtml(rotulo)}</div>
-            <div class="value">${valor}</div>
-        </div>
-    `;
-}
-
-function resumoCategoriasFotosPeso(item) {
-    const fotos = obterFotosRegistro(item);
-    if (!fotos.length) return 'Nenhuma';
-    const contagem = new Map();
-    fotos.forEach(foto => {
-        const rotulo = rotuloCategoriaFotoPeso(foto.fotoCategoria);
-        contagem.set(rotulo, (contagem.get(rotulo) || 0) + 1);
-    });
-    return [...contagem.entries()].map(([rotulo, quantidade]) => `${escapeHtml(rotulo)}: ${quantidade}`).join(' • ');
-}
-
-function abrirDetalhesRegistro(tipo, id) {
-    let item = null;
-    let titulo = 'Detalhes do Registro';
-    let tipoRotulo = 'Registro';
-    let conteudo = '';
-    const idSeguro = String(id || '');
-
-    if (tipo === 'peso') {
-        item = (appData.pesos || []).find(registro => String(registro.id) === idSeguro);
-        if (!item) return;
-        const meta = numeroInformado(item.meta) ?? numeroInformado(appData.config.pesoMeta);
-        const peso = numeroInformado(item.peso);
-        const falta = meta !== null && peso !== null ? meta - peso : null;
-        const fotos = obterFotosRegistro(item);
-        titulo = 'Registro de Peso';
-        tipoRotulo = 'Peso';
-        conteudo = `
-            <div class="record-detail-hero">
-                <div class="label">Peso registrado</div>
-                <div class="value">${peso !== null ? formatBR(peso) + ' kg' : '--'}</div>
-                <div class="small ${falta === null ? 'neutral' : classePositivoNegativo(falta, true)}" style="margin-top:5px;">${falta !== null ? `${formatComSinal(falta)} kg até a meta` : 'Meta não informada'}</div>
-            </div>
-            <div class="record-detail-grid">
-                ${itemDetalheHtml('Data', formatDateBR(item.data))}
-                ${itemDetalheHtml('Meta', meta !== null ? formatBR(meta) + ' kg' : '--')}
-                ${itemDetalheHtml('Fotos', String(fotos.length))}
-                ${itemDetalheHtml('Categorias', resumoCategoriasFotosPeso(item))}
-                ${itemDetalheHtml('Observações', item.observacoes ? `<div class="record-detail-note">${escapeHtml(item.observacoes)}</div>` : '--', 'record-detail-wide')}
-            </div>
-            ${fotos.length ? `<button type="button" class="btn btn-outline record-detail-photo-btn" onclick="abrirFotosDoRegistroVisualizado()">Visualizar ${fotos.length} foto(s)</button>` : ''}
-        `;
-    } else if (tipo === 'medida') {
-        item = (appData.medidas || []).find(registro => String(registro.id) === idSeguro);
-        if (!item) return;
-        const fotos = obterFotosRegistro(item);
-        titulo = 'Medição Corporal';
-        tipoRotulo = 'Medidas';
-        const medida = (rotulo, campo) => itemDetalheHtml(rotulo, numeroInformado(item[campo]) !== null ? formatBR(item[campo]) + ' cm' : '--');
-        conteudo = `
-            <div class="record-detail-hero">
-                <div class="label">Data da medição</div>
-                <div class="value">${formatDateBR(item.data)}</div>
-                <div class="small" style="margin-top:5px; color:var(--text-secondary);">Peso: ${numeroInformado(item.peso) !== null ? formatBR(item.peso) + ' kg' : '--'}</div>
-            </div>
-            <div class="record-detail-grid">
-                ${medida('Pescoço', 'pescoco')}
-                ${medida('Peito', 'peito')}
-                ${medida('Barriga', 'cintura')}
-                ${medida('Quadril', 'quadril')}
-                ${medida('Coxa', 'coxa')}
-                ${medida('Panturrilha', 'panturrilha')}
-                ${medida('Braço', 'braco')}
-                ${itemDetalheHtml('Fotos', String(fotos.length))}
-                ${itemDetalheHtml('Observações', item.observacoes ? `<div class="record-detail-note">${escapeHtml(item.observacoes)}</div>` : '--', 'record-detail-wide')}
-            </div>
-            ${fotos.length ? `<button type="button" class="btn btn-outline record-detail-photo-btn" onclick="abrirFotosDoRegistroVisualizado()">Visualizar ${fotos.length} foto(s)</button>` : ''}
-        `;
-    } else if (tipo === 'remedio') {
-        item = (appData.remedios || []).find(registro => String(registro.id) === idSeguro);
-        if (!item) return;
-        const fotos = obterFotosRegistro(item);
-        titulo = 'Lançamento de Remédio';
-        tipoRotulo = 'Remédio';
-        conteudo = `
-            <div class="record-detail-hero">
-                <div class="label">Remédio</div>
-                <div class="value">${escapeHtml(item.nome || '--')}</div>
-                <div class="small" style="margin-top:5px; color:var(--text-secondary);">${numeroInformado(item.mg) !== null ? formatBR(item.mg) + ' mg' : '--'}</div>
-            </div>
-            <div class="record-detail-grid">
-                ${itemDetalheHtml('Data', formatDateBR(item.data))}
-                ${itemDetalheHtml('Dose', numeroInformado(item.mg) !== null ? formatBR(item.mg) + ' mg' : '--')}
-                ${itemDetalheHtml('Peso', numeroInformado(item.peso) !== null ? formatBR(item.peso) + ' kg' : '--')}
-                ${itemDetalheHtml('Fotos', String(fotos.length))}
-            </div>
-            ${fotos.length ? `<button type="button" class="btn btn-outline record-detail-photo-btn" onclick="abrirFotosDoRegistroVisualizado()">Visualizar ${fotos.length} foto(s)</button>` : ''}
-        `;
-    } else {
-        return;
-    }
-
-    registroDetalheAtual = { tipo, id: idSeguro };
-    document.getElementById('registro-detalhes-tipo').innerText = tipoRotulo;
-    document.getElementById('registro-detalhes-titulo').innerText = titulo;
-    document.getElementById('registro-detalhes-conteudo').innerHTML = conteudo;
-    document.getElementById('modal-detalhes-registro').classList.remove('hidden');
-}
-
-function fecharDetalhesRegistro() {
-    document.getElementById('modal-detalhes-registro')?.classList.add('hidden');
-}
-
-function editarRegistroVisualizado() {
-    const atual = registroDetalheAtual ? { ...registroDetalheAtual } : null;
-    if (!atual) return;
-    fecharDetalhesRegistro();
-    if (atual.tipo === 'peso') editarPeso(atual.id);
-    if (atual.tipo === 'medida') editarMedida(atual.id);
-    if (atual.tipo === 'remedio') editarRemedio(atual.id);
-}
-
-function abrirFotosDoRegistroVisualizado() {
-    const atual = registroDetalheAtual ? { ...registroDetalheAtual } : null;
-    if (!atual) return;
-    fecharDetalhesRegistro();
-    if (atual.tipo === 'peso') abrirCarrosselFotosPesos(atual.id);
-    if (atual.tipo === 'medida') abrirCarrosselFotosMedidas(atual.id);
-    if (atual.tipo === 'remedio') abrirCarrosselFotos(atual.id);
 }
 
 function adicionarNomeRemedioAoCatalogo(nome) {
@@ -4343,8 +4098,7 @@ function obterCamposFotoRegistro(item = {}) {
         fotoTamanhoComprimido: Number(item.fotoTamanhoComprimido) || 0,
         fotoContentType: item.fotoContentType || '',
         fotoLargura: Number(item.fotoLargura) || 0,
-        fotoAltura: Number(item.fotoAltura) || 0,
-        fotoCategoria: item.fotoCategoria ? normalizarCategoriaFotoPeso(item.fotoCategoria) : ''
+        fotoAltura: Number(item.fotoAltura) || 0
     };
 }
 
@@ -4362,7 +4116,6 @@ function limparCamposFotoUnica(registro, fotoDocId) {
     registro.fotoContentType = '';
     registro.fotoLargura = 0;
     registro.fotoAltura = 0;
-    registro.fotoCategoria = '';
 }
 
 function abrirLancamentoRemedio() {
@@ -4402,7 +4155,7 @@ function editarRemedio(id) {
     document.getElementById('remedio-data').value = item.data || hojeISO();
     document.getElementById('remedio-nome').value = item.nome || '';
     document.getElementById('remedio-mg').value = Number.isFinite(Number(item.mg)) ? item.mg : '';
-    document.getElementById('remedio-peso').value = numeroInformado(item.peso) !== null ? formatarEntradaDecimalBR(item.peso, 2) : '';
+    document.getElementById('remedio-peso').value = Number.isFinite(Number(item.peso)) ? item.peso : '';
     const fotoNome = document.getElementById('remedio-foto-nome');
     const quantidadeFotos = obterFotosRegistro(item).length;
     if (fotoNome) fotoNome.innerText = quantidadeFotos
@@ -4501,34 +4254,9 @@ async function renderCarrosselFotos() {
 let fotosPesosCarrossel = [];
 let indiceFotoPeso = 0;
 let renderFotoPesoCarrosselToken = 0;
-let filtroCategoriaFotoPeso = 'todas';
-
-function montarItensCarrosselPesos() {
-    const itens = [...(appData.pesos || [])]
-        .sort((a, b) => String(b.data || '').localeCompare(String(a.data || '')))
-        .flatMap(registro => obterFotosRegistro(registro).map(foto => ({ registro, foto })));
-    if (filtroCategoriaFotoPeso === 'todas') return itens;
-    return itens.filter(item => normalizarCategoriaFotoPeso(item.foto.fotoCategoria) === filtroCategoriaFotoPeso);
-}
-
-function htmlFiltroCategoriaFotosPeso() {
-    const opcoes = [
-        { valor: 'todas', rotulo: 'Todas' },
-        ...CATEGORIAS_FOTO_PESO
-    ];
-    return `
-        <div class="photo-filter-box">
-            <div class="label">Categoria</div>
-            <select onchange="alterarFiltroCategoriaFotosPeso(this.value)" aria-label="Filtrar fotos por categoria">
-                ${opcoes.map(item => `<option value="${item.valor}" ${item.valor === filtroCategoriaFotoPeso ? 'selected' : ''}>${item.rotulo}</option>`).join('')}
-            </select>
-        </div>
-    `;
-}
 
 function abrirCarrosselFotosPesos(idInicial = '', fotoInicialId = '') {
-    filtroCategoriaFotoPeso = 'todas';
-    fotosPesosCarrossel = montarItensCarrosselPesos();
+    fotosPesosCarrossel = montarItensCarrossel(appData.pesos);
 
     if (!fotosPesosCarrossel.length) return alert('Nenhuma foto foi adicionada aos lançamentos de peso.');
     indiceFotoPeso = idInicial
@@ -4538,13 +4266,6 @@ function abrirCarrosselFotosPesos(idInicial = '', fotoInicialId = '') {
         ))
         : 0;
     abrirVisualizadorFoto('modal-fotos-pesos');
-    renderCarrosselFotosPesos();
-}
-
-function alterarFiltroCategoriaFotosPeso(valor) {
-    filtroCategoriaFotoPeso = valor === 'todas' ? 'todas' : normalizarCategoriaFotoPeso(valor);
-    fotosPesosCarrossel = montarItensCarrosselPesos();
-    indiceFotoPeso = 0;
     renderCarrosselFotosPesos();
 }
 
@@ -4561,24 +4282,16 @@ function mudarFotoCarrosselPesos(direcao) {
 
 async function renderCarrosselFotosPesos() {
     const entrada = fotosPesosCarrossel[indiceFotoPeso];
+    if (!entrada) return;
+    const item = entrada.registro;
+    const foto = entrada.foto;
     const token = ++renderFotoPesoCarrosselToken;
     const stage = document.getElementById('foto-peso-carousel-stage');
     const info = document.getElementById('foto-peso-carousel-info');
     const contador = document.getElementById('foto-peso-carousel-contador');
-
-    if (!entrada) {
-        if (stage) stage.innerHTML = '<div class="photo-carousel-loading">Nenhuma foto nesta categoria.</div>';
-        if (info) info.innerHTML = htmlFiltroCategoriaFotosPeso() + '<div class="small" style="color:var(--text-secondary);">Escolha outra categoria para continuar a comparação.</div>';
-        if (contador) contador.innerText = '0 de 0';
-        return;
-    }
-
-    const item = entrada.registro;
-    const foto = entrada.foto;
     if (stage) stage.innerHTML = '<div class="photo-carousel-loading">Carregando foto...</div>';
     if (info) info.innerHTML = `
-        ${htmlFiltroCategoriaFotosPeso()}
-        <div class="label">${formatDateBR(item.data)} • ${rotuloCategoriaFotoPeso(foto.fotoCategoria)}</div>
+        <div class="label">${formatDateBR(item.data)}</div>
         <div class="value" style="font-size:18px; margin-top:3px;">${formatBR(item.peso)} kg</div>
         <div class="small" style="margin-top:4px; color:var(--text-secondary);">Meta: ${Number.isFinite(Number(item.meta)) ? formatBR(item.meta) + ' kg' : '--'} • ${escapeHtml(foto.fotoNome || 'foto original')}</div>
         ${item.observacoes ? `<div class="small" style="margin-top:6px; color:var(--text-secondary);">${escapeHtml(item.observacoes)}</div>` : ''}
@@ -4588,7 +4301,7 @@ async function renderCarrosselFotosPesos() {
     try {
         const url = await obterUrlFotoRemedio(foto);
         if (token !== renderFotoPesoCarrosselToken || !stage) return;
-        stage.innerHTML = `<img src="${escapeHtml(url)}" alt="Foto ${escapeHtml(rotuloCategoriaFotoPeso(foto.fotoCategoria))} do peso de ${formatBR(item.peso)} kg em ${formatDateBR(item.data)}">`;
+        stage.innerHTML = `<img src="${escapeHtml(url)}" alt="Foto do peso de ${formatBR(item.peso)} kg em ${formatDateBR(item.data)}">`;
     } catch (error) {
         console.error(error);
         if (token === renderFotoPesoCarrosselToken && stage) {
@@ -4706,13 +4419,8 @@ async function excluirFotoAtual(tipo) {
             indiceFotoMedida = Math.min(indice, fotosMedidasCarrossel.length - 1);
             renderCarrosselFotosMedidas();
         } else {
-            fotosPesosCarrossel = montarItensCarrosselPesos();
-            if (!fotosPesosCarrossel.length) {
-                const aindaHaFotos = montarItensCarrossel(appData.pesos).length > 0;
-                if (!aindaHaFotos) return fecharCarrosselFotosPesos();
-                indiceFotoPeso = 0;
-                return renderCarrosselFotosPesos();
-            }
+            fotosPesosCarrossel = montarItensCarrossel(appData.pesos);
+            if (!fotosPesosCarrossel.length) return fecharCarrosselFotosPesos();
             indiceFotoPeso = Math.min(indice, fotosPesosCarrossel.length - 1);
             renderCarrosselFotosPesos();
         }
@@ -5000,37 +4708,12 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
 
 // Peso Form
 const inputFotoPeso = document.getElementById('peso-foto');
-let categoriasFotosPesoSelecionadas = [];
-
-function renderCategoriasFotosPesoSelecionadas() {
-    const container = document.getElementById('peso-foto-categorias');
-    const arquivos = Array.from(inputFotoPeso?.files || []);
-    if (!container) return;
-    if (!arquivos.length) {
-        container.innerHTML = '';
-        container.classList.add('hidden');
-        return;
-    }
-    categoriasFotosPesoSelecionadas = arquivos.map((_, indice) => normalizarCategoriaFotoPeso(categoriasFotosPesoSelecionadas[indice] || 'outros'));
-    container.innerHTML = arquivos.map((arquivo, indice) => `
-        <div class="photo-category-row">
-            <div class="photo-category-name" title="${escapeHtml(arquivo.name || `Foto ${indice + 1}`)}">${escapeHtml(arquivo.name || `Foto ${indice + 1}`)}</div>
-            <select aria-label="Categoria da foto ${indice + 1}" onchange="categoriasFotosPesoSelecionadas[${indice}] = normalizarCategoriaFotoPeso(this.value)">
-                ${CATEGORIAS_FOTO_PESO.map(categoria => `<option value="${categoria.valor}" ${categoria.valor === categoriasFotosPesoSelecionadas[indice] ? 'selected' : ''}>${categoria.rotulo}</option>`).join('')}
-            </select>
-        </div>
-    `).join('');
-    container.classList.remove('hidden');
-}
-
 if (inputFotoPeso) inputFotoPeso.addEventListener('change', () => {
     const quantidade = inputFotoPeso.files?.length || 0;
-    categoriasFotosPesoSelecionadas = Array.from({ length: quantidade }, (_, indice) => categoriasFotosPesoSelecionadas[indice] || 'outros');
     const fotoNome = document.getElementById('peso-foto-nome');
     if (fotoNome) fotoNome.innerText = quantidade
-        ? `${quantidade} nova(s) foto(s) selecionada(s). Classifique cada uma abaixo.`
+        ? `${quantidade} nova(s) foto(s) selecionada(s).`
         : 'Nenhuma foto selecionada. Você pode escolher várias.';
-    renderCategoriasFotosPesoSelecionadas();
 });
 
 function redefinirFormularioPeso({ focar = false } = {}) {
@@ -5038,11 +4721,9 @@ function redefinirFormularioPeso({ focar = false } = {}) {
     if (form) form.reset();
     document.getElementById('edit-peso-id').value = '';
     document.getElementById('peso-data').value = hojeISO();
-    document.getElementById('peso-meta').value = numeroValido(appData.config.pesoMeta) !== null ? formatarEntradaDecimalBR(appData.config.pesoMeta, 2) : '';
+    document.getElementById('peso-meta').value = Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '';
     const fotoNome = document.getElementById('peso-foto-nome');
-    categoriasFotosPesoSelecionadas = [];
     if (fotoNome) fotoNome.innerText = 'Nenhuma foto selecionada. Você pode escolher várias.';
-    renderCategoriasFotosPesoSelecionadas();
     const botaoSalvar = document.getElementById('btn-salvar-peso');
     if (botaoSalvar) {
         botaoSalvar.disabled = false;
@@ -5069,7 +4750,7 @@ document.getElementById('form-peso').onsubmit = async function(e) {
     e.preventDefault();
     const editId = document.getElementById('edit-peso-id').value || '';
     const data = document.getElementById('peso-data').value;
-    const peso = numeroValido(document.getElementById('peso-valor').value);
+    const peso = Number(document.getElementById('peso-valor').value);
     const meta = numeroOuVazio(document.getElementById('peso-meta').value);
     const observacoes = document.getElementById('peso-obs').value;
     const arquivosFoto = Array.from(inputFotoPeso?.files || []);
@@ -5099,12 +4780,6 @@ document.getElementById('form-peso').onsubmit = async function(e) {
         const fotosAnteriores = obterFotosRegistro(registroAnterior || {});
         const fotoPreparada = arquivosFoto.length ? await prepararFotosRegistro(arquivosFoto, `peso_${id}`) : null;
         if (fotoPreparada && currentUser?.uid !== fotoPreparada.uid) throw new Error('A sessão mudou durante o salvamento da foto. Entre novamente e repita o lançamento.');
-        if (fotoPreparada?.fotos?.length) {
-            fotoPreparada.fotos = fotoPreparada.fotos.map((foto, indice) => ({
-                ...foto,
-                fotoCategoria: normalizarCategoriaFotoPeso(categoriasFotosPesoSelecionadas[indice] || 'outros')
-            }));
-        }
 
         const registro = {
             ...(registroAnterior || {}),
@@ -5139,8 +4814,8 @@ function editarPeso(id) {
     document.getElementById('form-peso').reset();
     document.getElementById('edit-peso-id').value = item.id;
     document.getElementById('peso-data').value = item.data;
-    document.getElementById('peso-valor').value = formatarEntradaDecimalBR(item.peso, 2);
-    document.getElementById('peso-meta').value = numeroInformado(item.meta) !== null ? formatarEntradaDecimalBR(item.meta, 2) : (numeroValido(appData.config.pesoMeta) !== null ? formatarEntradaDecimalBR(appData.config.pesoMeta, 2) : '');
+    document.getElementById('peso-valor').value = item.peso;
+    document.getElementById('peso-meta').value = Number.isFinite(Number(item.meta)) ? item.meta : (Number.isFinite(numeroValido(appData.config.pesoMeta)) ? appData.config.pesoMeta : '');
     document.getElementById('peso-obs').value = item.observacoes || '';
     const fotoNome = document.getElementById('peso-foto-nome');
     const quantidadeFotos = obterFotosRegistro(item).length;
@@ -5238,26 +4913,26 @@ function atualizarEstadoBotoesDesfazer() {
 
 function aplicarCamposMetasPeso(snapshot) {
     document.getElementById('cfg-data-init').value = snapshot.dataInicial || hojeISO();
-    document.getElementById('cfg-peso-init').value = formatarEntradaDecimalBR(snapshot.pesoInicial, 2);
-    document.getElementById('cfg-peso-meta').value = formatarEntradaDecimalBR(snapshot.pesoMeta, 2);
-    document.getElementById('cfg-meta-dia').value = formatarEntradaDecimalBR(snapshot.metaKgPorDia, 2);
+    document.getElementById('cfg-peso-init').value = snapshot.pesoInicial ?? '';
+    document.getElementById('cfg-peso-meta').value = snapshot.pesoMeta ?? '';
+    document.getElementById('cfg-meta-dia').value = snapshot.metaKgPorDia ?? '';
 }
 
 function aplicarCamposMedidasIdeais(snapshot) {
-    document.getElementById('id-pescoco').value = formatarEntradaDecimalBR(snapshot.pescoco, 2);
-    document.getElementById('id-peito').value = formatarEntradaDecimalBR(snapshot.peito, 2);
-    document.getElementById('id-cintura').value = formatarEntradaDecimalBR(snapshot.cintura, 2);
-    document.getElementById('id-quadril').value = formatarEntradaDecimalBR(snapshot.quadril, 2);
-    document.getElementById('id-coxa').value = formatarEntradaDecimalBR(snapshot.coxa, 2);
-    document.getElementById('id-panturrilha').value = formatarEntradaDecimalBR(snapshot.panturrilha, 2);
-    document.getElementById('id-braco').value = formatarEntradaDecimalBR(snapshot.braco, 2);
+    document.getElementById('id-pescoco').value = snapshot.pescoco ?? '';
+    document.getElementById('id-peito').value = snapshot.peito ?? '';
+    document.getElementById('id-cintura').value = snapshot.cintura ?? '';
+    document.getElementById('id-quadril').value = snapshot.quadril ?? '';
+    document.getElementById('id-coxa').value = snapshot.coxa ?? '';
+    document.getElementById('id-panturrilha').value = snapshot.panturrilha ?? '';
+    document.getElementById('id-braco').value = snapshot.braco ?? '';
 }
 
 function aplicarCamposPerfilConta(snapshot) {
     document.getElementById('perfil-nome').value = snapshot.nome || '';
     document.getElementById('perfil-nascimento').value = snapshot.nascimento || '';
     document.getElementById('perfil-genero').value = snapshot.genero || '';
-    document.getElementById('perfil-altura').value = alturaCmParaEntrada(snapshot.altura);
+    document.getElementById('perfil-altura').value = snapshot.altura ?? '';
     atualizarIdadePerfil();
 }
 
@@ -5372,7 +5047,7 @@ function salvarPerfilAutomaticamente() {
     appData.config.nome = document.getElementById('perfil-nome')?.value.trim() || '';
     appData.config.nascimento = document.getElementById('perfil-nascimento')?.value || '';
     appData.config.genero = document.getElementById('perfil-genero')?.value || '';
-    appData.config.altura = alturaEntradaParaCm(document.getElementById('perfil-altura')?.value);
+    appData.config.altura = numeroOuVazio(document.getElementById('perfil-altura')?.value);
     atualizarIdadePerfil();
     salvarDados();
 }
@@ -5428,7 +5103,7 @@ function abrirModalMedida() {
     document.getElementById('medida-modal-title').innerText = 'Nova Medição';
     document.getElementById('modal-medida').classList.remove('hidden');
     document.getElementById('med-data').value = hojeISO();
-    document.getElementById('med-peso').value = numeroInformado(obterPesoAtual()) !== null ? formatarEntradaDecimalBR(obterPesoAtual(), 2) : '';
+    document.getElementById('med-peso').value = obterPesoAtual();
     document.getElementById('med-foto-nome').innerText = 'Nenhuma foto selecionada. Você pode escolher várias.';
     const botao = document.getElementById('btn-salvar-medida');
     if (botao) { botao.disabled = false; botao.innerText = 'Salvar'; }
@@ -5446,7 +5121,7 @@ function limparFormularioMedidas() {
     document.getElementById('form-medidas').reset();
     document.getElementById('edit-medida-id').value = "";
     document.getElementById('med-data').value = hojeISO();
-    document.getElementById('med-peso').value = numeroInformado(obterPesoAtual()) !== null ? formatarEntradaDecimalBR(obterPesoAtual(), 2) : '';
+    document.getElementById('med-peso').value = obterPesoAtual();
     document.getElementById('med-foto-nome').innerText = 'Nenhuma foto selecionada. Você pode escolher várias.';
     document.getElementById('medida-modal-title').innerText = 'Nova Medição';
     document.getElementById('med-pescoco').focus();
@@ -5456,10 +5131,10 @@ document.getElementById('form-medidas').onsubmit = async function(e) {
     e.preventDefault();
     const editId = document.getElementById('edit-medida-id').value || '';
     const data = document.getElementById('med-data').value;
-    const peso = numeroValido(document.getElementById('med-peso').value);
+    const peso = Number(document.getElementById('med-peso').value);
     const arquivosFoto = Array.from(inputFotoMedida?.files || []);
     if (!dataISOValida(data) || !Number.isFinite(peso) || peso <= 0) return alert('Preencha a data e o peso com valores válidos.');
-    if (['pescoco','peito','cintura','quadril','coxa','panturrilha','braco'].some(campo => { const valor = numeroValido(document.getElementById('med-' + campo).value); return valor !== null && valor < 0; })) return alert('As medidas não podem ser negativas.');
+    if (['pescoco','peito','cintura','quadril','coxa','panturrilha','braco'].some(campo => Number(document.getElementById('med-' + campo).value) < 0)) return alert('As medidas não podem ser negativas.');
 
     appData.medidas = Array.isArray(appData.medidas) ? appData.medidas : [];
     const indiceExistente = editId ? appData.medidas.findIndex(m => String(m.id) === String(editId)) : -1;
@@ -5510,14 +5185,14 @@ function editarMedida(id) {
     document.getElementById('medida-modal-title').innerText = "Editar Medição";
     document.getElementById('edit-medida-id').value = m.id;
     document.getElementById('med-data').value = m.data;
-    document.getElementById('med-peso').value = formatarEntradaDecimalBR(m.peso, 2);
-    document.getElementById('med-pescoco').value = formatarEntradaDecimalBR(m.pescoco, 2);
-    document.getElementById('med-peito').value = formatarEntradaDecimalBR(m.peito, 2);
-    document.getElementById('med-cintura').value = formatarEntradaDecimalBR(m.cintura, 2);
-    document.getElementById('med-quadril').value = formatarEntradaDecimalBR(m.quadril, 2);
-    document.getElementById('med-coxa').value = formatarEntradaDecimalBR(m.coxa, 2);
-    document.getElementById('med-panturrilha').value = formatarEntradaDecimalBR(m.panturrilha, 2);
-    document.getElementById('med-braco').value = formatarEntradaDecimalBR(m.braco, 2);
+    document.getElementById('med-peso').value = m.peso;
+    document.getElementById('med-pescoco').value = m.pescoco;
+    document.getElementById('med-peito').value = m.peito;
+    document.getElementById('med-cintura').value = m.cintura;
+    document.getElementById('med-quadril').value = m.quadril;
+    document.getElementById('med-coxa').value = m.coxa;
+    document.getElementById('med-panturrilha').value = m.panturrilha;
+    document.getElementById('med-braco').value = m.braco;
     document.getElementById('med-obs').value = m.observacoes;
     const quantidadeFotos = obterFotosRegistro(m).length;
     document.getElementById('med-foto-nome').innerText = quantidadeFotos
@@ -6530,10 +6205,6 @@ window.editarPeso = editarPeso;
 window.abrirLancamentoPeso = abrirLancamentoPeso;
 window.fecharLancamentoPeso = fecharLancamentoPeso;
 window.excluirPeso = excluirPeso;
-window.abrirDetalhesRegistro = abrirDetalhesRegistro;
-window.fecharDetalhesRegistro = fecharDetalhesRegistro;
-window.editarRegistroVisualizado = editarRegistroVisualizado;
-window.abrirFotosDoRegistroVisualizado = abrirFotosDoRegistroVisualizado;
 window.editarRemedio = editarRemedio;
 window.excluirRemedio = excluirRemedio;
 window.abrirModalMedida = abrirModalMedida;
@@ -6844,7 +6515,6 @@ window.addEventListener('appinstalled', () => {
 });
 
 window.matchMedia('(display-mode: standalone)').addEventListener?.('change', atualizarEstadoInstalacao);
-configurarCamposDecimaisBR();
 atualizarEstadoInstalacao();
 if (lerSessaoPWA(PWA_CHAVE_PREPARACAO) && lerSessaoPWA(PWA_CHAVE_RECARREGOU) === '1' && !appEstaInstalado() && !deferredInstallPrompt) {
     setTimeout(() => iniciarPreparoInstalacaoPWA({ retomar: true }), 600);
