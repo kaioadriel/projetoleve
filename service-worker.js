@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v19-recuperacao-segura';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v19-recuperacao-segura';
+const CACHE_VERSION = 'projeto-leve-v20-historicos-fotos-br';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v20-historicos-fotos-br';
 const BASE = new URL('./', self.location.href);
 const localUrl = name => new URL(name, BASE).href;
 const APP_SHELL = ['./', 'index.html', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png'].map(localUrl);
