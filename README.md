@@ -28,3 +28,7 @@ Os caminhos de manifesto, service worker e ícones são relativos, portanto func
 ## Banco atual
 
 A autenticação é Firebase, mas os registros continuam salvos localmente por usuário no navegador e as fotos no IndexedDB. Firestore e Firebase Storage ficam bloqueados pelas regras incluídas neste pacote.
+
+## Versão V32
+
+Inclui ordenação personalizada e persistente dos gráficos e reposiciona o Resumo Automático da tela inicial para depois de Antes e Depois.

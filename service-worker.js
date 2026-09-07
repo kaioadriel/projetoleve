@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v31-auth-analise';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v31-auth-analise';
+const CACHE_VERSION = 'projeto-leve-v32-ordenacao-graficos';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v32-ordenacao-graficos';
 const BASE = new URL('./', self.location.href);
 const localUrl = name => new URL(name, BASE).href;
 

@@ -1391,7 +1391,25 @@
             .v30-integrity-actions,.v30-import-actions { grid-template-columns:1fr; }
         }
 
-    </style>
+    
+        /* V32 — ordenação personalizada dos gráficos */
+        .graph-order-action-v32 { margin: 14px 0 8px; }
+        .graph-order-action-v32 .btn { width: 100%; }
+        .graph-order-modal-card-v32 { width: min(92vw, 520px); max-height: 86vh; overflow-y: auto; }
+        .graph-order-help-v32 { margin: 2px 0 12px; color: var(--text-secondary); }
+        .graph-order-list-v32 { display: grid; gap: 8px; }
+        .graph-order-row-v32 { display: grid; grid-template-columns: 34px minmax(0,1fr) auto; align-items: center; gap: 9px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 13px; background: var(--soft-bg); }
+        .graph-order-position-v32 { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; font-weight: 800; font-size: 12px; background: #fff; border: 1px solid var(--border); color: var(--text-secondary); }
+        .graph-order-name-v32 { font-weight: 750; min-width: 0; overflow-wrap: anywhere; }
+        .graph-order-buttons-v32 { display: flex; gap: 5px; }
+        .graph-order-icon-v32 { width: 34px; min-height: 34px; padding: 0; border-radius: 10px; font-size: 17px; line-height: 1; }
+        .graph-order-icon-v32:disabled { opacity: .3; }
+        .graph-order-modal-actions-v32 { display: grid; grid-template-columns: .8fr 1fr 1fr; gap: 8px; margin-top: 14px; }
+        @media (max-width: 430px) {
+            .graph-order-modal-actions-v32 { grid-template-columns: 1fr 1fr; }
+            .graph-order-modal-actions-v32 .btn-primary { grid-column: 1 / -1; }
+        }
+</style>
 
 <style id="bioimpedancia-v29-style">
     #btn-calcular-metas-composicao-v29 { min-height:48px; font-weight:800; }
@@ -1505,26 +1523,7 @@
                     <div class="value" id="dash-previsao">Calculando...</div>
                 </div>
             </div>
-            <div class="card dashboard-bordered-card v30-summary-card" id="resumo-automatico-v30">
-                <div class="v30-summary-head">
-                    <h3>Resumo Automático</h3>
-                    <span class="v30-schema-pill">Atualizado com seus registros</span>
-                </div>
-                <div class="v30-summary-grid">
-                    <div class="v30-summary-panel">
-                        <div class="v30-summary-title">Últimos 7 dias</div>
-                        <div id="resumo-semana-v30" class="v30-mini-grid"></div>
-                    </div>
-                    <div class="v30-summary-panel">
-                        <div class="v30-summary-title">Últimos 30 dias</div>
-                        <div id="resumo-mes-v30" class="v30-mini-grid"></div>
-                    </div>
-                </div>
-                <div class="v30-analysis-entry">
-                    <div class="small">Abra a análise para ver tendências, médias, alertas e comparar dois períodos completos.</div>
-                    <button type="button" class="btn btn-outline" onclick="abrirAnaliseV30()">Abrir Análise</button>
-                </div>
-            </div>
+
 
             <div class="card dashboard-bordered-card previsao-card">
                 <h3>Datas Importantes</h3>
@@ -1567,6 +1566,27 @@
                     </div>
                 </div>
             </div>
+            <div class="card dashboard-bordered-card v30-summary-card" id="resumo-automatico-v30">
+                <div class="v30-summary-head">
+                    <h3>Resumo Automático</h3>
+                    <span class="v30-schema-pill">Atualizado com seus registros</span>
+                </div>
+                <div class="v30-summary-grid">
+                    <div class="v30-summary-panel">
+                        <div class="v30-summary-title">Últimos 7 dias</div>
+                        <div id="resumo-semana-v30" class="v30-mini-grid"></div>
+                    </div>
+                    <div class="v30-summary-panel">
+                        <div class="v30-summary-title">Últimos 30 dias</div>
+                        <div id="resumo-mes-v30" class="v30-mini-grid"></div>
+                    </div>
+                </div>
+                <div class="v30-analysis-entry">
+                    <div class="small">Abra a análise para ver tendências, médias, alertas e comparar dois períodos completos.</div>
+                    <button type="button" class="btn btn-outline" onclick="abrirAnaliseV30()">Abrir Análise</button>
+                </div>
+            </div>
+
             <div id="imc-dashboard-card" class="card imc-card neutral">
                 <div class="label">IMC</div>
                 <div id="imc-dashboard-content" class="small" style="margin-top: 8px; color: var(--text-secondary)">Preencha altura, idade e gênero no perfil para calcular.</div>
@@ -1852,52 +1872,73 @@
                     </div>
                 </div>
             </div>
-            <div class="card">
+            <div class="card" data-chart-key="peso">
                 <h3 id="chart-peso-title">Peso</h3>
                 <div id="chart-peso-subtitle" class="chart-subtitle"></div>
                 <div class="chart-container"><canvas id="chartPeso"></canvas></div>
             </div>
-            <div class="card">
+            <div class="card" data-chart-key="medidas">
                 <h3>Medidas Corporais</h3>
                 <div class="chart-container"><canvas id="chartMedidas"></canvas></div>
             </div>
-            <div class="card">
+            <div class="card" data-chart-key="percentuais">
                 <h3>Composição Percentual</h3>
                 <div id="chart-bio-percentuais-subtitle-v29" class="chart-subtitle"></div>
                 <div class="chart-container"><canvas id="chartBioPercentuaisV29"></canvas></div>
             </div>
-            <div class="card">
+            <div class="card" data-chart-key="imc">
                 <h3>IMC</h3>
                 <div id="chart-imc-subtitle-v29" class="chart-subtitle"></div>
                 <div class="chart-container"><canvas id="chartImcV29"></canvas></div>
             </div>
-            <div class="card">
+            <div class="card" data-chart-key="tmb">
                 <h3>TMB</h3>
                 <div id="chart-tmb-subtitle-v29" class="chart-subtitle"></div>
                 <div class="chart-container"><canvas id="chartTmbV29"></canvas></div>
             </div>
-            <div class="card">
+            <div class="card" data-chart-key="visceral">
                 <h3>Gordura Visceral</h3>
                 <div id="chart-visceral-subtitle-v29" class="chart-subtitle"></div>
                 <div class="chart-container"><canvas id="chartVisceralV29"></canvas></div>
             </div>
-            <div class="card">
+            <div class="card" data-chart-key="idade">
                 <h3>Idade Corporal</h3>
                 <div id="chart-idade-corporal-subtitle-v29" class="chart-subtitle"></div>
                 <div class="chart-container"><canvas id="chartIdadeCorporalV29"></canvas></div>
             </div>
-            <div class="card">
+            <div class="card" data-chart-key="calorias">
                 <h3>Calorias</h3>
                 <div id="chart-calorias-subtitle" class="chart-subtitle"></div>
                 <div class="chart-container"><canvas id="chartCalorias"></canvas></div>
             </div>
-            <div class="card">
+            <div class="card" data-chart-key="remedios">
                 <h3>Remédios</h3>
                 <div id="chart-remedios-subtitle" class="chart-subtitle"></div>
                 <div class="chart-container"><canvas id="chartRemedios"></canvas></div>
             </div>
+            <div class="graph-order-action-v32">
+                <button type="button" class="btn btn-outline" onclick="abrirOrdenacaoGraficosV32()">Ordenar</button>
+            </div>
             <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
+
+        <div id="modal-ordenar-graficos-v32" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="titulo-ordenar-graficos-v32">
+            <div class="card graph-order-modal-card-v32">
+                <div class="photo-carousel-head">
+                    <h3 id="titulo-ordenar-graficos-v32">Ordenar Gráficos</h3>
+                    <button type="button" class="photo-icon-button" onclick="fecharOrdenacaoGraficosV32(false)" aria-label="Fechar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+                    </button>
+                </div>
+                <p class="small graph-order-help-v32">Use as setas para definir a ordem em que os gráficos aparecem. A primeira linha será o primeiro gráfico.</p>
+                <div id="lista-ordenar-graficos-v32" class="graph-order-list-v32"></div>
+                <div class="graph-order-modal-actions-v32">
+                    <button type="button" class="btn btn-clear-outline" onclick="restaurarOrdemGraficosV32()">Padrão</button>
+                    <button type="button" class="btn btn-outline" onclick="fecharOrdenacaoGraficosV32(false)">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarOrdemGraficosV32()">Salvar</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Ajustes -->
         <section id="view-configs" class="view hidden">
@@ -10140,6 +10181,110 @@ window.carregarArquivoBalancaV30=carregarArquivoBalancaV30;
 window.limparImportadorBalancaV30=limparImportadorBalancaV30;
 window.importarDadosBalancaV30=importarDadosBalancaV30;
 window.addEventListener('load',inicializarMelhoriasV30);
+
+
+
+/* V32 — ordem personalizada de gráficos e resumo reposicionado */
+const PL_ORDEM_GRAFICOS_PADRAO_V32 = ['peso','medidas','percentuais','imc','tmb','visceral','idade','calorias','remedios'];
+const PL_NOMES_GRAFICOS_V32 = {
+    peso:'Peso e Composição Corporal', medidas:'Medidas Corporais', percentuais:'Composição Percentual',
+    imc:'IMC', tmb:'TMB', visceral:'Gordura Visceral', idade:'Idade Corporal',
+    calorias:'Calorias', remedios:'Remédios'
+};
+let ordemGraficosTemporariaV32 = [];
+
+function sanitizarOrdemGraficosV32(ordem) {
+    const lista = Array.isArray(ordem) ? ordem.filter(chave => PL_ORDEM_GRAFICOS_PADRAO_V32.includes(chave)) : [];
+    const unicos = [...new Set(lista)];
+    for (const chave of PL_ORDEM_GRAFICOS_PADRAO_V32) if (!unicos.includes(chave)) unicos.push(chave);
+    return unicos;
+}
+
+const normalizarDadosAntesV32 = normalizarDados;
+normalizarDados = function(raw) {
+    const origem = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+    const dados = normalizarDadosAntesV32(origem);
+    dados.config = dados.config || {};
+    dados.config.ordemGraficos = sanitizarOrdemGraficosV32(origem.config?.ordemGraficos);
+    return dados;
+};
+
+function aplicarOrdemGraficosV32(ordem = appData?.config?.ordemGraficos) {
+    const view = document.getElementById('view-graficos');
+    const rodapeAcao = view?.querySelector('.graph-order-action-v32');
+    if (!view || !rodapeAcao) return;
+    const final = sanitizarOrdemGraficosV32(ordem);
+    for (const chave of final) {
+        const card = view.querySelector('[data-chart-key="'+chave+'"]');
+        if (card) rodapeAcao.before(card);
+    }
+}
+
+function renderListaOrdenacaoGraficosV32() {
+    const lista = document.getElementById('lista-ordenar-graficos-v32');
+    if (!lista) return;
+    lista.innerHTML = ordemGraficosTemporariaV32.map((chave, indice) =>
+        '<div class="graph-order-row-v32">'+
+            '<div class="graph-order-position-v32">'+(indice+1)+'</div>'+
+            '<div class="graph-order-name-v32">'+escapeHtml(PL_NOMES_GRAFICOS_V32[chave] || chave)+'</div>'+
+            '<div class="graph-order-buttons-v32">'+
+                '<button type="button" class="btn btn-outline graph-order-icon-v32" '+(indice===0?'disabled ':'')+'onclick="moverGraficoV32('+indice+',-1)" aria-label="Mover para cima" title="Mover para cima">↑</button>'+
+                '<button type="button" class="btn btn-outline graph-order-icon-v32" '+(indice===ordemGraficosTemporariaV32.length-1?'disabled ':'')+'onclick="moverGraficoV32('+indice+',1)" aria-label="Mover para baixo" title="Mover para baixo">↓</button>'+
+            '</div>'+
+        '</div>'
+    ).join('');
+}
+
+function abrirOrdenacaoGraficosV32() {
+    ordemGraficosTemporariaV32 = sanitizarOrdemGraficosV32(appData?.config?.ordemGraficos);
+    renderListaOrdenacaoGraficosV32();
+    document.getElementById('modal-ordenar-graficos-v32')?.classList.remove('hidden');
+}
+function moverGraficoV32(indice, direcao) {
+    const destino = indice + direcao;
+    if (indice < 0 || destino < 0 || indice >= ordemGraficosTemporariaV32.length || destino >= ordemGraficosTemporariaV32.length) return;
+    [ordemGraficosTemporariaV32[indice], ordemGraficosTemporariaV32[destino]] = [ordemGraficosTemporariaV32[destino], ordemGraficosTemporariaV32[indice]];
+    renderListaOrdenacaoGraficosV32();
+}
+function restaurarOrdemGraficosV32() {
+    ordemGraficosTemporariaV32 = [...PL_ORDEM_GRAFICOS_PADRAO_V32];
+    renderListaOrdenacaoGraficosV32();
+}
+function fecharOrdenacaoGraficosV32(aplicar = false) {
+    if (aplicar) aplicarOrdemGraficosV32(ordemGraficosTemporariaV32);
+    document.getElementById('modal-ordenar-graficos-v32')?.classList.add('hidden');
+}
+function salvarOrdemGraficosV32() {
+    appData.config = appData.config || {};
+    appData.config.ordemGraficos = sanitizarOrdemGraficosV32(ordemGraficosTemporariaV32);
+    motivoProximaCopia = 'Antes de alterar a ordem dos gráficos';
+    salvarDados(true, true);
+    aplicarOrdemGraficosV32(appData.config.ordemGraficos);
+    fecharOrdenacaoGraficosV32(false);
+}
+function inicializarMelhoriasV32() {
+    if (!Array.isArray(appData?.config?.ordemGraficos) || !appData.config.ordemGraficos.length) {
+        appData.config = appData.config || {};
+        appData.config.ordemGraficos = [...PL_ORDEM_GRAFICOS_PADRAO_V32];
+    }
+    aplicarOrdemGraficosV32();
+    document.getElementById('modal-ordenar-graficos-v32')?.addEventListener('click', e => {
+        if (e.target.id === 'modal-ordenar-graficos-v32') fecharOrdenacaoGraficosV32(false);
+    });
+}
+
+const updateUIAntesV32 = updateUI;
+updateUI = function() {
+    updateUIAntesV32();
+    aplicarOrdemGraficosV32();
+};
+
+window.abrirOrdenacaoGraficosV32 = abrirOrdenacaoGraficosV32;
+window.fecharOrdenacaoGraficosV32 = fecharOrdenacaoGraficosV32;
+window.moverGraficoV32 = moverGraficoV32;
+window.restaurarOrdemGraficosV32 = restaurarOrdemGraficosV32;
+window.salvarOrdemGraficosV32 = salvarOrdemGraficosV32;
+window.addEventListener('load', inicializarMelhoriasV32);
 
 </script>
 
