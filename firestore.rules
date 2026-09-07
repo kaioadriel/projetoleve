@@ -2,8 +2,8 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // O Projeto Leve usa o Firebase somente para autenticação.
-    // Todo o banco de dados do aplicativo permanece no aparelho.
+    // Versão atual: Firebase é usado somente para autenticação.
+    // Os dados do Projeto Leve permanecem no aparelho.
     match /{document=**} {
       allow read, write: if false;
     }
