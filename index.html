@@ -10478,7 +10478,299 @@ function inicializarMelhoriasV33() {
     }
 }
 window.sincronizarAguaCorporalV33 = sincronizarAguaCorporalV33;
+
 window.addEventListener('load', inicializarMelhoriasV33);
+
+/* V34 — visualização e nomes personalizados para fotos já anexadas. */
+const PL_SCHEMA_VERSION_V34 = 34;
+
+const obterCamposFotoRegistroAntesV34 = obterCamposFotoRegistro;
+obterCamposFotoRegistro = function(item = {}) {
+    const base = obterCamposFotoRegistroAntesV34(item);
+    return {
+        ...base,
+        fotoTitulo: textoSeguro(item?.fotoTitulo || '', 160).trim()
+    };
+};
+
+function tituloFotoV34(foto, fallback = 'Foto') {
+    const titulo = textoSeguro(foto?.fotoTitulo || '', 160).trim();
+    if (titulo) return titulo;
+    const original = textoSeguro(foto?.fotoNome || '', 220).trim();
+    return original || fallback;
+}
+
+function nomeOriginalFotoV34(foto, fallback = 'foto') {
+    return textoSeguro(foto?.fotoNome || '', 220).trim() || fallback;
+}
+
+function colecaoFotosPorTipoV34(tipo) {
+    if (tipo === 'peso') return appData.pesos || [];
+    if (tipo === 'medida') return appData.medidas || [];
+    if (tipo === 'remedio') return appData.remedios || [];
+    return [];
+}
+
+function idContainerFotosExistentesV34(tipo) {
+    if (tipo === 'peso') return 'peso-foto-categorias-existentes';
+    if (tipo === 'medida') return 'med-foto-categorias-existentes';
+    if (tipo === 'remedio') return 'remedio-fotos-existentes-v34';
+    return '';
+}
+
+function garantirEstilosFotosV34() {
+    if (document.getElementById('estilos-fotos-v34')) return;
+    const style = document.createElement('style');
+    style.id = 'estilos-fotos-v34';
+    style.textContent = `
+        .photo-existing-editor-v34 { display:flex; flex-direction:column; gap:12px; margin-top:12px; }
+        .photo-existing-title-v34 { font-weight:800; color:var(--text-secondary); line-height:1.4; }
+        .photo-existing-row-v34 { display:grid; grid-template-columns:108px minmax(0,1fr); gap:12px; align-items:start; padding:12px; border:1px solid var(--border); border-radius:18px; background:var(--soft-bg); }
+        .photo-existing-thumb-v34 { width:108px; height:108px; border:1px solid var(--border); border-radius:14px; padding:0; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .photo-existing-thumb-v34 img { width:100%; height:100%; object-fit:cover; display:block; }
+        .photo-existing-thumb-v34 .photo-existing-loading-v34 { font-size:11px; color:var(--text-secondary); padding:8px; text-align:center; }
+        .photo-existing-main-v34 { min-width:0; display:flex; flex-direction:column; gap:9px; }
+        .photo-existing-main-v34 label { font-size:11px; font-weight:800; color:var(--text-secondary); }
+        .photo-existing-main-v34 input[type="text"] { width:100%; min-width:0; }
+        .photo-existing-original-v34 { font-size:10px; line-height:1.35; color:var(--text-secondary); overflow-wrap:anywhere; }
+        .photo-existing-actions-v34 { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; align-items:center; }
+        .photo-existing-actions-v34 .btn { min-height:42px; padding:8px 10px; font-size:12px; }
+        .photo-existing-actions-v34 select { min-width:0; width:100%; }
+        .photo-category-preview-row .photo-new-title-v34 { margin-top:7px; }
+        .photo-category-preview-row .photo-new-title-v34 label { display:block; font-size:10px; font-weight:800; color:var(--text-secondary); margin-bottom:4px; }
+        .photo-category-preview-row .photo-new-title-v34 input { width:100%; min-width:0; padding:8px 10px; min-height:40px; }
+        #remedio-fotos-existentes-grupo-v34.hidden { display:none !important; }
+        @media (max-width:430px) {
+            .photo-existing-row-v34 { grid-template-columns:92px minmax(0,1fr); gap:10px; padding:10px; }
+            .photo-existing-thumb-v34 { width:92px; height:104px; }
+            .photo-existing-actions-v34 { grid-template-columns:1fr; }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+async function abrirPreviewFotoExistenteV34(tipo, registroId, fotoDocId) {
+    const registro = colecaoFotosPorTipoV34(tipo).find(item => String(item.id) === String(registroId));
+    const foto = obterFotosRegistro(registro || {}).find(item => String(item.fotoDocId) === String(fotoDocId));
+    if (!registro || !foto) return alert('A foto não foi encontrada neste registro.');
+    try {
+        const url = await obterUrlFotoRemedio(foto);
+        abrirPreviewFotoSelecionadaV25(url, tituloFotoV34(foto));
+    } catch (erro) {
+        console.error(erro);
+        alert('Não foi possível abrir esta foto: ' + traduzirErroApp(erro));
+    }
+}
+
+async function carregarMiniaturasFotosExistentesV34(container, fotos) {
+    const linhas = Array.from(container.querySelectorAll('[data-foto-row-v34]'));
+    await Promise.allSettled(linhas.map(async linha => {
+        const id = linha.dataset.fotoRowV34;
+        const foto = fotos.find(item => String(item.fotoDocId) === String(id));
+        const botao = linha.querySelector('.photo-existing-thumb-v34');
+        if (!foto || !botao) return;
+        try {
+            const url = await obterUrlFotoRemedio(foto);
+            if (!linha.isConnected) return;
+            botao.innerHTML = '<img alt="Pré-visualização de ' + escapeHtml(tituloFotoV34(foto)) + '">';
+            const img = botao.querySelector('img');
+            if (img) img.src = url;
+        } catch (erro) {
+            if (linha.isConnected) botao.innerHTML = '<span class="photo-existing-loading-v34">Foto indisponível neste aparelho</span>';
+        }
+    }));
+}
+
+function renderFotosExistentesEditaveisV34(item, tipo) {
+    garantirEstilosFotosV34();
+    const containerId = idContainerFotosExistentesV34(tipo);
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const fotos = obterFotosRegistro(item || {});
+    if (!fotos.length) {
+        container.innerHTML = '';
+        return;
+    }
+    const listaCategorias = tipo === 'peso' ? PL_CATEGORIAS_PESO : (tipo === 'medida' ? PL_CATEGORIAS_MEDIDAS : null);
+    container.innerHTML = '<div class="photo-existing-editor-v34"><div class="photo-existing-title-v34">Fotos já anexadas — visualize, renomeie ou ajuste a categoria</div>' +
+        fotos.map((foto, indice) => {
+            const id = escapeHtml(foto.fotoDocId);
+            const titulo = escapeHtml(foto.fotoTitulo || '');
+            const original = escapeHtml(nomeOriginalFotoV34(foto, 'foto'));
+            const categoria = listaCategorias
+                ? '<select data-foto-existente="' + id + '" aria-label="Categoria da foto ' + (indice + 1) + '">' + opcoesCategorias(listaCategorias, foto.fotoCategoria || 'outros') + '</select>'
+                : '';
+            return '<div class="photo-existing-row-v34" data-foto-row-v34="' + id + '">' +
+                '<button type="button" class="photo-existing-thumb-v34" data-preview-foto-v34="' + id + '" aria-label="Visualizar foto ' + (indice + 1) + '"><span class="photo-existing-loading-v34">Carregando...</span></button>' +
+                '<div class="photo-existing-main-v34">' +
+                    '<div><label>Nome da foto</label><input type="text" maxlength="160" data-foto-titulo-existente="' + id + '" value="' + titulo + '" placeholder="Ex: Frente, Perfil, Rosto"></div>' +
+                    '<div class="photo-existing-original-v34">Arquivo original: ' + original + '</div>' +
+                    '<div class="photo-existing-actions-v34"><button type="button" class="btn btn-outline" data-preview-foto-v34="' + id + '">◉ Visualizar</button>' + categoria + '</div>' +
+                '</div></div>';
+        }).join('') + '</div>';
+    container.querySelectorAll('[data-preview-foto-v34]').forEach(botao => {
+        botao.addEventListener('click', () => abrirPreviewFotoExistenteV34(tipo, item.id, botao.dataset.previewFotoV34));
+    });
+    carregarMiniaturasFotosExistentesV34(container, fotos);
+}
+
+renderCategoriasExistentesV21 = function(item, tipo) {
+    renderFotosExistentesEditaveisV34(item, tipo);
+};
+
+const fotosExistentesComCategoriasAntesV34 = fotosExistentesComCategoriasV21;
+fotosExistentesComCategoriasV21 = function(item, tipo) {
+    const container = document.getElementById(idContainerFotosExistentesV34(tipo));
+    if (!container) return fotosExistentesComCategoriasAntesV34(item, tipo);
+    const categorias = new Map(Array.from(container.querySelectorAll('select[data-foto-existente]')).map(select => [select.dataset.fotoExistente, select.value]));
+    const titulos = new Map(Array.from(container.querySelectorAll('input[data-foto-titulo-existente]')).map(input => [input.dataset.fotoTituloExistente, textoSeguro(input.value || '', 160).trim()]));
+    return obterFotosRegistro(item || {}).map(foto => ({
+        ...foto,
+        fotoCategoria: categorias.has(foto.fotoDocId) ? categorias.get(foto.fotoDocId) : (foto.fotoCategoria || 'outros'),
+        fotoTitulo: titulos.has(foto.fotoDocId) ? titulos.get(foto.fotoDocId) : (foto.fotoTitulo || '')
+    }));
+};
+
+/* Fotos novas também podem receber um nome amigável antes de salvar. */
+renderSeletoresCategorias = function(arquivos, containerId, lista, estado) {
+    const container = document.getElementById(containerId); if (!container) return;
+    limparUrlsPreviewFotosV25(containerId);
+    const urls = arquivos.map(arquivo => URL.createObjectURL(arquivo));
+    urlsPreviewFotosV25.set(containerId, urls);
+    container.innerHTML = arquivos.map((arquivo, i) =>
+        '<div class="photo-category-row photo-category-preview-row">' +
+            '<button type="button" class="photo-preview-thumb" data-preview-indice="' + i + '" aria-label="Pré-visualizar foto ' + (i + 1) + '"><img alt="Miniatura da foto ' + (i + 1) + '"></button>' +
+            '<div class="photo-category-preview-main"><div><div class="photo-category-name" title="' + escapeHtml(arquivo.name) + '">' + (i + 1) + '. ' + escapeHtml(arquivo.name) + '</div>' +
+            '<button type="button" class="photo-preview-label" data-preview-indice="' + i + '">◉ Visualizar</button>' +
+            '<div class="photo-new-title-v34"><label>Nome da foto (opcional)</label><input type="text" maxlength="160" data-foto-titulo-nova="' + i + '" placeholder="Ex: Frente, Perfil, Rosto"></div></div>' +
+            '<select data-foto-indice="' + i + '">' + opcoesCategorias(lista, estado[i] || 'outros') + '</select></div></div>'
+    ).join('');
+    container.querySelectorAll('[data-preview-indice]').forEach(btn => {
+        const i = Number(btn.dataset.previewIndice), img = btn.querySelector('img');
+        if (img) img.src = urls[i];
+        btn.addEventListener('click', () => abrirPreviewFotoSelecionadaV25(urls[i], arquivos[i]?.name || ('Foto ' + (i + 1))));
+    });
+    container.querySelectorAll('select[data-foto-indice]').forEach(select => select.addEventListener('change', () => {
+        estado[Number(select.dataset.fotoIndice)] = select.value;
+    }));
+};
+
+const prepararFotosRegistroAntesV34 = prepararFotosRegistro;
+prepararFotosRegistro = async function(arquivos, prefixo) {
+    const resultado = await prepararFotosRegistroAntesV34(arquivos, prefixo);
+    if (!resultado?.fotos?.length) return resultado;
+    let containerId = '';
+    if (String(prefixo || '').startsWith('peso_')) containerId = 'peso-foto-categorias';
+    else if (String(prefixo || '').startsWith('medida_')) containerId = 'med-foto-categorias';
+    else if (String(prefixo || '').startsWith('remedio_')) containerId = 'remedio-foto-categorias';
+    const container = containerId ? document.getElementById(containerId) : null;
+    const titulos = new Map(Array.from(container?.querySelectorAll('input[data-foto-titulo-nova]') || []).map(input => [Number(input.dataset.fotoTituloNova), textoSeguro(input.value || '', 160).trim()]));
+    resultado.fotos = resultado.fotos.map((foto, indice) => ({ ...foto, fotoTitulo: titulos.get(indice) || '' }));
+    return resultado;
+};
+
+function garantirEditorFotosRemedioV34() {
+    garantirEstilosFotosV34();
+    let grupo = document.getElementById('remedio-fotos-existentes-grupo-v34');
+    if (grupo) return grupo;
+    const form = document.getElementById('form-remedio');
+    if (!form) return null;
+    grupo = document.createElement('div');
+    grupo.id = 'remedio-fotos-existentes-grupo-v34';
+    grupo.className = 'form-group hidden';
+    grupo.innerHTML = '<div id="remedio-fotos-existentes-v34" class="photo-category-list"></div>';
+    const limpar = form.querySelector('.btn-clear-outline');
+    if (limpar) form.insertBefore(grupo, limpar);
+    else form.appendChild(grupo);
+    return grupo;
+}
+
+function aplicarTitulosFotosRemedioV34(item) {
+    if (!item) return;
+    const container = document.getElementById('remedio-fotos-existentes-v34');
+    if (!container) return;
+    const titulos = new Map(Array.from(container.querySelectorAll('input[data-foto-titulo-existente]')).map(input => [input.dataset.fotoTituloExistente, textoSeguro(input.value || '', 160).trim()]));
+    if (!titulos.size) return;
+    item.fotos = obterFotosRegistro(item).map(foto => ({ ...foto, fotoTitulo: titulos.has(foto.fotoDocId) ? titulos.get(foto.fotoDocId) : (foto.fotoTitulo || '') }));
+}
+
+const editarRemedioAntesV34 = editarRemedio;
+editarRemedio = function(id) {
+    editarRemedioAntesV34(id);
+    const item = (appData.remedios || []).find(registro => String(registro.id) === String(id));
+    const grupo = garantirEditorFotosRemedioV34();
+    const fotos = obterFotosRegistro(item || {});
+    if (grupo) grupo.classList.toggle('hidden', !fotos.length);
+    if (item && fotos.length) renderFotosExistentesEditaveisV34(item, 'remedio');
+};
+
+const limparFormularioRemedioAntesV34 = limparFormularioRemedio;
+limparFormularioRemedio = function() {
+    const resultado = limparFormularioRemedioAntesV34();
+    const grupo = document.getElementById('remedio-fotos-existentes-grupo-v34');
+    const container = document.getElementById('remedio-fotos-existentes-v34');
+    if (container) container.innerHTML = '';
+    if (grupo) grupo.classList.add('hidden');
+    return resultado;
+};
+
+const formRemedioV34 = document.getElementById('form-remedio');
+if (formRemedioV34) {
+    formRemedioV34.addEventListener('submit', () => {
+        const editId = document.getElementById('edit-remedio-id')?.value || '';
+        if (!editId) return;
+        const item = (appData.remedios || []).find(registro => String(registro.id) === String(editId));
+        aplicarTitulosFotosRemedioV34(item);
+    }, true);
+}
+
+/* Carrosséis passam a mostrar o nome amigável quando houver. */
+const renderCarrosselFotosAntesV34 = renderCarrosselFotos;
+renderCarrosselFotos = async function() {
+    await renderCarrosselFotosAntesV34();
+    const entrada = fotosRemediosCarrossel[indiceFotoRemedio], info = document.getElementById('foto-carousel-info');
+    if (!entrada || !info) return;
+    const item = entrada.registro, foto = entrada.foto;
+    info.innerHTML = '<div class="label">' + formatDateBR(item.data) + '</div><div class="value" style="font-size:18px;margin-top:3px">' + escapeHtml(item.nome || '') + ' • ' + formatBR(item.mg) + ' mg</div><div class="small" style="margin-top:4px;color:var(--text-secondary)">Peso: ' + formatBR(item.peso) + ' kg • ' + escapeHtml(tituloFotoV34(foto, 'Foto')) + '</div>';
+};
+
+const renderCarrosselFotosPesosAntesV34 = renderCarrosselFotosPesos;
+renderCarrosselFotosPesos = async function() {
+    await renderCarrosselFotosPesosAntesV34();
+    const entrada = fotosPesosCarrossel[indiceFotoPeso], info = document.getElementById('foto-peso-carousel-info');
+    if (!entrada || !info) return;
+    const item = entrada.registro, foto = entrada.foto;
+    info.innerHTML = '<div class="label">' + formatDateBR(item.data) + '</div><div class="value" style="font-size:18px;margin-top:3px">' + formatBR(item.peso) + ' kg</div><div class="small" style="margin-top:4px;color:var(--text-secondary)">Meta: ' + (metaPesoUsadaV21(item) === null ? '--' : formatBR(metaPesoUsadaV21(item)) + ' kg') + ' • ' + escapeHtml(tituloFotoV34(foto, 'Foto')) + '</div><div class="small" style="margin-top:6px">Categoria: <select id="categoria-foto-atual-peso" onchange="atualizarCategoriaFotoAtual(\'peso\',this.value)" style="width:auto;padding:5px">' + opcoesCategorias(PL_CATEGORIAS_PESO, foto.fotoCategoria || 'outros') + '</select></div>';
+};
+
+const renderCarrosselFotosMedidasAntesV34 = renderCarrosselFotosMedidas;
+renderCarrosselFotosMedidas = async function() {
+    await renderCarrosselFotosMedidasAntesV34();
+    const entrada = fotosMedidasCarrossel[indiceFotoMedida], info = document.getElementById('foto-medida-carousel-info');
+    if (!entrada || !info) return;
+    const item = entrada.registro, foto = entrada.foto;
+    info.innerHTML = '<div class="label">' + formatDateBR(item.data) + '</div><div class="value" style="font-size:18px;margin-top:3px">' + formatBR(item.peso) + ' kg</div><div class="small" style="margin-top:4px;color:var(--text-secondary)">Barriga: ' + formatBR(item.cintura) + ' cm • ' + escapeHtml(tituloFotoV34(foto, 'Foto')) + '</div><div class="small" style="margin-top:6px">Categoria: <select id="categoria-foto-atual-medida" onchange="atualizarCategoriaFotoAtual(\'medida\',this.value)" style="width:auto;padding:5px">' + opcoesCategorias(PL_CATEGORIAS_MEDIDAS, foto.fotoCategoria || 'outros') + '</select></div>';
+};
+
+const normalizarDadosAntesV34 = normalizarDados;
+normalizarDados = function(raw) {
+    const dados = normalizarDadosAntesV34(raw);
+    dados.schemaVersion = Math.max(Number(dados.schemaVersion) || 0, PL_SCHEMA_VERSION_V34);
+    return dados;
+};
+
+function inicializarMelhoriasV34() {
+    garantirEstilosFotosV34();
+    garantirEditorFotosRemedioV34();
+}
+
+window.abrirPreviewFotoExistenteV34 = abrirPreviewFotoExistenteV34;
+window.editarRemedio = editarRemedio;
+window.limparFormularioRemedio = limparFormularioRemedio;
+window.renderCarrosselFotos = renderCarrosselFotos;
+window.renderCarrosselFotosPesos = renderCarrosselFotosPesos;
+window.renderCarrosselFotosMedidas = renderCarrosselFotosMedidas;
+window.addEventListener('load', inicializarMelhoriasV34);
 </script>
 
 </body>

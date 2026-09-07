@@ -29,6 +29,12 @@ Os caminhos de manifesto, service worker e ícones são relativos, portanto func
 
 A autenticação é Firebase, mas os registros continuam salvos localmente por usuário no navegador e as fotos no IndexedDB. Firestore e Firebase Storage ficam bloqueados pelas regras incluídas neste pacote.
 
-## Versão V33
+## Versão V34
 
 Mantém as melhorias da V32 e adiciona Água Corporal em duas unidades no lançamento de peso: percentual (%) e quilogramas (kg). O preenchimento é bidirecional: ao informar uma unidade, a outra é calculada automaticamente a partir do peso do registro. Os cards e detalhes também exibem as duas unidades.
+
+
+## V34
+- Fotos já anexadas podem ser pré-visualizadas durante a edição de registros.
+- Fotos podem receber um nome amigável sem alterar o arquivo original armazenado.
+- Peso, Medidas e registros antigos de Remédios com fotos preservam esses nomes nos backups.
