@@ -1415,6 +1415,10 @@
     #btn-calcular-metas-composicao-v29 { min-height:48px; font-weight:800; }
     .composition-range-settings .composition-range-group { break-inside:avoid; }
     @media (max-width:430px) { #calculo-metas-composicao-info-v29 { font-size:11px; } }
+
+        /* V33 — água corporal em percentual e kg */
+        .water-secondary-v33 { margin-top:4px; font-size:12px; font-weight:800; color:var(--text-secondary); }
+        .water-dual-help-v33 { margin-top:-4px; margin-bottom:10px; color:var(--text-secondary); font-size:11px; }
 </style>
 </head>
 <body>
@@ -1618,6 +1622,7 @@
                         <div class="form-group"><label>Músculo esquelético (kg)</label><input type="text" inputmode="decimal" id="peso-musculo" placeholder="Ex: 29,50"></div>
                         <div class="form-group"><label>Massa gorda (kg)</label><input type="text" inputmode="decimal" id="peso-massa-gorda" placeholder="Ex: 24,10"></div>
                         <div class="form-group"><label>Água corporal (%)</label><input type="text" inputmode="decimal" id="peso-agua" placeholder="Ex: 52,30"></div>
+                        <div class="form-group"><label>Água corporal (kg)</label><input type="text" inputmode="decimal" id="peso-agua-kg" placeholder="Calculado automaticamente"></div>
                         <div class="form-group"><label>Gordura corporal calculada (%)</label><input type="text" id="peso-gordura-percentual" readonly placeholder="Calculada automaticamente"></div>
                         <div class="form-group"><label>IMC</label><input type="text" inputmode="decimal" id="peso-imc" placeholder="Ex: 32,30"></div>
                         <div class="form-group"><label>Taxa metabólica basal (kcal)</label><input type="text" inputmode="numeric" id="peso-tmb" placeholder="Ex: 1750"></div>
@@ -9618,11 +9623,14 @@ document.getElementById('form-peso').onsubmit = async function(evento) {
         const novas=(preparada?.fotos||[]).map((foto,indiceFoto)=>({...foto,fotoCategoria:categoriasFotosPesoSelecionadas[indiceFoto]||'outros'}));
         const massaGorda=validarOpcional('peso-massa-gorda');
         const gordura=massaGorda===''?'':(massaGorda/peso)*100;
+        const aguaPercentual=validarOpcional('peso-agua',100);
+        const aguaKgCampo=validarOpcional('peso-agua-kg');
+        const aguaKg=aguaPercentual===''?'':(fonteAguaCorporalV33==='kg'&&aguaKgCampo!==''?aguaKgCampo:peso*aguaPercentual/100);
         const massaMagraDigitada=validarOpcional('peso-massa-magra');
         const massaMagra=massaMagraDigitada!==''?massaMagraDigitada:(massaGorda!==''?Math.max(0,peso-massaGorda):'');
         const registro={
             ...(anterior||{}),id,data,peso,meta,metaPesoUsada:meta,observacoes:document.getElementById('peso-obs').value,
-            musculoEsqueletico:validarOpcional('peso-musculo'),massaGorda,aguaCorporal:validarOpcional('peso-agua',100),gorduraCorporalPercentual:gordura,
+            musculoEsqueletico:validarOpcional('peso-musculo'),massaGorda,aguaCorporal:aguaPercentual,aguaCorporalKg:aguaKg,gorduraCorporalPercentual:gordura,
             imc:validarOpcional('peso-imc'),tmb:validarOpcional('peso-tmb'),
             gorduraVisceral:validarOpcional('peso-gordura-visceral'),massaMagra,massaOssea:validarOpcional('peso-massa-ossea'),
             proteinaPercentual:validarOpcional('peso-proteina',100),idadeCorporal:validarOpcional('peso-idade-corporal'),
@@ -10286,6 +10294,191 @@ window.restaurarOrdemGraficosV32 = restaurarOrdemGraficosV32;
 window.salvarOrdemGraficosV32 = salvarOrdemGraficosV32;
 window.addEventListener('load', inicializarMelhoriasV32);
 
+
+
+/* V33 — água corporal em percentual e kg, com conversão bidirecional. */
+const PL_SCHEMA_VERSION_V33 = 33;
+let fonteAguaCorporalV33 = 'percentual';
+let sincronizandoAguaCorporalV33 = false;
+
+function aguaPercentualDoRegistroV33(registro) {
+    const percentual = numeroValido(registro?.aguaCorporal);
+    if (percentual !== null) return percentual;
+    const kg = numeroValido(registro?.aguaCorporalKg), peso = numeroValido(registro?.peso);
+    if (kg === null || peso === null || peso <= 0) return null;
+    return kg / peso * 100;
+}
+
+function aguaKgDoRegistroV33(registro) {
+    const kg = numeroValido(registro?.aguaCorporalKg);
+    if (kg !== null) return kg;
+    const percentual = numeroValido(registro?.aguaCorporal), peso = numeroValido(registro?.peso);
+    if (percentual === null || peso === null || peso <= 0) return null;
+    return peso * percentual / 100;
+}
+
+function sincronizarAguaCorporalV33(fonte = fonteAguaCorporalV33, formatar = false) {
+    if (sincronizandoAguaCorporalV33) return;
+    const campoPeso = document.getElementById('peso-valor');
+    const campoPct = document.getElementById('peso-agua');
+    const campoKg = document.getElementById('peso-agua-kg');
+    if (!campoPeso || !campoPct || !campoKg) return;
+    const peso = numeroValido(campoPeso.value);
+    sincronizandoAguaCorporalV33 = true;
+    try {
+        if (fonte === 'kg') {
+            fonteAguaCorporalV33 = 'kg';
+            const kg = numeroValido(campoKg.value);
+            if (kg === null) {
+                if (!String(campoKg.value || '').trim()) campoPct.value = '';
+                return;
+            }
+            if (peso !== null && peso > 0) {
+                const pct = kg / peso * 100;
+                campoPct.value = formatar ? formatBR(pct) : String(Math.round(pct * 100) / 100).replace('.', ',');
+            }
+            if (formatar) campoKg.value = formatBR(kg);
+        } else {
+            fonteAguaCorporalV33 = 'percentual';
+            const pct = numeroValido(campoPct.value);
+            if (pct === null) {
+                if (!String(campoPct.value || '').trim()) campoKg.value = '';
+                return;
+            }
+            if (peso !== null && peso > 0) {
+                const kg = peso * pct / 100;
+                campoKg.value = formatar ? formatBR(kg) : String(Math.round(kg * 100) / 100).replace('.', ',');
+            }
+            if (formatar) campoPct.value = formatBR(pct);
+        }
+    } finally {
+        sincronizandoAguaCorporalV33 = false;
+    }
+}
+
+const normalizarDadosAntesV33 = normalizarDados;
+normalizarDados = function(raw) {
+    const origem = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+    const dados = normalizarDadosAntesV33(origem);
+    dados.schemaVersion = Math.max(Number(dados.schemaVersion) || 0, PL_SCHEMA_VERSION_V33);
+    dados.pesos = (dados.pesos || []).map((registro, indice) => {
+        const fonte = encontrarFonteV21(origem.pesos, registro, indice) || {};
+        const peso = numeroValido(registro.peso);
+        let percentual = numeroValido(fonte.aguaCorporal);
+        if (percentual === null) percentual = numeroValido(registro.aguaCorporal);
+        let kg = numeroValido(fonte.aguaCorporalKg);
+        if (kg === null) kg = numeroValido(registro.aguaCorporalKg);
+        if (kg === null && percentual !== null && peso !== null && peso > 0) kg = peso * percentual / 100;
+        if (percentual === null && kg !== null && peso !== null && peso > 0) percentual = kg / peso * 100;
+        return { ...registro, aguaCorporal: percentual === null ? '' : percentual, aguaCorporalKg: kg === null ? '' : kg };
+    });
+    return dados;
+};
+
+const validarDadosImportadosAntesV33 = validarDadosImportados;
+validarDadosImportados = function(raw) {
+    for (const registro of (Array.isArray(raw?.pesos) ? raw.pesos : [])) {
+        if (registro?.aguaCorporalKg === undefined || registro.aguaCorporalKg === '' || registro.aguaCorporalKg === null) continue;
+        const kg = numeroValido(registro.aguaCorporalKg), peso = numeroValido(registro.peso);
+        if (kg === null || kg < 0 || (peso !== null && peso > 0 && kg > peso + 0.01)) throw new Error('Água corporal em kg inválida no backup.');
+    }
+    return validarDadosImportadosAntesV33(raw);
+};
+
+const percentualParaKgAntesV33 = percentualParaKgV28;
+percentualParaKgV28 = function(registro, chavePercentual) {
+    if (chavePercentual === 'aguaCorporal') {
+        const kg = aguaKgDoRegistroV33(registro);
+        if (kg !== null) return kg;
+    }
+    return percentualParaKgAntesV33(registro, chavePercentual);
+};
+
+const limparComposicaoFormAntesV33 = limparComposicaoForm;
+limparComposicaoForm = function() {
+    limparComposicaoFormAntesV33();
+    const kg = document.getElementById('peso-agua-kg'); if (kg) kg.value = '';
+    fonteAguaCorporalV33 = 'percentual';
+};
+
+const editarPesoAntesV33 = editarPeso;
+editarPeso = function(id) {
+    editarPesoAntesV33(id);
+    const item = (appData.pesos || []).find(registro => String(registro.id) === String(id));
+    const campoKg = document.getElementById('peso-agua-kg');
+    if (campoKg && item) {
+        const kg = aguaKgDoRegistroV33(item);
+        campoKg.value = kg === null ? '' : formatBR(kg);
+    }
+    fonteAguaCorporalV33 = 'percentual';
+};
+window.editarPeso = editarPeso;
+
+renderResumoComposicao = function() {
+    const container=document.getElementById('resumo-composicao-corporal'); if(!container)return;
+    const itens=[
+        ['Músculo esquelético','musculoEsqueletico',' kg',false],['Massa gorda','massaGorda',' kg',false],['Água corporal','aguaCorporal',' %',false],
+        ['Gordura corporal','gorduraCorporalPercentual',' %',false],['Massa magra','massaMagra',' kg',false],['Massa óssea','massaOssea',' kg',false],
+        ['Gordura visceral','gorduraVisceral','',false],['Proteína','proteinaPercentual',' %',false],['Idade corporal','idadeCorporal',' anos',true],['IMC','imc','',false],['TMB','tmb',' kcal',true]
+    ];
+    container.innerHTML=itens.map(([nome,chave,unidade,inteiro])=>{
+        const leitura=atualEAnteriorV21(appData.pesos,chave),metas=metasDoRegistroV23(leitura.atual),alvo=alvoComposicaoV25(chave,leitura.valor,metas);
+        const cmp=comparacaoV21(leitura.valor,leitura.valorAnterior,unidade,(a,b)=>comparacaoMelhoraV24(chave,a,b,{faixa:alvo.faixa}),inteiro);
+        const exibicao=leitura.valor===null?'--':(inteiro?Math.round(leitura.valor):formatBR(leitura.valor))+unidade;
+        const aguaKg=chave==='aguaCorporal'?aguaKgDoRegistroV33(leitura.atual):null;
+        const extra=chave==='aguaCorporal'&&aguaKg!==null?'<div class="water-secondary-v33">'+formatBR(aguaKg)+' kg</div>':'';
+        return '<div class="card composition-summary-card record-summary-card"><div class="label">'+nome+'</div><div class="value '+alvo.classe+'">'+exibicao+'</div>'+extra+'<div class="metric-delta '+cmp.classe+'">'+cmp.texto+'</div><div class="metric-target-stack"><div class="metric-target-line">'+alvo.metaTexto+'</div><div class="metric-target-line target-status '+alvo.classe+'">'+alvo.faltaTexto+'</div></div></div>';
+    }).join('');
+};
+
+const visualizarRegistroAntesV33 = visualizarRegistro;
+visualizarRegistro = function(tipo,id) {
+    if (tipo === 'peso') {
+        const item=(appData.pesos||[]).find(r=>String(r.id)===String(id));if(!item)return alert('Registro não encontrado.');
+        registroVisualizado={tipo,id:item.id};
+        const blocos=[valorDetalhe('Data',formatDateBR(item.data))];
+        const pesoMeta=metaPesoUsadaV21(item),pesoAlvo=faltaMetaV24('peso',item.peso,pesoMeta,' kg');
+        blocos.push(detalheMetricaV24('Peso',item.peso,' kg','peso',pesoAlvo,comparacaoV21(numeroValido(item.peso),registroAnteriorParaCampoV24(appData.pesos,item,'peso'),' kg',(a,b)=>comparacaoMelhoraV24('peso',a,b,{meta:pesoMeta}))));
+        const metas=metasDoRegistroV23(item);
+        const itens=[['Músculo esquelético','musculoEsqueletico',' kg',false],['Massa gorda','massaGorda',' kg',false],['Água corporal','aguaCorporal',' %',false],['Gordura corporal','gorduraCorporalPercentual',' %',false],['Massa magra','massaMagra',' kg',false],['Massa óssea','massaOssea',' kg',false],['Gordura visceral','gorduraVisceral','',false],['Proteína','proteinaPercentual',' %',false],['Idade corporal','idadeCorporal',' anos',true],['IMC','imc','',false],['TMB','tmb',' kcal',true]];
+        for(const [rotulo,chave,unidade,inteiro] of itens){
+            const alvo=alvoComposicaoV25(chave,item[chave],metas),anterior=registroAnteriorParaCampoV24(appData.pesos,item,chave);
+            const cmp=comparacaoV21(numeroValido(item[chave]),anterior,unidade,(a,b)=>comparacaoMelhoraV24(chave,a,b,{faixa:alvo.faixa}),inteiro);
+            blocos.push(detalheMetricaV24(rotulo,item[chave],unidade,chave,alvo,cmp,inteiro));
+            if(chave==='aguaCorporal'){
+                const kg=aguaKgDoRegistroV33(item);
+                blocos.push(valorDetalhe('Água corporal (kg)',kg===null?'--':formatBR(kg)+' kg'));
+            }
+        }
+        const fotos=obterFotosRegistro(item);blocos.push(valorDetalhe('Fotos',fotos.length));
+        const fotosDetalhe=fotos.length?'<div class="detail-field wide"><div class="label">Categorias das fotos</div><div class="detail-value">'+fotos.map((foto,indice)=>'Foto '+(indice+1)+': '+escapeHtml(rotuloCategoria(PL_CATEGORIAS_PESO,foto.fotoCategoria||'outros'))).join('<br>')+'</div></div>':'';
+        abrirModalDetalhes('Registro de Peso','<div class="detail-grid">'+blocos.join('')+fotosDetalhe+'<div class="detail-field wide"><div class="label">Observações</div><div class="detail-value">'+escapeHtml(item.observacoes||'--')+'</div></div></div>');
+        return;
+    }
+    return visualizarRegistroAntesV33(tipo,id);
+};
+window.visualizarRegistro = visualizarRegistro;
+
+function inicializarMelhoriasV33() {
+    const campoPct=document.getElementById('peso-agua'),campoKg=document.getElementById('peso-agua-kg'),campoPeso=document.getElementById('peso-valor'),form=document.getElementById('form-peso');
+    if (!campoPct || !campoKg || !campoPeso) return;
+    campoPct.addEventListener('input',()=>{fonteAguaCorporalV33='percentual';sincronizarAguaCorporalV33('percentual',false);});
+    campoKg.addEventListener('input',()=>{fonteAguaCorporalV33='kg';sincronizarAguaCorporalV33('kg',false);});
+    campoPeso.addEventListener('input',()=>sincronizarAguaCorporalV33(fonteAguaCorporalV33,false));
+    campoPct.addEventListener('blur',()=>sincronizarAguaCorporalV33('percentual',true));
+    campoKg.addEventListener('blur',()=>sincronizarAguaCorporalV33('kg',true));
+    form?.addEventListener('submit',()=>{
+        const pct=numeroValido(campoPct.value),kg=numeroValido(campoKg.value);
+        if(kg!==null&&(pct===null||fonteAguaCorporalV33==='kg'))sincronizarAguaCorporalV33('kg',true);
+        else if(pct!==null)sincronizarAguaCorporalV33('percentual',true);
+    },true);
+    const grupoKg=campoKg.closest('.form-group');
+    if(grupoKg&&!document.getElementById('agua-dual-help-v33')){
+        const ajuda=document.createElement('div');ajuda.id='agua-dual-help-v33';ajuda.className='water-dual-help-v33';ajuda.textContent='Preencha % ou kg. O outro valor é calculado automaticamente usando o peso deste registro.';grupoKg.after(ajuda);
+    }
+}
+window.sincronizarAguaCorporalV33 = sincronizarAguaCorporalV33;
+window.addEventListener('load', inicializarMelhoriasV33);
 </script>
 
 </body>

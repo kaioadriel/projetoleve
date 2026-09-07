@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v32-ordenacao-graficos';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v32-ordenacao-graficos';
+const CACHE_VERSION = 'projeto-leve-v33-agua-dupla';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v33-agua-dupla';
 const BASE = new URL('./', self.location.href);
 const localUrl = name => new URL(name, BASE).href;
 

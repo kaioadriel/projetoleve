@@ -29,6 +29,6 @@ Os caminhos de manifesto, service worker e ícones são relativos, portanto func
 
 A autenticação é Firebase, mas os registros continuam salvos localmente por usuário no navegador e as fotos no IndexedDB. Firestore e Firebase Storage ficam bloqueados pelas regras incluídas neste pacote.
 
-## Versão V32
+## Versão V33
 
-Inclui ordenação personalizada e persistente dos gráficos e reposiciona o Resumo Automático da tela inicial para depois de Antes e Depois.
+Mantém as melhorias da V32 e adiciona Água Corporal em duas unidades no lançamento de peso: percentual (%) e quilogramas (kg). O preenchimento é bidirecional: ao informar uma unidade, a outra é calculada automaticamente a partir do peso do registro. Os cards e detalhes também exibem as duas unidades.
