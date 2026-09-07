@@ -10770,7 +10770,209 @@ window.limparFormularioRemedio = limparFormularioRemedio;
 window.renderCarrosselFotos = renderCarrosselFotos;
 window.renderCarrosselFotosPesos = renderCarrosselFotosPesos;
 window.renderCarrosselFotosMedidas = renderCarrosselFotosMedidas;
+
 window.addEventListener('load', inicializarMelhoriasV34);
+
+/* V35 — exclusão individual de fotos existentes e de novas seleções. */
+const PL_SCHEMA_VERSION_V35 = 35;
+const PL_ICONE_LIXEIRA_V35 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6m4-6v6"/></svg>';
+
+function garantirEstilosFotosV35() {
+    if (document.getElementById('estilos-fotos-v35')) return;
+    const style = document.createElement('style');
+    style.id = 'estilos-fotos-v35';
+    style.textContent = `
+        .photo-existing-label-row-v35,
+        .photo-new-file-head-v35 { display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:0; }
+        .photo-new-file-head-v35 .photo-category-name { min-width:0; flex:1; }
+        .photo-delete-icon-v35 { width:38px; height:38px; flex:0 0 38px; border:1px solid rgba(220,38,38,.35); border-radius:12px; background:#fff; color:var(--danger); padding:8px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+        .photo-delete-icon-v35 svg { width:19px; height:19px; }
+        .photo-delete-icon-v35:active { transform:scale(.96); }
+        .photo-category-preview-row { position:relative; }
+        @media (max-width:430px) {
+            .photo-delete-icon-v35 { width:36px; height:36px; flex-basis:36px; padding:7px; }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function estadoAtualFotosExistentesV35(container) {
+    return {
+        categorias: new Map(Array.from(container?.querySelectorAll('select[data-foto-existente]') || []).map(el => [el.dataset.fotoExistente, el.value])),
+        titulos: new Map(Array.from(container?.querySelectorAll('input[data-foto-titulo-existente]') || []).map(el => [el.dataset.fotoTituloExistente, textoSeguro(el.value || '', 160).trim()]))
+    };
+}
+
+function atualizarTextoFotosExistentesV35(tipo, registro) {
+    const quantidade = obterFotosRegistro(registro || {}).length;
+    const id = tipo === 'peso' ? 'peso-foto-nome' : (tipo === 'medida' ? 'med-foto-nome' : 'remedio-foto-nome');
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerText = quantidade
+        ? `${quantidade} foto(s) atual(is) mantida(s). Selecione mais imagens para adicionar.`
+        : 'Nenhuma foto atual neste registro. Você pode adicionar novas imagens.';
+}
+
+async function excluirFotoExistenteEditorV35(tipo, registroId, fotoDocId) {
+    const colecao = colecaoFotosPorTipoV34(tipo);
+    const registro = colecao.find(item => String(item.id) === String(registroId));
+    if (!registro) return alert('O registro não foi encontrado.');
+    const fotos = obterFotosRegistro(registro);
+    const alvo = fotos.find(foto => String(foto.fotoDocId) === String(fotoDocId));
+    if (!alvo) return alert('A foto não foi encontrada neste registro.');
+    if (!confirm('Excluir somente esta foto? A exclusão será aplicada imediatamente ao registro.')) return;
+
+    const container = document.getElementById(idContainerFotosExistentesV34(tipo));
+    const estadoTela = estadoAtualFotosExistentesV35(container);
+    const fotosTelaRestantes = fotos
+        .filter(foto => String(foto.fotoDocId) !== String(fotoDocId))
+        .map(foto => ({
+            ...foto,
+            fotoCategoria: estadoTela.categorias.has(foto.fotoDocId) ? estadoTela.categorias.get(foto.fotoDocId) : (foto.fotoCategoria || 'outros'),
+            fotoTitulo: estadoTela.titulos.has(foto.fotoDocId) ? estadoTela.titulos.get(foto.fotoDocId) : (foto.fotoTitulo || '')
+        }));
+
+    try {
+        motivoProximaCopia = 'Antes de excluir foto';
+        registro.fotos = fotos.filter(foto => String(foto.fotoDocId) !== String(fotoDocId));
+        limparCamposFotoUnica(registro, fotoDocId);
+        await salvarDados(true, true);
+
+        try {
+            await removerFotosDoCacheLocal(currentUser?.uid || '', [fotoDocId]);
+        } catch (erroCache) {
+            console.warn('A referência foi excluída, mas o arquivo local antigo não pôde ser removido:', erroCache);
+        }
+
+        const registroAtual = colecaoFotosPorTipoV34(tipo).find(item => String(item.id) === String(registroId));
+        const preview = registroAtual ? { ...registroAtual, fotos: fotosTelaRestantes } : { ...registro, fotos: fotosTelaRestantes };
+        renderFotosExistentesEditaveisV34(preview, tipo);
+        atualizarTextoFotosExistentesV35(tipo, registroAtual || registro);
+    } catch (erro) {
+        console.error(erro);
+        alert('Não foi possível excluir esta foto: ' + traduzirErroApp(erro));
+    }
+}
+
+renderFotosExistentesEditaveisV34 = function(item, tipo) {
+    garantirEstilosFotosV34();
+    garantirEstilosFotosV35();
+    const containerId = idContainerFotosExistentesV34(tipo);
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const fotos = obterFotosRegistro(item || {});
+    if (!fotos.length) {
+        container.innerHTML = '';
+        return;
+    }
+    const listaCategorias = tipo === 'peso' ? PL_CATEGORIAS_PESO : (tipo === 'medida' ? PL_CATEGORIAS_MEDIDAS : null);
+    container.innerHTML = '<div class="photo-existing-editor-v34"><div class="photo-existing-title-v34">Fotos já anexadas — visualize, renomeie, exclua ou ajuste a categoria</div>' +
+        fotos.map((foto, indice) => {
+            const id = escapeHtml(foto.fotoDocId);
+            const titulo = escapeHtml(foto.fotoTitulo || '');
+            const original = escapeHtml(nomeOriginalFotoV34(foto, 'foto'));
+            const categoria = listaCategorias
+                ? '<select data-foto-existente="' + id + '" aria-label="Categoria da foto ' + (indice + 1) + '">' + opcoesCategorias(listaCategorias, foto.fotoCategoria || 'outros') + '</select>'
+                : '';
+            return '<div class="photo-existing-row-v34" data-foto-row-v34="' + id + '">' +
+                '<button type="button" class="photo-existing-thumb-v34" data-preview-foto-v34="' + id + '" aria-label="Visualizar foto ' + (indice + 1) + '"><span class="photo-existing-loading-v34">Carregando...</span></button>' +
+                '<div class="photo-existing-main-v34">' +
+                    '<div><div class="photo-existing-label-row-v35"><label>Nome da foto</label><button type="button" class="photo-delete-icon-v35" data-excluir-foto-existente-v35="' + id + '" title="Excluir somente esta foto" aria-label="Excluir foto ' + (indice + 1) + '">' + PL_ICONE_LIXEIRA_V35 + '</button></div><input type="text" maxlength="160" data-foto-titulo-existente="' + id + '" value="' + titulo + '" placeholder="Ex: Frente, Perfil, Rosto"></div>' +
+                    '<div class="photo-existing-original-v34">Arquivo original: ' + original + '</div>' +
+                    '<div class="photo-existing-actions-v34"><button type="button" class="btn btn-outline" data-preview-foto-v34="' + id + '">◉ Visualizar</button>' + categoria + '</div>' +
+                '</div></div>';
+        }).join('') + '</div>';
+    container.querySelectorAll('[data-preview-foto-v34]').forEach(botao => {
+        botao.addEventListener('click', () => abrirPreviewFotoExistenteV34(tipo, item.id, botao.dataset.previewFotoV34));
+    });
+    container.querySelectorAll('[data-excluir-foto-existente-v35]').forEach(botao => {
+        botao.addEventListener('click', () => excluirFotoExistenteEditorV35(tipo, item.id, botao.dataset.excluirFotoExistenteV35));
+    });
+    carregarMiniaturasFotosExistentesV34(container, fotos);
+};
+
+function dadosNovaFotoPorContainerV35(containerId) {
+    if (containerId === 'peso-foto-categorias') return { input: document.getElementById('peso-foto'), nome: document.getElementById('peso-foto-nome') };
+    if (containerId === 'med-foto-categorias') return { input: document.getElementById('med-foto'), nome: document.getElementById('med-foto-nome') };
+    if (containerId === 'remedio-foto-categorias') return { input: document.getElementById('remedio-foto'), nome: document.getElementById('remedio-foto-nome') };
+    return { input:null, nome:null };
+}
+
+function atualizarTextoNovasFotosV35(containerId, quantidade) {
+    const { nome } = dadosNovaFotoPorContainerV35(containerId);
+    if (!nome) return;
+    nome.innerText = quantidade
+        ? `${quantidade} nova(s) foto(s) selecionada(s).`
+        : 'Nenhuma nova foto selecionada.';
+}
+
+function removerFotoNovaV35(containerId, indice, lista, estado) {
+    const { input } = dadosNovaFotoPorContainerV35(containerId);
+    if (!input) return;
+    const arquivos = Array.from(input.files || []);
+    if (!Number.isInteger(indice) || indice < 0 || indice >= arquivos.length) return;
+    const container = document.getElementById(containerId);
+    const titulos = Array.from(container?.querySelectorAll('input[data-foto-titulo-nova]') || []).map(el => textoSeguro(el.value || '', 160).trim());
+    arquivos.splice(indice, 1);
+    titulos.splice(indice, 1);
+    estado.splice(indice, 1);
+
+    try {
+        const dt = new DataTransfer();
+        arquivos.forEach(file => dt.items.add(file));
+        input.files = dt.files;
+    } catch (erro) {
+        console.error(erro);
+        return alert('Este navegador não permitiu remover apenas uma foto da seleção. Tente selecionar as imagens novamente.');
+    }
+
+    renderSeletoresCategorias(arquivos, containerId, lista, estado);
+    Array.from(document.querySelectorAll('#' + containerId + ' input[data-foto-titulo-nova]')).forEach((el, i) => { el.value = titulos[i] || ''; });
+    atualizarTextoNovasFotosV35(containerId, arquivos.length);
+}
+
+renderSeletoresCategorias = function(arquivos, containerId, lista, estado) {
+    const container = document.getElementById(containerId); if (!container) return;
+    garantirEstilosFotosV35();
+    limparUrlsPreviewFotosV25(containerId);
+    const urls = arquivos.map(arquivo => URL.createObjectURL(arquivo));
+    urlsPreviewFotosV25.set(containerId, urls);
+    container.innerHTML = arquivos.map((arquivo, i) =>
+        '<div class="photo-category-row photo-category-preview-row">' +
+            '<button type="button" class="photo-preview-thumb" data-preview-indice="' + i + '" aria-label="Pré-visualizar foto ' + (i + 1) + '"><img alt="Miniatura da foto ' + (i + 1) + '"></button>' +
+            '<div class="photo-category-preview-main"><div>' +
+                '<div class="photo-new-file-head-v35"><div class="photo-category-name" title="' + escapeHtml(arquivo.name) + '">' + (i + 1) + '. ' + escapeHtml(arquivo.name) + '</div><button type="button" class="photo-delete-icon-v35" data-remover-foto-nova-v35="' + i + '" title="Remover esta foto" aria-label="Remover foto ' + (i + 1) + '">' + PL_ICONE_LIXEIRA_V35 + '</button></div>' +
+                '<button type="button" class="photo-preview-label" data-preview-indice="' + i + '">◉ Visualizar</button>' +
+                '<div class="photo-new-title-v34"><label>Nome da foto (opcional)</label><input type="text" maxlength="160" data-foto-titulo-nova="' + i + '" placeholder="Ex: Frente, Perfil, Rosto"></div></div>' +
+            '<select data-foto-indice="' + i + '">' + opcoesCategorias(lista, estado[i] || 'outros') + '</select></div></div>'
+    ).join('');
+    container.querySelectorAll('[data-preview-indice]').forEach(btn => {
+        const i = Number(btn.dataset.previewIndice), img = btn.querySelector('img');
+        if (img) img.src = urls[i];
+        btn.addEventListener('click', () => abrirPreviewFotoSelecionadaV25(urls[i], arquivos[i]?.name || ('Foto ' + (i + 1))));
+    });
+    container.querySelectorAll('select[data-foto-indice]').forEach(select => select.addEventListener('change', () => {
+        estado[Number(select.dataset.fotoIndice)] = select.value;
+    }));
+    container.querySelectorAll('[data-remover-foto-nova-v35]').forEach(botao => {
+        botao.addEventListener('click', () => removerFotoNovaV35(containerId, Number(botao.dataset.removerFotoNovaV35), lista, estado));
+    });
+};
+
+const normalizarDadosAntesV35 = normalizarDados;
+normalizarDados = function(raw) {
+    const dados = normalizarDadosAntesV35(raw);
+    dados.schemaVersion = Math.max(Number(dados.schemaVersion) || 0, PL_SCHEMA_VERSION_V35);
+    return dados;
+};
+
+function inicializarMelhoriasV35() {
+    garantirEstilosFotosV35();
+}
+
+window.excluirFotoExistenteEditorV35 = excluirFotoExistenteEditorV35;
+window.removerFotoNovaV35 = removerFotoNovaV35;
+window.addEventListener('load', inicializarMelhoriasV35);
 </script>
 
 </body>
