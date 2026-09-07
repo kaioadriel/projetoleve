@@ -44,3 +44,9 @@ Mantém as melhorias da V32 e adiciona Água Corporal em duas unidades no lança
 - Fotos já anexadas podem ser excluídas individualmente durante a edição.
 - Fotos recém-selecionadas podem ser removidas individualmente antes de salvar.
 - A exclusão usa um ícone compacto de lixeira e preserva as demais fotos do registro.
+
+
+## V36
+- Adicionado botão **Limpar** nos gráficos de Peso/Composição Corporal e Medidas.
+- O botão desmarca todas as séries; depois basta tocar nos itens da legenda para exibir somente as linhas desejadas.
+- A seleção é preservada enquanto o app estiver aberto, inclusive ao trocar o período do gráfico.

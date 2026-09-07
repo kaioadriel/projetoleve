@@ -10973,6 +10973,140 @@ function inicializarMelhoriasV35() {
 window.excluirFotoExistenteEditorV35 = excluirFotoExistenteEditorV35;
 window.removerFotoNovaV35 = removerFotoNovaV35;
 window.addEventListener('load', inicializarMelhoriasV35);
+
+
+/* V36 — limpar seleção de linhas nos gráficos de Peso/Composição e Medidas. */
+const PL_SCHEMA_VERSION_V36 = 36;
+const estadoLinhasGraficosV36 = {
+    peso: null,
+    medidas: null
+};
+
+function chartPorChaveV36(chave) {
+    if (chave === 'peso') return chartPesoRef || null;
+    if (chave === 'medidas') return chartMedidasRef || null;
+    return null;
+}
+
+function atualizarDicaLinhasV36(chave) {
+    const dica = document.querySelector('[data-chart-lines-hint-v36="' + chave + '"]');
+    if (!dica) return;
+    const estado = estadoLinhasGraficosV36[chave];
+    dica.classList.toggle('hidden', !(estado instanceof Set && estado.size === 0));
+}
+
+function aplicarEstadoLinhasV36(chart, chave) {
+    if (!chart || !Array.isArray(chart.data?.datasets)) return;
+    const estado = estadoLinhasGraficosV36[chave];
+    if (!(estado instanceof Set)) return;
+    chart.data.datasets.forEach((dataset, indice) => {
+        chart.setDatasetVisibility(indice, estado.has(String(dataset.label || '')));
+    });
+}
+
+function configurarLegendaSelecionavelV36(chart, chave) {
+    if (!chart?.options?.plugins?.legend) return;
+    aplicarEstadoLinhasV36(chart, chave);
+    chart.options.plugins.legend.onClick = function(evento, itemLegenda, legenda) {
+        const grafico = legenda?.chart || chart;
+        const indice = Number(itemLegenda?.datasetIndex);
+        if (!Number.isInteger(indice) || indice < 0 || indice >= grafico.data.datasets.length) return;
+        const rotulo = String(grafico.data.datasets[indice]?.label || '');
+        const vaiExibir = !grafico.isDatasetVisible(indice);
+        grafico.setDatasetVisibility(indice, vaiExibir);
+
+        let estado = estadoLinhasGraficosV36[chave];
+        if (!(estado instanceof Set)) {
+            estado = new Set(
+                grafico.data.datasets
+                    .map((dataset, i) => grafico.isDatasetVisible(i) ? String(dataset.label || '') : null)
+                    .filter(Boolean)
+            );
+        }
+        if (vaiExibir) estado.add(rotulo); else estado.delete(rotulo);
+        estadoLinhasGraficosV36[chave] = estado;
+        grafico.update();
+        atualizarDicaLinhasV36(chave);
+    };
+    chart.update('none');
+    atualizarDicaLinhasV36(chave);
+}
+
+function limparLinhasGraficoV36(chave) {
+    const chart = chartPorChaveV36(chave);
+    if (!chart) return;
+    estadoLinhasGraficosV36[chave] = new Set();
+    chart.data.datasets.forEach((dataset, indice) => chart.setDatasetVisibility(indice, false));
+    chart.update();
+    atualizarDicaLinhasV36(chave);
+}
+
+const renderGraficosAntesV36 = renderGraficos;
+renderGraficos = function() {
+    renderGraficosAntesV36();
+    if (activeViewId !== 'graficos' || !window.Chart) return;
+    configurarLegendaSelecionavelV36(chartPesoRef, 'peso');
+    configurarLegendaSelecionavelV36(chartMedidasRef, 'medidas');
+};
+
+function garantirEstilosGraficosV36() {
+    if (document.getElementById('style-graficos-v36')) return;
+    const style = document.createElement('style');
+    style.id = 'style-graficos-v36';
+    style.textContent = `
+        .chart-card-head-v36 { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:2px; }
+        .chart-card-head-v36 h3 { margin:0; min-width:0; }
+        .chart-clear-v36 { width:auto !important; min-height:34px !important; padding:6px 11px !important; font-size:11px !important; flex:0 0 auto; }
+        .chart-lines-hint-v36 { margin:6px 0 2px; color:var(--text-secondary); font-size:11px; line-height:1.35; }
+    `;
+    document.head.appendChild(style);
+}
+
+function inserirControleLimparGraficoV36(chave) {
+    const card = document.querySelector('#view-graficos .card[data-chart-key="' + chave + '"]');
+    if (!card || card.querySelector('[data-clear-chart-lines-v36="' + chave + '"]')) return;
+    const titulo = Array.from(card.children).find(el => el.tagName === 'H3');
+    if (!titulo) return;
+
+    const cabecalho = document.createElement('div');
+    cabecalho.className = 'chart-card-head-v36';
+    titulo.before(cabecalho);
+    cabecalho.appendChild(titulo);
+
+    const botao = document.createElement('button');
+    botao.type = 'button';
+    botao.className = 'btn btn-outline chart-clear-v36';
+    botao.dataset.clearChartLinesV36 = chave;
+    botao.textContent = 'Limpar';
+    botao.title = 'Desmarcar todas as linhas deste gráfico';
+    botao.setAttribute('aria-label', 'Desmarcar todas as linhas deste gráfico');
+    botao.addEventListener('click', () => limparLinhasGraficoV36(chave));
+    cabecalho.appendChild(botao);
+
+    const dica = document.createElement('div');
+    dica.className = 'chart-lines-hint-v36 hidden';
+    dica.dataset.chartLinesHintV36 = chave;
+    dica.textContent = 'Todas as linhas foram desmarcadas. Toque nos itens da legenda para exibir somente as que quiser.';
+    const canvasContainer = card.querySelector('.chart-container');
+    if (canvasContainer) canvasContainer.before(dica); else card.appendChild(dica);
+}
+
+const normalizarDadosAntesV36 = normalizarDados;
+normalizarDados = function(raw) {
+    const dados = normalizarDadosAntesV36(raw);
+    dados.schemaVersion = Math.max(Number(dados.schemaVersion) || 0, PL_SCHEMA_VERSION_V36);
+    return dados;
+};
+
+function inicializarMelhoriasV36() {
+    garantirEstilosGraficosV36();
+    inserirControleLimparGraficoV36('peso');
+    inserirControleLimparGraficoV36('medidas');
+}
+
+window.limparLinhasGraficoV36 = limparLinhasGraficoV36;
+window.addEventListener('load', inicializarMelhoriasV36);
+
 </script>
 
 </body>

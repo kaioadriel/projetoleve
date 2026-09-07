@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v35-exclusao-fotos';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v35-exclusao-fotos';
+const CACHE_VERSION = 'projeto-leve-v36-graficos-selecao';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v36-graficos-selecao';
 const BASE = new URL('./', self.location.href);
 const localUrl = name => new URL(name, BASE).href;
 
