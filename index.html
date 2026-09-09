@@ -20384,7 +20384,7 @@ reformarBotaoCiclosV58 = function() {
     if (!botao) return;
     botao.setAttribute('aria-label', 'Gerenciar ciclos');
     botao.setAttribute('title', 'Gerenciar ciclos');
-    botao.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="3"></rect><path d="M8 2.5v4M16 2.5v4M3.5 9.5h17"></path><path d="M9 15.5a3.4 3.4 0 0 1 5.7-2.5"></path><path d="m14.7 12.2.1 2-2 .1"></path><path d="M15 15.5a3.4 3.4 0 0 1-5.7 2.5"></path><path d="m9.3 18.8-.1-2 2-.1"></path></svg>';
+    botao.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2.6"></circle><path d="M5.2 12a6.8 6.8 0 0 1 11.6-4.8"></path><path d="M18.2 4.8v3.4h-3.4"></path><path d="M18.8 12a6.8 6.8 0 0 1-11.6 4.8"></path><path d="M5.8 19.2v-3.4h3.4"></path><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle></svg>';
     botao.onclick = abrirCiclosV48;
 };
 
@@ -20399,6 +20399,53 @@ window.addEventListener('load', () => setTimeout(() => {
     garantirPadraoVisualV67();
     reformarBotaoCiclosV58();
 }, 1220));
+
+/* V68 — o Início preserva sua identidade mais viva, sem afetar as demais abas. */
+function restaurarCoresInicioV68() {
+    if (document.getElementById('style-inicio-colorido-v68')) return;
+    const style = document.createElement('style');
+    style.id = 'style-inicio-colorido-v68';
+    style.textContent = `
+        #view-dashboard {
+            --border: #d4e5f0;
+            --soft-bg: #eaf4fb;
+            --shadow: 0 18px 45px rgba(2,132,199,.11);
+        }
+        #view-dashboard .card {
+            border-color: rgba(212,229,240,.95);
+            box-shadow: var(--shadow);
+        }
+        #view-dashboard .dash-card,
+        #view-dashboard .dashboard-bordered-card {
+            border-top: 4px solid var(--accent);
+            background: linear-gradient(180deg, #ffffff 0%, #f7fcff 100%);
+        }
+        #view-dashboard .dashboard-bordered-card:has(.value.positive) {
+            border-top-color: var(--success);
+            background: linear-gradient(180deg, #ffffff 0%, #f2fcf5 100%);
+        }
+        #view-dashboard .dashboard-bordered-card:has(.value.negative) {
+            border-top-color: var(--danger);
+            background: linear-gradient(180deg, #ffffff 0%, #fff6f7 100%);
+        }
+        #view-dashboard .dashboard-bordered-card:has(.value.neutral) {
+            border-top-color: var(--accent);
+        }
+        #view-dashboard .before-after-card,
+        #view-dashboard .imc-card.neutral {
+            background: linear-gradient(180deg, #ffffff 0%, #f7fcff 100%);
+        }
+        #view-dashboard .imc-card.ok {
+            background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+        }
+        #view-dashboard .imc-card.alert {
+            background: linear-gradient(180deg, #ffffff 0%, #fff1f2 100%);
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+window.addEventListener('load', () => setTimeout(restaurarCoresInicioV68, 1240));
 
 </script>
 
