@@ -1,0 +1,28 @@
+PROJETO LEVE — V51 PRODUÇÃO
+
+Conteúdo do pacote:
+- index.html
+- manifest.json
+- service-worker.js
+- icons/icon-192.png
+- icons/icon-512.png
+
+Firebase Authentication:
+- A versão de produção já está com Firebase Authentication restaurado.
+- Banco de dados e fotos continuam locais no aparelho, separados pelo UID do usuário autenticado.
+- Não há Firestore ou Firebase Storage ativos nesta versão.
+
+Antes de publicar:
+1. Envie TODO o conteúdo desta pasta para a mesma pasta pública do seu domínio.
+2. No Firebase Console, em Authentication, confirme que os provedores usados estão habilitados:
+   - E-mail/senha, se desejar login por e-mail.
+   - Google, se desejar o botão do Google.
+3. Em Authentication > Settings > Authorized domains, inclua o domínio onde o app será hospedado.
+4. O site deve ser servido por HTTPS para PWA/service worker funcionarem corretamente.
+
+Correção V51:
+- Corrigida a perda das novas metas de composição corporal ao salvar/normalizar o ciclo ativo.
+- A V48 copiava para o ciclo somente os campos antigos da V25 e descartava Gordura Visceral,
+  Massa Magra, Massa Óssea, Proteína e Idade Corporal.
+- Depois de atualizar para a V51, preencha/calculе e salve novamente qualquer campo que já tenha
+  sido apagado por uma versão anterior. A partir desta versão ele permanece salvo no ciclo.
