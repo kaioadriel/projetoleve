@@ -20039,84 +20039,210 @@ const normalizarDadosAntesDriveV65=normalizarDados;
 normalizarDados=function(raw){const d=normalizarDadosAntesDriveV65(raw);d.schemaVersion=Math.max(Number(d.schemaVersion)||0,PL_SCHEMA_VERSION_V65);return d;};
 
 
-/* V66 — correção de sincronização dos filtros de período e ciclo nos gráficos.
-   Evita combinações contraditórias como "Ciclo Atual" + "Todos os ciclos" ou
-   "Ciclo Atual" + "Sem ciclo", mantendo os dois seletores coerentes. */
-function escopoGraficoGlobalV66() {
-    return filtroCicloGraficoV48 === 'todos' || filtroCicloGraficoV48 === 'sem-ciclo';
+
+/* =========================================================
+   V66 - Sincronizacao automatica das fotos
+   - Depois da primeira autorizacao do Drive neste aparelho, o token OAuth
+     fica lembrado localmente e e restaurado enquanto continuar valido.
+   - Ao abrir o app, voltar para ele, recuperar internet ou salvar nova foto,
+     a sincronizacao ocorre sem exigir o botao manual.
+   - Um HTTP 401 limpa a autorizacao salva e pede reconexao, sem apagar fotos.
+   ========================================================= */
+const PL_SCHEMA_VERSION_V66 = 66;
+const DRIVE_TOKEN_PREFIX_V66 = 'projeto_leve_drive_token_v66_';
+const DRIVE_LAST_SYNC_PREFIX_V66 = 'projeto_leve_drive_last_sync_v66_';
+const DRIVE_AUTO_INTERVALO_V66 = 10 * 60 * 1000;
+let driveAutoTimerV66 = null;
+let driveAutoIntervalV66 = null;
+let driveUltimaTentativaAutoV66 = 0;
+
+function chaveDriveTokenV66(uid=currentUser?.uid||''){return DRIVE_TOKEN_PREFIX_V66+String(uid||'');}
+function chaveUltimoSyncDriveV66(uid=currentUser?.uid||''){return DRIVE_LAST_SYNC_PREFIX_V66+String(uid||'');}
+
+function salvarAutorizacaoDriveV66(uid=currentUser?.uid||''){
+    if(!uid||!driveAccessTokenV65)return false;
+    try{
+        localStorage.setItem(chaveDriveTokenV66(uid),JSON.stringify({
+            token:driveAccessTokenV65,
+            autorizadoEm:driveAutorizadoEmV65||new Date().toISOString(),
+            salvoEm:new Date().toISOString()
+        }));
+        return true;
+    }catch(e){console.warn('Nao foi possivel lembrar a autorizacao do Drive:',e);return false;}
 }
 
-function sincronizarFiltrosGraficosV66(forcarPeriodoDoEscopo = false) {
-    const periodo = document.getElementById('grafico-filtro-select');
-    const ciclo = document.getElementById('grafico-ciclo-select-v48');
-    if (!periodo) return;
-
-    const opcaoCiclo = periodo.querySelector('option[value="ciclo"]');
-    const escopoGlobal = escopoGraficoGlobalV66();
-    const cicloEspecifico = !['ativo', 'todos', 'sem-ciclo'].includes(String(filtroCicloGraficoV48 || 'ativo'));
-
-    if (opcaoCiclo) {
-        opcaoCiclo.textContent = cicloEspecifico ? 'Ciclo Selecionado' : 'Ciclo Atual';
-        /* Em "Todos os ciclos" e "Sem ciclo", esta opção não tem significado.
-           Ocultá-la impede que o usuário volte a criar a combinação inválida. */
-        opcaoCiclo.disabled = escopoGlobal;
-        opcaoCiclo.hidden = escopoGlobal;
-    }
-
-    if (forcarPeriodoDoEscopo) {
-        filtroGraficoAtual = escopoGlobal ? 'todos' : 'ciclo';
-    } else if (escopoGlobal && filtroGraficoAtual === 'ciclo') {
-        /* Corrige também estados antigos já salvos/carregados, como os vistos no vídeo. */
-        filtroGraficoAtual = 'todos';
-    }
-
-    const valoresValidos = new Set([...periodo.options].filter(o => !o.disabled).map(o => o.value));
-    if (!valoresValidos.has(filtroGraficoAtual)) {
-        filtroGraficoAtual = escopoGlobal ? 'todos' : 'ciclo';
-    }
-    periodo.value = filtroGraficoAtual;
-    if (ciclo && ciclo.value !== filtroCicloGraficoV48) ciclo.value = filtroCicloGraficoV48;
+function restaurarAutorizacaoDriveV66(uid=currentUser?.uid||''){
+    if(!uid||driveAccessTokenV65)return !!driveAccessTokenV65;
+    try{
+        const raw=localStorage.getItem(chaveDriveTokenV66(uid));
+        if(!raw)return false;
+        const info=JSON.parse(raw);
+        if(!info?.token)return false;
+        driveAccessTokenV65=String(info.token);
+        driveAutorizadoEmV65=String(info.autorizadoEm||info.salvoEm||'');
+        return true;
+    }catch(e){console.warn('Autorizacao salva do Drive nao pode ser restaurada:',e);return false;}
 }
 
-const renderFiltroGraficoCicloAntesV66 = renderFiltroGraficoCicloV48;
-renderFiltroGraficoCicloV48 = function() {
-    renderFiltroGraficoCicloAntesV66();
-    sincronizarFiltrosGraficosV66(false);
-};
+function limparAutorizacaoDriveV66(uid=currentUser?.uid||''){
+    if(uid){try{localStorage.removeItem(chaveDriveTokenV66(uid));}catch{}}
+    driveAccessTokenV65='';
+    driveAutorizadoEmV65='';
+}
 
-alterarFiltroCicloGraficoV48 = function(valor) {
-    filtroCicloGraficoV48 = String(valor || 'ativo');
-    appData.config = appData.config || {};
-    appData.config.filtroCicloGrafico = filtroCicloGraficoV48;
-
-    /* Ao trocar o escopo de ciclo, inicia no período completo daquele escopo:
-       - ciclo ativo/específico => ciclo completo
-       - todos/sem ciclo => todo o histórico daquele escopo */
-    sincronizarFiltrosGraficosV66(true);
-    try { salvarDadosLocalmente(); } catch {}
-    renderGraficos();
-};
-window.alterarFiltroCicloGraficoV48 = alterarFiltroCicloGraficoV48;
-
-alterarFiltroGrafico = function(filtro) {
-    let novoFiltro = String(filtro || 'ciclo');
-    if (escopoGraficoGlobalV66() && novoFiltro === 'ciclo') novoFiltro = 'todos';
-    filtroGraficoAtual = novoFiltro;
-    sincronizarFiltrosGraficosV66(false);
-    renderGraficos();
-};
-window.alterarFiltroGrafico = alterarFiltroGrafico;
-
-/* Garante coerência também na primeira abertura da aba após carregar dados antigos. */
-window.addEventListener('load', () => setTimeout(() => {
-    try {
-        renderFiltroGraficoCicloV48();
-        sincronizarFiltrosGraficosV66(false);
-        if (activeViewId === 'graficos') renderGraficos();
-    } catch (erro) {
-        console.warn('Não foi possível sincronizar os filtros dos gráficos na inicialização:', erro);
+const definirStatusDriveAntesAutoV66 = definirStatusDriveV65;
+definirStatusDriveV65 = function(mensagem,tipo='neutral'){
+    const r=definirStatusDriveAntesAutoV66(mensagem,tipo);
+    const authEl=document.getElementById('drive-photo-auth-v65');
+    if(authEl){
+        authEl.textContent=driveAccessTokenV65
+            ? 'Sincronização automática ativa neste aparelho.'
+            : 'Conecte o Drive uma vez neste aparelho para ativar a sincronização automática.';
     }
-}, 760));
+    const btn=document.querySelector('#drive-photo-panel-v65 .drive-photo-actions-v65 .btn-primary');
+    if(btn)btn.textContent=driveAccessTokenV65?'Reconectar Google Drive':'Conectar Google Drive';
+    return r;
+};
+
+const garantirPainelDriveAntesAutoV66 = garantirPainelDriveV65;
+garantirPainelDriveV65 = function(){
+    const r=garantirPainelDriveAntesAutoV66();
+    const painel=document.getElementById('drive-photo-panel-v65');
+    if(!painel)return r;
+    const botoes=painel.querySelectorAll('.drive-photo-actions-v65 .btn');
+    if(botoes[0])botoes[0].textContent=driveAccessTokenV65?'Reconectar Google Drive':'Conectar Google Drive';
+    if(botoes[1])botoes[1].textContent='Sincronizar agora';
+    const nota=painel.querySelector('.drive-photo-note-v65');
+    if(nota)nota.innerHTML='<b>Automático:</b> depois de conectar o Drive uma vez neste aparelho, novas fotos são enviadas sozinhas e fotos ausentes são recuperadas quando o app abre, volta ao primeiro plano ou recupera internet. Os arquivos continuam em qualidade original, sem canvas, redimensionamento ou nova compressão. Se o Google expirar a autorização OAuth, o app apenas pedirá uma reconexão; nenhuma foto local ou da nuvem sera apagada.';
+    definirStatusDriveV65(driveStatusV65.mensagem,driveStatusV65.tipo);
+    return r;
+};
+
+const driveFetchAntesAutoV66 = driveFetchV65;
+driveFetchV65 = async function(url,options={}){
+    try{return await driveFetchAntesAutoV66(url,options);}
+    catch(e){
+        const msg=String(e?.message||e||'');
+        if(/HTTP\s*401|invalid credentials|unauthenticated/i.test(msg)){
+            const uid=currentUser?.uid||'';
+            limparAutorizacaoDriveV66(uid);
+            definirStatusDriveV65('A autorização do Google Drive expirou. Toque em Reconectar Google Drive uma vez para reativar o automático.','warning');
+        }
+        throw e;
+    }
+};
+
+const sincronizarFotosDriveAntesAutoV66 = sincronizarFotosDriveV65;
+sincronizarFotosDriveV65 = async function(opcoes={}){
+    const ok=await sincronizarFotosDriveAntesAutoV66(opcoes);
+    if(ok&&currentUser?.uid&&driveAccessTokenV65){
+        salvarAutorizacaoDriveV66(currentUser.uid);
+        try{localStorage.setItem(chaveUltimoSyncDriveV66(currentUser.uid),new Date().toISOString());}catch{}
+        garantirPainelDriveV65();
+    }
+    return ok;
+};
+
+conectarGoogleDriveV65 = async function(){
+    if(!currentUser)return alert('Faca login no Projeto Leve primeiro.');
+    if(driveSincronizandoV65)return;
+    try{
+        definirStatusDriveV65('Solicitando autorização do Google Drive...','warning');
+        const prov=providerDriveV65();
+        const resultado=usuarioUsaGoogleV65()?await reauthenticateWithPopup(currentUser,prov):await linkWithPopup(currentUser,prov);
+        const cred=GoogleAuthProvider.credentialFromResult(resultado);
+        const token=cred?.accessToken||'';
+        if(!token)throw new Error('O Google não devolveu um token de acesso ao Drive.');
+        driveAccessTokenV65=token;
+        driveAutorizadoEmV65=new Date().toISOString();
+        salvarAutorizacaoDriveV66(currentUser.uid);
+        await garantirPastasDriveV65();
+        definirStatusDriveV65('Google Drive conectado. Sincronização automática ativada.','positive');
+        await sincronizarFotosDriveV65({interativo:false,baixarAusentes:true});
+        iniciarRotinaAutomaticaDriveV66();
+    }catch(e){
+        console.error('Falha ao conectar Drive:',e);
+        const msg=traduzirErroApp?.(e)||e?.message||String(e);
+        definirStatusDriveV65('Não foi possível conectar o Google Drive: '+msg,'negative');
+        alert('Não foi possível conectar o Google Drive.\n\n'+msg);
+    }
+};
+
+function agendarSyncAutomaticoDriveV66(atraso=1200,baixarAusentes=true){
+    clearTimeout(driveAutoTimerV66);
+    if(!currentUser?.uid||!driveAccessTokenV65||navigator.onLine===false)return;
+    driveAutoTimerV66=setTimeout(async()=>{
+        if(!currentUser?.uid||!driveAccessTokenV65||navigator.onLine===false)return;
+        const agora=Date.now();
+        if(agora-driveUltimaTentativaAutoV66<5000)return;
+        driveUltimaTentativaAutoV66=agora;
+        await sincronizarFotosDriveV65({interativo:false,baixarAusentes}).catch(()=>false);
+    },Math.max(0,Number(atraso)||0));
+}
+
+function iniciarRotinaAutomaticaDriveV66(){
+    clearInterval(driveAutoIntervalV66);
+    if(!currentUser?.uid)return;
+    const restaurou=restaurarAutorizacaoDriveV66(currentUser.uid);
+    garantirPainelDriveV65();
+    if(restaurou||driveAccessTokenV65){
+        definirStatusDriveV65('Google Drive conectado. Sincronização automática ativa.','positive');
+        agendarSyncAutomaticoDriveV66(900,true);
+    }
+    driveAutoIntervalV66=setInterval(()=>{
+        if(document.visibilityState!=='hidden'&&navigator.onLine!==false&&currentUser?.uid&&driveAccessTokenV65){
+            agendarSyncAutomaticoDriveV66(0,true);
+        }
+    },DRIVE_AUTO_INTERVALO_V66);
+}
+
+const inicializarSincronizacaoFirebaseAntesAutoV66 = inicializarSincronizacaoFirebaseV64;
+inicializarSincronizacaoFirebaseV64 = async function(...args){
+    if(currentUser?.uid)restaurarAutorizacaoDriveV66(currentUser.uid);
+    const ok=await inicializarSincronizacaoFirebaseAntesAutoV66(...args);
+    if(currentUser?.uid){
+        iniciarRotinaAutomaticaDriveV66();
+        if(ok&&driveAccessTokenV65)agendarSyncAutomaticoDriveV66(700,true);
+    }
+    return ok;
+};
+
+const renderContaAntesAutoV66 = renderConta;
+renderConta = function(){
+    if(currentUser?.uid&&!driveAccessTokenV65)restaurarAutorizacaoDriveV66(currentUser.uid);
+    const r=renderContaAntesAutoV66();
+    garantirPainelDriveV65();
+    if(currentUser?.uid&&driveAccessTokenV65)agendarSyncAutomaticoDriveV66(1400,true);
+    return r;
+};
+
+const sairUsuarioAntesAutoV66 = sairUsuario;
+sairUsuario = async function(...args){
+    const uid=currentUser?.uid||'';
+    clearTimeout(driveAutoTimerV66);clearInterval(driveAutoIntervalV66);
+    if(uid)limparAutorizacaoDriveV66(uid);
+    manifestosDriveCacheV65.clear();
+    return sairUsuarioAntesAutoV66(...args);
+};
+
+window.addEventListener('online',()=>{if(currentUser?.uid){restaurarAutorizacaoDriveV66(currentUser.uid);agendarSyncAutomaticoDriveV66(350,true);}});
+document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'&&currentUser?.uid){
+        restaurarAutorizacaoDriveV66(currentUser.uid);
+        agendarSyncAutomaticoDriveV66(700,true);
+    }
+});
+window.addEventListener('load',()=>setTimeout(()=>{
+    if(currentUser?.uid){restaurarAutorizacaoDriveV66(currentUser.uid);iniciarRotinaAutomaticaDriveV66();}
+    garantirPainelDriveV65();
+},900));
+
+window.conectarGoogleDriveV65=conectarGoogleDriveV65;
+window.sincronizarFotosDriveV65=sincronizarFotosDriveV65;
+window.sairUsuario=sairUsuario;
+
+const normalizarDadosAntesAutoV66=normalizarDados;
+normalizarDados=function(raw){const d=normalizarDadosAntesAutoV66(raw);d.schemaVersion=Math.max(Number(d.schemaVersion)||0,PL_SCHEMA_VERSION_V66);return d;};
 
 </script>
 
