@@ -20038,6 +20038,86 @@ window.addEventListener('load',()=>setTimeout(()=>{garantirPainelDriveV65();if(c
 const normalizarDadosAntesDriveV65=normalizarDados;
 normalizarDados=function(raw){const d=normalizarDadosAntesDriveV65(raw);d.schemaVersion=Math.max(Number(d.schemaVersion)||0,PL_SCHEMA_VERSION_V65);return d;};
 
+
+/* V66 — correção de sincronização dos filtros de período e ciclo nos gráficos.
+   Evita combinações contraditórias como "Ciclo Atual" + "Todos os ciclos" ou
+   "Ciclo Atual" + "Sem ciclo", mantendo os dois seletores coerentes. */
+function escopoGraficoGlobalV66() {
+    return filtroCicloGraficoV48 === 'todos' || filtroCicloGraficoV48 === 'sem-ciclo';
+}
+
+function sincronizarFiltrosGraficosV66(forcarPeriodoDoEscopo = false) {
+    const periodo = document.getElementById('grafico-filtro-select');
+    const ciclo = document.getElementById('grafico-ciclo-select-v48');
+    if (!periodo) return;
+
+    const opcaoCiclo = periodo.querySelector('option[value="ciclo"]');
+    const escopoGlobal = escopoGraficoGlobalV66();
+    const cicloEspecifico = !['ativo', 'todos', 'sem-ciclo'].includes(String(filtroCicloGraficoV48 || 'ativo'));
+
+    if (opcaoCiclo) {
+        opcaoCiclo.textContent = cicloEspecifico ? 'Ciclo Selecionado' : 'Ciclo Atual';
+        /* Em "Todos os ciclos" e "Sem ciclo", esta opção não tem significado.
+           Ocultá-la impede que o usuário volte a criar a combinação inválida. */
+        opcaoCiclo.disabled = escopoGlobal;
+        opcaoCiclo.hidden = escopoGlobal;
+    }
+
+    if (forcarPeriodoDoEscopo) {
+        filtroGraficoAtual = escopoGlobal ? 'todos' : 'ciclo';
+    } else if (escopoGlobal && filtroGraficoAtual === 'ciclo') {
+        /* Corrige também estados antigos já salvos/carregados, como os vistos no vídeo. */
+        filtroGraficoAtual = 'todos';
+    }
+
+    const valoresValidos = new Set([...periodo.options].filter(o => !o.disabled).map(o => o.value));
+    if (!valoresValidos.has(filtroGraficoAtual)) {
+        filtroGraficoAtual = escopoGlobal ? 'todos' : 'ciclo';
+    }
+    periodo.value = filtroGraficoAtual;
+    if (ciclo && ciclo.value !== filtroCicloGraficoV48) ciclo.value = filtroCicloGraficoV48;
+}
+
+const renderFiltroGraficoCicloAntesV66 = renderFiltroGraficoCicloV48;
+renderFiltroGraficoCicloV48 = function() {
+    renderFiltroGraficoCicloAntesV66();
+    sincronizarFiltrosGraficosV66(false);
+};
+
+alterarFiltroCicloGraficoV48 = function(valor) {
+    filtroCicloGraficoV48 = String(valor || 'ativo');
+    appData.config = appData.config || {};
+    appData.config.filtroCicloGrafico = filtroCicloGraficoV48;
+
+    /* Ao trocar o escopo de ciclo, inicia no período completo daquele escopo:
+       - ciclo ativo/específico => ciclo completo
+       - todos/sem ciclo => todo o histórico daquele escopo */
+    sincronizarFiltrosGraficosV66(true);
+    try { salvarDadosLocalmente(); } catch {}
+    renderGraficos();
+};
+window.alterarFiltroCicloGraficoV48 = alterarFiltroCicloGraficoV48;
+
+alterarFiltroGrafico = function(filtro) {
+    let novoFiltro = String(filtro || 'ciclo');
+    if (escopoGraficoGlobalV66() && novoFiltro === 'ciclo') novoFiltro = 'todos';
+    filtroGraficoAtual = novoFiltro;
+    sincronizarFiltrosGraficosV66(false);
+    renderGraficos();
+};
+window.alterarFiltroGrafico = alterarFiltroGrafico;
+
+/* Garante coerência também na primeira abertura da aba após carregar dados antigos. */
+window.addEventListener('load', () => setTimeout(() => {
+    try {
+        renderFiltroGraficoCicloV48();
+        sincronizarFiltrosGraficosV66(false);
+        if (activeViewId === 'graficos') renderGraficos();
+    } catch (erro) {
+        console.warn('Não foi possível sincronizar os filtros dos gráficos na inicialização:', erro);
+    }
+}, 760));
+
 </script>
 
 </body>
