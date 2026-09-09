@@ -1426,7 +1426,7 @@
 <div id="startup-splash" class="startup-splash" aria-label="Abrindo Projeto Leve">
     <div class="startup-splash-card">
         <div class="startup-splash-main">
-            <div class="startup-splash-icon"><img class="pl-icon-svg" src="./icons/icon-512.png" alt="Projeto Leve"></div>
+            <div class="startup-splash-icon"><img class="pl-icon-svg" src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Projeto Leve"></div>
             <div class="startup-splash-title">Projeto Leve</div>
             <div id="startup-splash-recovery" class="startup-splash-recovery" hidden aria-live="polite">
                 <span>A abertura está demorando mais do que o esperado.</span>
@@ -1442,7 +1442,7 @@
 
 <div id="auth-gate" class="auth-gate">
     <div class="auth-gate-card">
-        <div class="auth-login-icon"><img class="pl-icon-svg" src="./icons/icon-512.png" alt="Projeto Leve"></div>
+        <div class="auth-login-icon"><img class="pl-icon-svg" src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Projeto Leve"></div>
         <h1 class="auth-title">Projeto Leve</h1>
         <p class="auth-subtitle">
             Entre para acessar seu controle de peso, metas e medidas com segurança.
@@ -1478,7 +1478,7 @@
         <!-- Header Dinâmico -->
         <header class="app-header">
             <div class="app-brand">
-                <div class="app-brand-icon"><img class="pl-icon-svg" src="./icons/icon-512.png" alt="Projeto Leve"></div>
+                <div class="app-brand-icon"><img class="pl-icon-svg" src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Projeto Leve"></div>
                 <div>
                     <div class="app-brand-name">Projeto Leve</div>
                     <div id="user-greeting" class="app-welcome">Bem-vindo</div>
@@ -1486,6 +1486,9 @@
             </div>
             <div class="header-actions">
                 <button id="btn-install-app" class="install-app-btn hidden" type="button">Instalar</button>
+                <button id="btn-profile-open" class="header-icon-btn" type="button" aria-label="Abrir conta" title="Conta">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </button>
                 <button id="btn-settings-open" class="header-icon-btn" type="button" aria-label="Abrir ajustes" title="Ajustes">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.35 1.1V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.1-.35H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 0 .35-1.1V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.18.34.43.63.75.84.32.21.7.32 1.1.32H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"></path></svg>
                 </button>
@@ -1564,6 +1567,24 @@
                     </table>
                 </div>
             </div>
+            <div class="card before-after-card">
+                <h3>Antes e Depois</h3>
+                <div class="before-after-grid">
+                    <div class="before-after-item">
+                        <div class="before-after-title">Antes</div>
+                        <div id="foto-antes-dashboard" class="before-after-frame">
+                            <div class="before-after-placeholder">Carregando...</div>
+                        </div>
+                        <div id="info-antes-dashboard" class="before-after-info"></div>
+                    </div>
+                    <div class="before-after-item">
+                        <div class="before-after-title">Depois</div>
+                        <div id="foto-depois-dashboard" class="before-after-frame">
+                            <div class="before-after-placeholder">Carregando...</div>
+                        </div>
+                        <div id="info-depois-dashboard" class="before-after-info"></div>
+                    </div>
+                </div>
             </div>
             <div class="card dashboard-bordered-card v30-summary-card" id="resumo-automatico-v30">
                 <div class="v30-summary-head">
@@ -2104,34 +2125,6 @@
             <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
-
-
-        <!-- Fotos -->
-        <section id="view-fotos-v68" class="view hidden">
-            <div class="card before-after-card">
-                <h3>Antes e Depois</h3>
-                <div class="before-after-grid">
-                    <div class="before-after-item">
-                        <div class="before-after-title">Antes</div>
-                        <div id="foto-antes-dashboard" class="before-after-frame">
-                            <div class="before-after-placeholder">Carregando...</div>
-                        </div>
-                        <div id="info-antes-dashboard" class="before-after-info"></div>
-                    </div>
-                    <div class="before-after-item">
-                        <div class="before-after-title">Depois</div>
-                        <div id="foto-depois-dashboard" class="before-after-frame">
-                            <div class="before-after-placeholder">Carregando...</div>
-                        </div>
-                        <div id="info-depois-dashboard" class="before-after-info"></div>
-                    </div>
-                </div>
-            </div>
-            <div id="photo-compare-inline-host-v68"></div>
-            <div id="photo-evolution-host-v68"></div>
-            <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
-        </section>
-
         <!-- Conta -->
         <section id="view-conta" class="view hidden">
             <div class="card">
@@ -2282,64 +2275,35 @@
 <div id="restore-overlay" class="hidden" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:99999;background:rgba(241,245,249,.95);display:grid;place-items:center;padding:24px;text-align:center;font-weight:700">Conferindo e salvando os dados. Aguarde...</div>
 
 <!-- Navigation Bar -->
-<nav id="bottom-nav" class="hidden" aria-label="Navegação do Projeto Leve">
-    <div id="nav-main-v68" class="nav-v68-row nav-main-v68">
-        <a class="nav-item active" data-v68-view="dashboard" onclick="navegarPrincipalV68('dashboard', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            Início
-        </a>
-        <a class="nav-item" data-v68-action="dados" onclick="abrirMenuDadosV68()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"></path><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path></svg>
-            Dados
-        </a>
-        <a class="nav-item" data-v68-view="fotos-v68" onclick="navegarPrincipalV68('fotos-v68', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h3l1.5-2h7L17 7h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-            Fotos
-        </a>
-        <a class="nav-item" data-v68-view="ciclos-v48" onclick="navegarPrincipalV68('ciclos-v48', this)">
-            <svg class="cycle-clock-icon-v68" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="4.25"></circle><path d="M12 9.7v2.55l1.8 1.05"></path>
-                <path d="M6.2 6.6A8.2 8.2 0 0 1 17.6 5.4"></path><polyline points="17.1 2.9 17.9 5.6 15.2 6.2"></polyline>
-                <path d="M18.2 17.4A8.2 8.2 0 0 1 6.6 18.6"></path><polyline points="6.9 21.1 6.1 18.4 8.8 17.8"></polyline>
-                <path d="M19.7 8.7c.45 1.05.7 2.16.7 3.3"></path><path d="M4.3 15.3A8.2 8.2 0 0 1 3.6 12"></path>
-            </svg>
-            Ciclos
-        </a>
-        <a class="nav-item" data-v68-view="conta" onclick="navegarPrincipalV68('conta', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            Perfil
-        </a>
-        <a class="nav-item" data-v68-view="graficos" onclick="navegarPrincipalV68('graficos', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-            Gráficos
-        </a>
-        <a class="nav-item" data-v68-view="metas" onclick="navegarPrincipalV68('metas', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2.5" width="16" height="19" rx="2"></rect><path d="M8 6.5h8"></path><path d="M8 11h2m4 0h2M8 15h2m4 0h2M8 19h2m4 0h2"></path></svg>
-            Cálculos
-        </a>
-    </div>
-    <div id="nav-dados-v68" class="nav-v68-row nav-dados-v68 hidden">
-        <a class="nav-item nav-back-v68" data-v68-action="voltar" onclick="voltarMenuPrincipalV68()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>
-            Voltar
-        </a>
-        <a class="nav-item" data-v68-view="historico" onclick="navegarDadoV68('historico', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12"></path><path d="M6 21h12"></path><path d="M8 3c0 5 8 5 8 10s-8 5-8 8"></path><path d="M16 3c0 5-8 5-8 10s8 5 8 8"></path></svg>
-            Peso
-        </a>
-        <a class="nav-item" data-v68-view="medidas" onclick="navegarDadoV68('medidas', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18 18 4l2 2L6 20H4z"></path><path d="m13 7 4 4M10 10l2 2M7 13l2 2"></path></svg>
-            Medidas
-        </a>
-        <a class="nav-item" data-v68-view="calorias" onclick="navegarDadoV68('calorias', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11h16"></path><path d="M6 11a6 6 0 0 1 12 0"></path><path d="M3 11h18l-2 9H5z"></path><path d="M12 5V2"></path></svg>
-            Calorias
-        </a>
-        <a class="nav-item" data-v68-view="remedio" onclick="navegarDadoV68('remedio', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7.1-7.1l7 7a5 5 0 0 1-7.1 7.1Z"></path><path d="m7 10 7 7"></path><path d="m14.5 6.5 3-3a2.1 2.1 0 0 1 3 3l-3 3"></path></svg>
-            Remédios
-        </a>
-    </div>
+<nav id="bottom-nav" class="hidden">
+    <a class="nav-item active" data-view="dashboard" onclick="showView('dashboard', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Início
+    </a>
+    <a class="nav-item" data-view="historico" onclick="showView('historico', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12"></path><path d="M6 21h12"></path><path d="M8 3c0 5 8 5 8 10s-8 5-8 8"></path><path d="M16 3c0 5-8 5-8 10s8 5 8 8"></path></svg>
+        Peso
+    </a>
+    <a class="nav-item" data-view="medidas" onclick="showView('medidas', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        Medidas
+    </a>
+    <a class="nav-item" data-view="calorias" onclick="showView('calorias', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11h16"></path><path d="M6 11a6 6 0 0 1 12 0"></path><path d="M3 11h18l-2 9H5z"></path><path d="M12 5V2"></path></svg>
+        Calorias
+    </a>
+    <a class="nav-item" data-view="remedio" onclick="showView('remedio', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7.1-7.1l7 7a5 5 0 0 1-7.1 7.1Z"></path><path d="m7 10 7 7"></path><path d="m14.5 6.5 3-3a2.1 2.1 0 0 1 3 3l-3 3"></path></svg>
+        Remédio
+    </a>
+    <a class="nav-item" data-view="graficos" onclick="showView('graficos', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+        Gráficos
+    </a>
+    <a class="nav-item" data-view="metas" onclick="showView('metas', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Simular
+    </a>
 </nav>
 
 <!-- Visualização organizada dos históricos -->
@@ -20074,888 +20038,211 @@ window.addEventListener('load',()=>setTimeout(()=>{garantirPainelDriveV65();if(c
 const normalizarDadosAntesDriveV65=normalizarDados;
 normalizarDados=function(raw){const d=normalizarDadosAntesDriveV65(raw);d.schemaVersion=Math.max(Number(d.schemaVersion)||0,PL_SCHEMA_VERSION_V65);return d;};
 
+
+
 /* =========================================================
-   V66 — Cálculos, gráficos nutricionais e ciclos históricos
+   V66 - Sincronizacao automatica das fotos
+   - Depois da primeira autorizacao do Drive neste aparelho, o token OAuth
+     fica lembrado localmente e e restaurado enquanto continuar valido.
+   - Ao abrir o app, voltar para ele, recuperar internet ou salvar nova foto,
+     a sincronizacao ocorre sem exigir o botao manual.
+   - Um HTTP 401 limpa a autorizacao salva e pede reconexao, sem apagar fotos.
    ========================================================= */
 const PL_SCHEMA_VERSION_V66 = 66;
-let chartMacrosRefeicoesRefV66 = null;
-let assinaturaFiltrosGraficosV66 = '';
+const DRIVE_TOKEN_PREFIX_V66 = 'projeto_leve_drive_token_v66_';
+const DRIVE_LAST_SYNC_PREFIX_V66 = 'projeto_leve_drive_last_sync_v66_';
+const DRIVE_AUTO_INTERVALO_V66 = 10 * 60 * 1000;
+let driveAutoTimerV66 = null;
+let driveAutoIntervalV66 = null;
+let driveUltimaTentativaAutoV66 = 0;
 
-function valorMacroRefeicaoV66(item, chave) {
-    const valor = numeroValido(item?.[chave]);
-    return valor === null ? 0 : valor;
+function chaveDriveTokenV66(uid=currentUser?.uid||''){return DRIVE_TOKEN_PREFIX_V66+String(uid||'');}
+function chaveUltimoSyncDriveV66(uid=currentUser?.uid||''){return DRIVE_LAST_SYNC_PREFIX_V66+String(uid||'');}
+
+function salvarAutorizacaoDriveV66(uid=currentUser?.uid||''){
+    if(!uid||!driveAccessTokenV65)return false;
+    try{
+        localStorage.setItem(chaveDriveTokenV66(uid),JSON.stringify({
+            token:driveAccessTokenV65,
+            autorizadoEm:driveAutorizadoEmV65||new Date().toISOString(),
+            salvoEm:new Date().toISOString()
+        }));
+        return true;
+    }catch(e){console.warn('Nao foi possivel lembrar a autorizacao do Drive:',e);return false;}
 }
 
-function garantirGraficoMacrosV66() {
-    const graficos = document.getElementById('view-graficos');
-    if (!graficos) return null;
-    let card = document.querySelector('#view-graficos [data-chart-key="macros"]');
-    if (card) return card;
-    card = document.createElement('div');
-    card.className = 'card';
-    card.dataset.chartKey = 'macros';
-    card.innerHTML = '<h3>Macros das Refeições</h3><div id="chart-macros-subtitle-v66" class="chart-subtitle"></div><div class="chart-container"><canvas id="chartMacrosRefeicoesV66"></canvas></div>';
-    const cardCalorias = document.querySelector('#view-graficos [data-chart-key="calorias"]');
-    if (cardCalorias) cardCalorias.after(card);
-    else graficos.appendChild(card);
-    return card;
+function restaurarAutorizacaoDriveV66(uid=currentUser?.uid||''){
+    if(!uid||driveAccessTokenV65)return !!driveAccessTokenV65;
+    try{
+        const raw=localStorage.getItem(chaveDriveTokenV66(uid));
+        if(!raw)return false;
+        const info=JSON.parse(raw);
+        if(!info?.token)return false;
+        driveAccessTokenV65=String(info.token);
+        driveAutorizadoEmV65=String(info.autorizadoEm||info.salvoEm||'');
+        return true;
+    }catch(e){console.warn('Autorizacao salva do Drive nao pode ser restaurada:',e);return false;}
 }
 
-function retirarGraficoTmbSeparadoV66() {
-    const card = document.querySelector('#view-graficos [data-chart-key="tmb"]');
-    if (card) card.remove();
-    if (chartTmbRefV29) {
-        chartTmbRefV29.destroy();
-        chartTmbRefV29 = null;
+function limparAutorizacaoDriveV66(uid=currentUser?.uid||''){
+    if(uid){try{localStorage.removeItem(chaveDriveTokenV66(uid));}catch{}}
+    driveAccessTokenV65='';
+    driveAutorizadoEmV65='';
+}
+
+const definirStatusDriveAntesAutoV66 = definirStatusDriveV65;
+definirStatusDriveV65 = function(mensagem,tipo='neutral'){
+    const r=definirStatusDriveAntesAutoV66(mensagem,tipo);
+    const authEl=document.getElementById('drive-photo-auth-v65');
+    if(authEl){
+        authEl.textContent=driveAccessTokenV65
+            ? 'Sincronização automática ativa neste aparelho.'
+            : 'Conecte o Drive uma vez neste aparelho para ativar a sincronização automática.';
     }
-}
-
-function renderGraficosComplementaresV66() {
-    if (activeViewId !== 'graficos' || !window.Chart) return;
-    garantirGraficoMacrosV66();
-    retirarGraficoTmbSeparadoV66();
-
-    const inicio = obterInicioFiltroGrafico();
-    const pertenceAoCiclo = registro => typeof registroNoFiltroCicloV48 === 'function' ? registroNoFiltroCicloV48(registro) : true;
-    const diasCalorias = [...(appData.calorias || [])]
-        .filter(dia => dia?.data >= inicio && pertenceAoCiclo(dia))
-        .sort((a,b) => String(a.data).localeCompare(String(b.data)));
-    const pesosTmb = [...(appData.pesos || [])]
-        .filter(peso => peso?.data >= inicio && pertenceAoCiclo(peso) && numeroValido(peso?.tmb) !== null)
-        .sort((a,b) => String(a.data).localeCompare(String(b.data)));
-    const datas = [...new Set([...diasCalorias.map(d => d.data), ...pesosTmb.map(p => p.data)])].sort();
-    const porDia = new Map(diasCalorias.map(dia => [dia.data, dia]));
-    const tmbPorDia = new Map(pesosTmb.map(peso => [peso.data, numeroValido(peso.tmb)]));
-    const canvasCalorias = document.getElementById('chartCalorias');
-    if (canvasCalorias) {
-        if (chartCaloriasRefV25) chartCaloriasRefV25.destroy();
-        chartCaloriasRefV25 = new Chart(canvasCalorias.getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: datas.map(formatDateChart),
-                datasets: [
-                    {label:'Consumidas', data:datas.map(data => { const d=porDia.get(data); return d ? totalConsumidoV24(d) : null; }), borderColor:'#ef4444', tension:.25, spanGaps:true, yAxisID:'kcal'},
-                    {label:'Gastas', data:datas.map(data => { const d=porDia.get(data); return d ? totalGastoV24(d) : null; }), borderColor:'#22c55e', tension:.25, spanGaps:true, yAxisID:'kcal'},
-                    {label:'Líquidas', data:datas.map(data => { const d=porDia.get(data); return d ? totalCaloriasDia(d) : null; }), borderColor:'#0284c7', tension:.25, spanGaps:true, yAxisID:'kcal'},
-                    {label:'Meta', data:datas.map(data => { const d=porDia.get(data); return d ? metaCaloriasUsadaV21(d) : null; }), borderColor:'#64748b', borderDash:[5,4], pointRadius:0, tension:0, spanGaps:true, yAxisID:'kcal'},
-                    {label:'TMB', data:datas.map(data => tmbPorDia.get(data) ?? null), borderColor:'#f59e0b', borderDash:[2,3], tension:.25, spanGaps:true, yAxisID:'tmb'}
-                ]
-            },
-            options: {
-                responsive:true, maintainAspectRatio:false, animation:false,
-                interaction:{mode:'index',intersect:false},
-                plugins:{legend:{labels:{boxWidth:10,padding:8,font:{size:10}}}},
-                elements:{point:{radius:2},line:{borderWidth:2}},
-                scales:{
-                    kcal:{type:'linear',position:'left',beginAtZero:true,title:{display:true,text:'Calorias (kcal)'}},
-                    tmb:{type:'linear',position:'right',beginAtZero:false,grid:{drawOnChartArea:false},title:{display:true,text:'TMB (kcal)'}}
-                }
-            }
-        });
-        chartCaloriasRefV25.$plDatasV40 = datas;
-        const titulo = document.querySelector('#view-graficos [data-chart-key="calorias"] h3');
-        if (titulo) titulo.textContent = 'Calorias e TMB';
-        const subtitulo = document.getElementById('chart-calorias-subtitle');
-        if (subtitulo) subtitulo.textContent = diasCalorias.length+' dia(s) com calorias • '+pesosTmb.length+' registro(s) de TMB • TMB no eixo direito';
-    }
-
-    const canvasMacros = document.getElementById('chartMacrosRefeicoesV66');
-    if (canvasMacros) {
-        if (chartMacrosRefeicoesRefV66) chartMacrosRefeicoesRefV66.destroy();
-        const macroDias = diasCalorias.filter(dia => (dia.refeicoes || []).some(refeicao => ['proteinaG','carboidratosG','gorduraG','fibraG'].some(chave => numeroValido(refeicao?.[chave]) !== null)));
-        chartMacrosRefeicoesRefV66 = new Chart(canvasMacros.getContext('2d'), {
-            type:'line',
-            data:{
-                labels:macroDias.map(dia => formatDateChart(dia.data)),
-                datasets:[
-                    {label:'Proteína',data:macroDias.map(dia => (dia.refeicoes||[]).reduce((s,r) => s+valorMacroRefeicaoV66(r,'proteinaG'),0)),borderColor:'#16a34a',tension:.25,spanGaps:true},
-                    {label:'Carboidratos',data:macroDias.map(dia => (dia.refeicoes||[]).reduce((s,r) => s+valorMacroRefeicaoV66(r,'carboidratosG'),0)),borderColor:'#0284c7',tension:.25,spanGaps:true},
-                    {label:'Gordura',data:macroDias.map(dia => (dia.refeicoes||[]).reduce((s,r) => s+valorMacroRefeicaoV66(r,'gorduraG'),0)),borderColor:'#f59e0b',tension:.25,spanGaps:true},
-                    {label:'Fibra',data:macroDias.map(dia => (dia.refeicoes||[]).reduce((s,r) => s+valorMacroRefeicaoV66(r,'fibraG'),0)),borderColor:'#a855f7',tension:.25,spanGaps:true}
-                ]
-            },
-            options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{boxWidth:10,padding:8,font:{size:10}}}},elements:{point:{radius:2},line:{borderWidth:2}},scales:{y:{beginAtZero:true,title:{display:true,text:'Gramas (g)'}}}}
-        });
-        const subtitulo = document.getElementById('chart-macros-subtitle-v66');
-        if (subtitulo) subtitulo.textContent = macroDias.length+' dia(s) com macros informados nas refeições';
-    }
-    if (typeof garantirControlesGraficosV54 === 'function') garantirControlesGraficosV54();
-    if (typeof aplicarEstadoLinhasV54 === 'function') {
-        aplicarEstadoLinhasV54('calorias');
-        aplicarEstadoLinhasV54('macros');
-    }
-}
-
-const graficoPorChaveAntesV66 = graficoPorChaveV54;
-graficoPorChaveV54 = function(chave) {
-    if (chave === 'macros') return chartMacrosRefeicoesRefV66;
-    return graficoPorChaveAntesV66(chave);
-};
-
-const renderGraficosAntesV66 = renderGraficos;
-renderGraficos = function() {
-    const retorno = renderGraficosAntesV66();
-    renderGraficosComplementaresV66();
-    return retorno;
-};
-
-function salvarPreferenciasGraficosV66() {
-    appData.config = appData.config || {};
-    appData.config.filtroGraficoAtualV66 = filtroGraficoAtual || 'ciclo';
-    appData.config.filtroCicloGrafico = filtroCicloGraficoV48 || appData.config.filtroCicloGrafico || 'ativo';
-    assinaturaFiltrosGraficosV66 = appData.config.filtroGraficoAtualV66+'|'+appData.config.filtroCicloGrafico;
-    try { salvarDados(false, false); } catch { try { salvarDadosLocalmente(); } catch {} }
-}
-
-function restaurarPreferenciasGraficosV66() {
-    const config = appData?.config || {};
-    const periodos = ['ciclo','todos','7d','1m','3m','6m','1a','5a'];
-    const periodo = periodos.includes(config.filtroGraficoAtualV66) ? config.filtroGraficoAtualV66 : null;
-    const ciclo = String(config.filtroCicloGrafico || 'ativo');
-    const assinatura = (periodo || filtroGraficoAtual || 'ciclo')+'|'+ciclo;
-    if (assinatura === assinaturaFiltrosGraficosV66) return;
-    if (periodo) filtroGraficoAtual = periodo;
-    filtroCicloGraficoV48 = ciclo;
-    const seletorPeriodo = document.getElementById('grafico-filtro-select');
-    if (seletorPeriodo && periodo) seletorPeriodo.value = periodo;
-    const seletorCiclo = document.getElementById('grafico-ciclo-select-v48');
-    if (seletorCiclo && [...seletorCiclo.options].some(opcao => opcao.value === ciclo)) seletorCiclo.value = ciclo;
-    assinaturaFiltrosGraficosV66 = assinatura;
-}
-
-const alterarFiltroGraficoAntesV66 = alterarFiltroGrafico;
-alterarFiltroGrafico = function(filtro) {
-    const retorno = alterarFiltroGraficoAntesV66(filtro);
-    salvarPreferenciasGraficosV66();
-    return retorno;
-};
-window.alterarFiltroGrafico = alterarFiltroGrafico;
-
-const alterarFiltroCicloGraficoAntesV66 = alterarFiltroCicloGraficoV48;
-alterarFiltroCicloGraficoV48 = function(valor) {
-    const retorno = alterarFiltroCicloGraficoAntesV66(valor);
-    salvarPreferenciasGraficosV66();
-    return retorno;
-};
-window.alterarFiltroCicloGraficoV48 = alterarFiltroCicloGraficoV48;
-
-function moverResumoParaCalculosV66() {
-    const calculos = document.getElementById('view-metas');
-    if (!calculos) return;
-    let bloco = document.getElementById('calculos-resumos-v66');
-    if (!bloco) {
-        bloco = document.createElement('div');
-        bloco.id = 'calculos-resumos-v66';
-        bloco.innerHTML = '<h3 class="section-title">Resumo e Análises</h3>';
-        calculos.insertBefore(bloco, calculos.firstElementChild);
-    }
-    const ids = ['qualidade-evolucao-dashboard-v44','resumo-automatico-v30','painel-evolucao-fotos-v46','card-calendario-v49','tendencia-ritmo-v43','entrada-linha-dia-v39','imc-dashboard-card'];
-    ids.forEach(id => {
-        const card = document.getElementById(id);
-        if (card && card.parentElement !== bloco) bloco.appendChild(card);
-    });
-    if (typeof aplicarLayoutCardsV53 === 'function') aplicarLayoutCardsV53(calculos);
-}
-
-function removerCentralAlertasV66() {
-    document.getElementById('card-alertas-v49')?.remove();
-    document.getElementById('view-alertas-v49')?.remove();
-    const config = appData?.config;
-    if (config?.layoutViewsV49?.['view-dashboard']) {
-        const layout = config.layoutViewsV49['view-dashboard'];
-        layout.ordem = (layout.ordem || []).filter(chave => !String(chave).includes('alertas'));
-        layout.ocultos = (layout.ocultos || []).filter(chave => !String(chave).includes('alertas'));
-    }
-}
-
-garantirViewAlertasV49 = removerCentralAlertasV66;
-garantirCardAlertasV49 = removerCentralAlertasV66;
-
-const abrirCiclosAntesV66 = novoCicloV48;
-novoCicloV48 = function() {
-    const retorno = abrirCiclosAntesV66();
-    const aviso = document.getElementById('form-ciclo-aviso-v48');
-    if (aviso) aviso.textContent = 'Você pode criar ciclos passados. Para um ciclo histórico sem data final, o app o encerra automaticamente no dia anterior ao próximo ciclo.';
-    return retorno;
-};
-window.novoCicloV48 = novoCicloV48;
-
-const salvarCicloAntesV66 = salvarCicloV48;
-salvarCicloV48 = function() {
-    const inicio = document.getElementById('ciclo-inicio-v48')?.value || '';
-    const campoFim = document.getElementById('ciclo-fim-v48');
-    if (!cicloEdicaoIdV48 && dataISOValida(inicio) && campoFim && !campoFim.value) {
-        const proximo = [...(appData.ciclos || [])]
-            .filter(ciclo => dataISOValida(ciclo?.dataInicio) && ciclo.dataInicio > inicio)
-            .sort((a,b) => a.dataInicio.localeCompare(b.dataInicio))[0];
-        if (proximo) {
-            const fimAutomatico = addDiasISO(proximo.dataInicio, -1);
-            if (fimAutomatico >= inicio) campoFim.value = fimAutomatico;
-        }
-    }
-    return salvarCicloAntesV66();
-};
-window.salvarCicloV48 = salvarCicloV48;
-
-const novoEventoAntesV66 = novoEventoV40;
-novoEventoV40 = function() {
-    const retorno = novoEventoAntesV66();
-    const inicio = document.getElementById('evento-inicio-v40');
-    if (inicio) {
-        inicio.removeAttribute('min');
-        inicio.title = 'Eventos podem ser registrados em datas passadas.';
-    }
-    return retorno;
-};
-window.novoEventoV40 = novoEventoV40;
-
-const showViewAntesV66 = showView;
-showView = function(viewId, navEl) {
-    const retorno = showViewAntesV66(viewId, navEl);
-    if (viewId === 'metas') {
-        const titulo = document.getElementById('page-title');
-        if (titulo) titulo.textContent = 'Cálculos';
-        moverResumoParaCalculosV66();
-    }
-    return retorno;
-};
-window.showView = showView;
-
-const updateUIAntesV66 = updateUI;
-updateUI = function() {
-    const retorno = updateUIAntesV66();
-    restaurarPreferenciasGraficosV66();
-    removerCentralAlertasV66();
-    moverResumoParaCalculosV66();
-    return retorno;
-};
-
-const normalizarDadosAntesV66 = normalizarDados;
-normalizarDados = function(raw) {
-    const dados = normalizarDadosAntesV66(raw);
-    dados.config = dados.config || {};
-    const filtro = dados.config.filtroGraficoAtualV66;
-    dados.config.filtroGraficoAtualV66 = ['ciclo','todos','7d','1m','3m','6m','1a','5a'].includes(filtro) ? filtro : 'ciclo';
-    dados.schemaVersion = Math.max(Number(dados.schemaVersion) || 0, PL_SCHEMA_VERSION_V66);
-    return dados;
-};
-
-document.querySelector('[data-view="metas"]')?.replaceChildren(...(() => {
-    const nav = document.querySelector('[data-view="metas"]');
-    return [...nav.childNodes].map(no => no.nodeType === Node.TEXT_NODE && /Simular/.test(no.textContent) ? document.createTextNode(no.textContent.replace('Simular','Cálculos')) : no);
-})());
-
-window.addEventListener('load', () => setTimeout(() => {
-    garantirGraficoMacrosV66();
-    restaurarPreferenciasGraficosV66();
-    removerCentralAlertasV66();
-    moverResumoParaCalculosV66();
-    if (activeViewId === 'graficos') renderGraficos();
-}, 720));
-
-
-/* V67 — padronização visual do editor de fotos em todas as abas. */
-const PL_SCHEMA_VERSION_V67 = 67;
-
-function garantirEstilosFotosPadronizadasV67() {
-    if (document.getElementById('style-fotos-padronizadas-v67')) return;
-    const style = document.createElement('style');
-    style.id = 'style-fotos-padronizadas-v67';
-    style.textContent = `
-        .photo-standard-editor-v67 { display:flex; flex-direction:column; gap:12px; margin-top:12px; }
-        .photo-standard-row-v67 { grid-template-columns:96px minmax(0,1fr); gap:11px; align-items:start; }
-        .photo-standard-row-v67 .photo-existing-thumb-v34,
-        .photo-standard-row-v67 .photo-preview-thumb {
-            width:96px; height:108px; margin:0; padding:0; border:1px solid var(--border); border-radius:14px;
-            overflow:hidden; background:#fff; display:grid; place-items:center; cursor:pointer;
-        }
-        .photo-standard-row-v67 .photo-existing-thumb-v34 img,
-        .photo-standard-row-v67 .photo-preview-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
-        .photo-standard-row-v67 input[type="text"] { width:100%; min-width:0; }
-        .photo-category-select-v67 {
-            width:auto; max-width:100%; min-width:132px; min-height:36px; padding:6px 34px 6px 11px;
-            align-self:flex-start; border:1px solid var(--border); border-radius:999px; background:#fff;
-            color:var(--text-secondary); font-size:11px; line-height:1.2; font-weight:800;
-            box-shadow:none;
-        }
-        .photo-category-select-v67:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(2,132,199,.10); }
-        .calorie-photo-delete-v55 svg { width:19px; height:19px; display:block; }
-        .calorie-photo-delete-v55 { cursor:pointer; }
-        .photo-standard-row-v67 .calorie-photo-actions-v55 { justify-content:flex-start; }
-        .photo-standard-row-v67 .calorie-photo-actions-v55 .btn { min-width:0; }
-        @media (max-width:390px) {
-            .photo-standard-row-v67 { grid-template-columns:82px minmax(0,1fr); gap:9px; padding:9px; }
-            .photo-standard-row-v67 .photo-existing-thumb-v34,
-            .photo-standard-row-v67 .photo-preview-thumb { width:82px; height:96px; }
-            .photo-category-select-v67 { min-width:118px; max-width:100%; }
-        }
-    `;
-    document.head.appendChild(style);
-}
-
-function listaCategoriasFotoV67(tipo) {
-    if (tipo === 'peso') return PL_CATEGORIAS_PESO;
-    if (tipo === 'medida') return PL_CATEGORIAS_MEDIDAS;
-    if (tipo === 'remedio') return PL_CATEGORIAS_REMEDIOS;
-    return PL_CATEGORIAS_FOTOS;
-}
-
-/* Novas fotos de Peso, Medidas e Remédios usam o mesmo cartão espaçoso de Refeições. */
-renderSeletoresCategorias = function(arquivos, containerId, lista, estado) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    garantirEstilosFotosCaloriasV55();
-    garantirEstilosFotosPadronizadasV67();
-    limparUrlsPreviewFotosV25(containerId);
-    const urls = arquivos.map(arquivo => URL.createObjectURL(arquivo));
-    urlsPreviewFotosV25.set(containerId, urls);
-
-    if (!arquivos.length) {
-        container.innerHTML = '';
-        atualizarTextoNovasFotosV35(containerId, 0);
-        return;
-    }
-
-    container.innerHTML = '<div class="calorie-photo-editor-v55 photo-standard-editor-v67">' + arquivos.map((arquivo, i) =>
-        '<div class="calorie-photo-row-v55 photo-standard-row-v67">' +
-            '<button type="button" class="calorie-photo-thumb-v55 photo-preview-thumb" data-preview-indice="' + i + '" aria-label="Visualizar foto ' + (i + 1) + '"><img alt="Miniatura da foto ' + (i + 1) + '"></button>' +
-            '<div class="calorie-photo-main-v55">' +
-                '<select class="photo-category-select-v67" data-foto-indice="' + i + '" aria-label="Categoria da foto ' + (i + 1) + '">' + opcoesCategorias(lista, estado[i] || 'outros') + '</select>' +
-                '<div>' +
-                    '<div class="calorie-photo-title-head-v55"><label>Nome da foto (opcional)</label>' +
-                        '<button type="button" class="calorie-photo-delete-v55" data-remover-foto-nova-v35="' + i + '" title="Remover esta foto" aria-label="Remover foto ' + (i + 1) + '">' + PL_ICONE_LIXEIRA_V35 + '</button>' +
-                    '</div>' +
-                    '<input type="text" maxlength="160" data-foto-titulo-nova="' + i + '" placeholder="Ex: Frente, Perfil, Rosto">' +
-                '</div>' +
-                '<div class="calorie-photo-file-v55">Arquivo: ' + escapeHtml(arquivo.name || ('foto-' + (i + 1))) + '</div>' +
-                '<div class="calorie-photo-actions-v55"><button type="button" class="btn btn-outline" data-preview-indice="' + i + '">◉ Visualizar</button></div>' +
-            '</div>' +
-        '</div>'
-    ).join('') + '</div>';
-
-    container.querySelectorAll('[data-preview-indice]').forEach(btn => {
-        const i = Number(btn.dataset.previewIndice);
-        const img = btn.querySelector('img');
-        if (img) img.src = urls[i];
-        btn.addEventListener('click', () => {
-            const campo = container.querySelector('input[data-foto-titulo-nova="' + i + '"]');
-            const titulo = textoSeguro(campo?.value || '', 160).trim();
-            abrirPreviewFotoSelecionadaV25(urls[i], titulo || arquivos[i]?.name || ('Foto ' + (i + 1)));
-        });
-    });
-    container.querySelectorAll('select[data-foto-indice]').forEach(select => select.addEventListener('change', () => {
-        estado[Number(select.dataset.fotoIndice)] = select.value;
-    }));
-    container.querySelectorAll('[data-remover-foto-nova-v35]').forEach(botao => {
-        botao.addEventListener('click', () => removerFotoNovaV35(containerId, Number(botao.dataset.removerFotoNovaV35), lista, estado));
-    });
-    atualizarTextoNovasFotosV35(containerId, arquivos.length);
-};
-
-/* Fotos já salvas também seguem exatamente a mesma hierarquia visual. */
-renderFotosExistentesEditaveisV34 = function(item, tipo) {
-    garantirEstilosFotosCaloriasV55();
-    garantirEstilosFotosPadronizadasV67();
-    const containerId = idContainerFotosExistentesV34(tipo);
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    const fotos = obterFotosRegistro(item || {});
-    if (!fotos.length) {
-        container.innerHTML = '';
-        return;
-    }
-    const listaCategorias = listaCategoriasFotoV67(tipo);
-    container.innerHTML = '<div class="calorie-photo-editor-v55 photo-standard-editor-v67"><div class="calorie-photo-section-title-v55">Fotos já anexadas — visualize, renomeie, exclua ou ajuste a categoria</div>' +
-        fotos.map((foto, indice) => {
-            const id = escapeHtml(String(foto.fotoDocId));
-            const titulo = escapeHtml(foto.fotoTitulo || '');
-            const original = escapeHtml(nomeOriginalFotoV34(foto, 'foto'));
-            return '<div class="calorie-photo-row-v55 photo-standard-row-v67" data-foto-row-v34="' + id + '">' +
-                '<button type="button" class="calorie-photo-thumb-v55 photo-existing-thumb-v34" data-preview-foto-v34="' + id + '" aria-label="Visualizar foto ' + (indice + 1) + '"><span class="photo-existing-loading-v34">Carregando...</span></button>' +
-                '<div class="calorie-photo-main-v55">' +
-                    '<select class="photo-category-select-v67" data-foto-existente="' + id + '" aria-label="Categoria da foto ' + (indice + 1) + '">' + opcoesCategorias(listaCategorias, normalizarCategoriaFotoV37(foto.fotoCategoria || 'outros')) + '</select>' +
-                    '<div>' +
-                        '<div class="calorie-photo-title-head-v55"><label>Nome da foto (opcional)</label>' +
-                            '<button type="button" class="calorie-photo-delete-v55" data-excluir-foto-existente-v35="' + id + '" title="Excluir somente esta foto" aria-label="Excluir foto ' + (indice + 1) + '">' + PL_ICONE_LIXEIRA_V35 + '</button>' +
-                        '</div>' +
-                        '<input type="text" maxlength="160" data-foto-titulo-existente="' + id + '" value="' + titulo + '" placeholder="Ex: Frente, Perfil, Rosto">' +
-                    '</div>' +
-                    '<div class="calorie-photo-file-v55">Arquivo original: ' + original + '</div>' +
-                    '<div class="calorie-photo-actions-v55"><button type="button" class="btn btn-outline" data-preview-foto-v34="' + id + '">◉ Visualizar</button></div>' +
-                '</div>' +
-            '</div>';
-        }).join('') + '</div>';
-
-    container.querySelectorAll('[data-preview-foto-v34]').forEach(botao => {
-        botao.addEventListener('click', () => abrirPreviewFotoExistenteV34(tipo, item.id, botao.dataset.previewFotoV34));
-    });
-    container.querySelectorAll('[data-excluir-foto-existente-v35]').forEach(botao => {
-        botao.addEventListener('click', () => excluirFotoExistenteEditorV35(tipo, item.id, botao.dataset.excluirFotoExistenteV35));
-    });
-    carregarMiniaturasFotosExistentesV34(container, fotos);
-};
-
-/* Refeições e gastos mantêm o rótulo automático no topo, mas agora usam a mesma lixeira SVG vermelha. */
-renderFotosNovasCaloriasV55 = function(tipo, titulosPreservados = null) {
-    garantirEditorFotosCaloriasV55(tipo);
-    garantirEstilosFotosPadronizadasV67();
-    const ids = idsFotoCaloriaV55(tipo);
-    const input = document.getElementById(ids.input);
-    const container = document.getElementById(ids.novas);
-    if (!input || !container) return;
-    const arquivos = Array.from(input.files || []);
-    const titulos = Array.isArray(titulosPreservados) ? titulosPreservados : tituloDigitadoNovaFotoCaloriaV55(tipo);
-    liberarUrlsPreviewCaloriasV55(tipo);
-    if (!arquivos.length) {
-        container.innerHTML = '';
-        atualizarStatusFotoCaloriaV53(tipo);
-        return;
-    }
-    const urls = arquivos.map(file => URL.createObjectURL(file));
-    urlsPreviewCaloriasV55.set(tipo, urls);
-    const rotulo = tipo === 'gasto' ? 'Gasto calórico' : 'Refeição';
-    container.innerHTML = '<div class="calorie-photo-editor-v55"><div class="calorie-photo-section-title-v55">Fotos novas — visualize, renomeie ou remova antes de salvar</div>' +
-        arquivos.map((arquivo, indice) => `
-            <div class="calorie-photo-row-v55">
-                <button type="button" class="calorie-photo-thumb-v55" data-calorie-photo-preview-new-v55="${indice}" aria-label="Visualizar foto ${indice + 1}"><img alt="Miniatura da foto ${indice + 1}"></button>
-                <div class="calorie-photo-main-v55">
-                    <span class="calorie-photo-kind-v55">${escapeHtml(rotulo)}</span>
-                    <div>
-                        <div class="calorie-photo-title-head-v55">
-                            <label>Nome da foto (opcional)</label>
-                            <button type="button" class="calorie-photo-delete-v55" data-calorie-photo-remove-new-v55="${indice}" title="Remover esta foto" aria-label="Remover foto ${indice + 1}">${PL_ICONE_LIXEIRA_V35}</button>
-                        </div>
-                        <input type="text" maxlength="160" data-calorie-photo-title-new-v55="${indice}" value="${escapeHtml(titulos[indice] || '')}" placeholder="Ex: Almoço, Esteira, Sobremesa">
-                    </div>
-                    <div class="calorie-photo-file-v55">Arquivo: ${escapeHtml(arquivo.name || ('foto-' + (indice + 1)))}</div>
-                    <div class="calorie-photo-actions-v55"><button type="button" class="btn btn-outline" data-calorie-photo-preview-new-v55="${indice}">◉ Visualizar</button></div>
-                </div>
-            </div>`).join('') + '</div>';
-    container.querySelectorAll('[data-calorie-photo-preview-new-v55]').forEach(botao => {
-        const indice = Number(botao.dataset.caloriePhotoPreviewNewV55);
-        const img = botao.querySelector('img');
-        if (img) img.src = urls[indice];
-        botao.addEventListener('click', () => {
-            const campo = container.querySelector('input[data-calorie-photo-title-new-v55="' + indice + '"]');
-            const tituloAtual = textoSeguro(campo?.value || '', 160).trim();
-            abrirPreviewFotoSelecionadaV25(urls[indice], tituloAtual || arquivos[indice]?.name || ('Foto ' + (indice + 1)));
-        });
-    });
-    container.querySelectorAll('[data-calorie-photo-remove-new-v55]').forEach(botao => {
-        botao.addEventListener('click', () => removerFotoNovaCaloriaV55(tipo, Number(botao.dataset.caloriePhotoRemoveNewV55)));
-    });
-    atualizarStatusFotoCaloriaV53(tipo);
-};
-
-renderFotosExistentesCaloriasV55 = function(tipo, diaId, itemId) {
-    garantirEditorFotosCaloriasV55(tipo);
-    garantirEstilosFotosPadronizadasV67();
-    const ids = idsFotoCaloriaV55(tipo);
-    const container = document.getElementById(ids.existentes);
-    if (!container) return;
-    const { item } = localizarItemCaloriaV55(tipo, diaId, itemId);
-    const fotos = obterFotosRegistro(item || {});
-    if (!item || !fotos.length) {
-        container.innerHTML = '';
-        atualizarStatusFotoCaloriaV53(tipo, 0);
-        return;
-    }
-    const descricao = tipo === 'gasto' ? (item.descricao || 'Gasto') : (item.tipo || 'Refeição');
-    container.innerHTML = '<div class="calorie-photo-editor-v55"><div class="calorie-photo-section-title-v55">Fotos já anexadas — visualize, renomeie ou exclua</div>' +
-        fotos.map((foto, indice) => `
-            <div class="calorie-photo-row-v55">
-                <button type="button" class="calorie-photo-thumb-v55" data-calorie-photo-thumb-existing-v55="${escapeHtml(String(foto.fotoDocId))}" aria-label="Visualizar foto ${indice + 1}">Carregando...</button>
-                <div class="calorie-photo-main-v55">
-                    <span class="calorie-photo-kind-v55">${escapeHtml(descricao)}</span>
-                    <div>
-                        <div class="calorie-photo-title-head-v55">
-                            <label>Nome da foto (opcional)</label>
-                            <button type="button" class="calorie-photo-delete-v55" data-calorie-photo-delete-existing-v55="${escapeHtml(String(foto.fotoDocId))}" title="Excluir somente esta foto" aria-label="Excluir foto ${indice + 1}">${PL_ICONE_LIXEIRA_V35}</button>
-                        </div>
-                        <input type="text" maxlength="160" data-calorie-photo-title-existing-v55="${escapeHtml(String(foto.fotoDocId))}" value="${escapeHtml(foto.fotoTitulo || '')}" placeholder="Ex: ${escapeHtml(descricao)}">
-                    </div>
-                    <div class="calorie-photo-file-v55">Arquivo original: ${escapeHtml(nomeOriginalFotoV34(foto, 'foto'))}</div>
-                    <div class="calorie-photo-actions-v55"><button type="button" class="btn btn-outline" data-calorie-photo-preview-existing-v55="${escapeHtml(String(foto.fotoDocId))}">◉ Visualizar</button></div>
-                </div>
-            </div>`).join('') + '</div>';
-    container.querySelectorAll('[data-calorie-photo-preview-existing-v55],[data-calorie-photo-thumb-existing-v55]').forEach(botao => {
-        const fotoId = botao.dataset.caloriePhotoPreviewExistingV55 || botao.dataset.caloriePhotoThumbExistingV55;
-        botao.addEventListener('click', () => abrirPreviewFotoCaloriaExistenteV55(tipo, diaId, itemId, fotoId));
-    });
-    container.querySelectorAll('[data-calorie-photo-delete-existing-v55]').forEach(botao => {
-        botao.addEventListener('click', () => excluirFotoExistenteCaloriaV55(tipo, diaId, itemId, botao.dataset.caloriePhotoDeleteExistingV55));
-    });
-    carregarMiniaturasCaloriasV55(tipo, diaId, itemId);
-    atualizarStatusFotoCaloriaV53(tipo, fotos.length);
-};
-
-const normalizarDadosAntesV67 = normalizarDados;
-normalizarDados = function(raw) {
-    const dados = normalizarDadosAntesV67(raw);
-    dados.schemaVersion = Math.max(Number(dados.schemaVersion) || 0, PL_SCHEMA_VERSION_V67);
-    return dados;
-};
-
-window.addEventListener('load', () => garantirEstilosFotosPadronizadasV67());
-
-
-
-/* =========================================================
-   V68 — Navegação principal + submenu Dados + central Fotos
-   + Configurações operacionais separadas de Ciclos/Perfil.
-   ========================================================= */
-const PL_SCHEMA_VERSION_V68 = 68;
-let menuDadosAbertoV68 = false;
-const VIEWS_DADOS_V68 = new Set(['historico','medidas','calorias','remedio','peso']);
-
-function garantirEstilosNavegacaoV68() {
-    if (document.getElementById('style-navegacao-v68')) return;
-    const style = document.createElement('style');
-    style.id = 'style-navegacao-v68';
-    style.textContent = `
-        #bottom-nav { overflow:visible; }
-        #bottom-nav .nav-v68-row { width:100%; display:flex; align-items:stretch; justify-content:space-between; gap:0; }
-        #bottom-nav .nav-v68-row.hidden { display:none !important; }
-        #bottom-nav .nav-v68-row .nav-item { flex:1 1 0; min-width:0; max-width:none; padding:7px 2px; font-size:9px; line-height:1.1; }
-        #bottom-nav .nav-v68-row .nav-item svg { width:23px; height:23px; }
-        #bottom-nav .nav-main-v68 .nav-item { width:14.2857%; }
-        #bottom-nav .nav-dados-v68 .nav-item { width:20%; max-width:20%; font-size:9.5px; }
-        #bottom-nav .nav-back-v68 { color:var(--text-secondary); }
-        #bottom-nav .nav-back-v68.active { color:var(--accent); }
-        .cycle-clock-icon-v68 { overflow:visible; }
-        #btn-install-app { display:none !important; }
-        #view-fotos-v68 > .before-after-card { margin-top:0; }
-        #photo-compare-inline-host-v68:empty,
-        #photo-evolution-host-v68:empty { display:none; }
-        .photo-compare-card-v46.photo-compare-inline-v68 { width:100%; max-height:none; overflow:visible; margin:0 0 16px; }
-        .photo-compare-inline-v68 .photo-compare-head-v46 { margin-bottom:2px; }
-        .photo-compare-inline-v68 .photo-compare-close-v68 { display:none !important; }
-        #photo-evolution-host-v68 > #painel-evolucao-fotos-v46 { margin-bottom:16px; }
-        #view-configuracoes-v68 .settings-v68-intro { margin-bottom:14px; color:var(--text-secondary); font-size:12px; line-height:1.45; }
-        @media (max-width:390px) {
-            #bottom-nav .nav-v68-row .nav-item { font-size:8.2px; padding-left:1px; padding-right:1px; }
-            #bottom-nav .nav-v68-row .nav-item svg { width:22px; height:22px; }
-            #bottom-nav .nav-dados-v68 .nav-item { font-size:9px; }
-        }
-    `;
-    document.head.appendChild(style);
-}
-
-function iconeConfiguracoesV68() {
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.35 1.1V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.1-.35H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 0 .35-1.1V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.18.34.43.63.75.84.32.21.7.32 1.1.32H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"></path></svg>';
-}
-
-function configurarCabecalhoV68() {
-    document.getElementById('btn-profile-open')?.remove();
-    const botao = document.getElementById('btn-settings-open');
-    if (!botao) return;
-    botao.innerHTML = iconeConfiguracoesV68();
-    botao.setAttribute('aria-label','Abrir configurações');
-    botao.setAttribute('title','Configurações');
-    botao.onclick = abrirConfiguracoesV68;
-}
-
-function garantirViewConfiguracoesV68() {
-    let view = document.getElementById('view-configuracoes-v68');
-    const conta = document.getElementById('view-conta');
-    if (!conta) return null;
-    if (!view) {
-        view = document.createElement('section');
-        view.id = 'view-configuracoes-v68';
-        view.className = 'view hidden';
-        view.innerHTML = '<div class="settings-v68-intro">Backup, relatórios, importação, segurança, instalação e manutenção do aplicativo ficam reunidos aqui.</div><div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>';
-        conta.insertAdjacentElement('afterend', view);
-    }
-    const filhos = [...conta.children];
-    const inicio = filhos.findIndex(el => el.classList?.contains('card') && /Backup e Relatórios/i.test(el.querySelector('h3')?.textContent || ''));
-    if (inicio >= 0) {
-        const footer = view.querySelector(':scope > .app-footer-note');
-        for (const el of filhos.slice(inicio)) {
-            if (!el.classList?.contains('card')) continue;
-            footer ? footer.before(el) : view.appendChild(el);
-        }
-    }
-    return view;
-}
-
-function abrirConfiguracoesV68() {
-    garantirViewConfiguracoesV68();
-    menuDadosAbertoV68 = false;
-    showView('configuracoes-v68', document.getElementById('btn-settings-open'));
-}
-window.abrirConfiguracoesV68 = abrirConfiguracoesV68;
-
-/* Impede versões anteriores de transformarem a engrenagem em atalho de Ciclos. */
-reformarBotaoCiclosV58 = function() { configurarCabecalhoV68(); };
-abrirAjustes = abrirConfiguracoesV68;
-window.abrirAjustes = abrirAjustes;
-
-function mostrarLinhaNavV68(dados) {
-    menuDadosAbertoV68 = !!dados;
-    document.getElementById('nav-main-v68')?.classList.toggle('hidden', menuDadosAbertoV68);
-    document.getElementById('nav-dados-v68')?.classList.toggle('hidden', !menuDadosAbertoV68);
-    atualizarAtivoNavV68(activeViewId);
-}
-
-function atualizarAtivoNavV68(viewId = activeViewId) {
-    document.querySelectorAll('#bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
-    if (menuDadosAbertoV68) {
-        const chave = viewId === 'peso' ? 'historico' : viewId;
-        const alvo = document.querySelector('#nav-dados-v68 [data-v68-view="'+chave+'"]');
-        if (alvo) alvo.classList.add('active');
-        else document.querySelector('#nav-dados-v68 [data-v68-action="voltar"]')?.classList.add('active');
-        return;
-    }
-    let chave = viewId;
-    if (VIEWS_DADOS_V68.has(viewId)) chave = 'dados';
-    if (viewId === 'configs' || viewId === 'ciclos-v48') chave = 'ciclos-v48';
-    if (viewId === 'fotos-v68') chave = 'fotos-v68';
-    if (viewId === 'configuracoes-v68') return;
-    const seletor = chave === 'dados' ? '[data-v68-action="dados"]' : '[data-v68-view="'+chave+'"]';
-    document.querySelector('#nav-main-v68 '+seletor)?.classList.add('active');
-}
-
-function abrirMenuDadosV68() { mostrarLinhaNavV68(true); }
-function voltarMenuPrincipalV68() { mostrarLinhaNavV68(false); }
-function navegarDadoV68(viewId, navEl) {
-    menuDadosAbertoV68 = true;
-    try { resetarAbaPrincipalV24?.(viewId); } catch {}
-    showView(viewId, navEl);
-}
-function navegarPrincipalV68(viewId, navEl) {
-    menuDadosAbertoV68 = false;
-    if (viewId === 'ciclos-v48') { abrirCiclosV48(); return; }
-    if (viewId === 'conta') { abrirPerfil(); return; }
-    showView(viewId, navEl);
-}
-window.abrirMenuDadosV68 = abrirMenuDadosV68;
-window.voltarMenuPrincipalV68 = voltarMenuPrincipalV68;
-window.navegarDadoV68 = navegarDadoV68;
-window.navegarPrincipalV68 = navegarPrincipalV68;
-
-/* Fotos: o comparador deixa de ser modal e passa a fazer parte da própria aba. */
-const garantirModalComparacaoFotosAntesV68 = garantirModalComparacaoFotosV46;
-garantirModalComparacaoFotosV46 = function() {
-    const host = document.getElementById('photo-compare-inline-host-v68');
-    if (!host) return garantirModalComparacaoFotosAntesV68();
-    const existente = host.querySelector('.photo-compare-card-v46');
-    if (existente) return existente;
-    garantirModalComparacaoFotosAntesV68();
-    const modal = document.getElementById('modal-comparacao-fotos-v46');
-    const card = modal?.querySelector('.photo-compare-card-v46');
-    if (!card) return null;
-    card.classList.add('photo-compare-inline-v68');
-    const fechar = card.querySelector('.photo-compare-head-v46 > .photo-icon-button');
-    if (fechar) fechar.remove();
-    const titulo = card.querySelector('#titulo-comparacao-fotos-v46');
-    if (titulo) titulo.textContent = 'Comparação Fotográfica Avançada';
-    const subtitulo = card.querySelector('.photo-compare-head-v46 .small');
-    if (subtitulo) subtitulo.textContent = 'Escolha duas fotos da mesma categoria para comparar lado a lado ou sobrepostas.';
-    host.appendChild(card);
-    modal?.remove();
-    return card;
-};
-
-const garantirEntradaComparacaoHomeAntesV68 = garantirEntradaComparacaoHomeV46;
-garantirEntradaComparacaoHomeV46 = function() {
-    const r = garantirEntradaComparacaoHomeAntesV68();
-    document.querySelectorAll('.photo-advanced-entry-v46').forEach(el => el.remove());
-    const painel = document.getElementById('painel-evolucao-fotos-v46');
-    const host = document.getElementById('photo-evolution-host-v68');
-    if (painel && host && painel.parentElement !== host) host.appendChild(painel);
-    const botaoComparar = painel?.querySelector('.photo-evolution-home-head-v46 .btn');
-    if (botaoComparar) botaoComparar.remove();
+    const btn=document.querySelector('#drive-photo-panel-v65 .drive-photo-actions-v65 .btn-primary');
+    if(btn)btn.textContent=driveAccessTokenV65?'Reconectar Google Drive':'Conectar Google Drive';
     return r;
 };
 
-const abrirComparacaoFotosAntesV68 = abrirComparacaoFotosV46;
-abrirComparacaoFotosV46 = function(...args) {
-    garantirModalComparacaoFotosV46();
-    const retorno = abrirComparacaoFotosAntesV68(...args);
-    menuDadosAbertoV68 = false;
-    showView('fotos-v68', document.querySelector('#nav-main-v68 [data-v68-view="fotos-v68"]'));
-    setTimeout(() => document.getElementById('photo-compare-inline-host-v68')?.scrollIntoView({behavior:'smooth',block:'start'}), 30);
-    return retorno;
+const garantirPainelDriveAntesAutoV66 = garantirPainelDriveV65;
+garantirPainelDriveV65 = function(){
+    const r=garantirPainelDriveAntesAutoV66();
+    const painel=document.getElementById('drive-photo-panel-v65');
+    if(!painel)return r;
+    const botoes=painel.querySelectorAll('.drive-photo-actions-v65 .btn');
+    if(botoes[0])botoes[0].textContent=driveAccessTokenV65?'Reconectar Google Drive':'Conectar Google Drive';
+    if(botoes[1])botoes[1].textContent='Sincronizar agora';
+    const nota=painel.querySelector('.drive-photo-note-v65');
+    if(nota)nota.innerHTML='<b>Automático:</b> depois de conectar o Drive uma vez neste aparelho, novas fotos são enviadas sozinhas e fotos ausentes são recuperadas quando o app abre, volta ao primeiro plano ou recupera internet. Os arquivos continuam em qualidade original, sem canvas, redimensionamento ou nova compressão. Se o Google expirar a autorização OAuth, o app apenas pedirá uma reconexão; nenhuma foto local ou da nuvem sera apagada.';
+    definirStatusDriveV65(driveStatusV65.mensagem,driveStatusV65.tipo);
+    return r;
 };
-fecharComparacaoFotosV46 = function() { arrasteComparacaoV46 = null; };
-window.abrirComparacaoFotosV46 = abrirComparacaoFotosV46;
-window.fecharComparacaoFotosV46 = fecharComparacaoFotosV46;
 
-function prepararAbaFotosV68() {
-    garantirModalComparacaoFotosV46();
-    garantirEntradaComparacaoHomeV46();
-    renderAntesDepoisDashboard();
-    renderPainelEvolucaoFotosV46();
-    const categorias = categoriasDisponiveisComparacaoV46();
-    if (categorias.some(item => item.total >= 2)) {
-        if (!categorias.some(item => item.chave === comparacaoFotosEstadoV46.categoria && item.total >= 2)) comparacaoFotosEstadoV46.categoria = escolherCategoriaPadraoV46();
-        selecionarParAutomaticoComparacaoV46();
-    } else {
-        renderComparacaoFotosV46();
+const driveFetchAntesAutoV66 = driveFetchV65;
+driveFetchV65 = async function(url,options={}){
+    try{return await driveFetchAntesAutoV66(url,options);}
+    catch(e){
+        const msg=String(e?.message||e||'');
+        if(/HTTP\s*401|invalid credentials|unauthenticated/i.test(msg)){
+            const uid=currentUser?.uid||'';
+            limparAutorizacaoDriveV66(uid);
+            definirStatusDriveV65('A autorização do Google Drive expirou. Toque em Reconectar Google Drive uma vez para reativar o automático.','warning');
+        }
+        throw e;
     }
-}
+};
 
-const showViewAntesV68 = showView;
-showView = function(viewId, navEl) {
-    if (viewId === 'configuracoes-v68') garantirViewConfiguracoesV68();
-    const retorno = showViewAntesV68(viewId, navEl);
-    if (VIEWS_DADOS_V68.has(viewId)) menuDadosAbertoV68 = true;
-    else if (viewId !== 'peso') menuDadosAbertoV68 = false;
-    if (viewId === 'fotos-v68') {
-        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Fotos';
-        prepararAbaFotosV68();
-    } else if (viewId === 'conta') {
-        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Perfil';
-    } else if (viewId === 'configuracoes-v68') {
-        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Configurações';
-    } else if (viewId === 'ciclos-v48') {
-        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Gerenciar Ciclos';
-    } else if (viewId === 'configs') {
-        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Editar Ciclo Padrão';
-    } else if (viewId === 'graficos') {
-        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Gráficos';
-    } else if (viewId === 'metas') {
-        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Cálculos';
+const sincronizarFotosDriveAntesAutoV66 = sincronizarFotosDriveV65;
+sincronizarFotosDriveV65 = async function(opcoes={}){
+    const ok=await sincronizarFotosDriveAntesAutoV66(opcoes);
+    if(ok&&currentUser?.uid&&driveAccessTokenV65){
+        salvarAutorizacaoDriveV66(currentUser.uid);
+        try{localStorage.setItem(chaveUltimoSyncDriveV66(currentUser.uid),new Date().toISOString());}catch{}
+        garantirPainelDriveV65();
     }
-    document.getElementById('nav-main-v68')?.classList.toggle('hidden', menuDadosAbertoV68);
-    document.getElementById('nav-dados-v68')?.classList.toggle('hidden', !menuDadosAbertoV68);
-    atualizarAtivoNavV68(viewId);
-    return retorno;
-};
-window.showView = showView;
-
-const normalizarDadosAntesV68 = normalizarDados;
-normalizarDados = function(raw) {
-    const dados = normalizarDadosAntesV68(raw);
-    dados.schemaVersion = Math.max(Number(dados.schemaVersion) || 0, PL_SCHEMA_VERSION_V68);
-    return dados;
+    return ok;
 };
 
-window.addEventListener('load', () => setTimeout(() => {
-    garantirEstilosNavegacaoV68();
-    configurarCabecalhoV68();
-    garantirViewConfiguracoesV68();
-    garantirModalComparacaoFotosV46();
-    garantirEntradaComparacaoHomeV46();
-    atualizarAtivoNavV68(activeViewId);
-}, 1350));
+conectarGoogleDriveV65 = async function(){
+    if(!currentUser)return alert('Faca login no Projeto Leve primeiro.');
+    if(driveSincronizandoV65)return;
+    try{
+        definirStatusDriveV65('Solicitando autorização do Google Drive...','warning');
+        const prov=providerDriveV65();
+        const resultado=usuarioUsaGoogleV65()?await reauthenticateWithPopup(currentUser,prov):await linkWithPopup(currentUser,prov);
+        const cred=GoogleAuthProvider.credentialFromResult(resultado);
+        const token=cred?.accessToken||'';
+        if(!token)throw new Error('O Google não devolveu um token de acesso ao Drive.');
+        driveAccessTokenV65=token;
+        driveAutorizadoEmV65=new Date().toISOString();
+        salvarAutorizacaoDriveV66(currentUser.uid);
+        await garantirPastasDriveV65();
+        definirStatusDriveV65('Google Drive conectado. Sincronização automática ativada.','positive');
+        await sincronizarFotosDriveV65({interativo:false,baixarAusentes:true});
+        iniciarRotinaAutomaticaDriveV66();
+    }catch(e){
+        console.error('Falha ao conectar Drive:',e);
+        const msg=traduzirErroApp?.(e)||e?.message||String(e);
+        definirStatusDriveV65('Não foi possível conectar o Google Drive: '+msg,'negative');
+        alert('Não foi possível conectar o Google Drive.\n\n'+msg);
+    }
+};
 
-
-
-
-/* =========================================================
-   V69 — correções visuais: rodapés, largura móvel e ícone PWA.
-   ========================================================= */
-const PL_SCHEMA_VERSION_V69 = 69;
-
-function garantirEstilosCorrecoesV69() {
-    if (document.getElementById('style-correcoes-v69')) return;
-    const style = document.createElement('style');
-    style.id = 'style-correcoes-v69';
-    style.textContent = `
-        html, body {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden !important;
-            overscroll-behavior-x: none;
-        }
-        body { position: relative; }
-        .container, .view {
-            width: 100%;
-            max-width: 100%;
-            min-width: 0;
-        }
-        .container { overflow-x: clip; }
-        .view > *, .card, .grid-2, .table-container,
-        #photo-compare-inline-host-v68, #photo-evolution-host-v68,
-        #view-fotos-v68, #view-configuracoes-v68 {
-            min-width: 0;
-            max-width: 100%;
-        }
-        #photo-compare-inline-host-v68,
-        #photo-evolution-host-v68,
-        .photo-compare-card-v46.photo-compare-inline-v68 {
-            width: 100%;
-            max-width: 100%;
-            min-width: 0;
-            overflow-x: hidden;
-        }
-        #bottom-nav {
-            overflow: hidden !important;
-            width: auto !important;
-            max-width: calc(100vw - 24px);
-            box-sizing: border-box;
-        }
-        #bottom-nav .nav-v68-row {
-            width: 100%;
-            min-width: 0;
-            max-width: 100%;
-            overflow: hidden;
-        }
-        #bottom-nav .nav-v68-row .nav-item {
-            min-width: 0 !important;
-            max-width: none;
-        }
-        .app-footer-note {
-            width: 100%;
-            max-width: 100%;
-            clear: both;
-        }
-    `;
-    document.head.appendChild(style);
+function agendarSyncAutomaticoDriveV66(atraso=1200,baixarAusentes=true){
+    clearTimeout(driveAutoTimerV66);
+    if(!currentUser?.uid||!driveAccessTokenV65||navigator.onLine===false)return;
+    driveAutoTimerV66=setTimeout(async()=>{
+        if(!currentUser?.uid||!driveAccessTokenV65||navigator.onLine===false)return;
+        const agora=Date.now();
+        if(agora-driveUltimaTentativaAutoV66<5000)return;
+        driveUltimaTentativaAutoV66=agora;
+        await sincronizarFotosDriveV65({interativo:false,baixarAusentes}).catch(()=>false);
+    },Math.max(0,Number(atraso)||0));
 }
 
-function corrigirRodapesV69() {
-    document.querySelectorAll('.view').forEach(view => {
-        const rodapes = [...view.querySelectorAll(':scope > .app-footer-note')];
-        if (!rodapes.length) return;
-        const principal = rodapes[0];
-        rodapes.slice(1).forEach(extra => extra.remove());
-        if (view.lastElementChild !== principal) view.appendChild(principal);
-    });
+function iniciarRotinaAutomaticaDriveV66(){
+    clearInterval(driveAutoIntervalV66);
+    if(!currentUser?.uid)return;
+    const restaurou=restaurarAutorizacaoDriveV66(currentUser.uid);
+    garantirPainelDriveV65();
+    if(restaurou||driveAccessTokenV65){
+        definirStatusDriveV65('Google Drive conectado. Sincronização automática ativa.','positive');
+        agendarSyncAutomaticoDriveV66(900,true);
+    }
+    driveAutoIntervalV66=setInterval(()=>{
+        if(document.visibilityState!=='hidden'&&navigator.onLine!==false&&currentUser?.uid&&driveAccessTokenV65){
+            agendarSyncAutomaticoDriveV66(0,true);
+        }
+    },DRIVE_AUTO_INTERVALO_V66);
 }
 
-function travarRolagemHorizontalV69() {
-    const raiz = document.scrollingElement || document.documentElement;
-    if (raiz && raiz.scrollLeft) raiz.scrollLeft = 0;
-    if (document.documentElement.scrollLeft) document.documentElement.scrollLeft = 0;
-    if (document.body.scrollLeft) document.body.scrollLeft = 0;
-}
-
-const showViewAntesV69 = showView;
-showView = function(...args) {
-    const retorno = showViewAntesV69(...args);
-    requestAnimationFrame(() => {
-        corrigirRodapesV69();
-        travarRolagemHorizontalV69();
-    });
-    return retorno;
-};
-window.showView = showView;
-
-const updateUIAntesV69 = updateUI;
-updateUI = function(...args) {
-    const retorno = updateUIAntesV69(...args);
-    requestAnimationFrame(() => {
-        corrigirRodapesV69();
-        travarRolagemHorizontalV69();
-    });
-    return retorno;
+const inicializarSincronizacaoFirebaseAntesAutoV66 = inicializarSincronizacaoFirebaseV64;
+inicializarSincronizacaoFirebaseV64 = async function(...args){
+    if(currentUser?.uid)restaurarAutorizacaoDriveV66(currentUser.uid);
+    const ok=await inicializarSincronizacaoFirebaseAntesAutoV66(...args);
+    if(currentUser?.uid){
+        iniciarRotinaAutomaticaDriveV66();
+        if(ok&&driveAccessTokenV65)agendarSyncAutomaticoDriveV66(700,true);
+    }
+    return ok;
 };
 
-const normalizarDadosAntesV69 = normalizarDados;
-normalizarDados = function(raw) {
-    const dados = normalizarDadosAntesV69(raw);
-    dados.schemaVersion = Math.max(Number(dados.schemaVersion) || 0, PL_SCHEMA_VERSION_V69);
-    return dados;
+const renderContaAntesAutoV66 = renderConta;
+renderConta = function(){
+    if(currentUser?.uid&&!driveAccessTokenV65)restaurarAutorizacaoDriveV66(currentUser.uid);
+    const r=renderContaAntesAutoV66();
+    garantirPainelDriveV65();
+    if(currentUser?.uid&&driveAccessTokenV65)agendarSyncAutomaticoDriveV66(1400,true);
+    return r;
 };
 
-window.addEventListener('load', () => setTimeout(() => {
-    garantirEstilosCorrecoesV69();
-    corrigirRodapesV69();
-    travarRolagemHorizontalV69();
-}, 1500));
+const sairUsuarioAntesAutoV66 = sairUsuario;
+sairUsuario = async function(...args){
+    const uid=currentUser?.uid||'';
+    clearTimeout(driveAutoTimerV66);clearInterval(driveAutoIntervalV66);
+    if(uid)limparAutorizacaoDriveV66(uid);
+    manifestosDriveCacheV65.clear();
+    return sairUsuarioAntesAutoV66(...args);
+};
 
+window.addEventListener('online',()=>{if(currentUser?.uid){restaurarAutorizacaoDriveV66(currentUser.uid);agendarSyncAutomaticoDriveV66(350,true);}});
+document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'&&currentUser?.uid){
+        restaurarAutorizacaoDriveV66(currentUser.uid);
+        agendarSyncAutomaticoDriveV66(700,true);
+    }
+});
+window.addEventListener('load',()=>setTimeout(()=>{
+    if(currentUser?.uid){restaurarAutorizacaoDriveV66(currentUser.uid);iniciarRotinaAutomaticaDriveV66();}
+    garantirPainelDriveV65();
+},900));
+
+window.conectarGoogleDriveV65=conectarGoogleDriveV65;
+window.sincronizarFotosDriveV65=sincronizarFotosDriveV65;
+window.sairUsuario=sairUsuario;
+
+const normalizarDadosAntesAutoV66=normalizarDados;
+normalizarDados=function(raw){const d=normalizarDadosAntesAutoV66(raw);d.schemaVersion=Math.max(Number(d.schemaVersion)||0,PL_SCHEMA_VERSION_V66);return d;};
 
 </script>
 
