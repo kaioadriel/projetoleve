@@ -1517,6 +1517,18 @@
                 <div class="card dashboard-bordered-card"><div class="label">Saldo</div><div class="value" id="dash-saldo">--</div></div>
                 <div class="card dashboard-bordered-card"><div class="label">Faltam</div><div class="value" id="dash-falta-kg">--</div></div>
             </div>
+            <div class="grid-2 dashboard-extra-v67" id="dashboard-extra-v67">
+                <div class="card dashboard-bordered-card">
+                    <div class="label">Média Calorias</div>
+                    <div class="value neutral" id="dash-media-calorias-v67">Não há dados</div>
+                    <div class="small" id="dash-media-calorias-info-v67">Últimos 7 dias</div>
+                </div>
+                <div class="card dashboard-bordered-card">
+                    <div class="label">Dias de Remédio</div>
+                    <div class="value neutral" id="dash-dias-remedio-v67">Não há dados</div>
+                    <div class="small" id="dash-dias-remedio-info-v67">Nenhum tratamento em andamento</div>
+                </div>
+            </div>
             <div class="grid-2 forecast-grid">
                 <div class="card dashboard-bordered-card previsao-card">
                     <div class="label">Projeção pela Meta</div>
@@ -1754,9 +1766,13 @@
                             <input type="date" id="remedio-data" required>
                         </div>
                         <div class="form-group">
-                            <label>Nome do Remédio</label>
-                            <input type="text" id="remedio-nome" list="lista-nomes-remedios" autocomplete="off" placeholder="Digite ou selecione" required>
-                            <datalist id="lista-nomes-remedios"></datalist>
+                            <div class="medicine-name-head-v67">
+                                <label for="remedio-nome">Nome do Remédio</label>
+                                <button type="button" class="btn btn-outline medicine-quick-add-v67" onclick="abrirCadastroRapidoV67()" title="Cadastrar remédio rapidamente" aria-label="Cadastrar remédio rapidamente">+</button>
+                            </div>
+                            <select id="remedio-nome" required>
+                                <option value="">Selecione</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>Dose (mg)</label>
@@ -1765,6 +1781,19 @@
                         <div class="form-group">
                             <label>Peso (kg)</label>
                             <input type="number" min="0" step="0.1" id="remedio-peso" required>
+                        </div>
+                    </div>
+                    <div id="cadastro-rapido-remedio-v67" class="medicine-quick-box-v67 hidden">
+                        <div class="medicine-quick-title-v67">Cadastro rápido</div>
+                        <div class="grid-2">
+                            <div class="form-group"><label>Nome</label><input type="text" id="quick-med-nome-v67" maxlength="300" placeholder="Ex: Ozivy"></div>
+                            <div class="form-group"><label>Data inicial</label><input type="date" id="quick-med-inicio-v67"></div>
+                        </div>
+                        <div class="form-group"><label>Data final (opcional)</label><input type="date" id="quick-med-fim-v67"></div>
+                        <div class="medicine-period-note-v67">Na data final o remédio deixa de aparecer nos cards e a contagem de dias é encerrada.</div>
+                        <div class="grid-2" style="margin-top:10px">
+                            <button type="button" class="btn btn-outline" onclick="fecharCadastroRapidoV67()">Cancelar</button>
+                            <button type="button" class="btn btn-primary" onclick="salvarCadastroRapidoV67()">Cadastrar</button>
                         </div>
                     </div>
                     <button type="button" class="btn btn-clear-outline" style="margin-bottom: 10px;" onclick="limparFormularioRemedio()">Limpar</button>
@@ -20316,6 +20345,278 @@ window.addEventListener('load', () => setTimeout(() => {
     moverResumoParaCalculosV66();
     if (activeViewId === 'graficos') renderGraficos();
 }, 720));
+
+
+
+/* =========================================================
+   V67 — Cadastro de Remédios + dias de uso + indicadores Home
+   Aplicado sobre a base V66 anexada pelo usuário, sem alterar
+   a navegação, o cabeçalho, os cards existentes ou o layout geral.
+   ========================================================= */
+const PL_SCHEMA_VERSION_V67 = 67;
+let medicamentoEdicaoV67 = '';
+
+function chaveMedicamentoV67(valor){
+    return String(valor || '').trim().replace(/\s+/g,' ').toLocaleLowerCase('pt-BR');
+}
+function novoIdMedicamentoV67(prefix='med'){
+    return prefix + '_' + (crypto.randomUUID?.() || (Date.now().toString(36)+Math.random().toString(36).slice(2,9)));
+}
+function normalizarPeriodoMedicamentoV67(periodo={}){
+    const inicio=dataISOValida(String(periodo.dataInicio||''))?String(periodo.dataInicio):'';
+    let fim=dataISOValida(String(periodo.dataFim||''))?String(periodo.dataFim):'';
+    if(fim&&inicio&&fim<=inicio) fim='';
+    return {
+        id:idRegistroSeguro(periodo.id||novoIdMedicamentoV67('periodo')),
+        dataInicio:inicio,
+        dataFim:fim,
+        criadoEm:textoSeguro(periodo.criadoEm||'',80),
+        atualizadoEm:textoSeguro(periodo.atualizadoEm||'',80)
+    };
+}
+function normalizarMedicamentoCadastroV67(item={}){
+    const nome=textoSeguro(item.nome||'',300).trim();
+    let periodos=Array.isArray(item.periodos)?item.periodos.map(normalizarPeriodoMedicamentoV67).filter(p=>p.dataInicio):[];
+    if(!periodos.length&&dataISOValida(String(item.dataInicio||''))) periodos=[normalizarPeriodoMedicamentoV67({dataInicio:item.dataInicio,dataFim:item.dataFim||'',id:item.periodoId})];
+    periodos.sort((a,b)=>String(a.dataInicio).localeCompare(String(b.dataInicio)));
+    return {
+        id:idRegistroSeguro(item.id||novoIdMedicamentoV67('med')),
+        nome,
+        periodos,
+        observacao:textoSeguro(item.observacao||'',2000),
+        criadoEm:textoSeguro(item.criadoEm||'',80),
+        atualizadoEm:textoSeguro(item.atualizadoEm||'',80)
+    };
+}
+function inferirPeriodosDosLancamentosV67(registros){
+    const ordenados=[...(registros||[])].filter(r=>r?.data&&numeroValido(r.mg)!==null).sort((a,b)=>String(a.data).localeCompare(String(b.data))||(Number(a.ordemCadastro)||0)-(Number(b.ordemCadastro)||0));
+    const periodos=[];let atual=null;
+    for(const r of ordenados){
+        const dose=numeroValido(r.mg);
+        if(dose!==null&&Math.abs(dose)<0.000001){
+            if(atual&&r.data>atual.dataInicio){atual.dataFim=r.data;periodos.push(atual);atual=null;}
+            continue;
+        }
+        if(dose!==null&&dose>0&&!atual) atual={id:novoIdMedicamentoV67('periodo'),dataInicio:r.data,dataFim:'',criadoEm:'',atualizadoEm:''};
+    }
+    if(atual)periodos.push(atual);
+    return periodos;
+}
+function migrarCatalogoMedicamentosV67(raw,dados){
+    const mapa=new Map();
+    const incluir=(nome,periodos=[],observacao='')=>{
+        const limpo=String(nome||'').trim().replace(/\s+/g,' ');if(!limpo)return;
+        const chave=chaveMedicamentoV67(limpo);let med=mapa.get(chave);
+        if(!med){med={id:novoIdMedicamentoV67('med'),nome:limpo,periodos:[],observacao,criadoEm:'',atualizadoEm:''};mapa.set(chave,med);}
+        for(const p of periodos){const np=normalizarPeriodoMedicamentoV67(p);if(!np.dataInicio)continue;if(!med.periodos.some(x=>x.dataInicio===np.dataInicio&&x.dataFim===np.dataFim))med.periodos.push(np);}
+    };
+    for(const t of (Array.isArray(raw?.tratamentos)?raw.tratamentos:(dados?.tratamentos||[]))){
+        if(t?.nome&&dataISOValida(String(t.dataInicio||''))) incluir(t.nome,[{dataInicio:t.dataInicio,dataFim:t.dataFim||''}],t.observacao||'');
+    }
+    const grupos=new Map();
+    for(const r of (dados?.remedios||[])){const ch=chaveMedicamentoV67(r.nome);if(!ch)continue;if(!grupos.has(ch))grupos.set(ch,[]);grupos.get(ch).push(r);}
+    for(const regs of grupos.values()){
+        const nome=regs.find(r=>r.nome)?.nome||'',ch=chaveMedicamentoV67(nome);
+        if(!mapa.has(ch)) incluir(nome,inferirPeriodosDosLancamentosV67(regs));
+    }
+    return [...mapa.values()].map(normalizarMedicamentoCadastroV67).filter(m=>m.nome&&m.periodos.length).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+}
+
+const normalizarDadosAntesV67 = normalizarDados;
+normalizarDados = function(raw){
+    const origem=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
+    const dados=normalizarDadosAntesV67(origem);
+    const possuiCatalogo=Object.prototype.hasOwnProperty.call(origem,'medicamentosCadastrados');
+    dados.medicamentosCadastrados=possuiCatalogo
+        ? (Array.isArray(origem.medicamentosCadastrados)?origem.medicamentosCadastrados:[]).map(normalizarMedicamentoCadastroV67).filter(m=>m.nome&&m.periodos.length)
+        : migrarCatalogoMedicamentosV67(origem,dados);
+    dados.medicamentosCadastrados.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+    dados.schemaVersion=Math.max(Number(dados.schemaVersion)||0,PL_SCHEMA_VERSION_V67);
+    return dados;
+};
+
+function listaMedicamentosV67(){return Array.isArray(appData?.medicamentosCadastrados)?appData.medicamentosCadastrados:[];}
+function periodosOrdenadosV67(med){return [...(med?.periodos||[])].filter(p=>dataISOValida(String(p.dataInicio||''))).sort((a,b)=>String(a.dataInicio).localeCompare(String(b.dataInicio)));}
+function periodoMaisRecenteV67(med){const p=periodosOrdenadosV67(med);return p[p.length-1]||null;}
+function periodoAtivoEmDataV67(med,data=hojeISO()){
+    /* Data final exclusiva: nesse dia o medicamento já não está ativo. */
+    return periodosOrdenadosV67(med).filter(p=>p.dataInicio<=data&&(!p.dataFim||data<p.dataFim)).sort((a,b)=>b.dataInicio.localeCompare(a.dataInicio))[0]||null;
+}
+function medicamentoPorNomeV67(nome){return listaMedicamentosV67().find(m=>chaveMedicamentoV67(m.nome)===chaveMedicamentoV67(nome))||null;}
+function registrosPeriodoMedicamentoV67(med,periodo){
+    if(!med||!periodo)return[];const chave=chaveMedicamentoV67(med.nome);
+    return [...(appData.remedios||[])].filter(r=>chaveMedicamentoV67(r.nome)===chave&&r.data>=periodo.dataInicio&&(!periodo.dataFim||r.data<periodo.dataFim)).sort((a,b)=>String(a.data).localeCompare(String(b.data))||(Number(a.ordemCadastro)||0)-(Number(b.ordemCadastro)||0));
+}
+function primeiraDosePeriodoV67(med,periodo){return registrosPeriodoMedicamentoV67(med,periodo).find(r=>{const n=numeroValido(r.mg);return n!==null&&n>0;})||null;}
+function ultimaDosePeriodoV67(med,periodo,data=hojeISO()){
+    return registrosPeriodoMedicamentoV67(med,periodo).filter(r=>r.data<=data&&numeroValido(r.mg)!==null).sort((a,b)=>String(b.data).localeCompare(String(a.data))||(Number(b.ordemCadastro)||0)-(Number(a.ordemCadastro)||0))[0]||null;
+}
+function diasEntreInclusivoV67(inicio,fim=hojeISO()){
+    if(!dataISOValida(inicio)||!dataISOValida(fim)||fim<inicio)return null;
+    return Math.floor((Date.parse(fim+'T00:00:00Z')-Date.parse(inicio+'T00:00:00Z'))/86400000)+1;
+}
+function diasUsoMedicamentoV67(med,periodo,data=hojeISO()){
+    if(!periodo||!periodoAtivoEmDataV67(med,data))return null;
+    const primeira=primeiraDosePeriodoV67(med,periodo);return primeira?diasEntreInclusivoV67(primeira.data,data):null;
+}
+
+function garantirEstilosMedicamentosV67(){
+    if(document.getElementById('style-medicamentos-v67'))return;
+    const st=document.createElement('style');st.id='style-medicamentos-v67';st.textContent=`
+      .medicine-name-head-v67{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}.medicine-name-head-v67 label{margin:0;min-width:0}.medicine-quick-add-v67{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important;padding:0!important;border-radius:11px;font-size:23px;line-height:1}
+      .medicine-quick-box-v67{margin:0 0 12px;padding:12px;border:1px dashed rgba(2,132,199,.42);border-radius:16px;background:var(--soft-bg)}.medicine-quick-title-v67{font-weight:900;margin-bottom:8px}.medicine-period-note-v67{margin-top:5px;color:var(--text-secondary);font-size:10px;line-height:1.35}
+      .medicine-day-count-v67{margin-top:5px;color:var(--accent-hover);font-size:11px;font-weight:800}
+      .medicine-registry-list-v67{display:grid;gap:10px}.medicine-registry-row-v67{border:1px solid var(--border);border-radius:17px;padding:12px;background:#fff}.medicine-registry-head-v67{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.medicine-registry-name-v67{font-weight:900;font-size:15px;color:var(--text-primary);overflow-wrap:anywhere}.medicine-registry-meta-v67{margin-top:4px;color:var(--text-secondary);font-size:11px;line-height:1.4}.medicine-registry-status-v67{flex:0 0 auto;padding:5px 8px;border-radius:999px;background:var(--soft-bg);font-size:9px;font-weight:900}.medicine-registry-status-v67.active{color:var(--success);background:#f0fdf4}.medicine-registry-status-v67.future{color:var(--accent);background:var(--accent-soft)}.medicine-registry-actions-v67{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:10px}.medicine-registry-actions-v67 .btn{min-height:38px;padding:7px 6px;font-size:10px}.medicine-registry-summary-v67{margin-top:10px;color:var(--text-secondary);font-size:11px}
+      #form-cadastro-medicamento-v67 .registry-note-v67{margin:-4px 0 12px;color:var(--text-secondary);font-size:10px;line-height:1.4}
+      .dashboard-extra-v67 .value{font-size:clamp(15px,4.6vw,20px);line-height:1.15;overflow-wrap:anywhere}.dashboard-extra-v67 .small{margin-top:5px;line-height:1.25}
+      @media(max-width:390px){.medicine-registry-actions-v67{grid-template-columns:1fr 1fr}.medicine-registry-actions-v67 .btn:last-child{grid-column:1/-1}.medicine-quick-box-v67 .grid-2{grid-template-columns:1fr}}
+    `;document.head.appendChild(st);
+}
+
+function configurarCardCadastroMedicamentosV67(){
+    const antigo=document.getElementById('card-tratamentos-v49');if(!antigo)return;
+    antigo.innerHTML='<div class="v49-head"><div><h3>Cadastro de Remédios</h3><div class="small">Cadastre medicamentos e os períodos em que estão em uso.</div></div><button type="button" class="btn btn-outline" onclick="abrirCadastroRemediosV67()">Gerenciar</button></div><div id="resumo-cadastro-remedios-v67" class="medicine-registry-summary-v67"></div>';
+    renderResumoCadastroMedicamentosV67();
+}
+function garantirViewCadastroMedicamentosV67(){
+    const sec=document.getElementById('view-tratamentos-v49');if(!sec||sec.dataset.v67Registry==='1')return;
+    sec.dataset.v67Registry='1';
+    sec.innerHTML=`
+      <div class="card"><div class="v49-head"><div><h3>Cadastro de Remédios</h3><div class="small">Inclua, edite ou exclua medicamentos. Cada novo uso pode ter seu próprio período.</div></div><div class="v49-actions"><button type="button" class="btn btn-primary" onclick="novoMedicamentoV67()">+ Cadastrar remédio</button><button type="button" class="btn btn-outline" onclick="showView('remedio',document.querySelector('[data-view=remedio]'))">Voltar</button></div></div></div>
+      <div id="form-cadastro-medicamento-card-v67" class="card hidden"><h3 id="form-cadastro-medicamento-title-v67">Cadastrar remédio</h3><form id="form-cadastro-medicamento-v67" onsubmit="salvarCadastroMedicamentoV67(event)"><input type="hidden" id="cadastro-medicamento-id-v67"><div class="grid-2"><div class="form-group"><label>Nome do remédio</label><input type="text" id="cadastro-medicamento-nome-v67" maxlength="300" required placeholder="Ex: Ozivy"></div><div class="form-group"><label>Data inicial</label><input type="date" id="cadastro-medicamento-inicio-v67" required></div><div class="form-group"><label>Data final (opcional)</label><input type="date" id="cadastro-medicamento-fim-v67"></div></div><div class="registry-note-v67">A data final é o primeiro dia em que o medicamento deixa de ser considerado ativo. Deixe em branco enquanto o tratamento estiver em andamento.</div><div class="grid-2"><button type="button" class="btn btn-outline" onclick="cancelarCadastroMedicamentoV67()">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div></form></div>
+      <div class="card"><div class="v49-head"><div><h3>Remédios cadastrados</h3><div class="small">Períodos anteriores são preservados. Ao iniciar novamente o mesmo remédio, a contagem recomeça na primeira dose do novo período.</div></div></div><div id="lista-cadastro-remedios-v67" class="medicine-registry-list-v67"></div></div>
+      <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>`;
+}
+function renderResumoCadastroMedicamentosV67(){
+    const el=document.getElementById('resumo-cadastro-remedios-v67');if(!el)return;const hoje=hojeISO(),lista=listaMedicamentosV67(),ativos=lista.filter(m=>periodoAtivoEmDataV67(m,hoje));
+    el.textContent=lista.length?(lista.length+' medicamento(s) cadastrado(s) • '+ativos.length+' em andamento'):'Nenhum medicamento cadastrado.';
+}
+function statusPeriodoMedicamentoV67(periodo){const hoje=hojeISO();if(!periodo)return['Sem período',''];if(periodo.dataInicio>hoje)return['Futuro','future'];if(!periodo.dataFim||hoje<periodo.dataFim)return['Em andamento','active'];return['Encerrado',''];}
+function renderCadastroMedicamentosV67(){
+    garantirViewCadastroMedicamentosV67();renderResumoCadastroMedicamentosV67();const el=document.getElementById('lista-cadastro-remedios-v67');if(!el)return;const lista=[...listaMedicamentosV67()].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+    if(!lista.length){el.innerHTML='<div class="small">Nenhum remédio cadastrado. Toque em “Cadastrar remédio” para começar.</div>';return;}
+    el.innerHTML=lista.map(m=>{const periodos=periodosOrdenadosV67(m),p=periodos[periodos.length-1]||null,[status,classe]=statusPeriodoMedicamentoV67(p),anteriores=Math.max(0,periodos.length-1);return '<div class="medicine-registry-row-v67"><div class="medicine-registry-head-v67"><div><div class="medicine-registry-name-v67">'+escapeHtml(m.nome)+'</div><div class="medicine-registry-meta-v67">'+(p?('Último período: '+formatDateBR(p.dataInicio)+(p.dataFim?' até '+formatDateBR(p.dataFim):' • sem data final')):'Sem período')+(anteriores?' • '+anteriores+' período(s) anterior(es)':'')+'</div></div><span class="medicine-registry-status-v67 '+classe+'">'+status+'</span></div><div class="medicine-registry-actions-v67"><button type="button" class="btn btn-outline" onclick="editarMedicamentoV67(\''+escapeHtml(m.id)+'\')">Editar</button><button type="button" class="btn btn-outline" onclick="novoPeriodoMedicamentoV67(\''+escapeHtml(m.id)+'\')">+ Novo período</button><button type="button" class="btn btn-clear-outline" onclick="excluirMedicamentoV67(\''+escapeHtml(m.id)+'\')">Excluir</button></div></div>';}).join('');
+}
+function abrirCadastroRemediosV67(){garantirViewCadastroMedicamentosV67();showView('tratamentos-v49',null);renderCadastroMedicamentosV67();}
+function preencherFormCadastroMedicamentoV67(med=null,novoPeriodo=false){
+    garantirViewCadastroMedicamentosV67();const card=document.getElementById('form-cadastro-medicamento-card-v67');card?.classList.remove('hidden');medicamentoEdicaoV67=novoPeriodo?'':(med?.id||'');
+    const p=novoPeriodo?null:periodoMaisRecenteV67(med);document.getElementById('cadastro-medicamento-id-v67').value=novoPeriodo?('novo-periodo:'+(med?.id||'')):medicamentoEdicaoV67;document.getElementById('cadastro-medicamento-nome-v67').value=med?.nome||'';document.getElementById('cadastro-medicamento-nome-v67').readOnly=!!novoPeriodo;document.getElementById('cadastro-medicamento-inicio-v67').value=novoPeriodo?hojeISO():(p?.dataInicio||hojeISO());document.getElementById('cadastro-medicamento-fim-v67').value=novoPeriodo?'':(p?.dataFim||'');const title=document.getElementById('form-cadastro-medicamento-title-v67');if(title)title.textContent=novoPeriodo?'Novo período • '+(med?.nome||'Remédio'):(med?'Editar remédio':'Cadastrar remédio');card?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function novoMedicamentoV67(){preencherFormCadastroMedicamentoV67(null,false);}
+function editarMedicamentoV67(id){const med=listaMedicamentosV67().find(m=>String(m.id)===String(id));if(med)preencherFormCadastroMedicamentoV67(med,false);}
+function novoPeriodoMedicamentoV67(id){const med=listaMedicamentosV67().find(m=>String(m.id)===String(id));if(!med)return;const ativo=periodoAtivoEmDataV67(med,hojeISO());if(ativo)return alert('Este remédio já possui um período em andamento. Edite o cadastro atual antes de iniciar outro.');preencherFormCadastroMedicamentoV67(med,true);}
+function cancelarCadastroMedicamentoV67(){medicamentoEdicaoV67='';document.getElementById('form-cadastro-medicamento-card-v67')?.classList.add('hidden');const nome=document.getElementById('cadastro-medicamento-nome-v67');if(nome)nome.readOnly=false;}
+function validarPeriodoV67(inicio,fim){if(!dataISOValida(inicio))throw new Error('Informe uma data inicial válida.');if(fim&&(!dataISOValida(fim)||fim<=inicio))throw new Error('A data final precisa ser posterior à data inicial.');}
+function persistirCadastroMedicamentosV67(motivo,selecionarNome=''){motivoProximaCopia=motivo;salvarDados(true,true);renderSeletorMedicamentosV67(selecionarNome);renderResumoCadastroMedicamentosV67();renderCadastroMedicamentosV67();renderResumoRemedioAtualV21();renderCardsDashboardV67();}
+function salvarCadastroMedicamentoV67(evento){
+    evento?.preventDefault?.();try{
+        const token=document.getElementById('cadastro-medicamento-id-v67')?.value||'',nome=document.getElementById('cadastro-medicamento-nome-v67')?.value.trim()||'',inicio=document.getElementById('cadastro-medicamento-inicio-v67')?.value||'',fim=document.getElementById('cadastro-medicamento-fim-v67')?.value||'';
+        if(!nome)throw new Error('Informe o nome do remédio.');validarPeriodoV67(inicio,fim);appData.medicamentosCadastrados=listaMedicamentosV67();const agora=new Date().toISOString();
+        if(token.startsWith('novo-periodo:')){const id=token.slice('novo-periodo:'.length),med=appData.medicamentosCadastrados.find(m=>String(m.id)===String(id));if(!med)throw new Error('Remédio não encontrado.');if(periodoAtivoEmDataV67(med,inicio))throw new Error('Já existe um período deste remédio em andamento nessa data.');med.periodos.push({id:novoIdMedicamentoV67('periodo'),dataInicio:inicio,dataFim:fim,criadoEm:agora,atualizadoEm:agora});med.atualizadoEm=agora;
+        }else if(token){const med=appData.medicamentosCadastrados.find(m=>String(m.id)===String(token));if(!med)throw new Error('Remédio não encontrado.');const p=periodoMaisRecenteV67(med);med.nome=nome;if(p){p.dataInicio=inicio;p.dataFim=fim;p.atualizadoEm=agora;}else med.periodos=[{id:novoIdMedicamentoV67('periodo'),dataInicio:inicio,dataFim:fim,criadoEm:agora,atualizadoEm:agora}];med.atualizadoEm=agora;
+        }else{const existente=medicamentoPorNomeV67(nome);if(existente){if(periodoAtivoEmDataV67(existente,inicio))throw new Error('Este remédio já possui um período em andamento. Use Editar ou informe uma data final antes de iniciar outro período.');existente.periodos.push({id:novoIdMedicamentoV67('periodo'),dataInicio:inicio,dataFim:fim,criadoEm:agora,atualizadoEm:agora});existente.atualizadoEm=agora;}else appData.medicamentosCadastrados.push({id:novoIdMedicamentoV67('med'),nome,periodos:[{id:novoIdMedicamentoV67('periodo'),dataInicio:inicio,dataFim:fim,criadoEm:agora,atualizadoEm:agora}],observacao:'',criadoEm:agora,atualizadoEm:agora});}
+        appData.medicamentosCadastrados=appData.medicamentosCadastrados.map(normalizarMedicamentoCadastroV67).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));cancelarCadastroMedicamentoV67();persistirCadastroMedicamentosV67(token?'Antes de editar cadastro de remédio':'Antes de cadastrar remédio',nome);
+    }catch(e){alert(e?.message||String(e));}
+}
+function excluirMedicamentoV67(id){const med=listaMedicamentosV67().find(m=>String(m.id)===String(id));if(!med)return;if(!confirm('Excluir o cadastro de '+med.nome+'? Os lançamentos históricos de doses serão preservados.'))return;appData.medicamentosCadastrados=listaMedicamentosV67().filter(m=>String(m.id)!==String(id));persistirCadastroMedicamentosV67('Antes de excluir cadastro de remédio');}
+
+function renderSeletorMedicamentosV67(valorPreferido=''){
+    const select=document.getElementById('remedio-nome');if(!select||select.tagName!=='SELECT')return;
+    const valor=valorPreferido||select.value||'';const nomes=[...new Set(listaMedicamentosV67().map(m=>m.nome).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+    select.innerHTML='<option value="">Selecione</option>'+nomes.map(n=>'<option value="'+escapeHtml(n)+'">'+escapeHtml(n)+'</option>').join('');
+    const escolhido=nomes.find(n=>chaveMedicamentoV67(n)===chaveMedicamentoV67(valor));if(escolhido)select.value=escolhido;
+}
+function abrirCadastroRapidoV67(){
+    const box=document.getElementById('cadastro-rapido-remedio-v67');if(!box)return;box.classList.toggle('hidden');
+    if(!box.classList.contains('hidden')){document.getElementById('quick-med-inicio-v67').value=document.getElementById('remedio-data')?.value||hojeISO();document.getElementById('quick-med-nome-v67')?.focus();}
+}
+function fecharCadastroRapidoV67(){document.getElementById('cadastro-rapido-remedio-v67')?.classList.add('hidden');}
+function salvarCadastroRapidoV67(){
+    try{
+        const nome=document.getElementById('quick-med-nome-v67')?.value.trim()||'',inicio=document.getElementById('quick-med-inicio-v67')?.value||'',fim=document.getElementById('quick-med-fim-v67')?.value||'';
+        if(!nome)throw new Error('Informe o nome do remédio.');validarPeriodoV67(inicio,fim);appData.medicamentosCadastrados=listaMedicamentosV67();const existente=medicamentoPorNomeV67(nome),agora=new Date().toISOString();
+        if(existente){if(periodoAtivoEmDataV67(existente,inicio))throw new Error('Este remédio já possui um período em andamento.');existente.periodos.push({id:novoIdMedicamentoV67('periodo'),dataInicio:inicio,dataFim:fim,criadoEm:agora,atualizadoEm:agora});existente.atualizadoEm=agora;}else appData.medicamentosCadastrados.push({id:novoIdMedicamentoV67('med'),nome,periodos:[{id:novoIdMedicamentoV67('periodo'),dataInicio:inicio,dataFim:fim,criadoEm:agora,atualizadoEm:agora}],observacao:'',criadoEm:agora,atualizadoEm:agora});
+        appData.medicamentosCadastrados=appData.medicamentosCadastrados.map(normalizarMedicamentoCadastroV67);motivoProximaCopia='Antes de cadastro rápido de remédio';salvarDados(true,true);renderSeletorMedicamentosV67(nome);renderResumoCadastroMedicamentosV67();renderCadastroMedicamentosV67();fecharCadastroRapidoV67();document.getElementById('quick-med-nome-v67').value='';document.getElementById('quick-med-fim-v67').value='';
+    }catch(e){alert(e?.message||String(e));}
+}
+
+/* Dose Atual: somente medicamentos cujo período esteja ativo hoje. */
+renderResumoRemedioAtualV21 = function(){
+    const container=document.getElementById('resumo-remedio-atual');if(!container)return;const hoje=hojeISO(),ativos=[];
+    for(const med of listaMedicamentosV67()){
+        const periodo=periodoAtivoEmDataV67(med,hoje);if(!periodo)continue;const atual=ultimaDosePeriodoV67(med,periodo,hoje);if(!atual)continue;const doseAtual=numeroValido(atual.mg);if(doseAtual===null||Math.abs(doseAtual)<0.000001)continue;
+        const regs=registrosPeriodoMedicamentoV67(med,periodo).filter(r=>r.data<=hoje&&String(r.id)!==String(atual.id));const anterior=[...regs].reverse().find(r=>numeroValido(r.mg)!==null)||null;const dias=diasUsoMedicamentoV67(med,periodo,hoje);ativos.push({med,atual,anterior,dias});
+    }
+    if(!ativos.length){container.innerHTML='';return;}
+    ativos.sort((a,b)=>String(b.atual.data).localeCompare(String(a.atual.data)));
+    container.innerHTML=ativos.map(({med,atual,anterior,dias})=>{const comparacao=comparacaoV21(numeroValido(atual.mg),numeroValido(anterior?.mg),' mg',()=>null);return '<div class="card medicine-summary-card record-summary-card"><div class="label">Dose Atual</div><div class="value medicine-current-dose">'+formatBR(atual.mg)+' mg</div><div class="medicine-current-name">'+escapeHtml(med.nome||'Remédio')+'</div><div class="medicine-day-count-v67">'+(dias===null?'Contagem inicia na primeira dose':dias+' dia'+(dias===1?'':'s')+' de uso')+'</div><div class="metric-delta '+comparacao.classe+'">'+comparacao.texto+'</div></div>';}).join('');
+};
+
+const renderRemediosAntesV67=renderRemedios;
+renderRemedios=function(...args){const valor=document.getElementById('remedio-nome')?.value||'';const r=renderRemediosAntesV67(...args);renderSeletorMedicamentosV67(valor);renderResumoRemedioAtualV21();configurarCardCadastroMedicamentosV67();return r;};
+
+/* O antigo Esquema de Tratamento permanece apenas como dado legado para compatibilidade.
+   Na interface, ele é substituído integralmente pelo Cadastro de Remédios. */
+renderResumoTratamentosV49=function(){renderResumoCadastroMedicamentosV67();};
+renderTratamentosV49=function(){renderCadastroMedicamentosV67();};
+abrirTratamentosV49=function(){abrirCadastroRemediosV67();};
+window.renderTratamentosV49=renderTratamentosV49;window.abrirTratamentosV49=abrirTratamentosV49;
+
+function mediaCalorias7DiasV67(){
+    const hoje=hojeISO(),fim=Date.parse(hoje+'T00:00:00Z'),inicio=fim-6*86400000,valores=[];
+    for(const dia of (appData.calorias||[])){
+        if(!dataISOValida(String(dia.data||'')))continue;const ms=Date.parse(dia.data+'T00:00:00Z');if(ms<inicio||ms>fim)continue;
+        const liquido=totalConsumidoV24(dia)-totalGastoV24(dia);if(Number.isFinite(liquido))valores.push(liquido);
+    }
+    if(!valores.length)return null;return{media:valores.reduce((s,v)=>s+v,0)/valores.length,dias:valores.length};
+}
+function tratamentoAtualDashboardV67(){
+    const hoje=hojeISO(),opcoes=[];
+    for(const med of listaMedicamentosV67()){
+        const p=periodoAtivoEmDataV67(med,hoje);if(!p)continue;const primeira=primeiraDosePeriodoV67(med,p);if(!primeira)continue;const dias=diasEntreInclusivoV67(primeira.data,hoje);if(dias!==null)opcoes.push({med,primeira,dias});
+    }
+    /* Se houver mais de um remédio ativo, destaca o tratamento iniciado mais recentemente. */
+    opcoes.sort((a,b)=>String(b.primeira.data).localeCompare(String(a.primeira.data)));return opcoes[0]||null;
+}
+function renderCardsDashboardV67(){
+    const media=mediaCalorias7DiasV67(),v=document.getElementById('dash-media-calorias-v67'),i=document.getElementById('dash-media-calorias-info-v67');
+    if(v){v.textContent=media?Math.round(media.media).toLocaleString('pt-BR')+' kcal/dia':'Não há dados';v.className='value neutral';}
+    if(i)i.textContent=media?('Consumido − gasto • '+media.dias+' dia'+(media.dias===1?'':'s')+' com lançamento'):'Nenhum lançamento nos últimos 7 dias';
+    const trat=tratamentoAtualDashboardV67(),dv=document.getElementById('dash-dias-remedio-v67'),di=document.getElementById('dash-dias-remedio-info-v67');
+    if(dv){dv.textContent=trat?(trat.dias+' dia'+(trat.dias===1?'':'s')):'Não há dados';dv.className='value neutral';}
+    if(di)di.textContent=trat?(trat.med.nome+' • desde '+formatDateBR(trat.primeira.data)):'Nenhum tratamento em andamento com dose lançada';
+}
+const renderDashboardAntesV67=renderDashboard;
+renderDashboard=function(...args){const r=renderDashboardAntesV67(...args);renderCardsDashboardV67();return r;};
+
+const showViewAntesV67=showView;
+showView=function(viewId,navEl){
+    if(viewId==='tratamentos-v49')garantirViewCadastroMedicamentosV67();
+    const r=showViewAntesV67(viewId,navEl);
+    if(viewId==='tratamentos-v49'){const t=document.getElementById('page-title');if(t)t.textContent='Cadastro de Remédios';renderCadastroMedicamentosV67();}
+    return r;
+};window.showView=showView;
+
+const updateUIAntesV67=updateUI;
+updateUI=function(...args){
+    const r=updateUIAntesV67(...args);configurarCardCadastroMedicamentosV67();renderSeletorMedicamentosV67();renderResumoRemedioAtualV21();renderResumoCadastroMedicamentosV67();renderCardsDashboardV67();if(activeViewId==='tratamentos-v49')renderCadastroMedicamentosV67();return r;
+};
+
+const editarRemedioAntesV67=editarRemedio;
+editarRemedio=function(id){
+    const item=(appData.remedios||[]).find(x=>String(x.id)===String(id));
+    if(item&&!medicamentoPorNomeV67(item.nome)){
+        const p=inferirPeriodosDosLancamentosV67((appData.remedios||[]).filter(r=>chaveMedicamentoV67(r.nome)===chaveMedicamentoV67(item.nome)));
+        if(p.length){appData.medicamentosCadastrados=listaMedicamentosV67();appData.medicamentosCadastrados.push(normalizarMedicamentoCadastroV67({id:novoIdMedicamentoV67('med'),nome:item.nome,periodos:p}));}
+    }
+    const r=editarRemedioAntesV67(id);renderSeletorMedicamentosV67(item?.nome||'');return r;
+};window.editarRemedio=editarRemedio;
+
+window.abrirCadastroRemediosV67=abrirCadastroRemediosV67;window.novoMedicamentoV67=novoMedicamentoV67;window.editarMedicamentoV67=editarMedicamentoV67;window.novoPeriodoMedicamentoV67=novoPeriodoMedicamentoV67;window.cancelarCadastroMedicamentoV67=cancelarCadastroMedicamentoV67;window.salvarCadastroMedicamentoV67=salvarCadastroMedicamentoV67;window.excluirMedicamentoV67=excluirMedicamentoV67;window.abrirCadastroRapidoV67=abrirCadastroRapidoV67;window.fecharCadastroRapidoV67=fecharCadastroRapidoV67;window.salvarCadastroRapidoV67=salvarCadastroRapidoV67;
+
+window.addEventListener('load',()=>setTimeout(()=>{
+    garantirEstilosMedicamentosV67();garantirViewCadastroMedicamentosV67();configurarCardCadastroMedicamentosV67();renderSeletorMedicamentosV67();renderResumoRemedioAtualV21();renderResumoCadastroMedicamentosV67();renderCardsDashboardV67();
+},950));
 
 </script>
 
