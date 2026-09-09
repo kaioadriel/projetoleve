@@ -20038,211 +20038,284 @@ window.addEventListener('load',()=>setTimeout(()=>{garantirPainelDriveV65();if(c
 const normalizarDadosAntesDriveV65=normalizarDados;
 normalizarDados=function(raw){const d=normalizarDadosAntesDriveV65(raw);d.schemaVersion=Math.max(Number(d.schemaVersion)||0,PL_SCHEMA_VERSION_V65);return d;};
 
-
-
 /* =========================================================
-   V66 - Sincronizacao automatica das fotos
-   - Depois da primeira autorizacao do Drive neste aparelho, o token OAuth
-     fica lembrado localmente e e restaurado enquanto continuar valido.
-   - Ao abrir o app, voltar para ele, recuperar internet ou salvar nova foto,
-     a sincronizacao ocorre sem exigir o botao manual.
-   - Um HTTP 401 limpa a autorizacao salva e pede reconexao, sem apagar fotos.
+   V66 — Cálculos, gráficos nutricionais e ciclos históricos
    ========================================================= */
 const PL_SCHEMA_VERSION_V66 = 66;
-const DRIVE_TOKEN_PREFIX_V66 = 'projeto_leve_drive_token_v66_';
-const DRIVE_LAST_SYNC_PREFIX_V66 = 'projeto_leve_drive_last_sync_v66_';
-const DRIVE_AUTO_INTERVALO_V66 = 10 * 60 * 1000;
-let driveAutoTimerV66 = null;
-let driveAutoIntervalV66 = null;
-let driveUltimaTentativaAutoV66 = 0;
+let chartMacrosRefeicoesRefV66 = null;
+let assinaturaFiltrosGraficosV66 = '';
 
-function chaveDriveTokenV66(uid=currentUser?.uid||''){return DRIVE_TOKEN_PREFIX_V66+String(uid||'');}
-function chaveUltimoSyncDriveV66(uid=currentUser?.uid||''){return DRIVE_LAST_SYNC_PREFIX_V66+String(uid||'');}
-
-function salvarAutorizacaoDriveV66(uid=currentUser?.uid||''){
-    if(!uid||!driveAccessTokenV65)return false;
-    try{
-        localStorage.setItem(chaveDriveTokenV66(uid),JSON.stringify({
-            token:driveAccessTokenV65,
-            autorizadoEm:driveAutorizadoEmV65||new Date().toISOString(),
-            salvoEm:new Date().toISOString()
-        }));
-        return true;
-    }catch(e){console.warn('Nao foi possivel lembrar a autorizacao do Drive:',e);return false;}
+function valorMacroRefeicaoV66(item, chave) {
+    const valor = numeroValido(item?.[chave]);
+    return valor === null ? 0 : valor;
 }
 
-function restaurarAutorizacaoDriveV66(uid=currentUser?.uid||''){
-    if(!uid||driveAccessTokenV65)return !!driveAccessTokenV65;
-    try{
-        const raw=localStorage.getItem(chaveDriveTokenV66(uid));
-        if(!raw)return false;
-        const info=JSON.parse(raw);
-        if(!info?.token)return false;
-        driveAccessTokenV65=String(info.token);
-        driveAutorizadoEmV65=String(info.autorizadoEm||info.salvoEm||'');
-        return true;
-    }catch(e){console.warn('Autorizacao salva do Drive nao pode ser restaurada:',e);return false;}
+function garantirGraficoMacrosV66() {
+    const graficos = document.getElementById('view-graficos');
+    if (!graficos) return null;
+    let card = document.querySelector('#view-graficos [data-chart-key="macros"]');
+    if (card) return card;
+    card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.chartKey = 'macros';
+    card.innerHTML = '<h3>Macros das Refeições</h3><div id="chart-macros-subtitle-v66" class="chart-subtitle"></div><div class="chart-container"><canvas id="chartMacrosRefeicoesV66"></canvas></div>';
+    const cardCalorias = document.querySelector('#view-graficos [data-chart-key="calorias"]');
+    if (cardCalorias) cardCalorias.after(card);
+    else graficos.appendChild(card);
+    return card;
 }
 
-function limparAutorizacaoDriveV66(uid=currentUser?.uid||''){
-    if(uid){try{localStorage.removeItem(chaveDriveTokenV66(uid));}catch{}}
-    driveAccessTokenV65='';
-    driveAutorizadoEmV65='';
-}
-
-const definirStatusDriveAntesAutoV66 = definirStatusDriveV65;
-definirStatusDriveV65 = function(mensagem,tipo='neutral'){
-    const r=definirStatusDriveAntesAutoV66(mensagem,tipo);
-    const authEl=document.getElementById('drive-photo-auth-v65');
-    if(authEl){
-        authEl.textContent=driveAccessTokenV65
-            ? 'Sincronização automática ativa neste aparelho.'
-            : 'Conecte o Drive uma vez neste aparelho para ativar a sincronização automática.';
+function retirarGraficoTmbSeparadoV66() {
+    const card = document.querySelector('#view-graficos [data-chart-key="tmb"]');
+    if (card) card.remove();
+    if (chartTmbRefV29) {
+        chartTmbRefV29.destroy();
+        chartTmbRefV29 = null;
     }
-    const btn=document.querySelector('#drive-photo-panel-v65 .drive-photo-actions-v65 .btn-primary');
-    if(btn)btn.textContent=driveAccessTokenV65?'Reconectar Google Drive':'Conectar Google Drive';
-    return r;
+}
+
+function renderGraficosComplementaresV66() {
+    if (activeViewId !== 'graficos' || !window.Chart) return;
+    garantirGraficoMacrosV66();
+    retirarGraficoTmbSeparadoV66();
+
+    const inicio = obterInicioFiltroGrafico();
+    const pertenceAoCiclo = registro => typeof registroNoFiltroCicloV48 === 'function' ? registroNoFiltroCicloV48(registro) : true;
+    const diasCalorias = [...(appData.calorias || [])]
+        .filter(dia => dia?.data >= inicio && pertenceAoCiclo(dia))
+        .sort((a,b) => String(a.data).localeCompare(String(b.data)));
+    const pesosTmb = [...(appData.pesos || [])]
+        .filter(peso => peso?.data >= inicio && pertenceAoCiclo(peso) && numeroValido(peso?.tmb) !== null)
+        .sort((a,b) => String(a.data).localeCompare(String(b.data)));
+    const datas = [...new Set([...diasCalorias.map(d => d.data), ...pesosTmb.map(p => p.data)])].sort();
+    const porDia = new Map(diasCalorias.map(dia => [dia.data, dia]));
+    const tmbPorDia = new Map(pesosTmb.map(peso => [peso.data, numeroValido(peso.tmb)]));
+    const canvasCalorias = document.getElementById('chartCalorias');
+    if (canvasCalorias) {
+        if (chartCaloriasRefV25) chartCaloriasRefV25.destroy();
+        chartCaloriasRefV25 = new Chart(canvasCalorias.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: datas.map(formatDateChart),
+                datasets: [
+                    {label:'Consumidas', data:datas.map(data => { const d=porDia.get(data); return d ? totalConsumidoV24(d) : null; }), borderColor:'#ef4444', tension:.25, spanGaps:true, yAxisID:'kcal'},
+                    {label:'Gastas', data:datas.map(data => { const d=porDia.get(data); return d ? totalGastoV24(d) : null; }), borderColor:'#22c55e', tension:.25, spanGaps:true, yAxisID:'kcal'},
+                    {label:'Líquidas', data:datas.map(data => { const d=porDia.get(data); return d ? totalCaloriasDia(d) : null; }), borderColor:'#0284c7', tension:.25, spanGaps:true, yAxisID:'kcal'},
+                    {label:'Meta', data:datas.map(data => { const d=porDia.get(data); return d ? metaCaloriasUsadaV21(d) : null; }), borderColor:'#64748b', borderDash:[5,4], pointRadius:0, tension:0, spanGaps:true, yAxisID:'kcal'},
+                    {label:'TMB', data:datas.map(data => tmbPorDia.get(data) ?? null), borderColor:'#f59e0b', borderDash:[2,3], tension:.25, spanGaps:true, yAxisID:'tmb'}
+                ]
+            },
+            options: {
+                responsive:true, maintainAspectRatio:false, animation:false,
+                interaction:{mode:'index',intersect:false},
+                plugins:{legend:{labels:{boxWidth:10,padding:8,font:{size:10}}}},
+                elements:{point:{radius:2},line:{borderWidth:2}},
+                scales:{
+                    kcal:{type:'linear',position:'left',beginAtZero:true,title:{display:true,text:'Calorias (kcal)'}},
+                    tmb:{type:'linear',position:'right',beginAtZero:false,grid:{drawOnChartArea:false},title:{display:true,text:'TMB (kcal)'}}
+                }
+            }
+        });
+        chartCaloriasRefV25.$plDatasV40 = datas;
+        const titulo = document.querySelector('#view-graficos [data-chart-key="calorias"] h3');
+        if (titulo) titulo.textContent = 'Calorias e TMB';
+        const subtitulo = document.getElementById('chart-calorias-subtitle');
+        if (subtitulo) subtitulo.textContent = diasCalorias.length+' dia(s) com calorias • '+pesosTmb.length+' registro(s) de TMB • TMB no eixo direito';
+    }
+
+    const canvasMacros = document.getElementById('chartMacrosRefeicoesV66');
+    if (canvasMacros) {
+        if (chartMacrosRefeicoesRefV66) chartMacrosRefeicoesRefV66.destroy();
+        const macroDias = diasCalorias.filter(dia => (dia.refeicoes || []).some(refeicao => ['proteinaG','carboidratosG','gorduraG','fibraG'].some(chave => numeroValido(refeicao?.[chave]) !== null)));
+        chartMacrosRefeicoesRefV66 = new Chart(canvasMacros.getContext('2d'), {
+            type:'line',
+            data:{
+                labels:macroDias.map(dia => formatDateChart(dia.data)),
+                datasets:[
+                    {label:'Proteína',data:macroDias.map(dia => (dia.refeicoes||[]).reduce((s,r) => s+valorMacroRefeicaoV66(r,'proteinaG'),0)),borderColor:'#16a34a',tension:.25,spanGaps:true},
+                    {label:'Carboidratos',data:macroDias.map(dia => (dia.refeicoes||[]).reduce((s,r) => s+valorMacroRefeicaoV66(r,'carboidratosG'),0)),borderColor:'#0284c7',tension:.25,spanGaps:true},
+                    {label:'Gordura',data:macroDias.map(dia => (dia.refeicoes||[]).reduce((s,r) => s+valorMacroRefeicaoV66(r,'gorduraG'),0)),borderColor:'#f59e0b',tension:.25,spanGaps:true},
+                    {label:'Fibra',data:macroDias.map(dia => (dia.refeicoes||[]).reduce((s,r) => s+valorMacroRefeicaoV66(r,'fibraG'),0)),borderColor:'#a855f7',tension:.25,spanGaps:true}
+                ]
+            },
+            options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{boxWidth:10,padding:8,font:{size:10}}}},elements:{point:{radius:2},line:{borderWidth:2}},scales:{y:{beginAtZero:true,title:{display:true,text:'Gramas (g)'}}}}
+        });
+        const subtitulo = document.getElementById('chart-macros-subtitle-v66');
+        if (subtitulo) subtitulo.textContent = macroDias.length+' dia(s) com macros informados nas refeições';
+    }
+    if (typeof garantirControlesGraficosV54 === 'function') garantirControlesGraficosV54();
+    if (typeof aplicarEstadoLinhasV54 === 'function') {
+        aplicarEstadoLinhasV54('calorias');
+        aplicarEstadoLinhasV54('macros');
+    }
+}
+
+const graficoPorChaveAntesV66 = graficoPorChaveV54;
+graficoPorChaveV54 = function(chave) {
+    if (chave === 'macros') return chartMacrosRefeicoesRefV66;
+    return graficoPorChaveAntesV66(chave);
 };
 
-const garantirPainelDriveAntesAutoV66 = garantirPainelDriveV65;
-garantirPainelDriveV65 = function(){
-    const r=garantirPainelDriveAntesAutoV66();
-    const painel=document.getElementById('drive-photo-panel-v65');
-    if(!painel)return r;
-    const botoes=painel.querySelectorAll('.drive-photo-actions-v65 .btn');
-    if(botoes[0])botoes[0].textContent=driveAccessTokenV65?'Reconectar Google Drive':'Conectar Google Drive';
-    if(botoes[1])botoes[1].textContent='Sincronizar agora';
-    const nota=painel.querySelector('.drive-photo-note-v65');
-    if(nota)nota.innerHTML='<b>Automático:</b> depois de conectar o Drive uma vez neste aparelho, novas fotos são enviadas sozinhas e fotos ausentes são recuperadas quando o app abre, volta ao primeiro plano ou recupera internet. Os arquivos continuam em qualidade original, sem canvas, redimensionamento ou nova compressão. Se o Google expirar a autorização OAuth, o app apenas pedirá uma reconexão; nenhuma foto local ou da nuvem sera apagada.';
-    definirStatusDriveV65(driveStatusV65.mensagem,driveStatusV65.tipo);
-    return r;
+const renderGraficosAntesV66 = renderGraficos;
+renderGraficos = function() {
+    const retorno = renderGraficosAntesV66();
+    renderGraficosComplementaresV66();
+    return retorno;
 };
 
-const driveFetchAntesAutoV66 = driveFetchV65;
-driveFetchV65 = async function(url,options={}){
-    try{return await driveFetchAntesAutoV66(url,options);}
-    catch(e){
-        const msg=String(e?.message||e||'');
-        if(/HTTP\s*401|invalid credentials|unauthenticated/i.test(msg)){
-            const uid=currentUser?.uid||'';
-            limparAutorizacaoDriveV66(uid);
-            definirStatusDriveV65('A autorização do Google Drive expirou. Toque em Reconectar Google Drive uma vez para reativar o automático.','warning');
+function salvarPreferenciasGraficosV66() {
+    appData.config = appData.config || {};
+    appData.config.filtroGraficoAtualV66 = filtroGraficoAtual || 'ciclo';
+    appData.config.filtroCicloGrafico = filtroCicloGraficoV48 || appData.config.filtroCicloGrafico || 'ativo';
+    assinaturaFiltrosGraficosV66 = appData.config.filtroGraficoAtualV66+'|'+appData.config.filtroCicloGrafico;
+    try { salvarDados(false, false); } catch { try { salvarDadosLocalmente(); } catch {} }
+}
+
+function restaurarPreferenciasGraficosV66() {
+    const config = appData?.config || {};
+    const periodos = ['ciclo','todos','7d','1m','3m','6m','1a','5a'];
+    const periodo = periodos.includes(config.filtroGraficoAtualV66) ? config.filtroGraficoAtualV66 : null;
+    const ciclo = String(config.filtroCicloGrafico || 'ativo');
+    const assinatura = (periodo || filtroGraficoAtual || 'ciclo')+'|'+ciclo;
+    if (assinatura === assinaturaFiltrosGraficosV66) return;
+    if (periodo) filtroGraficoAtual = periodo;
+    filtroCicloGraficoV48 = ciclo;
+    const seletorPeriodo = document.getElementById('grafico-filtro-select');
+    if (seletorPeriodo && periodo) seletorPeriodo.value = periodo;
+    const seletorCiclo = document.getElementById('grafico-ciclo-select-v48');
+    if (seletorCiclo && [...seletorCiclo.options].some(opcao => opcao.value === ciclo)) seletorCiclo.value = ciclo;
+    assinaturaFiltrosGraficosV66 = assinatura;
+}
+
+const alterarFiltroGraficoAntesV66 = alterarFiltroGrafico;
+alterarFiltroGrafico = function(filtro) {
+    const retorno = alterarFiltroGraficoAntesV66(filtro);
+    salvarPreferenciasGraficosV66();
+    return retorno;
+};
+window.alterarFiltroGrafico = alterarFiltroGrafico;
+
+const alterarFiltroCicloGraficoAntesV66 = alterarFiltroCicloGraficoV48;
+alterarFiltroCicloGraficoV48 = function(valor) {
+    const retorno = alterarFiltroCicloGraficoAntesV66(valor);
+    salvarPreferenciasGraficosV66();
+    return retorno;
+};
+window.alterarFiltroCicloGraficoV48 = alterarFiltroCicloGraficoV48;
+
+function moverResumoParaCalculosV66() {
+    const calculos = document.getElementById('view-metas');
+    if (!calculos) return;
+    let bloco = document.getElementById('calculos-resumos-v66');
+    if (!bloco) {
+        bloco = document.createElement('div');
+        bloco.id = 'calculos-resumos-v66';
+        bloco.innerHTML = '<h3 class="section-title">Resumo e Análises</h3>';
+        calculos.insertBefore(bloco, calculos.firstElementChild);
+    }
+    const ids = ['qualidade-evolucao-dashboard-v44','resumo-automatico-v30','painel-evolucao-fotos-v46','card-calendario-v49','tendencia-ritmo-v43','entrada-linha-dia-v39','imc-dashboard-card'];
+    ids.forEach(id => {
+        const card = document.getElementById(id);
+        if (card && card.parentElement !== bloco) bloco.appendChild(card);
+    });
+    if (typeof aplicarLayoutCardsV53 === 'function') aplicarLayoutCardsV53(calculos);
+}
+
+function removerCentralAlertasV66() {
+    document.getElementById('card-alertas-v49')?.remove();
+    document.getElementById('view-alertas-v49')?.remove();
+    const config = appData?.config;
+    if (config?.layoutViewsV49?.['view-dashboard']) {
+        const layout = config.layoutViewsV49['view-dashboard'];
+        layout.ordem = (layout.ordem || []).filter(chave => !String(chave).includes('alertas'));
+        layout.ocultos = (layout.ocultos || []).filter(chave => !String(chave).includes('alertas'));
+    }
+}
+
+garantirViewAlertasV49 = removerCentralAlertasV66;
+garantirCardAlertasV49 = removerCentralAlertasV66;
+
+const abrirCiclosAntesV66 = novoCicloV48;
+novoCicloV48 = function() {
+    const retorno = abrirCiclosAntesV66();
+    const aviso = document.getElementById('form-ciclo-aviso-v48');
+    if (aviso) aviso.textContent = 'Você pode criar ciclos passados. Para um ciclo histórico sem data final, o app o encerra automaticamente no dia anterior ao próximo ciclo.';
+    return retorno;
+};
+window.novoCicloV48 = novoCicloV48;
+
+const salvarCicloAntesV66 = salvarCicloV48;
+salvarCicloV48 = function() {
+    const inicio = document.getElementById('ciclo-inicio-v48')?.value || '';
+    const campoFim = document.getElementById('ciclo-fim-v48');
+    if (!cicloEdicaoIdV48 && dataISOValida(inicio) && campoFim && !campoFim.value) {
+        const proximo = [...(appData.ciclos || [])]
+            .filter(ciclo => dataISOValida(ciclo?.dataInicio) && ciclo.dataInicio > inicio)
+            .sort((a,b) => a.dataInicio.localeCompare(b.dataInicio))[0];
+        if (proximo) {
+            const fimAutomatico = addDiasISO(proximo.dataInicio, -1);
+            if (fimAutomatico >= inicio) campoFim.value = fimAutomatico;
         }
-        throw e;
     }
+    return salvarCicloAntesV66();
+};
+window.salvarCicloV48 = salvarCicloV48;
+
+const novoEventoAntesV66 = novoEventoV40;
+novoEventoV40 = function() {
+    const retorno = novoEventoAntesV66();
+    const inicio = document.getElementById('evento-inicio-v40');
+    if (inicio) {
+        inicio.removeAttribute('min');
+        inicio.title = 'Eventos podem ser registrados em datas passadas.';
+    }
+    return retorno;
+};
+window.novoEventoV40 = novoEventoV40;
+
+const showViewAntesV66 = showView;
+showView = function(viewId, navEl) {
+    const retorno = showViewAntesV66(viewId, navEl);
+    if (viewId === 'metas') {
+        const titulo = document.getElementById('page-title');
+        if (titulo) titulo.textContent = 'Cálculos';
+        moverResumoParaCalculosV66();
+    }
+    return retorno;
+};
+window.showView = showView;
+
+const updateUIAntesV66 = updateUI;
+updateUI = function() {
+    const retorno = updateUIAntesV66();
+    restaurarPreferenciasGraficosV66();
+    removerCentralAlertasV66();
+    moverResumoParaCalculosV66();
+    return retorno;
 };
 
-const sincronizarFotosDriveAntesAutoV66 = sincronizarFotosDriveV65;
-sincronizarFotosDriveV65 = async function(opcoes={}){
-    const ok=await sincronizarFotosDriveAntesAutoV66(opcoes);
-    if(ok&&currentUser?.uid&&driveAccessTokenV65){
-        salvarAutorizacaoDriveV66(currentUser.uid);
-        try{localStorage.setItem(chaveUltimoSyncDriveV66(currentUser.uid),new Date().toISOString());}catch{}
-        garantirPainelDriveV65();
-    }
-    return ok;
+const normalizarDadosAntesV66 = normalizarDados;
+normalizarDados = function(raw) {
+    const dados = normalizarDadosAntesV66(raw);
+    dados.config = dados.config || {};
+    const filtro = dados.config.filtroGraficoAtualV66;
+    dados.config.filtroGraficoAtualV66 = ['ciclo','todos','7d','1m','3m','6m','1a','5a'].includes(filtro) ? filtro : 'ciclo';
+    dados.schemaVersion = Math.max(Number(dados.schemaVersion) || 0, PL_SCHEMA_VERSION_V66);
+    return dados;
 };
 
-conectarGoogleDriveV65 = async function(){
-    if(!currentUser)return alert('Faca login no Projeto Leve primeiro.');
-    if(driveSincronizandoV65)return;
-    try{
-        definirStatusDriveV65('Solicitando autorização do Google Drive...','warning');
-        const prov=providerDriveV65();
-        const resultado=usuarioUsaGoogleV65()?await reauthenticateWithPopup(currentUser,prov):await linkWithPopup(currentUser,prov);
-        const cred=GoogleAuthProvider.credentialFromResult(resultado);
-        const token=cred?.accessToken||'';
-        if(!token)throw new Error('O Google não devolveu um token de acesso ao Drive.');
-        driveAccessTokenV65=token;
-        driveAutorizadoEmV65=new Date().toISOString();
-        salvarAutorizacaoDriveV66(currentUser.uid);
-        await garantirPastasDriveV65();
-        definirStatusDriveV65('Google Drive conectado. Sincronização automática ativada.','positive');
-        await sincronizarFotosDriveV65({interativo:false,baixarAusentes:true});
-        iniciarRotinaAutomaticaDriveV66();
-    }catch(e){
-        console.error('Falha ao conectar Drive:',e);
-        const msg=traduzirErroApp?.(e)||e?.message||String(e);
-        definirStatusDriveV65('Não foi possível conectar o Google Drive: '+msg,'negative');
-        alert('Não foi possível conectar o Google Drive.\n\n'+msg);
-    }
-};
+document.querySelector('[data-view="metas"]')?.replaceChildren(...(() => {
+    const nav = document.querySelector('[data-view="metas"]');
+    return [...nav.childNodes].map(no => no.nodeType === Node.TEXT_NODE && /Simular/.test(no.textContent) ? document.createTextNode(no.textContent.replace('Simular','Cálculos')) : no);
+})());
 
-function agendarSyncAutomaticoDriveV66(atraso=1200,baixarAusentes=true){
-    clearTimeout(driveAutoTimerV66);
-    if(!currentUser?.uid||!driveAccessTokenV65||navigator.onLine===false)return;
-    driveAutoTimerV66=setTimeout(async()=>{
-        if(!currentUser?.uid||!driveAccessTokenV65||navigator.onLine===false)return;
-        const agora=Date.now();
-        if(agora-driveUltimaTentativaAutoV66<5000)return;
-        driveUltimaTentativaAutoV66=agora;
-        await sincronizarFotosDriveV65({interativo:false,baixarAusentes}).catch(()=>false);
-    },Math.max(0,Number(atraso)||0));
-}
-
-function iniciarRotinaAutomaticaDriveV66(){
-    clearInterval(driveAutoIntervalV66);
-    if(!currentUser?.uid)return;
-    const restaurou=restaurarAutorizacaoDriveV66(currentUser.uid);
-    garantirPainelDriveV65();
-    if(restaurou||driveAccessTokenV65){
-        definirStatusDriveV65('Google Drive conectado. Sincronização automática ativa.','positive');
-        agendarSyncAutomaticoDriveV66(900,true);
-    }
-    driveAutoIntervalV66=setInterval(()=>{
-        if(document.visibilityState!=='hidden'&&navigator.onLine!==false&&currentUser?.uid&&driveAccessTokenV65){
-            agendarSyncAutomaticoDriveV66(0,true);
-        }
-    },DRIVE_AUTO_INTERVALO_V66);
-}
-
-const inicializarSincronizacaoFirebaseAntesAutoV66 = inicializarSincronizacaoFirebaseV64;
-inicializarSincronizacaoFirebaseV64 = async function(...args){
-    if(currentUser?.uid)restaurarAutorizacaoDriveV66(currentUser.uid);
-    const ok=await inicializarSincronizacaoFirebaseAntesAutoV66(...args);
-    if(currentUser?.uid){
-        iniciarRotinaAutomaticaDriveV66();
-        if(ok&&driveAccessTokenV65)agendarSyncAutomaticoDriveV66(700,true);
-    }
-    return ok;
-};
-
-const renderContaAntesAutoV66 = renderConta;
-renderConta = function(){
-    if(currentUser?.uid&&!driveAccessTokenV65)restaurarAutorizacaoDriveV66(currentUser.uid);
-    const r=renderContaAntesAutoV66();
-    garantirPainelDriveV65();
-    if(currentUser?.uid&&driveAccessTokenV65)agendarSyncAutomaticoDriveV66(1400,true);
-    return r;
-};
-
-const sairUsuarioAntesAutoV66 = sairUsuario;
-sairUsuario = async function(...args){
-    const uid=currentUser?.uid||'';
-    clearTimeout(driveAutoTimerV66);clearInterval(driveAutoIntervalV66);
-    if(uid)limparAutorizacaoDriveV66(uid);
-    manifestosDriveCacheV65.clear();
-    return sairUsuarioAntesAutoV66(...args);
-};
-
-window.addEventListener('online',()=>{if(currentUser?.uid){restaurarAutorizacaoDriveV66(currentUser.uid);agendarSyncAutomaticoDriveV66(350,true);}});
-document.addEventListener('visibilitychange',()=>{
-    if(document.visibilityState==='visible'&&currentUser?.uid){
-        restaurarAutorizacaoDriveV66(currentUser.uid);
-        agendarSyncAutomaticoDriveV66(700,true);
-    }
-});
-window.addEventListener('load',()=>setTimeout(()=>{
-    if(currentUser?.uid){restaurarAutorizacaoDriveV66(currentUser.uid);iniciarRotinaAutomaticaDriveV66();}
-    garantirPainelDriveV65();
-},900));
-
-window.conectarGoogleDriveV65=conectarGoogleDriveV65;
-window.sincronizarFotosDriveV65=sincronizarFotosDriveV65;
-window.sairUsuario=sairUsuario;
-
-const normalizarDadosAntesAutoV66=normalizarDados;
-normalizarDados=function(raw){const d=normalizarDadosAntesAutoV66(raw);d.schemaVersion=Math.max(Number(d.schemaVersion)||0,PL_SCHEMA_VERSION_V66);return d;};
+window.addEventListener('load', () => setTimeout(() => {
+    garantirGraficoMacrosV66();
+    restaurarPreferenciasGraficosV66();
+    removerCentralAlertasV66();
+    moverResumoParaCalculosV66();
+    if (activeViewId === 'graficos') renderGraficos();
+}, 720));
 
 </script>
 
