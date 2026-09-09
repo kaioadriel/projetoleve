@@ -2450,12 +2450,13 @@
 
 
 <script type="module">
-/* V64 — banco híbrido: dados locais + Firebase Authentication + Firestore.
-   As fotos originais continuam no IndexedDB local nesta etapa. */
+/* V65 — banco híbrido: dados locais + Firebase Authentication + Firestore + Google Drive para fotos.
+   As fotos originais continuam no IndexedDB local e podem ser replicadas no Drive sem recompressão. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
     getAuth, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-    signInWithPopup, signInWithRedirect, onAuthStateChanged, signOut
+    signInWithPopup, signInWithRedirect, onAuthStateChanged, signOut,
+    reauthenticateWithPopup, linkWithPopup
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
     getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, orderBy,
@@ -19571,7 +19572,7 @@ async function reconciliarFirebaseV64({interativo=false} = {}) {
         if (localTem) {
             definirEstadoNuvemV64('Enviando primeira cópia para o Firestore...', 'warning');
             await enviarSnapshotFirebaseV64();
-            definirEstadoNuvemV64('Sincronizado. Dados neste aparelho + Firestore. Fotos continuam locais.', 'positive');
+            definirEstadoNuvemV64('Sincronizado. Dados neste aparelho + Firestore. Fotos usam sincronização separada pelo Google Drive.', 'positive');
             return true;
         }
         definirEstadoNuvemV64('Firestore conectado. Ainda não há dados para sincronizar.', 'positive');
@@ -19604,12 +19605,12 @@ async function reconciliarFirebaseV64({interativo=false} = {}) {
     if (localMudou || pendenteFirebaseV64()) {
         definirEstadoNuvemV64('Enviando alterações para o Firestore...', 'warning');
         await enviarSnapshotFirebaseV64();
-        definirEstadoNuvemV64('Sincronizado. Dados neste aparelho + Firestore. Fotos continuam locais.', 'positive');
+        definirEstadoNuvemV64('Sincronizado. Dados neste aparelho + Firestore. Fotos usam sincronização separada pelo Google Drive.', 'positive');
         return true;
     }
     salvarMetaFirebaseV64({...metaLocal, syncedAt:new Date().toISOString()});
     marcarPendenteFirebaseV64(false);
-    definirEstadoNuvemV64('Tudo sincronizado. Dados neste aparelho + Firestore. Fotos continuam locais.', 'positive');
+    definirEstadoNuvemV64('Tudo sincronizado. Dados neste aparelho + Firestore. Fotos usam sincronização separada pelo Google Drive.', 'positive');
     return true;
 }
 
@@ -19642,7 +19643,7 @@ function agendarSincronizacaoFirebaseV64() {
 
 async function enviarDadosParaNuvemV64(confirmar = true) {
     if (!currentUser?.uid) return alert('Faça login para usar o Firestore.');
-    if (confirmar && !confirm('Enviar os dados deste aparelho e substituir a versão atual da nuvem?\n\nAs fotos originais não serão enviadas nesta etapa.')) return;
+    if (confirmar && !confirm('Enviar os dados deste aparelho e substituir a versão atual da nuvem?\n\nAs fotos originais são sincronizadas separadamente pelo painel Google Drive.')) return;
     syncFirebaseExecutandoV64 = true;
     try {
         definirEstadoNuvemV64('Enviando este aparelho para o Firestore...', 'warning');
@@ -19655,7 +19656,7 @@ async function enviarDadosParaNuvemV64(confirmar = true) {
 
 async function baixarDadosDaNuvemV64(confirmar = true) {
     if (!currentUser?.uid) return alert('Faça login para usar o Firestore.');
-    if (confirmar && !confirm('Baixar os dados da nuvem e substituir os dados atuais deste aparelho?\n\nUma cópia local automática será preservada antes da substituição. Fotos que não existirem neste aparelho continuarão indisponíveis até a futura sincronização de fotos.')) return;
+    if (confirmar && !confirm('Baixar os dados da nuvem e substituir os dados atuais deste aparelho?\n\nUma cópia local automática será preservada antes da substituição. Fotos ausentes podem ser recuperadas pelo painel Google Drive depois que ele estiver conectado.')) return;
     syncFirebaseExecutandoV64 = true;
     try {
         definirEstadoNuvemV64('Baixando dados do Firestore...', 'warning');
@@ -19754,12 +19755,288 @@ window.addEventListener('online',()=>{ if(syncFirebaseInicializadoV64 && current
 window.addEventListener('offline',()=>{ if(syncFirebaseInicializadoV64) definirEstadoNuvemV64('Sem internet. O Projeto Leve continua funcionando com os dados deste aparelho.', 'warning'); });
 window.addEventListener('load',()=>setTimeout(()=>{garantirEstilosFirebaseV64();garantirPainelFirebaseV64();renderConta();},420));
 
+
 const normalizarDadosAntesFirebaseV64 = normalizarDados;
 normalizarDados = function(raw) {
     const d = normalizarDadosAntesFirebaseV64(raw);
     d.schemaVersion = Math.max(Number(d.schemaVersion)||0, PL_SCHEMA_VERSION_V64);
     return d;
 };
+
+
+/* =========================================================
+   V65 — Fotos híbridas em qualidade original
+   - IndexedDB continua sendo a cópia local usada pelo app.
+   - Google Drive guarda uma réplica do Blob ORIGINAL, sem canvas/recompressão.
+   - Firestore guarda apenas o manifesto fotoDocId -> driveFileId/metadados.
+   - Em outro aparelho, a foto ausente pode ser baixada do Drive e volta a ser
+     armazenada no IndexedDB local para manter o restante do app inalterado.
+   ========================================================= */
+const PL_SCHEMA_VERSION_V65 = 65;
+const DRIVE_SCOPE_V65 = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_API_V65 = 'https://www.googleapis.com/drive/v3';
+const DRIVE_UPLOAD_V65 = 'https://www.googleapis.com/upload/drive/v3';
+const DRIVE_FOLDER_MIME_V65 = 'application/vnd.google-apps.folder';
+let driveAccessTokenV65 = '';
+let driveAutorizadoEmV65 = '';
+let driveSincronizandoV65 = false;
+let driveSyncTimerV65 = null;
+let driveStatusV65 = { mensagem:'Google Drive ainda não conectado.', tipo:'neutral' };
+const manifestosDriveCacheV65 = new Map();
+
+function chaveDriveFolderV65(uid=currentUser?.uid||''){return 'projeto_leve_drive_folder_v65_'+uid;}
+function chaveDriveFotosFolderV65(uid=currentUser?.uid||''){return 'projeto_leve_drive_fotos_folder_v65_'+uid;}
+function refManifestoFotoDriveV65(uid,fotoDocId){return doc(db,'users',uid,'photos',fotoDocId);}
+function refManifestosFotosDriveV65(uid){return collection(db,'users',uid,'photos');}
+
+function definirStatusDriveV65(mensagem,tipo='neutral'){
+    driveStatusV65={mensagem:String(mensagem||''),tipo};
+    const el=document.getElementById('drive-photo-status-v65');
+    if(el){el.textContent=driveStatusV65.mensagem;el.className='drive-photo-status-v65 '+tipo;}
+    const dot=document.getElementById('drive-photo-dot-v65');
+    if(dot)dot.className='drive-photo-dot-v65 '+tipo;
+    const auth=document.getElementById('drive-photo-auth-v65');
+    if(auth)auth.textContent=driveAccessTokenV65?'Drive conectado nesta sessão.':'Drive desconectado nesta sessão.';
+}
+
+function garantirEstilosDriveV65(){
+    if(document.getElementById('styles-drive-v65'))return;
+    const st=document.createElement('style');st.id='styles-drive-v65';st.textContent=`
+      .drive-photo-panel-v65{margin-top:14px;padding:14px;border:1px solid rgba(34,197,94,.28);border-radius:18px;background:linear-gradient(180deg,#f8fff9 0%,#f0fdf4 100%)}
+      .drive-photo-head-v65{display:flex;align-items:center;justify-content:space-between;gap:12px}.drive-photo-head-v65 strong{display:block;margin-top:2px;font-size:14px}
+      .drive-photo-dot-v65{width:12px;height:12px;flex:0 0 12px;border-radius:999px;background:var(--text-secondary);box-shadow:0 0 0 4px rgba(100,116,139,.10)}
+      .drive-photo-dot-v65.positive{background:var(--success);box-shadow:0 0 0 4px rgba(22,163,74,.12)}.drive-photo-dot-v65.warning{background:var(--warning);box-shadow:0 0 0 4px rgba(217,119,6,.12)}.drive-photo-dot-v65.negative{background:var(--danger);box-shadow:0 0 0 4px rgba(220,38,38,.10)}
+      .drive-photo-status-v65{margin-top:10px;font-size:12px;font-weight:850;line-height:1.45;color:var(--text-secondary)}.drive-photo-status-v65.positive{color:var(--success)}.drive-photo-status-v65.warning{color:var(--warning)}.drive-photo-status-v65.negative{color:var(--danger)}
+      .drive-photo-actions-v65{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.drive-photo-actions-v65 .btn{min-height:44px;padding:9px 8px;font-size:11px}.drive-photo-actions-v65 .btn:first-child{grid-column:1/-1}
+      .drive-photo-note-v65{margin-top:11px;padding:10px 11px;border-radius:14px;background:#fff;border:1px dashed rgba(34,197,94,.28);font-size:11px;line-height:1.5;color:var(--text-secondary)}
+      .drive-photo-progress-v65{margin-top:8px;font-size:11px;font-weight:750;color:var(--text-secondary)}
+      @media(max-width:370px){.drive-photo-actions-v65{grid-template-columns:1fr}.drive-photo-actions-v65 .btn:first-child{grid-column:auto}}
+    `;document.head.appendChild(st);
+}
+
+function garantirPainelDriveV65(){
+    garantirEstilosDriveV65();
+    const firebasePanel=document.getElementById('firebase-cloud-panel-v64');
+    if(!firebasePanel)return;
+    const nota=firebasePanel.querySelector('.firebase-cloud-photo-note-v64');
+    if(nota)nota.innerHTML='<b>Fotos:</b> os arquivos originais ficam no aparelho e podem ser replicados, sem recompressão, no Google Drive pelo painel abaixo.';
+    if(document.getElementById('drive-photo-panel-v65')){definirStatusDriveV65(driveStatusV65.mensagem,driveStatusV65.tipo);return;}
+    const panel=document.createElement('div');panel.id='drive-photo-panel-v65';panel.className='drive-photo-panel-v65';panel.dataset.plNoCustomize='1';panel.innerHTML=`
+      <div class="drive-photo-head-v65"><div><div class="label">Fotos híbridas</div><strong>IndexedDB + Google Drive</strong></div><span id="drive-photo-dot-v65" class="drive-photo-dot-v65 neutral"></span></div>
+      <div id="drive-photo-status-v65" class="drive-photo-status-v65 neutral">Google Drive ainda não conectado.</div>
+      <div id="drive-photo-auth-v65" class="small">Drive desconectado nesta sessão.</div>
+      <div id="drive-photo-progress-v65" class="drive-photo-progress-v65"></div>
+      <div class="drive-photo-actions-v65">
+        <button type="button" class="btn btn-primary" onclick="conectarGoogleDriveV65()">Conectar Google Drive</button>
+        <button type="button" class="btn btn-outline" onclick="sincronizarFotosDriveV65({interativo:true,baixarAusentes:true})">Sincronizar fotos</button>
+        <button type="button" class="btn btn-outline" onclick="sincronizarFotosDriveV65({interativo:true,baixarAusentes:false})">Enviar fotos locais</button>
+      </div>
+      <div class="drive-photo-note-v65"><b>Qualidade original:</b> o Projeto Leve envia ao Drive exatamente o Blob salvo no IndexedDB. Não passa por canvas, redimensionamento nem nova compressão. Em outro aparelho, <b>Sincronizar fotos</b> baixa as imagens ausentes e guarda uma cópia local para o app continuar funcionando normalmente.</div>`;
+    firebasePanel.insertAdjacentElement('afterend',panel);
+    definirStatusDriveV65(driveStatusV65.mensagem,driveStatusV65.tipo);
+}
+
+function usuarioUsaGoogleV65(){return !!currentUser?.providerData?.some?.(p=>p.providerId==='google.com');}
+function providerDriveV65(){const p=new GoogleAuthProvider();p.addScope(DRIVE_SCOPE_V65);p.setCustomParameters({prompt:'consent select_account'});return p;}
+
+async function conectarGoogleDriveV65(){
+    if(!currentUser)return alert('Faça login no Projeto Leve primeiro.');
+    if(driveSincronizandoV65)return;
+    try{
+        definirStatusDriveV65('Solicitando autorização do Google Drive...','warning');
+        const prov=providerDriveV65();
+        const resultado=usuarioUsaGoogleV65()?await reauthenticateWithPopup(currentUser,prov):await linkWithPopup(currentUser,prov);
+        const cred=GoogleAuthProvider.credentialFromResult(resultado);
+        const token=cred?.accessToken||'';
+        if(!token)throw new Error('O Google não devolveu um token de acesso ao Drive.');
+        driveAccessTokenV65=token;driveAutorizadoEmV65=new Date().toISOString();
+        await garantirPastasDriveV65();
+        definirStatusDriveV65('Google Drive conectado. Pronto para sincronizar as fotos originais.','positive');
+        await sincronizarFotosDriveV65({interativo:false,baixarAusentes:true});
+    }catch(e){
+        console.error('Falha ao conectar Drive:',e);
+        const msg=traduzirErroApp?.(e)||e?.message||String(e);
+        definirStatusDriveV65('Não foi possível conectar o Google Drive: '+msg,'negative');
+        alert('Não foi possível conectar o Google Drive.\n\n'+msg+'\n\nSe a mensagem mencionar API desativada, habilite a Google Drive API no projeto Google Cloud do Projeto Leve.');
+    }
+}
+
+async function driveFetchV65(url,options={}){
+    if(!driveAccessTokenV65)throw new Error('Conecte o Google Drive em Conta antes de sincronizar fotos.');
+    const headers=new Headers(options.headers||{});headers.set('Authorization','Bearer '+driveAccessTokenV65);
+    const res=await fetch(url,{...options,headers});
+    if(!res.ok){
+        let detalhe='';try{const j=await res.clone().json();detalhe=j?.error?.message||JSON.stringify(j);}catch{try{detalhe=await res.text();}catch{}}
+        if(res.status===401){driveAccessTokenV65='';definirStatusDriveV65('A autorização do Drive expirou. Toque em Conectar Google Drive novamente.','warning');}
+        throw new Error('Google Drive HTTP '+res.status+(detalhe?': '+detalhe:''));
+    }
+    return res;
+}
+
+function escaparQueryDriveV65(v){return String(v||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
+async function procurarPastaDriveV65(nome,parent='root'){
+    const q=`name = '${escaparQueryDriveV65(nome)}' and mimeType = '${DRIVE_FOLDER_MIME_V65}' and trashed = false and '${escaparQueryDriveV65(parent)}' in parents`;
+    const url=DRIVE_API_V65+'/files?spaces=drive&pageSize=10&fields=files(id,name)&q='+encodeURIComponent(q);
+    const j=await (await driveFetchV65(url)).json();return j?.files?.[0]||null;
+}
+async function criarPastaDriveV65(nome,parent='root'){
+    const meta={name:nome,mimeType:DRIVE_FOLDER_MIME_V65,parents:[parent]};
+    const r=await driveFetchV65(DRIVE_API_V65+'/files?fields=id,name',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(meta)});return r.json();
+}
+async function garantirPastasDriveV65(){
+    if(!currentUser?.uid)throw new Error('Sessão do Projeto Leve ausente.');
+    const uid=currentUser.uid;
+    let raiz=localStorage.getItem(chaveDriveFolderV65(uid))||'';
+    if(!raiz){let p=await procurarPastaDriveV65('Projeto Leve','root');if(!p)p=await criarPastaDriveV65('Projeto Leve','root');raiz=p.id;localStorage.setItem(chaveDriveFolderV65(uid),raiz);}
+    let fotos=localStorage.getItem(chaveDriveFotosFolderV65(uid))||'';
+    if(!fotos){let p=await procurarPastaDriveV65('Fotos',raiz);if(!p)p=await criarPastaDriveV65('Fotos',raiz);fotos=p.id;localStorage.setItem(chaveDriveFotosFolderV65(uid),fotos);}
+    return {raiz,fotos};
+}
+
+async function carregarManifestosDriveV65(uid=currentUser?.uid||''){
+    if(!uid)return new Map();
+    const mapa=new Map();
+    const snap=await getDocs(refManifestosFotosDriveV65(uid));
+    for(const d of snap.docs){const v=d.data()||{};mapa.set(String(d.id),v);manifestosDriveCacheV65.set(uid+':'+d.id,v);}
+    return mapa;
+}
+async function manifestoFotoDriveV65(uid,fotoDocId){
+    const ck=uid+':'+fotoDocId;if(manifestosDriveCacheV65.has(ck))return manifestosDriveCacheV65.get(ck);
+    const s=await getDoc(refManifestoFotoDriveV65(uid,fotoDocId));const v=s.exists()?s.data():null;if(v)manifestosDriveCacheV65.set(ck,v);return v;
+}
+
+function extensaoFotoDriveV65(nome,tipo){
+    const n=String(nome||'');const m=n.match(/\.([A-Za-z0-9]{1,8})$/);if(m)return m[1].toLowerCase();
+    const mapa={'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/heic':'heic','image/heif':'heif','image/gif':'gif','image/avif':'avif'};return mapa[String(tipo||'').toLowerCase()]||'img';
+}
+function nomeArquivoDriveV65(id,local){
+    const ext=extensaoFotoDriveV65(local?.nomeOriginal,local?.contentType||local?.blob?.type);const base=String(local?.nomeOriginal||'foto').replace(/\.[^.]+$/,'').replace(/[^A-Za-z0-9._-]+/g,'_').slice(0,70)||'foto';return `${id}__${base}.${ext}`;
+}
+async function procurarArquivoFotoDriveV65(fotoDocId,folderId){
+    const q=`'${escaparQueryDriveV65(folderId)}' in parents and trashed = false and appProperties has { key='fotoDocId' and value='${escaparQueryDriveV65(fotoDocId)}' }`;
+    const url=DRIVE_API_V65+'/files?spaces=drive&pageSize=5&fields=files(id,name,mimeType,size,md5Checksum)&q='+encodeURIComponent(q);
+    const j=await (await driveFetchV65(url)).json();return j?.files?.[0]||null;
+}
+async function uploadFotoDriveV65(uid,fotoDocId,local,folderId){
+    let existente=await procurarArquivoFotoDriveV65(fotoDocId,folderId);
+    if(existente)return existente;
+    const blob=local?.blob;if(!blob||typeof blob.size!=='number'||blob.size<=0)throw new Error('Foto local vazia: '+fotoDocId);
+    const meta={name:nomeArquivoDriveV65(fotoDocId,local),parents:[folderId],appProperties:{projetoLeve:'1',fotoDocId:String(fotoDocId),firebaseUid:String(uid)}};
+    const boundary='pl_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2);
+    const body=new Blob([
+      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`,JSON.stringify(meta),
+      `\r\n--${boundary}\r\nContent-Type: ${local.contentType||blob.type||'application/octet-stream'}\r\n\r\n`,blob,
+      `\r\n--${boundary}--`
+    ],{type:'multipart/related; boundary='+boundary});
+    const url=DRIVE_UPLOAD_V65+'/files?uploadType=multipart&fields=id,name,mimeType,size,md5Checksum,createdTime';
+    return (await driveFetchV65(url,{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+boundary},body})).json();
+}
+
+async function salvarManifestoDriveV65(uid,fotoDocId,arquivo,local){
+    const manifesto={fotoDocId:String(fotoDocId),driveFileId:String(arquivo.id),driveName:String(arquivo.name||''),contentType:String(local?.contentType||local?.blob?.type||arquivo.mimeType||'application/octet-stream'),size:Number(local?.blob?.size||arquivo.size)||0,nomeOriginal:String(local?.nomeOriginal||arquivo.name||'foto'),largura:Number(local?.largura)||0,altura:Number(local?.altura)||0,md5Checksum:String(arquivo.md5Checksum||''),updatedAt:new Date().toISOString(),serverUpdatedAt:serverTimestamp()};
+    await setDoc(refManifestoFotoDriveV65(uid,fotoDocId),manifesto,{merge:true});manifestosDriveCacheV65.set(uid+':'+fotoDocId,manifesto);return manifesto;
+}
+
+async function baixarFotoDriveParaLocalV65(uid,fotoDocId,manifesto=null){
+    if(!uid||!fotoDocId||uid!==currentUser?.uid||!driveAccessTokenV65)return null;
+    manifesto=manifesto||await manifestoFotoDriveV65(uid,fotoDocId);if(!manifesto?.driveFileId)return null;
+    const r=await driveFetchV65(DRIVE_API_V65+'/files/'+encodeURIComponent(manifesto.driveFileId)+'?alt=media');
+    const blob=await r.blob();if(!blob?.size)throw new Error('O Google Drive devolveu uma foto vazia.');
+    await salvarFotoNoCacheLocalAntesDriveV65(uid,fotoDocId,blob,{contentType:manifesto.contentType||blob.type||'image/jpeg',largura:Number(manifesto.largura)||0,altura:Number(manifesto.altura)||0,nomeOriginal:manifesto.nomeOriginal||manifesto.driveName||'foto'});
+    return obterFotoDoCacheLocalAntesDriveV65(uid,fotoDocId);
+}
+
+const obterFotoDoCacheLocalAntesDriveV65=obterFotoDoCacheLocal;
+obterFotoDoCacheLocal=async function(uid,fotoDocId){
+    const local=await obterFotoDoCacheLocalAntesDriveV65(uid,fotoDocId);
+    if(local?.blob)return local;
+    if(uid===currentUser?.uid&&fotoDocId&&driveAccessTokenV65){
+        try{return await baixarFotoDriveParaLocalV65(uid,fotoDocId)||local;}catch(e){console.warn('Foto não baixada do Drive:',e);}
+    }
+    return local;
+};
+
+const obterFonteFotoAntesDriveV65=obterFonteFotoV21;
+obterFonteFotoV21=async function(foto){
+    try{return await obterFonteFotoAntesDriveV65(foto);}catch(erro){
+        if(currentUser?.uid&&foto?.fotoDocId){
+            try{
+                const m=await manifestoFotoDriveV65(currentUser.uid,foto.fotoDocId);
+                if(m?.driveFileId&&!driveAccessTokenV65)throw new Error('Esta foto está salva no Google Drive. Vá em Conta → Fotos híbridas → Conectar Google Drive para recuperá-la neste aparelho.');
+            }catch(e){if(/salva no Google Drive/.test(String(e?.message||'')))throw e;}
+        }
+        throw erro;
+    }
+};
+
+const salvarFotoNoCacheLocalAntesDriveV65=salvarFotoNoCacheLocal;
+salvarFotoNoCacheLocal=async function(...args){
+    const r=await salvarFotoNoCacheLocalAntesDriveV65(...args);
+    if(driveAccessTokenV65&&currentUser?.uid){clearTimeout(driveSyncTimerV65);driveSyncTimerV65=setTimeout(()=>sincronizarFotosDriveV65({interativo:false,baixarAusentes:false}).catch(()=>{}),2600);}
+    return r;
+};
+
+async function sincronizarFotosDriveV65(opcoes={}){
+    const interativo=!!opcoes.interativo,baixarAusentes=opcoes.baixarAusentes!==false;
+    if(driveSincronizandoV65)return false;
+    if(!currentUser?.uid){if(interativo)alert('Faça login primeiro.');return false;}
+    if(!driveAccessTokenV65){if(interativo)return conectarGoogleDriveV65();definirStatusDriveV65('Fotos pendentes: conecte o Google Drive para sincronizar.','warning');return false;}
+    driveSincronizandoV65=true;
+    const prog=document.getElementById('drive-photo-progress-v65');
+    try{
+        const uid=currentUser.uid,{fotos:folderId}=await garantirPastasDriveV65();
+        const refs=referenciasFotos(appData),ids=[...refs.keys()];
+        const manifestos=await carregarManifestosDriveV65(uid);
+        let enviados=0,baixados=0,jaNuvem=0,semLocal=0,erros=0,processados=0;
+        definirStatusDriveV65('Sincronizando fotos originais com o Google Drive...','warning');
+        for(const id of ids){
+            processados++;if(prog)prog.textContent=`Foto ${processados} de ${ids.length}...`;
+            let man=manifestos.get(id)||null;
+            const local=await obterFotoDoCacheLocalAntesDriveV65(uid,id);
+            try{
+                if(!man?.driveFileId&&local?.blob){const arq=await uploadFotoDriveV65(uid,id,local,folderId);man=await salvarManifestoDriveV65(uid,id,arq,local);manifestos.set(id,man);enviados++;}
+                else if(man?.driveFileId){jaNuvem++;}
+                if(baixarAusentes&&!local?.blob&&man?.driveFileId){const obt=await baixarFotoDriveParaLocalV65(uid,id,man);if(obt?.blob)baixados++;}
+                else if(!local?.blob&&!man?.driveFileId)semLocal++;
+            }catch(e){erros++;console.warn('Falha na foto '+id,e);}
+        }
+        if(prog)prog.textContent='';
+        const resumo=`${ids.length} referência(s) • ${enviados} enviada(s) • ${baixados} baixada(s) • ${jaNuvem} já na nuvem`+(semLocal?` • ${semLocal} sem arquivo local/nuvem`:'')+(erros?` • ${erros} erro(s)`:'');
+        definirStatusDriveV65(resumo,erros?'warning':'positive');
+        if(interativo)alert('Sincronização de fotos concluída.\n\n'+resumo+'\n\nAs fotos são armazenadas no Drive sem recompressão.');
+        return !erros;
+    }catch(e){
+        if(prog)prog.textContent='';console.error('Sincronização Drive falhou:',e);definirStatusDriveV65('Falha ao sincronizar fotos: '+(e?.message||e),'negative');if(interativo)alert('Falha ao sincronizar fotos.\n\n'+(e?.message||e));return false;
+    }finally{driveSincronizandoV65=false;}
+}
+
+const renderContaAntesDriveV65=renderConta;
+renderConta=function(){const r=renderContaAntesDriveV65();garantirPainelDriveV65();return r;};
+
+/* Quando o Drive já estiver autorizado, o botão geral "Sincronizar agora"
+   também fecha o circuito das fotos. Sem autorização, continua sincronizando
+   apenas os dados e não abre janelas de consentimento sozinho. */
+const sincronizarAgoraFirebaseAntesDriveV65=sincronizarAgoraFirebaseV64;
+sincronizarAgoraFirebaseV64=async function(...args){
+    const ok=await sincronizarAgoraFirebaseAntesDriveV65(...args);
+    if(ok&&driveAccessTokenV65)await sincronizarFotosDriveV65({interativo:false,baixarAusentes:true});
+    return ok;
+};
+window.sincronizarAgoraFirebaseV64=sincronizarAgoraFirebaseV64;
+
+const observarLoginAntesDriveV65=observarLogin;
+/* O listener de autenticação já é criado por V64. V65 apenas zera a autorização
+   temporária do Drive quando a sessão Firebase troca de usuário. */
+const sairUsuarioAntesDriveV65=sairUsuario;
+sairUsuario=async function(...args){driveAccessTokenV65='';driveAutorizadoEmV65='';manifestosDriveCacheV65.clear();return sairUsuarioAntesDriveV65(...args);};
+
+window.conectarGoogleDriveV65=conectarGoogleDriveV65;
+window.sincronizarFotosDriveV65=sincronizarFotosDriveV65;
+window.sairUsuario=sairUsuario;
+window.addEventListener('load',()=>setTimeout(()=>{garantirPainelDriveV65();if(currentUser?.uid)definirStatusDriveV65('Google Drive disponível para conexão.','neutral');},650));
+
+const normalizarDadosAntesDriveV65=normalizarDados;
+normalizarDados=function(raw){const d=normalizarDadosAntesDriveV65(raw);d.schemaVersion=Math.max(Number(d.schemaVersion)||0,PL_SCHEMA_VERSION_V65);return d;};
 
 </script>
 
