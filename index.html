@@ -1486,9 +1486,6 @@
             </div>
             <div class="header-actions">
                 <button id="btn-install-app" class="install-app-btn hidden" type="button">Instalar</button>
-                <button id="btn-profile-open" class="header-icon-btn" type="button" aria-label="Abrir conta" title="Conta">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                </button>
                 <button id="btn-settings-open" class="header-icon-btn" type="button" aria-label="Abrir ajustes" title="Ajustes">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.35 1.1V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.1-.35H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 0 .35-1.1V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.18.34.43.63.75.84.32.21.7.32 1.1.32H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"></path></svg>
                 </button>
@@ -1567,24 +1564,6 @@
                     </table>
                 </div>
             </div>
-            <div class="card before-after-card">
-                <h3>Antes e Depois</h3>
-                <div class="before-after-grid">
-                    <div class="before-after-item">
-                        <div class="before-after-title">Antes</div>
-                        <div id="foto-antes-dashboard" class="before-after-frame">
-                            <div class="before-after-placeholder">Carregando...</div>
-                        </div>
-                        <div id="info-antes-dashboard" class="before-after-info"></div>
-                    </div>
-                    <div class="before-after-item">
-                        <div class="before-after-title">Depois</div>
-                        <div id="foto-depois-dashboard" class="before-after-frame">
-                            <div class="before-after-placeholder">Carregando...</div>
-                        </div>
-                        <div id="info-depois-dashboard" class="before-after-info"></div>
-                    </div>
-                </div>
             </div>
             <div class="card dashboard-bordered-card v30-summary-card" id="resumo-automatico-v30">
                 <div class="v30-summary-head">
@@ -2125,6 +2104,34 @@
             <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
+
+
+        <!-- Fotos -->
+        <section id="view-fotos-v68" class="view hidden">
+            <div class="card before-after-card">
+                <h3>Antes e Depois</h3>
+                <div class="before-after-grid">
+                    <div class="before-after-item">
+                        <div class="before-after-title">Antes</div>
+                        <div id="foto-antes-dashboard" class="before-after-frame">
+                            <div class="before-after-placeholder">Carregando...</div>
+                        </div>
+                        <div id="info-antes-dashboard" class="before-after-info"></div>
+                    </div>
+                    <div class="before-after-item">
+                        <div class="before-after-title">Depois</div>
+                        <div id="foto-depois-dashboard" class="before-after-frame">
+                            <div class="before-after-placeholder">Carregando...</div>
+                        </div>
+                        <div id="info-depois-dashboard" class="before-after-info"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="photo-compare-inline-host-v68"></div>
+            <div id="photo-evolution-host-v68"></div>
+            <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
+        </section>
+
         <!-- Conta -->
         <section id="view-conta" class="view hidden">
             <div class="card">
@@ -2275,35 +2282,64 @@
 <div id="restore-overlay" class="hidden" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:99999;background:rgba(241,245,249,.95);display:grid;place-items:center;padding:24px;text-align:center;font-weight:700">Conferindo e salvando os dados. Aguarde...</div>
 
 <!-- Navigation Bar -->
-<nav id="bottom-nav" class="hidden">
-    <a class="nav-item active" data-view="dashboard" onclick="showView('dashboard', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        Início
-    </a>
-    <a class="nav-item" data-view="historico" onclick="showView('historico', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12"></path><path d="M6 21h12"></path><path d="M8 3c0 5 8 5 8 10s-8 5-8 8"></path><path d="M16 3c0 5-8 5-8 10s8 5 8 8"></path></svg>
-        Peso
-    </a>
-    <a class="nav-item" data-view="medidas" onclick="showView('medidas', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-        Medidas
-    </a>
-    <a class="nav-item" data-view="calorias" onclick="showView('calorias', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11h16"></path><path d="M6 11a6 6 0 0 1 12 0"></path><path d="M3 11h18l-2 9H5z"></path><path d="M12 5V2"></path></svg>
-        Calorias
-    </a>
-    <a class="nav-item" data-view="remedio" onclick="showView('remedio', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7.1-7.1l7 7a5 5 0 0 1-7.1 7.1Z"></path><path d="m7 10 7 7"></path><path d="m14.5 6.5 3-3a2.1 2.1 0 0 1 3 3l-3 3"></path></svg>
-        Remédio
-    </a>
-    <a class="nav-item" data-view="graficos" onclick="showView('graficos', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-        Gráficos
-    </a>
-    <a class="nav-item" data-view="metas" onclick="showView('metas', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        Simular
-    </a>
+<nav id="bottom-nav" class="hidden" aria-label="Navegação do Projeto Leve">
+    <div id="nav-main-v68" class="nav-v68-row nav-main-v68">
+        <a class="nav-item active" data-v68-view="dashboard" onclick="navegarPrincipalV68('dashboard', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            Início
+        </a>
+        <a class="nav-item" data-v68-action="dados" onclick="abrirMenuDadosV68()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"></path><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path></svg>
+            Dados
+        </a>
+        <a class="nav-item" data-v68-view="fotos-v68" onclick="navegarPrincipalV68('fotos-v68', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h3l1.5-2h7L17 7h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            Fotos
+        </a>
+        <a class="nav-item" data-v68-view="ciclos-v48" onclick="navegarPrincipalV68('ciclos-v48', this)">
+            <svg class="cycle-clock-icon-v68" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4.25"></circle><path d="M12 9.7v2.55l1.8 1.05"></path>
+                <path d="M6.2 6.6A8.2 8.2 0 0 1 17.6 5.4"></path><polyline points="17.1 2.9 17.9 5.6 15.2 6.2"></polyline>
+                <path d="M18.2 17.4A8.2 8.2 0 0 1 6.6 18.6"></path><polyline points="6.9 21.1 6.1 18.4 8.8 17.8"></polyline>
+                <path d="M19.7 8.7c.45 1.05.7 2.16.7 3.3"></path><path d="M4.3 15.3A8.2 8.2 0 0 1 3.6 12"></path>
+            </svg>
+            Ciclos
+        </a>
+        <a class="nav-item" data-v68-view="conta" onclick="navegarPrincipalV68('conta', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Perfil
+        </a>
+        <a class="nav-item" data-v68-view="graficos" onclick="navegarPrincipalV68('graficos', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            Gráficos
+        </a>
+        <a class="nav-item" data-v68-view="metas" onclick="navegarPrincipalV68('metas', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2.5" width="16" height="19" rx="2"></rect><path d="M8 6.5h8"></path><path d="M8 11h2m4 0h2M8 15h2m4 0h2M8 19h2m4 0h2"></path></svg>
+            Cálculos
+        </a>
+    </div>
+    <div id="nav-dados-v68" class="nav-v68-row nav-dados-v68 hidden">
+        <a class="nav-item nav-back-v68" data-v68-action="voltar" onclick="voltarMenuPrincipalV68()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Voltar
+        </a>
+        <a class="nav-item" data-v68-view="historico" onclick="navegarDadoV68('historico', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12"></path><path d="M6 21h12"></path><path d="M8 3c0 5 8 5 8 10s-8 5-8 8"></path><path d="M16 3c0 5-8 5-8 10s8 5 8 8"></path></svg>
+            Peso
+        </a>
+        <a class="nav-item" data-v68-view="medidas" onclick="navegarDadoV68('medidas', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18 18 4l2 2L6 20H4z"></path><path d="m13 7 4 4M10 10l2 2M7 13l2 2"></path></svg>
+            Medidas
+        </a>
+        <a class="nav-item" data-v68-view="calorias" onclick="navegarDadoV68('calorias', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11h16"></path><path d="M6 11a6 6 0 0 1 12 0"></path><path d="M3 11h18l-2 9H5z"></path><path d="M12 5V2"></path></svg>
+            Calorias
+        </a>
+        <a class="nav-item" data-v68-view="remedio" onclick="navegarDadoV68('remedio', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7.1-7.1l7 7a5 5 0 0 1-7.1 7.1Z"></path><path d="m7 10 7 7"></path><path d="m14.5 6.5 3-3a2.1 2.1 0 0 1 3 3l-3 3"></path></svg>
+            Remédios
+        </a>
+    </div>
 </nav>
 
 <!-- Visualização organizada dos históricos -->
@@ -20561,6 +20597,249 @@ normalizarDados = function(raw) {
 };
 
 window.addEventListener('load', () => garantirEstilosFotosPadronizadasV67());
+
+
+
+/* =========================================================
+   V68 — Navegação principal + submenu Dados + central Fotos
+   + Configurações operacionais separadas de Ciclos/Perfil.
+   ========================================================= */
+const PL_SCHEMA_VERSION_V68 = 68;
+let menuDadosAbertoV68 = false;
+const VIEWS_DADOS_V68 = new Set(['historico','medidas','calorias','remedio','peso']);
+
+function garantirEstilosNavegacaoV68() {
+    if (document.getElementById('style-navegacao-v68')) return;
+    const style = document.createElement('style');
+    style.id = 'style-navegacao-v68';
+    style.textContent = `
+        #bottom-nav { overflow:visible; }
+        #bottom-nav .nav-v68-row { width:100%; display:flex; align-items:stretch; justify-content:space-between; gap:0; }
+        #bottom-nav .nav-v68-row.hidden { display:none !important; }
+        #bottom-nav .nav-v68-row .nav-item { flex:1 1 0; min-width:0; max-width:none; padding:7px 2px; font-size:9px; line-height:1.1; }
+        #bottom-nav .nav-v68-row .nav-item svg { width:23px; height:23px; }
+        #bottom-nav .nav-main-v68 .nav-item { width:14.2857%; }
+        #bottom-nav .nav-dados-v68 .nav-item { width:20%; max-width:20%; font-size:9.5px; }
+        #bottom-nav .nav-back-v68 { color:var(--text-secondary); }
+        #bottom-nav .nav-back-v68.active { color:var(--accent); }
+        .cycle-clock-icon-v68 { overflow:visible; }
+        #btn-install-app { display:none !important; }
+        #view-fotos-v68 > .before-after-card { margin-top:0; }
+        #photo-compare-inline-host-v68:empty,
+        #photo-evolution-host-v68:empty { display:none; }
+        .photo-compare-card-v46.photo-compare-inline-v68 { width:100%; max-height:none; overflow:visible; margin:0 0 16px; }
+        .photo-compare-inline-v68 .photo-compare-head-v46 { margin-bottom:2px; }
+        .photo-compare-inline-v68 .photo-compare-close-v68 { display:none !important; }
+        #photo-evolution-host-v68 > #painel-evolucao-fotos-v46 { margin-bottom:16px; }
+        #view-configuracoes-v68 .settings-v68-intro { margin-bottom:14px; color:var(--text-secondary); font-size:12px; line-height:1.45; }
+        @media (max-width:390px) {
+            #bottom-nav .nav-v68-row .nav-item { font-size:8.2px; padding-left:1px; padding-right:1px; }
+            #bottom-nav .nav-v68-row .nav-item svg { width:22px; height:22px; }
+            #bottom-nav .nav-dados-v68 .nav-item { font-size:9px; }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function iconeConfiguracoesV68() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.35 1.1V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.1-.35H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 0 .35-1.1V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.18.34.43.63.75.84.32.21.7.32 1.1.32H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"></path></svg>';
+}
+
+function configurarCabecalhoV68() {
+    document.getElementById('btn-profile-open')?.remove();
+    const botao = document.getElementById('btn-settings-open');
+    if (!botao) return;
+    botao.innerHTML = iconeConfiguracoesV68();
+    botao.setAttribute('aria-label','Abrir configurações');
+    botao.setAttribute('title','Configurações');
+    botao.onclick = abrirConfiguracoesV68;
+}
+
+function garantirViewConfiguracoesV68() {
+    let view = document.getElementById('view-configuracoes-v68');
+    const conta = document.getElementById('view-conta');
+    if (!conta) return null;
+    if (!view) {
+        view = document.createElement('section');
+        view.id = 'view-configuracoes-v68';
+        view.className = 'view hidden';
+        view.innerHTML = '<div class="settings-v68-intro">Backup, relatórios, importação, segurança, instalação e manutenção do aplicativo ficam reunidos aqui.</div><div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>';
+        conta.insertAdjacentElement('afterend', view);
+    }
+    const filhos = [...conta.children];
+    const inicio = filhos.findIndex(el => el.classList?.contains('card') && /Backup e Relatórios/i.test(el.querySelector('h3')?.textContent || ''));
+    if (inicio >= 0) {
+        const footer = view.querySelector(':scope > .app-footer-note');
+        for (const el of filhos.slice(inicio)) {
+            if (!el.classList?.contains('card')) continue;
+            footer ? footer.before(el) : view.appendChild(el);
+        }
+    }
+    return view;
+}
+
+function abrirConfiguracoesV68() {
+    garantirViewConfiguracoesV68();
+    menuDadosAbertoV68 = false;
+    showView('configuracoes-v68', document.getElementById('btn-settings-open'));
+}
+window.abrirConfiguracoesV68 = abrirConfiguracoesV68;
+
+/* Impede versões anteriores de transformarem a engrenagem em atalho de Ciclos. */
+reformarBotaoCiclosV58 = function() { configurarCabecalhoV68(); };
+abrirAjustes = abrirConfiguracoesV68;
+window.abrirAjustes = abrirAjustes;
+
+function mostrarLinhaNavV68(dados) {
+    menuDadosAbertoV68 = !!dados;
+    document.getElementById('nav-main-v68')?.classList.toggle('hidden', menuDadosAbertoV68);
+    document.getElementById('nav-dados-v68')?.classList.toggle('hidden', !menuDadosAbertoV68);
+    atualizarAtivoNavV68(activeViewId);
+}
+
+function atualizarAtivoNavV68(viewId = activeViewId) {
+    document.querySelectorAll('#bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
+    if (menuDadosAbertoV68) {
+        const chave = viewId === 'peso' ? 'historico' : viewId;
+        const alvo = document.querySelector('#nav-dados-v68 [data-v68-view="'+chave+'"]');
+        if (alvo) alvo.classList.add('active');
+        else document.querySelector('#nav-dados-v68 [data-v68-action="voltar"]')?.classList.add('active');
+        return;
+    }
+    let chave = viewId;
+    if (VIEWS_DADOS_V68.has(viewId)) chave = 'dados';
+    if (viewId === 'configs' || viewId === 'ciclos-v48') chave = 'ciclos-v48';
+    if (viewId === 'fotos-v68') chave = 'fotos-v68';
+    if (viewId === 'configuracoes-v68') return;
+    const seletor = chave === 'dados' ? '[data-v68-action="dados"]' : '[data-v68-view="'+chave+'"]';
+    document.querySelector('#nav-main-v68 '+seletor)?.classList.add('active');
+}
+
+function abrirMenuDadosV68() { mostrarLinhaNavV68(true); }
+function voltarMenuPrincipalV68() { mostrarLinhaNavV68(false); }
+function navegarDadoV68(viewId, navEl) {
+    menuDadosAbertoV68 = true;
+    try { resetarAbaPrincipalV24?.(viewId); } catch {}
+    showView(viewId, navEl);
+}
+function navegarPrincipalV68(viewId, navEl) {
+    menuDadosAbertoV68 = false;
+    if (viewId === 'ciclos-v48') { abrirCiclosV48(); return; }
+    if (viewId === 'conta') { abrirPerfil(); return; }
+    showView(viewId, navEl);
+}
+window.abrirMenuDadosV68 = abrirMenuDadosV68;
+window.voltarMenuPrincipalV68 = voltarMenuPrincipalV68;
+window.navegarDadoV68 = navegarDadoV68;
+window.navegarPrincipalV68 = navegarPrincipalV68;
+
+/* Fotos: o comparador deixa de ser modal e passa a fazer parte da própria aba. */
+const garantirModalComparacaoFotosAntesV68 = garantirModalComparacaoFotosV46;
+garantirModalComparacaoFotosV46 = function() {
+    const host = document.getElementById('photo-compare-inline-host-v68');
+    if (!host) return garantirModalComparacaoFotosAntesV68();
+    const existente = host.querySelector('.photo-compare-card-v46');
+    if (existente) return existente;
+    garantirModalComparacaoFotosAntesV68();
+    const modal = document.getElementById('modal-comparacao-fotos-v46');
+    const card = modal?.querySelector('.photo-compare-card-v46');
+    if (!card) return null;
+    card.classList.add('photo-compare-inline-v68');
+    const fechar = card.querySelector('.photo-compare-head-v46 > .photo-icon-button');
+    if (fechar) fechar.remove();
+    const titulo = card.querySelector('#titulo-comparacao-fotos-v46');
+    if (titulo) titulo.textContent = 'Comparação Fotográfica Avançada';
+    const subtitulo = card.querySelector('.photo-compare-head-v46 .small');
+    if (subtitulo) subtitulo.textContent = 'Escolha duas fotos da mesma categoria para comparar lado a lado ou sobrepostas.';
+    host.appendChild(card);
+    modal?.remove();
+    return card;
+};
+
+const garantirEntradaComparacaoHomeAntesV68 = garantirEntradaComparacaoHomeV46;
+garantirEntradaComparacaoHomeV46 = function() {
+    const r = garantirEntradaComparacaoHomeAntesV68();
+    document.querySelectorAll('.photo-advanced-entry-v46').forEach(el => el.remove());
+    const painel = document.getElementById('painel-evolucao-fotos-v46');
+    const host = document.getElementById('photo-evolution-host-v68');
+    if (painel && host && painel.parentElement !== host) host.appendChild(painel);
+    const botaoComparar = painel?.querySelector('.photo-evolution-home-head-v46 .btn');
+    if (botaoComparar) botaoComparar.remove();
+    return r;
+};
+
+const abrirComparacaoFotosAntesV68 = abrirComparacaoFotosV46;
+abrirComparacaoFotosV46 = function(...args) {
+    garantirModalComparacaoFotosV46();
+    const retorno = abrirComparacaoFotosAntesV68(...args);
+    menuDadosAbertoV68 = false;
+    showView('fotos-v68', document.querySelector('#nav-main-v68 [data-v68-view="fotos-v68"]'));
+    setTimeout(() => document.getElementById('photo-compare-inline-host-v68')?.scrollIntoView({behavior:'smooth',block:'start'}), 30);
+    return retorno;
+};
+fecharComparacaoFotosV46 = function() { arrasteComparacaoV46 = null; };
+window.abrirComparacaoFotosV46 = abrirComparacaoFotosV46;
+window.fecharComparacaoFotosV46 = fecharComparacaoFotosV46;
+
+function prepararAbaFotosV68() {
+    garantirModalComparacaoFotosV46();
+    garantirEntradaComparacaoHomeV46();
+    renderAntesDepoisDashboard();
+    renderPainelEvolucaoFotosV46();
+    const categorias = categoriasDisponiveisComparacaoV46();
+    if (categorias.some(item => item.total >= 2)) {
+        if (!categorias.some(item => item.chave === comparacaoFotosEstadoV46.categoria && item.total >= 2)) comparacaoFotosEstadoV46.categoria = escolherCategoriaPadraoV46();
+        selecionarParAutomaticoComparacaoV46();
+    } else {
+        renderComparacaoFotosV46();
+    }
+}
+
+const showViewAntesV68 = showView;
+showView = function(viewId, navEl) {
+    if (viewId === 'configuracoes-v68') garantirViewConfiguracoesV68();
+    const retorno = showViewAntesV68(viewId, navEl);
+    if (VIEWS_DADOS_V68.has(viewId)) menuDadosAbertoV68 = true;
+    else if (viewId !== 'peso') menuDadosAbertoV68 = false;
+    if (viewId === 'fotos-v68') {
+        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Fotos';
+        prepararAbaFotosV68();
+    } else if (viewId === 'conta') {
+        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Perfil';
+    } else if (viewId === 'configuracoes-v68') {
+        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Configurações';
+    } else if (viewId === 'ciclos-v48') {
+        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Gerenciar Ciclos';
+    } else if (viewId === 'configs') {
+        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Editar Ciclo Padrão';
+    } else if (viewId === 'graficos') {
+        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Gráficos';
+    } else if (viewId === 'metas') {
+        const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Cálculos';
+    }
+    document.getElementById('nav-main-v68')?.classList.toggle('hidden', menuDadosAbertoV68);
+    document.getElementById('nav-dados-v68')?.classList.toggle('hidden', !menuDadosAbertoV68);
+    atualizarAtivoNavV68(viewId);
+    return retorno;
+};
+window.showView = showView;
+
+const normalizarDadosAntesV68 = normalizarDados;
+normalizarDados = function(raw) {
+    const dados = normalizarDadosAntesV68(raw);
+    dados.schemaVersion = Math.max(Number(dados.schemaVersion) || 0, PL_SCHEMA_VERSION_V68);
+    return dados;
+};
+
+window.addEventListener('load', () => setTimeout(() => {
+    garantirEstilosNavegacaoV68();
+    configurarCabecalhoV68();
+    garantirViewConfiguracoesV68();
+    garantirModalComparacaoFotosV46();
+    garantirEntradaComparacaoHomeV46();
+    atualizarAtivoNavV68(activeViewId);
+}, 1350));
+
 
 </script>
 
