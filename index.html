@@ -1426,7 +1426,7 @@
 <div id="startup-splash" class="startup-splash" aria-label="Abrindo Projeto Leve">
     <div class="startup-splash-card">
         <div class="startup-splash-main">
-            <div class="startup-splash-icon"><img class="pl-icon-svg" src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Projeto Leve"></div>
+            <div class="startup-splash-icon"><img class="pl-icon-svg" src="./icons/icon-512.png" alt="Projeto Leve"></div>
             <div class="startup-splash-title">Projeto Leve</div>
             <div id="startup-splash-recovery" class="startup-splash-recovery" hidden aria-live="polite">
                 <span>A abertura está demorando mais do que o esperado.</span>
@@ -1442,7 +1442,7 @@
 
 <div id="auth-gate" class="auth-gate">
     <div class="auth-gate-card">
-        <div class="auth-login-icon"><img class="pl-icon-svg" src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Projeto Leve"></div>
+        <div class="auth-login-icon"><img class="pl-icon-svg" src="./icons/icon-512.png" alt="Projeto Leve"></div>
         <h1 class="auth-title">Projeto Leve</h1>
         <p class="auth-subtitle">
             Entre para acessar seu controle de peso, metas e medidas com segurança.
@@ -1478,7 +1478,7 @@
         <!-- Header Dinâmico -->
         <header class="app-header">
             <div class="app-brand">
-                <div class="app-brand-icon"><img class="pl-icon-svg" src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Projeto Leve"></div>
+                <div class="app-brand-icon"><img class="pl-icon-svg" src="./icons/icon-512.png" alt="Projeto Leve"></div>
                 <div>
                     <div class="app-brand-name">Projeto Leve</div>
                     <div id="user-greeting" class="app-welcome">Bem-vindo</div>
@@ -20839,6 +20839,122 @@ window.addEventListener('load', () => setTimeout(() => {
     garantirEntradaComparacaoHomeV46();
     atualizarAtivoNavV68(activeViewId);
 }, 1350));
+
+
+
+
+/* =========================================================
+   V69 — correções visuais: rodapés, largura móvel e ícone PWA.
+   ========================================================= */
+const PL_SCHEMA_VERSION_V69 = 69;
+
+function garantirEstilosCorrecoesV69() {
+    if (document.getElementById('style-correcoes-v69')) return;
+    const style = document.createElement('style');
+    style.id = 'style-correcoes-v69';
+    style.textContent = `
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden !important;
+            overscroll-behavior-x: none;
+        }
+        body { position: relative; }
+        .container, .view {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+        }
+        .container { overflow-x: clip; }
+        .view > *, .card, .grid-2, .table-container,
+        #photo-compare-inline-host-v68, #photo-evolution-host-v68,
+        #view-fotos-v68, #view-configuracoes-v68 {
+            min-width: 0;
+            max-width: 100%;
+        }
+        #photo-compare-inline-host-v68,
+        #photo-evolution-host-v68,
+        .photo-compare-card-v46.photo-compare-inline-v68 {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            overflow-x: hidden;
+        }
+        #bottom-nav {
+            overflow: hidden !important;
+            width: auto !important;
+            max-width: calc(100vw - 24px);
+            box-sizing: border-box;
+        }
+        #bottom-nav .nav-v68-row {
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        #bottom-nav .nav-v68-row .nav-item {
+            min-width: 0 !important;
+            max-width: none;
+        }
+        .app-footer-note {
+            width: 100%;
+            max-width: 100%;
+            clear: both;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function corrigirRodapesV69() {
+    document.querySelectorAll('.view').forEach(view => {
+        const rodapes = [...view.querySelectorAll(':scope > .app-footer-note')];
+        if (!rodapes.length) return;
+        const principal = rodapes[0];
+        rodapes.slice(1).forEach(extra => extra.remove());
+        if (view.lastElementChild !== principal) view.appendChild(principal);
+    });
+}
+
+function travarRolagemHorizontalV69() {
+    const raiz = document.scrollingElement || document.documentElement;
+    if (raiz && raiz.scrollLeft) raiz.scrollLeft = 0;
+    if (document.documentElement.scrollLeft) document.documentElement.scrollLeft = 0;
+    if (document.body.scrollLeft) document.body.scrollLeft = 0;
+}
+
+const showViewAntesV69 = showView;
+showView = function(...args) {
+    const retorno = showViewAntesV69(...args);
+    requestAnimationFrame(() => {
+        corrigirRodapesV69();
+        travarRolagemHorizontalV69();
+    });
+    return retorno;
+};
+window.showView = showView;
+
+const updateUIAntesV69 = updateUI;
+updateUI = function(...args) {
+    const retorno = updateUIAntesV69(...args);
+    requestAnimationFrame(() => {
+        corrigirRodapesV69();
+        travarRolagemHorizontalV69();
+    });
+    return retorno;
+};
+
+const normalizarDadosAntesV69 = normalizarDados;
+normalizarDados = function(raw) {
+    const dados = normalizarDadosAntesV69(raw);
+    dados.schemaVersion = Math.max(Number(dados.schemaVersion) || 0, PL_SCHEMA_VERSION_V69);
+    return dados;
+};
+
+window.addEventListener('load', () => setTimeout(() => {
+    garantirEstilosCorrecoesV69();
+    corrigirRodapesV69();
+    travarRolagemHorizontalV69();
+}, 1500));
 
 
 </script>

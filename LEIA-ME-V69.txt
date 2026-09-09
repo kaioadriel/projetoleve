@@ -1,0 +1,18 @@
+PROJETO LEVE V69 — CORREÇÕES VISUAIS E ÍCONE OFICIAL
+
+VERSÃO OFICIAL
+- Firebase Authentication: ATIVO.
+- Firestore híbrido: mantido.
+- Fotos locais + Google Drive: mantidos.
+
+CORREÇÕES V69
+- Corrigido o rodapé “© 2026 Kaio Adriel / Todos os direitos reservados.” que aparecia logo abaixo dos títulos. O rodapé volta a ficar no fim de cada tela.
+- Bloqueada a rolagem horizontal da página no smartphone sem impedir a rolagem interna das tabelas.
+- Barra inferior contida dentro da largura útil do aparelho.
+- Ícone PWA antigo com “PL” removido do pacote.
+- icon-192.png e icon-512.png agora usam o ícone oficial da balança azul com seta vermelha fornecido pelo usuário.
+- Cabeçalho, splash e login também apontam para o mesmo ícone oficial local.
+- Cache do PWA atualizado para V69 para forçar a troca dos recursos.
+
+OBSERVAÇÃO
+Em aparelhos onde a versão anterior já estava instalada, o Android/launcher pode manter o ícone antigo em cache. Se isso ocorrer após publicar a V69, remova o atalho/app antigo e instale novamente para o launcher carregar o novo ícone.
