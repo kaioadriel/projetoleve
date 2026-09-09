@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head><script>(function(w,i,g){w[g]=w[g]||[];if(typeof w[g].push=='function')w[g].push(i)})
-(window,'GTM-T7C2RX4T','google_tags_first_party');</script><script>(function(w,d,s,l){w[l]=w[l]||[];(function(){w[l].push(arguments);})('set', 'developer_id.dYzg1YT', true);
-		w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-		j=d.createElement(s);j.async=true;j.src='/lfwn/';
-		f.parentNode.insertBefore(j,f);
-		})(window,document,'script','dataLayer');</script>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projeto Leve</title>
@@ -1414,6 +1409,48 @@
             .graph-order-modal-actions-v32 { grid-template-columns: 1fr 1fr; }
             .graph-order-modal-actions-v32 .btn-primary { grid-column: 1 / -1; }
         }
+
+        /* ===== HERO v44 — Projeções protagonistas ===== */
+        .hero-v44 {
+            position: relative;
+            border-radius: 22px;
+            padding: 22px 20px 20px;
+            margin-bottom: 14px;
+            color: #fff;
+            background: linear-gradient(135deg, #0f766e 0%, #0d9488 45%, #14b8a6 100%);
+            box-shadow: 0 12px 32px rgba(13, 148, 136, .28);
+            overflow: hidden;
+        }
+        .hero-v44.hero-ahead { background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%); box-shadow: 0 12px 32px rgba(5, 150, 105, .30); }
+        .hero-v44.hero-behind { background: linear-gradient(135deg, #b45309 0%, #d97706 55%, #f59e0b 100%); box-shadow: 0 12px 32px rgba(217, 119, 6, .30); }
+        .hero-v44.hero-empty { background: linear-gradient(135deg, #334155 0%, #475569 100%); box-shadow: 0 12px 32px rgba(51, 65, 85, .25); }
+        .hero-v44::after {
+            content: ""; position: absolute; top: -60px; right: -60px;
+            width: 200px; height: 200px; border-radius: 50%;
+            background: rgba(255,255,255,.10); pointer-events: none;
+        }
+        .hero-title-v44 { font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; opacity: .85; margin-bottom: 14px; }
+        .hero-rows-v44 { display: grid; gap: 10px; margin-bottom: 14px; }
+        .hero-row-v44 {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.20);
+            border-radius: 14px; padding: 10px 14px; backdrop-filter: blur(4px);
+        }
+        .hero-row-label-v44 { font-size: 12px; font-weight: 700; opacity: .9; }
+        .hero-row-date-v44 { font-size: 17px; font-weight: 850; letter-spacing: -.01em; white-space: nowrap; }
+        .hero-row-sub-v44 { font-size: 11px; opacity: .8; margin-top: 1px; }
+        .hero-delta-v44 {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,.92); color: #0f172a;
+            font-size: 13px; font-weight: 800;
+            border-radius: 999px; padding: 7px 14px; margin-bottom: 14px;
+        }
+        .hero-progress-wrap-v44 { position: relative; z-index: 1; }
+        .hero-progress-track-v44 { height: 10px; border-radius: 999px; background: rgba(255,255,255,.25); overflow: hidden; }
+        .hero-progress-fill-v44 { height: 100%; border-radius: 999px; background: #fff; width: 0%; transition: width .8s ease; }
+        .hero-progress-labels-v44 { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; opacity: .9; margin-top: 6px; }
+        .hero-progress-pct-v44 { font-size: 13px; font-weight: 850; margin-top: 8px; }
+        .hero-empty-text-v44 { font-size: 14px; font-weight: 650; opacity: .95; line-height: 1.5; position: relative; z-index: 1; }
 </style>
 
 <style id="bioimpedancia-v29-style">
@@ -1505,6 +1542,14 @@
         
         <!-- Início -->
         <section id="view-dashboard" class="view">
+            <!-- HERO v44: as duas projeções são o coração do app -->
+            <div class="hero-v44 hero-empty" id="hero-v44">
+                <div class="hero-title-v44">Sua chegada à meta</div>
+                <div id="hero-content-v44">
+                    <div class="hero-empty-text-v44">Registre seu peso e configure a meta para ver as projeções.</div>
+                </div>
+            </div>
+
             <div class="grid-2">
                 <div class="card dash-card dashboard-bordered-card"><div class="label">Peso Atual</div><div class="value" id="dash-peso-atual">--</div></div>
                 <div class="card dash-card dashboard-bordered-card"><div class="label">Meta de Hoje</div><div class="value" id="dash-meta-hoje">--</div></div>
@@ -3779,7 +3824,86 @@ function renderDatasImportantesDashboard() {
     }).join('');
 }
 
+function renderHeroDashboard() {
+    const hero = document.getElementById('hero-v44');
+    const content = document.getElementById('hero-content-v44');
+    if (!hero || !content) return;
+
+    const hoje = hojeISO();
+    const pesoAtual = obterPesoAtual();
+    const pesoInicial = numeroValido(appData.config.pesoInicial);
+    const pesoMeta = numeroValido(appData.config.pesoMeta);
+    const metaDia = numeroValido(appData.config.metaKgPorDia);
+
+    const setState = (cls) => { hero.className = 'hero-v44 ' + cls; };
+
+    if (!temConfigCalculo() || !Number.isFinite(pesoAtual)) {
+        setState('hero-empty');
+        content.innerHTML = `<div class="hero-empty-text-v44">Configure seu peso inicial, peso meta e meta diária nos Ajustes para ver quando você chega lá. 🎯</div>`;
+        return;
+    }
+
+    if (Number.isFinite(pesoMeta) && pesoAtual <= pesoMeta) {
+        setState('hero-ahead');
+        content.innerHTML = `<div class="hero-empty-text-v44">🏆 Meta atingida! Você chegou em ${formatBR(pesoAtual)} kg. Hora de celebrar — e de planejar a manutenção.</div>`;
+        return;
+    }
+
+    const media = calcularMediaRealDia();
+    const planejada = calcularDataPlanejadaParaMeta();
+    const dataPlanejada = planejada ? planejada.data : null;
+    let dataRitmo = null;
+    if (Number.isFinite(media) && media < 0 && Number.isFinite(pesoMeta)) {
+        const diasRestantes = Math.max(0, Math.ceil((pesoMeta - pesoAtual) / media));
+        dataRitmo = addDiasISO(hoje, diasRestantes);
+    }
+
+    let deltaDias = null;
+    if (dataPlanejada && dataRitmo) {
+        deltaDias = Math.round((new Date(dataPlanejada + 'T00:00:00') - new Date(dataRitmo + 'T00:00:00')) / 86400000);
+    }
+
+    setState(deltaDias === null ? 'hero-v44' : (deltaDias >= 0 ? 'hero-ahead' : 'hero-behind'));
+
+    const row = (icone, label, data, sub) => `
+        <div class="hero-row-v44">
+            <div>
+                <div class="hero-row-label-v44">${icone} ${label}</div>
+                ${sub ? `<div class="hero-row-sub-v44">${sub}</div>` : ''}
+            </div>
+            <div class="hero-row-date-v44">${data ? formatDateBR(data) : '—'}</div>
+        </div>`;
+
+    let deltaHtml = '';
+    if (deltaDias !== null) {
+        if (deltaDias > 0) deltaHtml = `<div class="hero-delta-v44">🚀 Você está ${deltaDias} ${deltaDias === 1 ? 'dia' : 'dias'} adiantado!</div>`;
+        else if (deltaDias < 0) deltaHtml = `<div class="hero-delta-v44">⏳ No ritmo atual, ${Math.abs(deltaDias)} ${Math.abs(deltaDias) === 1 ? 'dia' : 'dias'} depois do planejado</div>`;
+        else deltaHtml = `<div class="hero-delta-v44">🎯 Exatamente no ritmo planejado!</div>`;
+    }
+
+    let progressoHtml = '';
+    if (Number.isFinite(pesoInicial) && Number.isFinite(pesoMeta) && pesoInicial > pesoMeta) {
+        const pct = Math.min(100, Math.max(0, ((pesoInicial - pesoAtual) / (pesoInicial - pesoMeta)) * 100));
+        progressoHtml = `
+            <div class="hero-progress-wrap-v44">
+                <div class="hero-progress-track-v44"><div class="hero-progress-fill-v44" style="width: ${pct.toFixed(1)}%"></div></div>
+                <div class="hero-progress-labels-v44"><span>${formatBR(pesoInicial)} kg</span><span>${formatBR(pesoAtual)} kg</span><span>${formatBR(pesoMeta)} kg</span></div>
+                <div class="hero-progress-pct-v44">${pct.toFixed(0)}% do caminho percorrido — faltam ${formatBR(pesoAtual - pesoMeta)} kg</div>
+            </div>`;
+    }
+
+    content.innerHTML = `
+        <div class="hero-rows-v44">
+            ${row('🎯', 'Pela meta diária', dataPlanejada, Number.isFinite(metaDia) ? `perdendo ${formatBR(metaDia)} kg/dia` : '')}
+            ${row('📈', 'Pelo ritmo real', dataRitmo, Number.isFinite(media) && media < 0 ? `ritmo de ${formatBR(Math.abs(media))} kg/dia` : 'registre mais pesos')}
+        </div>
+        ${deltaHtml}
+        ${progressoHtml}
+    `;
+}
+
 function renderDashboard() {
+    renderHeroDashboard();
     const hoje = hojeISO();
     const pesoAtual = obterPesoAtual();
     const metaHoje = calcularMetaDaData(hoje);
@@ -20045,6 +20169,5 @@ normalizarDados=function(raw){const d=normalizarDadosAntesDriveV65(raw);d.schema
 
 </script>
 
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"5a11dbdd0c3241f1ad5020fdefbeae31","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
