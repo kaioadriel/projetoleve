@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v67-cadastro-remedios';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v67-cadastro-remedios';
+const CACHE_VERSION = 'projeto-leve-v68-painel';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v68-painel';
 const APP_SHELL = [
   './',
   './index.html',
