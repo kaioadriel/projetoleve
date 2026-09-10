@@ -1,11 +1,12 @@
-const CACHE_VERSION = 'projeto-leve-v68-painel';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v68-painel';
+const CACHE_VERSION = 'projeto-leve-v67-icone-corrigido';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v67-icone-corrigido';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './icons/icon-maskable-512.png'
 ];
 
 self.addEventListener('install', event => {

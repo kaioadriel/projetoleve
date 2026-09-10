@@ -2,13 +2,13 @@
   "id": "./",
   "name": "Projeto Leve",
   "short_name": "Projeto Leve",
-  "description": "Acompanhe pesagens, previsões por meta e ritmo, ciclos, medidas, alimentação e remédios. Dados locais e sincronização Firebase, com fotos opcionais no Google Drive.",
+  "description": "Controle de peso, composição corporal, medidas, calorias, metas e remédios com dados locais e autenticação Firebase.",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#eff6fb",
+  "background_color": "#edf7ff",
   "theme_color": "#0284c7",
   "prefer_related_applications": false,
   "icons": [
@@ -22,7 +22,13 @@
       "src": "./icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
