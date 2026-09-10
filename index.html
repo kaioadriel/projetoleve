@@ -1421,7 +1421,7 @@
         .water-dual-help-v33 { margin-top:-4px; margin-bottom:10px; color:var(--text-secondary); font-size:11px; }
 </style>
 <style id="painel-estilos-v68">
-/* V68/V69 — Painel: previsões em primeiro plano, com a base V67 preservada. */
+/* V68 — Painel: previsões em primeiro plano, com a base V67 preservada. */
 :root{--bg-color:#eff6fb;--card-bg:#fff;--soft-bg:#edf5fb;--input-bg:#fff;--accent:#027caf;--accent-hover:#02699a;--accent-soft:#e1f2ff;--text-primary:#132b40;--text-secondary:#50677a;--border:#d7e5ee;--shadow:0 4px 18px rgba(20,67,96,.04);--pl68-teal:#087969;--pl68-teal-soft:#eaf7f2}
 body{background:var(--bg-color);font-size:16px;padding-bottom:calc(96px + env(safe-area-inset-bottom));}
 .container{max-width:920px;padding:16px;}
@@ -1457,132 +1457,10 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
 @media(prefers-reduced-motion:reduce){.pl68-progress span{transition:none}}
 
 
-
-/* V69 — acabamento fiel ao layout “1 · Painel” escolhido, sem alterar as demais telas. */
-body[data-painel-view="dashboard"]{
-    --bg-color:#080a0d;
-    --card-bg:#252a2f;
-    --soft-bg:#1b2229;
-    --input-bg:#171c21;
-    --accent:#73cfff;
-    --accent-hover:#8bd8ff;
-    --accent-soft:#163247;
-    --text-primary:#f5f7fa;
-    --text-secondary:#aebdca;
-    --border:#405363;
-    --shadow:0 22px 60px rgba(0,0,0,.28);
-    --pl68-teal:#68dec2;
-    --pl68-teal-soft:#123e36;
-    background:#080a0d;
-    color:var(--text-primary);
-}
-body[data-painel-view="dashboard"] #app>.container{max-width:920px;padding-top:18px;}
-body[data-painel-view="dashboard"] .app-header{display:none;}
-body[data-painel-view="dashboard"] #view-dashboard{max-width:760px;}
-body[data-painel-view="dashboard"] #painel-principal-v68{
-    position:relative;
-    isolation:isolate;
-    overflow:hidden;
-    gap:16px;
-    padding:24px 20px 20px;
-    margin:0 0 18px;
-    border:1px solid #465868;
-    border-radius:30px;
-    background:
-        radial-gradient(circle at 89% 2%,rgba(58,126,166,.16),transparent 28%),
-        linear-gradient(180deg,#303231 0%,#292c2e 58%,#24282c 100%);
-    box-shadow:0 24px 70px rgba(0,0,0,.34);
-}
-body[data-painel-view="dashboard"] #painel-principal-v68:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;background:linear-gradient(135deg,rgba(255,255,255,.025),transparent 40%);}
-body[data-painel-view="dashboard"] .pl69-shell-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px;}
-body[data-painel-view="dashboard"] .pl69-brand{display:flex;align-items:center;gap:13px;min-width:0;}
-body[data-painel-view="dashboard"] .pl69-brand-icon{width:58px;height:58px;display:grid;place-items:center;flex:0 0 auto;border-radius:16px;background:#0a5279;box-shadow:inset 0 0 0 1px rgba(116,207,255,.08);overflow:hidden;}
-body[data-painel-view="dashboard"] .pl69-brand-icon img{width:100%;height:100%;object-fit:cover;}
-body[data-painel-view="dashboard"] .pl69-brand-name{font-size:1.35rem;font-weight:760;line-height:1.1;letter-spacing:-.02em;color:#f7f9fb;}
-body[data-painel-view="dashboard"] .pl69-welcome{margin-top:7px;font-size:.98rem;font-weight:650;color:#aab8c6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:48vw;}
-body[data-painel-view="dashboard"] .pl69-settings{width:58px;height:58px;display:grid;place-items:center;flex:0 0 auto;border:1px solid #3d5d74;border-radius:50%;background:#1b3040;color:#afc6d7;box-shadow:none;cursor:pointer;}
-body[data-painel-view="dashboard"] .pl69-settings svg{width:28px;height:28px;}
-body[data-painel-view="dashboard"] .pl68-heading{padding-top:7px;}
-body[data-painel-view="dashboard"] .pl68-cycle{min-height:38px;color:#73cfff;font-size:1.02rem;font-weight:680;gap:9px;}
-body[data-painel-view="dashboard"] .pl68-cycle svg{width:23px;height:23px;}
-body[data-painel-view="dashboard"] .pl69-cycle-chevron{font-size:1.35rem;line-height:1;transform:translateY(-2px);}
-body[data-painel-view="dashboard"] .pl68-heading h2{margin:11px 0 8px;font-size:clamp(1.9rem,8vw,2.45rem);line-height:1.08;font-weight:760;color:#f4f7fa;letter-spacing:-.038em;}
-body[data-painel-view="dashboard"] .pl68-heading p{font-size:1rem;font-weight:560;color:#aebdca;}
-body[data-painel-view="dashboard"] .pl68-forecasts{gap:13px;}
-body[data-painel-view="dashboard"] .pl68-primary .pl68-forecast{position:relative;overflow:hidden;padding:18px 18px 15px!important;min-height:270px;border:1px solid #436078!important;border-top:5px solid #75d1ff!important;border-radius:23px;background:linear-gradient(180deg,#1c3447 0%,#172b3b 100%)!important;box-shadow:0 13px 24px rgba(0,0,0,.18);}
-body[data-painel-view="dashboard"] .pl68-primary .pl68-forecast:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(155deg,rgba(255,255,255,.035),transparent 48%);}
-body[data-painel-view="dashboard"] .pl68-primary .pl68-forecast.pl68-actual{border-color:#37695f!important;border-top-color:#69dfc3!important;background:linear-gradient(180deg,#124b40 0%,#103c34 100%)!important;}
-body[data-painel-view="dashboard"] .pl68-kicker{position:relative;z-index:1;font-size:1.05rem;font-weight:740;color:#79d2ff;}
-body[data-painel-view="dashboard"] .pl68-actual .pl68-kicker{color:#70dfc4;}
-body[data-painel-view="dashboard"] .pl68-kicker svg{width:23px;height:23px;}
-body[data-painel-view="dashboard"] .pl68-forecast>.value{position:relative;z-index:1;margin:20px 0 12px!important;color:#f5f8fb!important;}
-body[data-painel-view="dashboard"] .pl68-date-main{font-size:clamp(2rem,9vw,2.55rem);font-weight:780;line-height:1;letter-spacing:-.045em;white-space:nowrap;}
-body[data-painel-view="dashboard"] .pl69-date-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:14px;font-size:1.03rem;font-weight:650;color:#a9bac8;line-height:1.25;}
-body[data-painel-view="dashboard"] .pl69-date-sep{opacity:.7;}
-body[data-painel-view="dashboard"] .pl68-rate{position:relative;z-index:1;margin:14px 0 7px!important;font-size:1.14rem!important;font-weight:700;color:#f4f7fa!important;}
-body[data-painel-view="dashboard"] .pl68-explain{position:relative;z-index:1;margin-top:auto;min-height:42px;padding:8px 0 0;border-top:1px solid rgba(255,255,255,.09);color:#9fb0bd;font-size:.79rem;font-weight:590;}
-body[data-painel-view="dashboard"] .pl68-insight{border:1px solid #3b4d5b;background:#20272d;color:#b9c4cd;border-radius:15px;padding:13px 15px;}
-body[data-painel-view="dashboard"] .pl68-insight.positive{border-color:#32645a;background:#14362f;color:#87ddc8;}
-body[data-painel-view="dashboard"] .pl68-insight.negative{border-color:#704642;background:#3a2523;color:#ffaaa1;}
-body[data-painel-view="dashboard"] .pl68-primary .pl68-current,
-body[data-painel-view="dashboard"] .pl68-primary .pl68-chart-card,
-body[data-painel-view="dashboard"] .pl68-primary #dashboard-extra-v67 .card,
-body[data-painel-view="dashboard"] .pl68-primary .pl68-details{border:1px solid #3d4f5d;background:rgba(29,34,39,.88)!important;box-shadow:none;}
-body[data-painel-view="dashboard"] .pl68-current{border-radius:21px;}
-body[data-painel-view="dashboard"] .pl68-current #dash-peso-atual{color:#f7f9fb;}
-body[data-painel-view="dashboard"] .pl68-caption,
-body[data-painel-view="dashboard"] .pl68-progress-detail,
-body[data-painel-view="dashboard"] .pl68-details p,
-body[data-painel-view="dashboard"] .pl68-details dt{color:#9fb0bd;}
-body[data-painel-view="dashboard"] .pl68-position{border-color:#3a4955;}
-body[data-painel-view="dashboard"] .pl68-progress{background:#15232d;}
-body[data-painel-view="dashboard"] .pl68-progress span{background:linear-gradient(90deg,#4cb8ee,#72d1ff);}
-body[data-painel-view="dashboard"] .pl68-register{border:1px solid #57b8e8;background:linear-gradient(180deg,#178dcb,#0879b6);color:#fff;box-shadow:0 10px 25px rgba(2,124,175,.22);}
-body[data-painel-view="dashboard"] .pl68-register:hover{background:linear-gradient(180deg,#219bd9,#0a84c3);}
-body[data-painel-view="dashboard"] .pl68-chart-card h3,
-body[data-painel-view="dashboard"] .pl68-details summary{color:#f2f6f9;}
-body[data-painel-view="dashboard"] .pl68-text-button{color:#75d1ff;}
-body[data-painel-view="dashboard"] #dashboard-extra-v67 .label{color:#9fb0bd;}
-body[data-painel-view="dashboard"] #dashboard-extra-v67 .value{color:#f5f7fa;}
-body[data-painel-view="dashboard"] .positive{color:#77dfb8!important;}
-body[data-painel-view="dashboard"] .negative{color:#ff8f86!important;}
-body[data-painel-view="dashboard"] #painel-complementos-v68{border-color:#34434f;color:#aebdca;}
-body[data-painel-view="dashboard"] #painel-complementos-v68>summary{color:#b9c5cf;}
-body[data-painel-view="dashboard"] #painel-complementos-conteudo-v68 .card{background:#20252a;border-color:#3a4a57;color:var(--text-primary);}
-body[data-painel-view="dashboard"] #bottom-nav{border-color:#2d3c47;background:rgba(18,22,27,.97);box-shadow:0 -8px 30px rgba(0,0,0,.28);backdrop-filter:blur(16px);}
-body[data-painel-view="dashboard"] #bottom-nav .nav-item{color:#98a8b5;}
-body[data-painel-view="dashboard"] #bottom-nav .nav-item.active{color:#78d1ff;background:#142d3d;}
-body[data-painel-view="dashboard"] .header-icon-btn,
-body[data-painel-view="dashboard"] .modal-content,
-body[data-painel-view="dashboard"] .modal-card{background:#20262b;color:var(--text-primary);border-color:#3a4b58;}
-body[data-painel-view="dashboard"] input,
-body[data-painel-view="dashboard"] select,
-body[data-painel-view="dashboard"] textarea{background:#171c21;color:#f2f5f7;border-color:#3d4d59;}
-body[data-painel-view="dashboard"] input::placeholder,
-body[data-painel-view="dashboard"] textarea::placeholder{color:#748591;}
-@media(max-width:430px){
-    body[data-painel-view="dashboard"] #app>.container{padding:12px 12px 92px;}
-    body[data-painel-view="dashboard"] #painel-principal-v68{padding:20px 16px 17px;border-radius:27px;gap:14px;}
-    body[data-painel-view="dashboard"] .pl69-brand-icon{width:52px;height:52px;border-radius:15px;}
-    body[data-painel-view="dashboard"] .pl69-settings{width:52px;height:52px;}
-    body[data-painel-view="dashboard"] .pl69-brand-name{font-size:1.23rem;}
-    body[data-painel-view="dashboard"] .pl69-welcome{font-size:.93rem;}
-    body[data-painel-view="dashboard"] .pl68-primary .pl68-forecast{min-height:250px;padding:16px 14px 13px!important;border-radius:20px;}
-    body[data-painel-view="dashboard"] .pl68-kicker{font-size:.96rem;gap:5px;}
-    body[data-painel-view="dashboard"] .pl68-kicker svg{width:21px;height:21px;}
-    body[data-painel-view="dashboard"] .pl68-date-main{font-size:clamp(1.8rem,9.2vw,2.25rem);}
-    body[data-painel-view="dashboard"] .pl69-date-meta{font-size:.91rem;gap:5px;}
-    body[data-painel-view="dashboard"] .pl68-rate{font-size:1.03rem!important;}
-}
-@media(max-width:355px){
-    body[data-painel-view="dashboard"] .pl68-forecasts{gap:9px;}
-    body[data-painel-view="dashboard"] .pl68-primary .pl68-forecast{padding:14px 11px 12px!important;min-height:236px;}
-    body[data-painel-view="dashboard"] .pl68-kicker{font-size:.88rem;}
-    body[data-painel-view="dashboard"] .pl69-date-meta{font-size:.83rem;}
-    body[data-painel-view="dashboard"] .pl68-rate{font-size:.94rem!important;}
-}
+/* V69: somente acabamento dos novos dados pessoais. */
+#perfil-bio{min-height:96px;resize:vertical;}
 </style>
-<meta name="application-version" content="69.0-Painel-Escuro-7D">
+<meta name="application-version" content="68.0-Painel">
 </head>
 <body>
 
@@ -1649,7 +1527,7 @@ body[data-painel-view="dashboard"] textarea::placeholder{color:#748591;}
             </div>
             <div class="header-actions">
                 <button id="btn-install-app" class="install-app-btn hidden" type="button">Instalar</button>
-                <button id="btn-profile-open" class="header-icon-btn" type="button" aria-label="Abrir conta" title="Conta">
+                <button id="btn-profile-open" class="header-icon-btn" type="button" aria-label="Abrir perfil" title="Perfil">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                 </button>
                 <button id="btn-settings-open" class="header-icon-btn" type="button" aria-label="Abrir ajustes" title="Ajustes">
@@ -1664,20 +1542,8 @@ body[data-painel-view="dashboard"] textarea::placeholder{color:#748591;}
         <!-- Início -->
         <section id="view-dashboard" class="view">
             <div id="painel-principal-v68" class="pl68-primary">
-                <div id="painel-cabecalho-v69" class="pl69-shell-header">
-                    <div class="pl69-brand">
-                        <div class="pl69-brand-icon"><img class="pl-icon-svg" src="https://projetoleve.kaioadriel.com.br/icone/icone.png" alt="Projeto Leve"></div>
-                        <div>
-                            <div class="pl69-brand-name">Projeto Leve</div>
-                            <div id="painel-saudacao-v69" class="pl69-welcome">Olá</div>
-                        </div>
-                    </div>
-                    <button class="pl69-settings" type="button" aria-label="Abrir ajustes" title="Ajustes" onclick="document.getElementById('btn-settings-open')?.click()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
-                    </button>
-                </div>
                 <div id="painel-intro-v68" class="pl68-heading">
-                    <button type="button" class="pl68-cycle" onclick="abrirCiclosV48()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4m14-1v2a3 3 0 01-3 3H3"/></svg><span id="painel-ciclo-v68">Meu ciclo</span><span class="pl69-cycle-chevron" aria-hidden="true">⌄</span></button>
+                    <button type="button" class="pl68-cycle" onclick="abrirCiclosV48()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4m14-1v2a3 3 0 01-3 3H3"/></svg><span id="painel-ciclo-v68">Meu ciclo</span><span aria-hidden="true">›</span></button>
                     <h2 id="painel-titulo-v68">Quando chego à meta?</h2>
                     <p id="painel-objetivo-v68">Configure o ciclo para acompanhar as previsões.</p>
                 </div>
@@ -1692,7 +1558,7 @@ body[data-painel-view="dashboard"] textarea::placeholder{color:#748591;}
                         <div class="pl68-kicker label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6l6 6 4-4 8 10M15 18h6v-6"/></svg>Pelo ritmo</div>
                         <div class="value" id="dash-previsao">—</div>
                         <div class="pl68-rate" id="dash-media-dia">—</div>
-                        <button class="pl68-explain" type="button" onclick="abrirExplicacaoPainelV68('ritmo')">Média dos últimos 7 dias <span aria-hidden="true">›</span></button>
+                        <button class="pl68-explain" type="button" onclick="abrirExplicacaoPainelV68('ritmo')">Últimos 7 dias <span aria-hidden="true">›</span></button>
                     </div>
                 </div>
                 <div class="pl68-insight neutral" id="painel-diferenca-v68" role="status">As previsões aparecerão com os dados do ciclo.</div>
@@ -2341,7 +2207,7 @@ body[data-painel-view="dashboard"] textarea::placeholder{color:#748591;}
         <!-- Conta -->
         <section id="view-conta" class="view hidden">
             <div class="card">
-                <h3>Perfil e Conta</h3>
+                <h3>Dados Pessoais</h3>
                 <form id="form-perfil">
                     <div class="form-group"><label>Nome</label><input type="text" id="perfil-nome" placeholder="Seu nome"></div>
                     <div class="grid-2">
@@ -2352,12 +2218,16 @@ body[data-painel-view="dashboard"] textarea::placeholder{color:#748591;}
                         <div class="form-group"><label>Gênero</label><select id="perfil-genero"><option value="">Selecione</option><option value="Homem">Homem</option><option value="Mulher">Mulher</option></select></div>
                         <div class="form-group"><label>Altura (m)</label><input type="text" inputmode="decimal" id="perfil-altura" placeholder="Ex: 1,65"></div>
                     </div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>Celular</label><input type="tel" id="perfil-celular" maxlength="30" autocomplete="tel" placeholder="Ex: (13) 99999-9999"></div>
+                        <div class="form-group"><label>Cidade / UF</label><input type="text" id="perfil-cidade" maxlength="120" autocomplete="address-level2" placeholder="Ex: Praia Grande / SP"></div>
+                    </div>
+                    <div class="form-group"><label>Bio</label><textarea id="perfil-bio" rows="4" maxlength="500" placeholder="Um pouco sobre você, rotina, objetivos ou o que quiser registrar."></textarea></div>
                     <div class="profile-action-row">
                         <button type="button" id="btn-desfazer-perfil" class="btn btn-undo" onclick="desfazerPerfilConta()" aria-label="Desfazer Perfil e Conta" title="Desfazer">↶</button>
                         <button type="button" class="btn btn-clear-outline" onclick="limparPerfilConta()">Limpar</button>
                         <button type="button" class="btn btn-outline" onclick="fecharPerfil()">Voltar</button>
                     </div>
-                    <button type="button" class="btn btn-danger hidden" id="btn-logout-perfil" style="margin-top: 12px;">Sair da conta</button>
                 </form>
             </div>
             <div class="card">
@@ -2370,6 +2240,7 @@ body[data-painel-view="dashboard"] textarea::placeholder{color:#748591;}
                     <div id="storage-usage" class="small" style="margin:8px 0" aria-live="polite"></div>
                     <div id="sync-status">Dados locais + Firestore. Fotos originais permanecem neste aparelho.</div>
                 </div>
+                <button type="button" class="btn btn-danger hidden" id="btn-logout-perfil" style="margin-top: 12px;">Sair da conta</button>
             </div>
             <div class="card">
                 <h3>Backup e Relatórios</h3>
@@ -20788,27 +20659,9 @@ function referenciaPesoPainelV68() {
         : {data:appData.config?.dataInicial || '', peso:numeroValido(appData.config?.pesoInicial), registrado:false, quantidade:0};
 }
 
-function ritmoMedioUltimos7DiasPainelV69() {
-    const fimJanela = hojeISO();
-    const inicioJanela = addDiasISO(fimJanela, -7);
-    const porDia = new Map();
-    for (const p of obterPesosValidosParaCalculo()) {
-        if (!dataISOValida(p.data) || p.data < inicioJanela || p.data > fimJanela) continue;
-        const peso = numeroValido(p.peso);
-        if (!Number.isFinite(peso) || peso <= 0) continue;
-        porDia.set(p.data, {data:p.data, peso});
-    }
-    const pontos = [...porDia.values()].sort((a,b) => a.data.localeCompare(b.data));
-    if (pontos.length < 2) return {ritmo:NaN, pontos:pontos.length, dias:0, primeiro:pontos[0] || null, ultimo:pontos[0] || null};
-    const primeiro = pontos[0], ultimo = pontos[pontos.length - 1];
-    const dias = diffDays(ultimo.data, primeiro.data);
-    if (dias <= 0) return {ritmo:NaN, pontos:pontos.length, dias, primeiro, ultimo};
-    return {ritmo:(ultimo.peso - primeiro.peso) / dias, pontos:pontos.length, dias, primeiro, ultimo};
-}
-
 function pesoProjetadoPainelV68(data) {
     const referencia = referenciaPesoPainelV68();
-    const ritmo = ritmoMedioUltimos7DiasPainelV69().ritmo;
+    const ritmo = calcularMediaUltimos7DiasPainelV69();
     if (!referencia.registrado || !dataISOValida(data) || !Number.isFinite(ritmo)) return NaN;
     return referencia.peso + diffDays(data, referencia.data) * ritmo;
 }
@@ -20819,7 +20672,7 @@ function previsaoRitmoPainelV68() {
     const inicial = numeroValido(appData.config.pesoInicial);
     const meta = numeroValido(appData.config.pesoMeta);
     const direcao = Math.sign(meta - inicial);
-    const ritmo = ritmoMedioUltimos7DiasPainelV69().ritmo;
+    const ritmo = calcularMediaUltimos7DiasPainelV69();
     if (obterCicloAtivoV48()?.tipo === 'manutencao') return {estado:'manutencao'};
     if (!referencia.registrado) return {estado:'aguardando'};
     if (direcao === 0 || (direcao < 0 ? referencia.peso <= meta : referencia.peso >= meta)) {
@@ -20844,19 +20697,16 @@ function htmlDataPainelV68(data) {
     if (!dataISOValida(data)) return '<div class="pl68-empty-forecast">Sem previsão</div>';
     const dt = parseDate(data), distancia = diffDays(data,hojeISO());
     const principal = dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}).replace(' de ',' ').replace('.','');
-    const detalhe = distancia > 0 ? 'em '+distancia+' dia'+(distancia===1?'':'s') : distancia === 0 ? 'hoje' : 'há '+Math.abs(distancia)+' dia'+(distancia===-1?'':'s');
-    return '<div class="pl68-date-main">'+escapeHtml(principal)+'</div><div class="pl69-date-meta"><span>'+dt.getFullYear()+'</span><span class="pl69-date-sep">·</span><span>'+escapeHtml(detalhe)+'</span></div>';
+    const detalhe = distancia > 0 ? 'Em '+distancia+' dia'+(distancia===1?'':'s') : distancia === 0 ? 'Hoje' : 'Há '+Math.abs(distancia)+' dia'+(distancia===-1?'':'s');
+    return '<div class="pl68-date-main">'+escapeHtml(principal)+'</div><div class="pl68-date-year">'+dt.getFullYear()+'</div><div class="forecast-detail">'+detalhe+'</div>';
 }
 
 function renderExplicacaoPainelV68() {
     const out=document.getElementById('painel-calculo-conteudo-v68');if(!out)return;
     if(!temConfigCalculo()){out.innerHTML='<p>Abra Ciclos e configure o peso inicial, a meta final e a meta diária.</p>';return;}
-    const ref=referenciaPesoPainelV68(), cfg=appData.config, r7=ritmoMedioUltimos7DiasPainelV69(), ritmo=r7.ritmo;
+    const ref=referenciaPesoPainelV68(), cfg=appData.config, ritmo=calcularMediaUltimos7DiasPainelV69();
     const dias=ref.registrado?diffDays(ref.data,cfg.dataInicial):0;
-    const baseRitmo = Number.isFinite(ritmo)
-        ? '<dt>Janela usada</dt><dd>'+formatDateBR(r7.primeiro.data)+' a '+formatDateBR(r7.ultimo.data)+'</dd><dt>Pesagens usadas</dt><dd>'+r7.pontos+'</dd><dt>Dias entre elas</dt><dd>'+r7.dias+'</dd><dt>Ritmo médio</dt><dd>'+textoRitmoPainelV68(ritmo)+'</dd>'
-        : '<dt>Janela usada</dt><dd>Últimos 7 dias</dd><dt>Pesagens usadas</dt><dd>'+r7.pontos+'</dd><dt>Ritmo médio</dt><dd>Sem base suficiente</dd>';
-    out.innerHTML='<h4>Pela meta do ciclo</h4><dl><dt>Início do ciclo</dt><dd>'+formatDateBR(cfg.dataInicial)+'</dd><dt>Peso inicial</dt><dd>'+formatBR(cfg.pesoInicial)+' kg</dd><dt>Meta final</dt><dd>'+formatBR(cfg.pesoMeta)+' kg</dd><dt>Meta diária</dt><dd>'+textoRitmoPainelV68(numeroValido(cfg.metaKgPorDia))+'</dd></dl><p>A data planejada usa o percurso completo desde o início do ciclo. Novas pesagens não mudam esse plano.</p><h4>Pelo ritmo observado</h4><dl><dt>Última pesagem</dt><dd>'+(ref.registrado?formatDateBR(ref.data):'Sem registro')+'</dd><dt>Dias até a última pesagem</dt><dd>'+Math.max(0,dias)+'</dd>'+baseRitmo+'</dl><p>O ritmo/dia é a média da variação de peso observada nos últimos 7 dias: diferença entre a primeira e a última pesagem disponíveis nessa janela, dividida pelos dias reais entre elas.</p><p>A previsão parte da última pesagem válida e projeta a continuidade desse ritmo médio. Se houver menos de duas datas de pesagem na janela, o app informa que ainda não há base suficiente.</p>';
+    out.innerHTML='<h4>Pela meta do ciclo</h4><dl><dt>Início do ciclo</dt><dd>'+formatDateBR(cfg.dataInicial)+'</dd><dt>Peso inicial</dt><dd>'+formatBR(cfg.pesoInicial)+' kg</dd><dt>Meta final</dt><dd>'+formatBR(cfg.pesoMeta)+' kg</dd><dt>Meta diária</dt><dd>'+textoRitmoPainelV68(numeroValido(cfg.metaKgPorDia))+'</dd></dl><p>A data planejada usa o percurso completo desde o início do ciclo. Novas pesagens não mudam esse plano.</p><h4>Pelo ritmo observado</h4><dl><dt>Última pesagem</dt><dd>'+(ref.registrado?formatDateBR(ref.data):'Sem registro')+'</dd><dt>Pesagens do ciclo</dt><dd>'+ref.quantidade+'</dd><dt>Dias até a última pesagem</dt><dd>'+Math.max(0,dias)+'</dd><dt>Ritmo do ciclo</dt><dd>'+textoRitmoPainelV68(ritmo)+'</dd></dl><p>O ritmo usa a diferença entre o peso inicial e a última pesagem, dividida pelos dias entre essas datas. A previsão parte da data dessa pesagem.</p><p>Projeção matemática, se o ritmo continuar. Dias sem pesagem não são tratados como estagnação.</p>';
 }
 
 function abrirExplicacaoPainelV68() {
@@ -20867,15 +20717,9 @@ function abrirExplicacaoPainelV68() {
 function renderPainelV68() {
     const texto=(id,valor)=>{const el=document.getElementById(id);if(el)el.textContent=valor;};
     const ciclo=obterCicloAtivoV48(), cfg=appData.config||{}, pronto=temConfigCalculo();
-    const ref=referenciaPesoPainelV68(), ritmo7=ritmoMedioUltimos7DiasPainelV69(), ritmo=ritmo7.ritmo;
+    const ref=referenciaPesoPainelV68(), ritmo=calcularMediaUltimos7DiasPainelV69();
     const cicloDias=dataISOValida(cfg.dataInicial)?Math.max(0,diffDays(hojeISO(),cfg.dataInicial))+1:null;
     texto('painel-ciclo-v68',(ciclo?.nome||'Ciclo livre')+(cicloDias?' · Dia '+cicloDias:''));
-    const saudacaoPainel=document.getElementById('painel-saudacao-v69'), saudacaoOriginal=document.getElementById('user-greeting');
-    if(saudacaoPainel){
-        const original=String(saudacaoOriginal?.textContent||'').trim();
-        if(!original || original==='Bem-vindo') saudacaoPainel.textContent='Olá';
-        else saudacaoPainel.textContent=original.replace(/^Bem-vindo(?=,|$)/,'Olá');
-    }
     texto('painel-titulo-v68',ciclo?.tipo==='manutencao'?'Como está minha manutenção?':'Quando chego à meta?');
     texto('painel-objetivo-v68',pronto?'Objetivo deste ciclo: '+formatBR(cfg.pesoMeta)+' kg':'Configure o ciclo para acompanhar as previsões.');
     texto('painel-meta-dia-v68',pronto?textoRitmoPainelV68(numeroValido(cfg.metaKgPorDia)):'—');
@@ -20903,7 +20747,7 @@ function renderPainelV68() {
     if(realEl){
         if(real.estado==='prevista'||real.estado==='desatualizada')realEl.innerHTML=htmlDataPainelV68(real.data);
         else if(real.estado==='atingida')realEl.innerHTML='<div class="pl68-empty-forecast">Meta atingida</div><div class="forecast-detail">'+formatDateBR(real.data)+'</div>';
-        else realEl.innerHTML='<div class="pl68-empty-forecast">'+(real.estado==='sem-ritmo'?'Sem previsão':'Aguardando pesos')+'</div><div class="forecast-detail">'+(real.estado==='sem-ritmo'?'O ritmo ainda não aponta para a meta.':'São necessárias pelo menos duas pesagens em datas diferentes nos últimos 7 dias.')+'</div>';
+        else realEl.innerHTML='<div class="pl68-empty-forecast">'+(real.estado==='sem-ritmo'?'Sem previsão':'Aguardando pesos')+'</div><div class="forecast-detail">'+(real.estado==='sem-ritmo'?'O ritmo ainda não aponta para a meta.':'Registre pesos em dias diferentes.')+'</div>';
     }
     if(real.estado==='desatualizada')texto('painel-diferenca-v68','A previsão passou. Registre um novo peso para atualizar a estimativa.');
     else if(real.estado==='atingida'){texto('painel-diferenca-v68','Meta alcançada em '+formatDateBR(real.data)+'.');if(insight)insight.className='pl68-insight positive';}
@@ -20911,7 +20755,7 @@ function renderPainelV68() {
         const diferenca=diffDays(planejada.data,real.data);
         texto('painel-diferenca-v68',diferenca===0?'Chegada projetada na mesma data do plano.':'Chegada projetada '+Math.abs(diferenca)+' dia'+(Math.abs(diferenca)===1?'':'s')+' '+(diferenca>0?'antes':'depois')+' do plano.');
         if(insight)insight.className='pl68-insight '+(diferenca>=0?'positive':'negative');
-    }else texto('painel-diferenca-v68','As previsões serão comparadas quando houver pelo menos duas pesagens recentes e o ritmo apontar para a meta.');
+    }else texto('painel-diferenca-v68','As previsões serão comparadas quando houver um ritmo na direção da meta.');
     const metaHoje=calcularMetaDaData(hojeISO()),saldo=metaHoje-ref.peso,bom=direcao<=0?saldo>=0:saldo<=0;
     texto('dash-status',bom?'Meta em dia':'Meta em atraso');
     const status=document.getElementById('dash-status');if(status)status.className=bom?'positive':'negative';
@@ -20959,7 +20803,7 @@ function garantirRotasPainelV68() {
     }
     if(!document.getElementById('view-mais-v68')){
         const mais=document.createElement('section');mais.id='view-mais-v68';mais.className='view hidden';
-        mais.innerHTML='<div class="pl68-hub-grid"><button type="button" class="pl68-hub-button pl68-hub-full" data-view="metas" onclick="showView(\'metas\')"><strong>Cálculos e análises</strong><span>Simulador, datas, tendências, resumos e comparações</span></button><button type="button" class="pl68-hub-button" onclick="abrirCadastroRemediosV67()"><strong>Cadastro de remédios</strong><span>Medicamentos e períodos de uso</span></button><button type="button" class="pl68-hub-button" onclick="abrirComparacaoFotosV46()"><strong>Comparar fotos</strong><span>Antes e depois por categoria</span></button><button type="button" class="pl68-hub-button" onclick="abrirImportadorV60()"><strong>Importar dados</strong><span>Revisar e completar registros</span></button><button type="button" class="pl68-hub-button" onclick="abrirCalendarioV49()"><strong>Calendário</strong><span>Todos os dias da jornada</span></button><button type="button" class="pl68-hub-button" onclick="abrirPerfil()"><strong>Conta e backups</strong><span>Sincronização, fotos e relatórios</span></button><button type="button" class="pl68-hub-button" onclick="abrirCiclosV48()"><strong>Ciclos e metas</strong><span>Ciclo padrão, atual e histórico</span></button></div>';
+        mais.innerHTML='<div class="pl68-hub-grid"><button type="button" class="pl68-hub-button pl68-hub-full" data-view="metas" onclick="showView(\'metas\')"><strong>Cálculos e análises</strong><span>Simulador, datas, tendências, resumos e comparações</span></button><button type="button" class="pl68-hub-button" onclick="abrirCadastroRemediosV67()"><strong>Cadastro de remédios</strong><span>Medicamentos e períodos de uso</span></button><button type="button" class="pl68-hub-button" onclick="abrirComparacaoFotosV46()"><strong>Comparar fotos</strong><span>Antes e depois por categoria</span></button><button type="button" class="pl68-hub-button" onclick="abrirImportadorV60()"><strong>Importar dados</strong><span>Revisar e completar registros</span></button><button type="button" class="pl68-hub-button" onclick="abrirCalendarioV49()"><strong>Calendário</strong><span>Todos os dias da jornada</span></button><button type="button" class="pl68-hub-button" onclick="abrirAjustes()"><strong>Configurações e backups</strong><span>Conta, backup, restauração e ferramentas do app</span></button><button type="button" class="pl68-hub-button" onclick="abrirCiclosV48()"><strong>Ciclos e metas</strong><span>Ciclo padrão, atual e histórico</span></button></div>';
         container.appendChild(mais);
     }
     const graficos=document.getElementById('view-graficos');
@@ -21041,6 +20885,213 @@ function inicializarPainelV68(){
     const chart=document.getElementById('painel-grafico-v68');if(chart&&typeof ResizeObserver!=='undefined'){let largura=0;new ResizeObserver(entries=>{const proxima=Math.round(entries[0].contentRect.width);if(proxima>0&&proxima!==largura){largura=proxima;renderGraficoPainelV68();}}).observe(chart);}
 }
 window.addEventListener('load',inicializarPainelV68);
+
+
+/* V69 — correção pontual sobre a V68: ritmo do Painel = média dos últimos 7 dias;
+   Perfil contém somente dados pessoais e o ícone ao lado volta a ser Configurações. */
+function dadosRitmoUltimos7DiasPainelV69() {
+    const hoje = hojeISO();
+    const inicioJanela = addDiasISO(hoje, -7);
+    const inicioCiclo = dataISOValida(appData.config?.dataInicial) ? appData.config.dataInicial : inicioJanela;
+    const inicio = inicioCiclo > inicioJanela ? inicioCiclo : inicioJanela;
+    const porData = new Map();
+
+    const pesoInicial = numeroValido(appData.config?.pesoInicial);
+    if (Number.isFinite(pesoInicial) && dataISOValida(inicioCiclo) && inicioCiclo >= inicio && inicioCiclo <= hoje) {
+        porData.set(inicioCiclo, { data: inicioCiclo, peso: pesoInicial, origem: 'inicial' });
+    }
+
+    for (const registro of obterPesosValidosParaCalculo()) {
+        if (!dataISOValida(registro.data) || registro.data < inicio || registro.data > hoje) continue;
+        const peso = numeroValido(registro.peso);
+        if (!Number.isFinite(peso) || peso <= 0) continue;
+        // Se houver mais de uma pesagem no mesmo dia, a última cadastrada prevalece.
+        porData.set(registro.data, { data: registro.data, peso, origem: 'pesagem' });
+    }
+
+    const pontos = [...porData.values()].sort((a, b) => a.data.localeCompare(b.data));
+    if (pontos.length < 2) return { ritmo: NaN, pontos, inicio, hoje, dias: 0 };
+    const primeiro = pontos[0];
+    const ultimo = pontos[pontos.length - 1];
+    const dias = diffDays(ultimo.data, primeiro.data);
+    if (dias <= 0) return { ritmo: NaN, pontos, primeiro, ultimo, inicio, hoje, dias: 0 };
+    return {
+        ritmo: (ultimo.peso - primeiro.peso) / dias,
+        pontos, primeiro, ultimo, inicio, hoje, dias
+    };
+}
+
+function calcularMediaUltimos7DiasPainelV69() {
+    return dadosRitmoUltimos7DiasPainelV69().ritmo;
+}
+
+// A explicação do Painel precisa descrever exatamente a conta que está sendo usada.
+renderExplicacaoPainelV68 = function() {
+    const out = document.getElementById('painel-calculo-conteudo-v68');
+    if (!out) return;
+    if (!temConfigCalculo()) {
+        out.innerHTML = '<p>Abra Ciclos e configure o peso inicial, a meta final e a meta diária.</p>';
+        return;
+    }
+    const ref = referenciaPesoPainelV68();
+    const cfg = appData.config;
+    const resumo = dadosRitmoUltimos7DiasPainelV69();
+    const ritmo = resumo.ritmo;
+    const intervalo = resumo.dias || 0;
+    const periodo = resumo.primeiro && resumo.ultimo
+        ? formatDateBR(resumo.primeiro.data) + ' a ' + formatDateBR(resumo.ultimo.data)
+        : formatDateBR(resumo.inicio) + ' a ' + formatDateBR(resumo.hoje);
+    out.innerHTML = '<h4>Pela meta do ciclo</h4><dl><dt>Início do ciclo</dt><dd>' + formatDateBR(cfg.dataInicial) + '</dd><dt>Peso inicial</dt><dd>' + formatBR(cfg.pesoInicial) + ' kg</dd><dt>Meta final</dt><dd>' + formatBR(cfg.pesoMeta) + ' kg</dd><dt>Meta diária</dt><dd>' + textoRitmoPainelV68(numeroValido(cfg.metaKgPorDia)) + '</dd></dl><p>A data planejada usa o percurso completo desde o início do ciclo. Novas pesagens não mudam esse plano.</p><h4>Pelo ritmo observado</h4><dl><dt>Janela analisada</dt><dd>Últimos 7 dias</dd><dt>Período usado</dt><dd>' + periodo + '</dd><dt>Pontos de peso usados</dt><dd>' + resumo.pontos.length + '</dd><dt>Intervalo real</dt><dd>' + intervalo + ' dia' + (intervalo === 1 ? '' : 's') + '</dd><dt>Ritmo/dia</dt><dd>' + textoRitmoPainelV68(ritmo) + '</dd><dt>Última pesagem</dt><dd>' + (ref.registrado ? formatDateBR(ref.data) : 'Sem registro') + '</dd></dl><p>O ritmo/dia é a variação entre o primeiro e o último peso disponíveis na janela dos últimos 7 dias, dividida pelo número real de dias entre eles. Se houver mais de uma pesagem no mesmo dia, vale a última.</p><p>A previsão parte da última pesagem registrada e projeta esse ritmo recente até a meta.</p>';
+};
+
+// Campos pessoais adicionais persistem dentro de config e também entram normalmente nos backups.
+const normalizarDadosAntesPerfilV69 = normalizarDados;
+normalizarDados = function(raw) {
+    const dados = normalizarDadosAntesPerfilV69(raw);
+    const cfg = raw?.config && typeof raw.config === 'object' ? raw.config : {};
+    dados.config.celular = textoSeguro(cfg.celular, 30);
+    dados.config.cidade = textoSeguro(cfg.cidade, 120);
+    dados.config.bio = textoSeguro(cfg.bio, 500);
+    return dados;
+};
+
+const preencherCamposPerfilAntesV69 = preencherCamposPerfil;
+preencherCamposPerfil = function() {
+    const r = preencherCamposPerfilAntesV69();
+    const celular = document.getElementById('perfil-celular');
+    const cidade = document.getElementById('perfil-cidade');
+    const bio = document.getElementById('perfil-bio');
+    if (celular) celular.value = appData.config?.celular || '';
+    if (cidade) cidade.value = appData.config?.cidade || '';
+    if (bio) bio.value = appData.config?.bio || '';
+    return r;
+};
+
+const snapshotPerfilContaAntesV69 = snapshotPerfilConta;
+snapshotPerfilConta = function() {
+    return {
+        ...snapshotPerfilContaAntesV69(),
+        celular: appData.config?.celular || '',
+        cidade: appData.config?.cidade || '',
+        bio: appData.config?.bio || ''
+    };
+};
+
+const aplicarCamposPerfilContaAntesV69 = aplicarCamposPerfilConta;
+aplicarCamposPerfilConta = function(snapshot = {}) {
+    aplicarCamposPerfilContaAntesV69(snapshot);
+    const celular = document.getElementById('perfil-celular');
+    const cidade = document.getElementById('perfil-cidade');
+    const bio = document.getElementById('perfil-bio');
+    if (celular) celular.value = snapshot.celular || '';
+    if (cidade) cidade.value = snapshot.cidade || '';
+    if (bio) bio.value = snapshot.bio || '';
+};
+
+const salvarPerfilAutomaticamenteAntesV69 = salvarPerfilAutomaticamente;
+salvarPerfilAutomaticamente = function() {
+    appData.config.celular = document.getElementById('perfil-celular')?.value.trim() || '';
+    appData.config.cidade = document.getElementById('perfil-cidade')?.value.trim() || '';
+    appData.config.bio = document.getElementById('perfil-bio')?.value.trim() || '';
+    return salvarPerfilAutomaticamenteAntesV69();
+};
+
+const salvarPerfilUsuarioAntesV69 = salvarPerfilUsuario;
+salvarPerfilUsuario = function() {
+    appData.config.celular = document.getElementById('perfil-celular')?.value.trim() || '';
+    appData.config.cidade = document.getElementById('perfil-cidade')?.value.trim() || '';
+    appData.config.bio = document.getElementById('perfil-bio')?.value.trim() || '';
+    return salvarPerfilUsuarioAntesV69();
+};
+
+function organizarPerfilEAjustesV69() {
+    const perfil = document.getElementById('view-conta');
+    const ajustes = document.getElementById('view-configs');
+    if (!perfil || !ajustes) return;
+
+    const formPerfil = document.getElementById('form-perfil');
+    const cardPerfil = formPerfil?.closest('.card');
+    if (cardPerfil) {
+        const titulo = cardPerfil.querySelector('h3');
+        if (titulo) titulo.textContent = 'Dados Pessoais';
+    }
+
+    const footerAjustes = ajustes.querySelector(':scope > .app-footer-note');
+    for (const filho of [...perfil.children]) {
+        if (filho === cardPerfil || filho.classList.contains('app-footer-note')) continue;
+        if (filho.classList.contains('card')) ajustes.insertBefore(filho, footerAjustes || null);
+    }
+
+    // V58 movia este card para Conta. Em V69 ele pertence a Configurações.
+    const pwa = document.querySelector('.pwa-install-card');
+    if (pwa && pwa.parentElement !== ajustes) ajustes.insertBefore(pwa, footerAjustes || null);
+}
+
+function aplicarModoConfiguracoesV69() {
+    organizarPerfilEAjustesV69();
+    document.getElementById('ciclo-padrao-editor-intro-v59')?.classList.add('hidden');
+    document.getElementById('ciclo-config-card-v48')?.classList.add('hidden');
+    const tituloMetas = document.getElementById('titulo-metas-padrao-v58');
+    if (tituloMetas) tituloMetas.innerHTML = '<div class="settings-main-title-v58">Metas Padrão</div><div class="settings-main-subtitle-v58">Configurações usadas quando não houver um ciclo em andamento e como base opcional para novos ciclos.</div>';
+    const titulo = document.getElementById('page-title');
+    if (titulo) titulo.textContent = 'Configurações';
+    renderConta();
+}
+
+const abrirPerfilAntesV69 = abrirPerfil;
+abrirPerfil = function() {
+    organizarPerfilEAjustesV69();
+    const r = abrirPerfilAntesV69();
+    const titulo = document.getElementById('page-title');
+    if (titulo) titulo.textContent = 'Perfil';
+    return r;
+};
+window.abrirPerfil = abrirPerfil;
+
+function abrirAjustesGeraisV69() {
+    organizarPerfilEAjustesV69();
+    preencherCamposConfig();
+    showView('configs', document.getElementById('btn-settings-open'));
+    aplicarModoConfiguracoesV69();
+}
+abrirAjustes = abrirAjustesGeraisV69;
+window.abrirAjustes = abrirAjustesGeraisV69;
+
+// O cabeçalho deixa de criar a linha/atalho de ciclo. Ciclos continuam na navegação própria.
+atualizarCabecalhoCicloV58 = function() {
+    document.getElementById('header-cycle-status-v58')?.remove();
+};
+
+// V58/V59 transformavam a engrenagem em ícone de Ciclos. Restauramos apenas a engrenagem.
+reformarBotaoCiclosV58 = function() {
+    const b = document.getElementById('btn-settings-open');
+    if (!b) return;
+    b.setAttribute('aria-label', 'Abrir configurações');
+    b.setAttribute('title', 'Configurações');
+    b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.35 1.1V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.1-.35H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 0 .35-1.1V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.18.34.43.63.75.84.32.21.7.32 1.1.32H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"></path></svg>';
+    b.onclick = abrirAjustesGeraisV69;
+};
+
+function inicializarAjustesPerfilV69() {
+    organizarPerfilEAjustesV69();
+    atualizarCabecalhoCicloV58();
+    reformarBotaoCiclosV58();
+    const perfilBtn = document.getElementById('btn-profile-open');
+    if (perfilBtn) perfilBtn.onclick = abrirPerfil;
+    const logout = document.getElementById('btn-logout-perfil');
+    if (logout) logout.onclick = sairUsuario;
+    for (const id of ['perfil-celular','perfil-cidade','perfil-bio']) {
+        const el = document.getElementById(id);
+        if (!el || el.dataset.v69Autosave === '1') continue;
+        el.dataset.v69Autosave = '1';
+        el.addEventListener('focus', pushHistoricoPerfilConta);
+        el.addEventListener('input', agendarSalvarPerfil);
+        el.addEventListener('change', agendarSalvarPerfil);
+    }
+    preencherCamposPerfil();
+}
+
+window.addEventListener('load', () => setTimeout(inicializarAjustesPerfilV69, 1250));
 </script>
 
 </body>
