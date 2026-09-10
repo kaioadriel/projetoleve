@@ -1461,6 +1461,69 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
 #perfil-bio{min-height:96px;resize:vertical;}
 </style>
 <meta name="application-version" content="68.0-Painel">
+
+
+<!-- V72 — calendário compacto + filtros de gráficos persistentes -->
+<style id="pl-v72-calendar-chart-fixes">
+/* Calendário: navegação compacta, mês central e ações logo abaixo. */
+#view-calendario-v49 .calendar-toolbar-v49{
+    display:block !important;
+    width:100%;
+    margin:0;
+}
+#view-calendario-v49 .calendar-nav-row-v72{
+    display:grid;
+    grid-template-columns:42px minmax(0,1fr) 42px;
+    align-items:center;
+    gap:8px;
+    width:100%;
+}
+#view-calendario-v49 .calendar-nav-btn-v72{
+    width:42px !important;
+    min-width:42px !important;
+    height:40px !important;
+    min-height:40px !important;
+    padding:0 !important;
+    border-radius:12px !important;
+    display:grid !important;
+    place-items:center;
+    font-size:24px !important;
+    line-height:1 !important;
+}
+#view-calendario-v49 .calendar-toolbar-v49 .month{
+    grid-column:2;
+    text-align:center;
+    font-size:20px !important;
+    line-height:1.2;
+    min-width:0;
+}
+#view-calendario-v49 .calendar-actions-row-v72{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    width:min(100%,260px);
+    margin:10px auto 0;
+}
+#view-calendario-v49 .calendar-actions-row-v72 .btn{
+    width:100% !important;
+    min-width:0 !important;
+    min-height:40px !important;
+    height:40px !important;
+    padding:7px 12px !important;
+    border-radius:12px !important;
+    font-size:14px !important;
+    line-height:1 !important;
+}
+@media (max-width:560px){
+    #view-calendario-v49 > .card{padding:16px !important;}
+    #view-calendario-v49 .calendar-nav-row-v72{grid-template-columns:40px minmax(0,1fr) 40px;gap:7px;}
+    #view-calendario-v49 .calendar-nav-btn-v72{width:40px !important;min-width:40px !important;height:38px !important;min-height:38px !important;}
+    #view-calendario-v49 .calendar-toolbar-v49 .month{font-size:18px !important;}
+    #view-calendario-v49 .calendar-actions-row-v72{margin-top:8px;width:min(100%,230px);}
+    #view-calendario-v49 .calendar-actions-row-v72 .btn{height:38px !important;min-height:38px !important;font-size:13px !important;}
+}
+</style>
+
 </head>
 <body>
 
@@ -21234,6 +21297,203 @@ function inicializarPerfilConfiguracoesV71() {
     if (ajustesBtn) ajustesBtn.onclick = abrirAjustesGeraisV71;
 }
 window.addEventListener('load', () => setTimeout(inicializarPerfilConfiguracoesV71, 1500));
+
+
+/* ============================================================================
+ * V72 — CORREÇÕES DE CALENDÁRIO E FILTROS DOS GRÁFICOS
+ * - calendário compacto e reorganizado;
+ * - período e ciclo dos gráficos passam a ser filtros realmente funcionais;
+ * - o último período e o último ciclo escolhidos ficam persistidos por usuário;
+ * - o filtro de ciclo é aplicado ao redor de TODA a cadeia de renderização,
+ *   inclusive gráficos adicionados em versões posteriores.
+ * ========================================================================== */
+const PL_FILTROS_GRAFICOS_V72 = ['ciclo','todos','7d','1m','3m','6m','1a','5a'];
+
+function chavePreferenciasGraficosV72() {
+    const uid = currentUser?.uid || 'guest';
+    return 'projeto_leve_filtros_graficos_v72_' + uid;
+}
+
+function cicloGraficoValidoV72(valor) {
+    const v = String(valor || 'ativo');
+    if (v === 'ativo' || v === 'todos') return v;
+    const temSemCiclo = ['pesos','medidas','remedios','calorias'].some(chave =>
+        (appData?.[chave] || []).some(registro => !registro?.cicloId)
+    );
+    if (v === 'sem-ciclo') return temSemCiclo ? v : 'ativo';
+    return (appData?.ciclos || []).some(ciclo => String(ciclo?.id) === v) ? v : 'ativo';
+}
+
+function salvarPreferenciasGraficosV72() {
+    const periodo = PL_FILTROS_GRAFICOS_V72.includes(filtroGraficoAtual) ? filtroGraficoAtual : 'ciclo';
+    const ciclo = cicloGraficoValidoV72(filtroCicloGraficoV48);
+    const prefs = { periodo, ciclo, salvoEm: new Date().toISOString() };
+    try { localStorage.setItem(chavePreferenciasGraficosV72(), JSON.stringify(prefs)); } catch {}
+    appData.config = appData.config || {};
+    appData.config.filtroGraficoAtualV66 = periodo;
+    appData.config.filtroCicloGrafico = ciclo;
+    // Persistência local sem disparar updateUI(), evitando que o próprio salvamento
+    // reverta visualmente o select que o usuário acabou de alterar.
+    try { salvarDadosLocalmente(); } catch {}
+}
+
+function lerPreferenciasGraficosV72() {
+    let local = null;
+    try { local = JSON.parse(localStorage.getItem(chavePreferenciasGraficosV72()) || 'null'); } catch {}
+    const config = appData?.config || {};
+    const periodoLocal = PL_FILTROS_GRAFICOS_V72.includes(local?.periodo) ? local.periodo : null;
+    const periodoConfig = PL_FILTROS_GRAFICOS_V72.includes(config.filtroGraficoAtualV66) ? config.filtroGraficoAtualV66 : null;
+    return {
+        periodo: periodoLocal || periodoConfig || 'ciclo',
+        ciclo: cicloGraficoValidoV72(local?.ciclo || config.filtroCicloGrafico || 'ativo')
+    };
+}
+
+function sincronizarControlesGraficosV72() {
+    const periodo = document.getElementById('grafico-filtro-select');
+    if (periodo) {
+        const primeira = periodo.querySelector('option[value="ciclo"]');
+        if (primeira) {
+            primeira.textContent = filtroCicloGraficoV48 === 'ativo'
+                ? 'Ciclo Atual'
+                : (!['todos','sem-ciclo'].includes(filtroCicloGraficoV48) ? 'Ciclo Selecionado' : 'Ciclo Atual');
+        }
+        if ([...periodo.options].some(op => op.value === filtroGraficoAtual)) periodo.value = filtroGraficoAtual;
+    }
+    const ciclo = document.getElementById('grafico-ciclo-select-v48');
+    if (ciclo && [...ciclo.options].some(op => op.value === filtroCicloGraficoV48)) ciclo.value = filtroCicloGraficoV48;
+}
+
+function restaurarPreferenciasGraficosV72(renderizar = false) {
+    const prefs = lerPreferenciasGraficosV72();
+    const mudou = filtroGraficoAtual !== prefs.periodo || String(filtroCicloGraficoV48) !== String(prefs.ciclo);
+    filtroGraficoAtual = prefs.periodo;
+    filtroCicloGraficoV48 = prefs.ciclo;
+    appData.config = appData.config || {};
+    appData.config.filtroGraficoAtualV66 = prefs.periodo;
+    appData.config.filtroCicloGrafico = prefs.ciclo;
+    sincronizarControlesGraficosV72();
+    if (renderizar && mudou && activeViewId === 'graficos') renderGraficos();
+    return mudou;
+}
+
+// Substitui o manipulador final do período. Não chama a cadeia antiga porque a
+// V66 salvava a preferência via salvarDados(), que chama updateUI() e podia
+// recolocar o valor anterior durante a própria interação.
+alterarFiltroGrafico = function(filtro) {
+    const novo = PL_FILTROS_GRAFICOS_V72.includes(String(filtro)) ? String(filtro) : 'ciclo';
+    filtroGraficoAtual = novo;
+    sincronizarControlesGraficosV72();
+    salvarPreferenciasGraficosV72();
+    renderGraficos();
+};
+window.alterarFiltroGrafico = alterarFiltroGrafico;
+
+// Mantém filtros de período curtos (7 dias, 1 mês etc.) ao trocar de ciclo.
+// Só converte Ciclo/Todo o histórico quando isso é necessário semanticamente.
+alterarFiltroCicloGraficoV48 = function(valor) {
+    const novoCiclo = cicloGraficoValidoV72(valor);
+    filtroCicloGraficoV48 = novoCiclo;
+    if ((novoCiclo === 'todos' || novoCiclo === 'sem-ciclo') && filtroGraficoAtual === 'ciclo') filtroGraficoAtual = 'todos';
+    else if (!['todos','sem-ciclo'].includes(novoCiclo) && filtroGraficoAtual === 'todos') filtroGraficoAtual = 'ciclo';
+    appData.config = appData.config || {};
+    appData.config.filtroCicloGrafico = novoCiclo;
+    sincronizarControlesGraficosV72();
+    salvarPreferenciasGraficosV72();
+    renderGraficos();
+};
+window.alterarFiltroCicloGraficoV48 = alterarFiltroCicloGraficoV48;
+
+// Filtro de ciclo envolvendo toda a cadeia de gráficos. Isso impede que gráficos
+// complementares (TMB, macros, calorias, remédios etc.) escapem do ciclo selecionado.
+const renderGraficosAntesV72 = renderGraficos;
+renderGraficos = function() {
+    if (activeViewId !== 'graficos') return renderGraficosAntesV72();
+    const originais = {
+        pesos: appData.pesos,
+        medidas: appData.medidas,
+        remedios: appData.remedios,
+        calorias: appData.calorias
+    };
+    const precisaFiltrarCiclo = filtroCicloGraficoV48 !== 'todos';
+    if (precisaFiltrarCiclo) {
+        appData.pesos = (originais.pesos || []).filter(registroNoFiltroCicloV48);
+        appData.medidas = (originais.medidas || []).filter(registroNoFiltroCicloV48);
+        appData.remedios = (originais.remedios || []).filter(registroNoFiltroCicloV48);
+        appData.calorias = (originais.calorias || []).filter(registroNoFiltroCicloV48);
+    }
+    try {
+        return renderGraficosAntesV72();
+    } finally {
+        appData.pesos = originais.pesos;
+        appData.medidas = originais.medidas;
+        appData.remedios = originais.remedios;
+        appData.calorias = originais.calorias;
+        requestAnimationFrame(sincronizarControlesGraficosV72);
+    }
+};
+
+function ajustarToolbarCalendarioV72() {
+    const toolbar = document.querySelector('#view-calendario-v49 .calendar-toolbar-v49');
+    if (!toolbar || toolbar.dataset.v72 === '1') return;
+    const tituloAtual = document.getElementById('calendario-mes-v49')?.textContent || 'Calendário';
+    toolbar.innerHTML = `
+        <div class="calendar-nav-row-v72">
+            <button type="button" class="btn btn-outline calendar-nav-btn-v72" onclick="mudarMesCalendarioV49(-1)" aria-label="Mês anterior" title="Mês anterior">‹</button>
+            <div id="calendario-mes-v49" class="month">${escapeHtml(tituloAtual)}</div>
+            <button type="button" class="btn btn-outline calendar-nav-btn-v72" onclick="mudarMesCalendarioV49(1)" aria-label="Próximo mês" title="Próximo mês">›</button>
+        </div>
+        <div class="calendar-actions-row-v72">
+            <button type="button" class="btn btn-outline" onclick="irHojeCalendarioV49()">Hoje</button>
+            <button type="button" class="btn btn-outline" onclick="showView('dashboard',document.querySelector('[data-view=dashboard]'))">Voltar</button>
+        </div>`;
+    toolbar.dataset.v72 = '1';
+    try { renderCalendarioV49(); } catch {}
+}
+
+const abrirCalendarioAntesV72 = abrirCalendarioV49;
+abrirCalendarioV49 = function() {
+    const r = abrirCalendarioAntesV72();
+    ajustarToolbarCalendarioV72();
+    try { renderCalendarioV49(); } catch {}
+    return r;
+};
+window.abrirCalendarioV49 = abrirCalendarioV49;
+
+const showViewAntesV72 = showView;
+showView = function(viewId, navEl) {
+    if (viewId === 'graficos') restaurarPreferenciasGraficosV72(false);
+    const r = showViewAntesV72(viewId, navEl);
+    if (viewId === 'graficos') {
+        setTimeout(() => {
+            sincronizarControlesGraficosV72();
+            renderGraficos();
+        }, 0);
+    }
+    if (viewId === 'calendario-v49') {
+        ajustarToolbarCalendarioV72();
+        try { renderCalendarioV49(); } catch {}
+    }
+    return r;
+};
+window.showView = showView;
+
+const updateUIAntesV72 = updateUI;
+updateUI = function() {
+    const r = updateUIAntesV72();
+    // V66 pode restaurar os filtros a partir do config durante updateUI. V72 aplica
+    // novamente a preferência mais recente do dispositivo, que é a fonte primária.
+    restaurarPreferenciasGraficosV72(false);
+    if (activeViewId === 'graficos') setTimeout(renderGraficos, 0);
+    if (activeViewId === 'calendario-v49') ajustarToolbarCalendarioV72();
+    return r;
+};
+
+window.addEventListener('load', () => setTimeout(() => {
+    ajustarToolbarCalendarioV72();
+    restaurarPreferenciasGraficosV72(false);
+    sincronizarControlesGraficosV72();
+}, 1750));
 
 </script>
 

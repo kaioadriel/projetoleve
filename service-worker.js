@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v71-config-perfil';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v71-config-perfil';
+const CACHE_VERSION = 'projeto-leve-v72-calendario-filtros';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v72-calendario-filtros';
 const APP_SHELL = [
   './',
   './index.html',
