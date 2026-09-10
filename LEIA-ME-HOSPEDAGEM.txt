@@ -1,0 +1,63 @@
+PROJETO LEVE — V68 PAINEL
+
+Base utilizada
+O index.html V67 enviado por último nesta conversa, com cadastro de remédios,
+períodos de uso, média de calorias, gráficos de macronutrientes e Calorias/TMB.
+
+Atualização
+1. Extraia o ZIP.
+2. Substitua os arquivos de mesmo nome na pasta onde o app já está hospedado.
+3. Mantenha a pasta icons existente, com icon-192.png e icon-512.png.
+   Esses ícones não vieram nos anexos e não fazem parte deste pacote de atualização.
+4. Abra novamente o app no mesmo endereço HTTPS. O cache passa a identificar a V68.
+
+Use o mesmo domínio e a mesma conta da instalação atual. Pesagens, registros e
+fotos locais continuam vinculados à instalação e à conta existentes.
+
+O que mudou
+- Tela Início no layout Painel, com as duas previsões em destaque.
+- Referência da meta e do ritmo em g/dia, diferença entre as datas e progresso.
+- Botão Registrar peso e gráfico compacto do ciclo com dados reais do app.
+- Navegação: Início, Diário, Evolução, Ciclos e Mais.
+- Peso, Medidas, Alimentação e Remédios ficam acessíveis pelo Diário.
+- Cálculos e análises ficam acessíveis em Mais e na tela Evolução.
+- Informações complementares do Início ficam em uma seção expansível.
+- Média de calorias e dias de remédio da V67 continuam no Início.
+- A personalização de blocos e cartões continua disponível.
+
+Previsões
+- Pela meta: usa o início, o peso inicial, a meta final e a meta diária do ciclo.
+- Pelo ritmo: usa o peso inicial e a última pesagem válida do ciclo, até a data
+  dessa pesagem. A data estimada também parte dessa referência.
+- Dias sem pesagem não reduzem artificialmente o ritmo.
+- O simulador, as datas personalizadas e a tabela de planejamento usam a mesma
+  referência de peso e data da previsão do Painel.
+- Uma projeção vencida pede nova pesagem. A data da meta atingida é baseada em
+  registro, em vez de aparecer sempre como Hoje.
+- As previsões são matemáticas e condicionadas à continuidade do ritmo.
+
+Recursos preservados
+Os códigos V66 e V67 foram mantidos integralmente. As funções de registros,
+fotos, refeições, gastos, macronutrientes, medidas, bioimpedância, medicamentos,
+ciclos, histórico, comparações, gráficos, importação, exportação, backups e
+sincronização continuam no app.
+
+Dados e fotos
+- Dados estruturados: armazenamento local e sincronização Firestore existente.
+- Fotos: IndexedDB local e cópia opcional no Google Drive, em qualidade original.
+- Configuração do Drive: consulte GOOGLE_DRIVE_V65_LEIA-ME.txt.
+- As regras firestore.rules deste pacote são as mesmas do anexo mais recente.
+- As configurações de autenticação e de sincronização foram preservadas.
+
+Verificações realizadas
+- Sintaxe dos scripts e do service worker.
+- Preservação dos 292 IDs HTML originais, sem novas duplicidades.
+- Preservação das 1110 funções nomeadas da base enviada.
+- Preservação integral dos blocos V66 e V67.
+- Atalhos novos vinculados a funções públicas existentes.
+- Dez cenários de cálculo, incluindo pesagem antiga, ausência de dados,
+  registros futuros, outros ciclos, estabilidade, meta atingida, manutenção
+  e ciclo de ganho.
+
+Esta entrega é uma atualização dos arquivos. Não foi publicada no seu domínio
+nem testada com sua conta Firebase ou seus registros particulares.

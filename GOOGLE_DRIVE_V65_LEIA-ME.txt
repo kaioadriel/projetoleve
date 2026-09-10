@@ -1,0 +1,48 @@
+PROJETO LEVE V65 — FOTOS HÍBRIDAS COM GOOGLE DRIVE
+
+O que esta versão faz
+- Dados estruturados: IndexedDB/localStorage + Firestore.
+- Fotos: IndexedDB local + réplica opcional no Google Drive.
+- A foto enviada ao Drive é o Blob ORIGINAL salvo localmente. Não há nova compressão, redimensionamento ou passagem por canvas.
+- Em outro aparelho, ao conectar o Drive e tocar em "Sincronizar fotos", as fotos ausentes são baixadas e armazenadas novamente no IndexedDB daquele aparelho.
+- O Firestore guarda apenas o manifesto que liga fotoDocId ao arquivo do Google Drive.
+
+PASSO 1 — HABILITAR A GOOGLE DRIVE API
+No mesmo projeto Google Cloud usado pelo Firebase (projetoleve-58fec):
+1. Abra Google Cloud Console.
+2. Vá em APIs e serviços > Biblioteca.
+3. Procure por "Google Drive API".
+4. Clique em Ativar.
+
+PASSO 2 — CONSENTIMENTO OAUTH
+O Projeto Leve solicita somente o escopo:
+https://www.googleapis.com/auth/drive.file
+
+Esse escopo permite que o app acesse os arquivos que ele próprio cria ou que o usuário autoriza para o app, em vez de dar acesso geral a todo o Drive.
+
+Se o Google Auth Platform / Tela de consentimento estiver em modo de TESTE, confirme que a Conta Google usada no Projeto Leve está cadastrada como usuário de teste. Dependendo da configuração do projeto, o Google pode exigir ajustes de publicação/verificação antes de liberar o recurso para usuários externos.
+
+PASSO 3 — USAR NO PRIMEIRO APARELHO
+1. Hospede o novo index.html.
+2. Entre no Projeto Leve normalmente.
+3. Conta > Fotos híbridas > Conectar Google Drive.
+4. Autorize o acesso solicitado.
+5. Toque em "Sincronizar fotos".
+6. Aguarde o resumo de fotos enviadas.
+
+O Drive criará:
+Meu Drive / Projeto Leve / Fotos
+
+PASSO 4 — TESTAR EM OUTRO APARELHO
+1. Entre no Projeto Leve com a MESMA conta Firebase.
+2. Confirme que os dados do Firestore aparecem.
+3. Conta > Fotos híbridas > Conectar Google Drive.
+4. Toque em "Sincronizar fotos".
+5. As fotos ausentes serão baixadas do Drive e salvas localmente naquele aparelho.
+
+IMPORTANTE
+- A autorização do Drive é um token OAuth temporário. Se expirar, o app pedirá para tocar em "Conectar Google Drive" novamente.
+- Se a Drive API não estiver habilitada, o painel mostrará erro HTTP 403/API disabled.
+- Não apague a pasta Projeto Leve/Fotos do Drive enquanto quiser usar as fotos como réplica online.
+- As regras Firestore da V64 continuam válidas, pois /users/{uid}/{document=**} já inclui o manifesto de fotos em /users/{uid}/photos/.
+- O app não apaga automaticamente arquivos antigos do Drive nesta versão. Isso evita perda acidental durante a primeira fase de testes.
