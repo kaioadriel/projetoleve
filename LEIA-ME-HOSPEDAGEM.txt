@@ -1,63 +1,39 @@
-PROJETO LEVE — V68 PAINEL
+PROJETO LEVE — V69 PAINEL ESCURO
 
 Base utilizada
-O index.html V67 enviado por último nesta conversa, com cadastro de remédios,
-períodos de uso, média de calorias, gráficos de macronutrientes e Calorias/TMB.
+Projeto-Leve-Painel-v68.zip enviado nesta conversa.
 
-Atualização
+O que foi corrigido nesta versão
+- A tela Início agora segue visualmente o layout “1 · Painel” escolhido: fundo escuro,
+  painel principal grafite, cards azul e verde, tipografia clara, bordas suaves e
+  cabeçalho integrado ao painel.
+- O cabeçalho original continua preservado nas demais telas.
+- As demais telas e funções da V68 não foram removidas.
+- O card “Pelo ritmo” NÃO usa mais a média desde o começo do ciclo.
+- O ritmo/dia do Painel é calculado somente com as pesagens disponíveis nos últimos
+  7 dias: (último peso - primeiro peso da janela) / dias reais entre as pesagens.
+- São necessárias pelo menos duas pesagens em datas diferentes nessa janela.
+- A previsão “Pelo ritmo” parte da última pesagem e usa esse ritmo médio de 7 dias.
+- A explicação “Entender as previsões” mostra a janela, quantidade de pesagens e
+  quantidade de dias usados no cálculo.
+- Simulações que usam a projeção pelo ritmo passam a compartilhar a mesma referência
+  recente do Painel, evitando uma previsão baseada em toda a história do ciclo.
+- Cache do PWA alterado para V69 para reduzir o risco de o navegador manter a V68.
+
+Como atualizar
 1. Extraia o ZIP.
-2. Substitua os arquivos de mesmo nome na pasta onde o app já está hospedado.
-3. Mantenha a pasta icons existente, com icon-192.png e icon-512.png.
-   Esses ícones não vieram nos anexos e não fazem parte deste pacote de atualização.
-4. Abra novamente o app no mesmo endereço HTTPS. O cache passa a identificar a V68.
+2. Substitua os arquivos de mesmo nome na hospedagem.
+3. Mantenha a pasta icons já existente, com icon-192.png e icon-512.png.
+4. Abra o app no mesmo endereço HTTPS.
+5. Se o PWA já estiver aberto, feche e abra novamente para o novo service worker assumir.
 
-Use o mesmo domínio e a mesma conta da instalação atual. Pesagens, registros e
-fotos locais continuam vinculados à instalação e à conta existentes.
+Dados preservados
+- Estrutura de dados, Firebase/Firestore, IndexedDB, Google Drive e localStorage foram
+  mantidos conforme a V68.
+- Nenhuma rotina de exclusão/migração de registros foi adicionada.
+- firestore.rules e GOOGLE_DRIVE_V65_LEIA-ME.txt permanecem iguais aos recebidos.
 
-O que mudou
-- Tela Início no layout Painel, com as duas previsões em destaque.
-- Referência da meta e do ritmo em g/dia, diferença entre as datas e progresso.
-- Botão Registrar peso e gráfico compacto do ciclo com dados reais do app.
-- Navegação: Início, Diário, Evolução, Ciclos e Mais.
-- Peso, Medidas, Alimentação e Remédios ficam acessíveis pelo Diário.
-- Cálculos e análises ficam acessíveis em Mais e na tela Evolução.
-- Informações complementares do Início ficam em uma seção expansível.
-- Média de calorias e dias de remédio da V67 continuam no Início.
-- A personalização de blocos e cartões continua disponível.
-
-Previsões
-- Pela meta: usa o início, o peso inicial, a meta final e a meta diária do ciclo.
-- Pelo ritmo: usa o peso inicial e a última pesagem válida do ciclo, até a data
-  dessa pesagem. A data estimada também parte dessa referência.
-- Dias sem pesagem não reduzem artificialmente o ritmo.
-- O simulador, as datas personalizadas e a tabela de planejamento usam a mesma
-  referência de peso e data da previsão do Painel.
-- Uma projeção vencida pede nova pesagem. A data da meta atingida é baseada em
-  registro, em vez de aparecer sempre como Hoje.
-- As previsões são matemáticas e condicionadas à continuidade do ritmo.
-
-Recursos preservados
-Os códigos V66 e V67 foram mantidos integralmente. As funções de registros,
-fotos, refeições, gastos, macronutrientes, medidas, bioimpedância, medicamentos,
-ciclos, histórico, comparações, gráficos, importação, exportação, backups e
-sincronização continuam no app.
-
-Dados e fotos
-- Dados estruturados: armazenamento local e sincronização Firestore existente.
-- Fotos: IndexedDB local e cópia opcional no Google Drive, em qualidade original.
-- Configuração do Drive: consulte GOOGLE_DRIVE_V65_LEIA-ME.txt.
-- As regras firestore.rules deste pacote são as mesmas do anexo mais recente.
-- As configurações de autenticação e de sincronização foram preservadas.
-
-Verificações realizadas
-- Sintaxe dos scripts e do service worker.
-- Preservação dos 292 IDs HTML originais, sem novas duplicidades.
-- Preservação das 1110 funções nomeadas da base enviada.
-- Preservação integral dos blocos V66 e V67.
-- Atalhos novos vinculados a funções públicas existentes.
-- Dez cenários de cálculo, incluindo pesagem antiga, ausência de dados,
-  registros futuros, outros ciclos, estabilidade, meta atingida, manutenção
-  e ciclo de ganho.
-
-Esta entrega é uma atualização dos arquivos. Não foi publicada no seu domínio
-nem testada com sua conta Firebase ou seus registros particulares.
+Observação sobre o cálculo de 7 dias
+A janela considera os últimos 7 dias até hoje. Se houver várias pesagens na mesma data,
+a última lançada daquele dia é usada. O cálculo usa a primeira e a última data distintas
+disponíveis dentro da janela e divide a variação pelo intervalo real entre elas.
