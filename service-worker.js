@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v70-iconfix2';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v70-iconfix2';
+const CACHE_VERSION = 'projeto-leve-v71-config-perfil';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v71-config-perfil';
 const APP_SHELL = [
   './',
   './index.html',

@@ -20803,7 +20803,7 @@ function garantirRotasPainelV68() {
     }
     if(!document.getElementById('view-mais-v68')){
         const mais=document.createElement('section');mais.id='view-mais-v68';mais.className='view hidden';
-        mais.innerHTML='<div class="pl68-hub-grid"><button type="button" class="pl68-hub-button pl68-hub-full" data-view="metas" onclick="showView(\'metas\')"><strong>Cálculos e análises</strong><span>Simulador, datas, tendências, resumos e comparações</span></button><button type="button" class="pl68-hub-button" onclick="abrirCadastroRemediosV67()"><strong>Cadastro de remédios</strong><span>Medicamentos e períodos de uso</span></button><button type="button" class="pl68-hub-button" onclick="abrirComparacaoFotosV46()"><strong>Comparar fotos</strong><span>Antes e depois por categoria</span></button><button type="button" class="pl68-hub-button" onclick="abrirImportadorV60()"><strong>Importar dados</strong><span>Revisar e completar registros</span></button><button type="button" class="pl68-hub-button" onclick="abrirCalendarioV49()"><strong>Calendário</strong><span>Todos os dias da jornada</span></button><button type="button" class="pl68-hub-button" onclick="abrirAjustes()"><strong>Configurações e backups</strong><span>Conta, backup, restauração e ferramentas do app</span></button><button type="button" class="pl68-hub-button" onclick="abrirCiclosV48()"><strong>Ciclos e metas</strong><span>Ciclo padrão, atual e histórico</span></button></div>';
+        mais.innerHTML='<div class="pl68-hub-grid"><button type="button" class="pl68-hub-button pl68-hub-full" data-view="metas" onclick="showView(\'metas\')"><strong>Cálculos e análises</strong><span>Simulador, datas, tendências, resumos e comparações</span></button><button type="button" class="pl68-hub-button" onclick="abrirCadastroRemediosV67()"><strong>Cadastro de remédios</strong><span>Medicamentos e períodos de uso</span></button><button type="button" class="pl68-hub-button" onclick="abrirComparacaoFotosV46()"><strong>Comparar fotos</strong><span>Antes e depois por categoria</span></button><button type="button" class="pl68-hub-button" onclick="abrirImportadorV60()"><strong>Importar dados</strong><span>Revisar e completar registros</span></button><button type="button" class="pl68-hub-button" onclick="abrirCalendarioV49()"><strong>Calendário</strong><span>Todos os dias da jornada</span></button><button type="button" class="pl68-hub-button" onclick="abrirAjustes()"><strong>Configurações e backups</strong><span>Backup, restauração, segurança e ferramentas do app</span></button><button type="button" class="pl68-hub-button" onclick="abrirCiclosV48()"><strong>Ciclos e metas</strong><span>Ciclo padrão, atual e histórico</span></button></div>';
         container.appendChild(mais);
     }
     const graficos=document.getElementById('view-graficos');
@@ -21092,6 +21092,149 @@ function inicializarAjustesPerfilV69() {
 }
 
 window.addEventListener('load', () => setTimeout(inicializarAjustesPerfilV69, 1250));
+
+/* =========================================================
+   V71 — Perfil e Configurações separados de verdade
+   - Perfil: dados pessoais + conta conectada + banco híbrido + fotos híbridas.
+   - Configurações: backup, restauração, segurança, importação, limpeza e instalação.
+   - Metas de peso, composição, medidas ideais e Metas Padrão não aparecem em
+     Configurações gerais; continuam editáveis exclusivamente por Ciclos.
+   ========================================================= */
+let modoTelaConfiguracoesV71 = 'geral';
+
+function elementosPerfilConfiguracoesV71() {
+    const perfil = document.getElementById('view-conta');
+    const ajustes = document.getElementById('view-configs');
+    const cardPerfil = document.getElementById('form-perfil')?.closest('.card') || null;
+    const cardConta = document.getElementById('perfil-email')?.closest('.card') || null;
+    const cardMetas = document.getElementById('form-config')?.closest('.card') || null;
+    const tituloMetas = document.getElementById('titulo-metas-padrao-v58');
+    const introCicloPadrao = document.getElementById('ciclo-padrao-editor-intro-v59');
+    const resumoCiclo = document.getElementById('ciclo-config-card-v48');
+    return { perfil, ajustes, cardPerfil, cardConta, cardMetas, tituloMetas, introCicloPadrao, resumoCiclo };
+}
+
+function organizarPerfilEAjustesV71() {
+    const { perfil, ajustes, cardPerfil, cardConta } = elementosPerfilConfiguracoesV71();
+    if (!perfil || !ajustes) return;
+
+    // Conta e sincronização pertencem ao Perfil.
+    if (cardConta && cardConta.parentElement !== perfil) {
+        if (cardPerfil?.parentElement === perfil) cardPerfil.insertAdjacentElement('afterend', cardConta);
+        else perfil.prepend(cardConta);
+    }
+
+    // Qualquer outro card operacional que tenha sido parar no Perfil volta a Configurações.
+    const footerAjustes = ajustes.querySelector(':scope > .app-footer-note');
+    for (const filho of [...perfil.children]) {
+        if (filho === cardPerfil || filho === cardConta || filho.classList.contains('app-footer-note')) continue;
+        if (filho.classList.contains('card')) ajustes.insertBefore(filho, footerAjustes || null);
+    }
+
+    // Instalação do PWA é uma configuração do aplicativo, não da conta.
+    const pwa = document.querySelector('.pwa-install-card');
+    if (pwa && pwa.parentElement !== ajustes) ajustes.insertBefore(pwa, footerAjustes || null);
+
+    // Garante que os painéis da captura continuem dentro de Conta Conectada.
+    try { garantirPainelFirebaseV64?.(); } catch {}
+    try { garantirPainelDriveV65?.(); } catch {}
+}
+
+function aplicarVisibilidadeConfiguracoesV71(modo = modoTelaConfiguracoesV71) {
+    organizarPerfilEAjustesV71();
+    const { ajustes, cardConta, cardMetas, tituloMetas, introCicloPadrao, resumoCiclo } = elementosPerfilConfiguracoesV71();
+    if (!ajustes) return;
+    const editor = modo === 'ciclo-padrao';
+
+    // Itens exclusivos do editor do Ciclo Padrão.
+    cardMetas?.classList.toggle('hidden', !editor);
+    tituloMetas?.classList.toggle('hidden', !editor);
+    introCicloPadrao?.classList.toggle('hidden', !editor);
+    resumoCiclo?.classList.add('hidden');
+
+    // Em edição de ciclo, oculta as ferramentas gerais para não misturar contextos.
+    for (const filho of [...ajustes.children]) {
+        if (filho === cardMetas || filho === tituloMetas || filho === introCicloPadrao || filho === resumoCiclo) continue;
+        if (filho === cardConta) continue; // este deve estar no Perfil.
+        if (filho.classList.contains('app-footer-note')) {
+            filho.classList.remove('hidden');
+            continue;
+        }
+        if (filho.classList.contains('card')) filho.classList.toggle('hidden', editor);
+    }
+
+    const titulo = document.getElementById('page-title');
+    if (titulo && document.body.dataset.painelView === 'configs') {
+        titulo.textContent = editor ? 'Editar Ciclo Padrão' : 'Configurações';
+    }
+}
+
+// Corrige o organizador V69: ele movia TODOS os cards do Perfil para Configurações.
+const organizarPerfilEAjustesAntesV71 = organizarPerfilEAjustesV69;
+organizarPerfilEAjustesV69 = function() {
+    try { organizarPerfilEAjustesAntesV71(); } catch {}
+    organizarPerfilEAjustesV71();
+};
+
+// Configurações gerais: sem metas. Elas pertencem a Ciclos.
+const abrirAjustesAntesV71 = abrirAjustes;
+function abrirAjustesGeraisV71() {
+    modoTelaConfiguracoesV71 = 'geral';
+    const r = abrirAjustesAntesV71();
+    aplicarVisibilidadeConfiguracoesV71('geral');
+    const titulo = document.getElementById('page-title');
+    if (titulo) titulo.textContent = 'Configurações';
+    return r;
+}
+abrirAjustes = abrirAjustesGeraisV71;
+window.abrirAjustes = abrirAjustesGeraisV71;
+
+// Ciclo Padrão: continua usando os mesmos campos, mas só é alcançado por Ciclos.
+const editarCicloPadraoAntesV71 = editarCicloPadraoV59;
+editarCicloPadraoV59 = function() {
+    modoTelaConfiguracoesV71 = 'ciclo-padrao';
+    organizarPerfilEAjustesV71();
+    const r = editarCicloPadraoAntesV71();
+    aplicarVisibilidadeConfiguracoesV71('ciclo-padrao');
+    const titulo = document.getElementById('page-title');
+    if (titulo) titulo.textContent = 'Editar Ciclo Padrão';
+    return r;
+};
+window.editarCicloPadraoV59 = editarCicloPadraoV59;
+
+// Perfil: Dados Pessoais seguido exatamente do bloco Conta Conectada e suas sincronizações.
+const abrirPerfilAntesV71 = abrirPerfil;
+abrirPerfil = function() {
+    const r = abrirPerfilAntesV71();
+    organizarPerfilEAjustesV71();
+    try { renderConta(); } catch {}
+    const titulo = document.getElementById('page-title');
+    if (titulo) titulo.textContent = 'Perfil';
+    return r;
+};
+window.abrirPerfil = abrirPerfil;
+
+// Mantém a separação também em navegações internas que chamam showView diretamente.
+const showViewAntesV71 = showView;
+showView = function(viewId, navEl) {
+    const r = showViewAntesV71(viewId, navEl);
+    if (viewId === 'configs') aplicarVisibilidadeConfiguracoesV71(modoTelaConfiguracoesV71);
+    if (viewId === 'conta') organizarPerfilEAjustesV71();
+    return r;
+};
+window.showView = showView;
+
+function inicializarPerfilConfiguracoesV71() {
+    organizarPerfilEAjustesV71();
+    modoTelaConfiguracoesV71 = 'geral';
+    aplicarVisibilidadeConfiguracoesV71('geral');
+    const perfilBtn = document.getElementById('btn-profile-open');
+    if (perfilBtn) perfilBtn.onclick = abrirPerfil;
+    const ajustesBtn = document.getElementById('btn-settings-open');
+    if (ajustesBtn) ajustesBtn.onclick = abrirAjustesGeraisV71;
+}
+window.addEventListener('load', () => setTimeout(inicializarPerfilConfiguracoesV71, 1500));
+
 </script>
 
 </body>
