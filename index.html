@@ -1598,7 +1598,12 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                 </button>
             </div>
         </header>
-        <h2 id="page-title" class="page-heading">Início</h2>
+        <div id="page-heading-row-v73" class="page-heading-row-v73">
+            <h2 id="page-title" class="page-heading">Início</h2>
+            <button id="page-back-v73" type="button" class="page-back-v73 hidden" onclick="voltarTelaV73()" aria-label="Voltar para a tela anterior" title="Voltar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg>
+            </button>
+        </div>
 
         <!-- TELAS -->
         
@@ -2067,9 +2072,7 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                 <div id="chart-remedios-subtitle" class="chart-subtitle"></div>
                 <div class="chart-container"><canvas id="chartRemedios"></canvas></div>
             </div>
-            <div class="graph-order-action-v32">
-                <button type="button" class="btn btn-outline" onclick="abrirOrdenacaoGraficosV32()">Ordenar</button>
-            </div>
+
             <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
@@ -2375,30 +2378,6 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                     <button type="button" class="btn btn-outline" id="btn-reparar-integridade-v30" onclick="repararIntegridadeV30()">Corrigir problemas seguros</button>
                 </div>
                 <div id="integridade-detalhes-v30" class="v30-integrity-details"></div>
-            </div>
-
-            <div class="card v30-import-card">
-                <h3>Importar Dados de Balança</h3>
-                <p class="small" style="margin-bottom:12px;color:var(--text-secondary)">Importe CSV ou Excel e associe as colunas do arquivo aos campos do Projeto Leve. Registros da mesma data podem ser atualizados sem apagar fotos ou observações existentes.</p>
-                <div class="form-group">
-                    <label for="balanca-arquivo-v30">Arquivo da balança</label>
-                    <input type="file" id="balanca-arquivo-v30" accept=".csv,.txt,.xlsx,.xls,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" onchange="carregarArquivoBalancaV30(event)">
-                </div>
-                <div id="balanca-import-status-v30" class="v30-import-status">Nenhum arquivo selecionado.</div>
-                <div id="balanca-mapeamento-v30" class="v30-import-map hidden">
-                    <div id="balanca-preview-v30" class="v30-import-preview"></div>
-                    <div id="balanca-map-grid-v30" class="v30-import-map-grid"></div>
-                    <div class="v30-import-options">
-                        <div class="form-group" style="margin-bottom:0">
-                            <label for="balanca-existente-v30">Se já existir peso na mesma data</label>
-                            <select id="balanca-existente-v30"><option value="mesclar" selected>Atualizar campos importados e preservar o restante</option><option value="ignorar">Ignorar essa linha</option></select>
-                        </div>
-                    </div>
-                    <div class="v30-import-actions">
-                        <button type="button" class="btn btn-clear-outline" onclick="limparImportadorBalancaV30()">Limpar</button>
-                        <button type="button" class="btn btn-primary" onclick="importarDadosBalancaV30()">Importar Registros</button>
-                    </div>
-                </div>
             </div>
 
             <div class="card">
@@ -11375,7 +11354,7 @@ function criarTelaLinhaDiaV39() {
             <div id="linha-dia-resumo-v39" class="timeline-summary-v39"></div>
         </div>
         <div id="linha-dia-conteudo-v39"></div>
-        <div class="timeline-footer-actions-v39"><button type="button" class="btn btn-outline" onclick="showView('dashboard',document.querySelector('[data-view=&quot;dashboard&quot;]'))">Voltar ao Início</button></div>
+
     `;
     dashboard.after(section);
 
@@ -12869,7 +12848,7 @@ function criarTelaQualidadeV44() {
             </div>
         </div>
         <div id="qualidade-resultado-v44"></div>
-        <button type="button" class="btn btn-outline" onclick="showView('dashboard', document.querySelector('[data-view=dashboard]'))">Voltar ao Início</button>
+
         <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
     `;
     container.appendChild(sec);
@@ -18736,7 +18715,7 @@ function garantirViewImportadorV60(){
         <h3>Arquivos que precisam de interpretação</h3>
         <div class="import-help-v60"><strong>Imagem, PDF, backup de outro app ou formato desconhecido?</strong><br>Envie o mesmo arquivo nesta conversa. Eu analiso, digo exatamente o que encontrei e peço sua confirmação. Depois da sua autorização, preparo um arquivo <b>Projeto Leve Import</b> para este botão carregar e conferir antes da gravação.<br><br>Por segurança, esta versão do app não envia seus arquivos automaticamente para serviços externos e não guarda chave de API.</div>
       </div>
-      <button type="button" class="btn btn-outline" onclick="showView('dashboard',document.querySelector('[data-view=dashboard]'))">Voltar ao Início</button>
+
       <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>`;
     ref.parentElement.appendChild(sec);
 }
@@ -20861,7 +20840,7 @@ function garantirRotasPainelV68() {
     const container=document.querySelector('#app .container');if(!container)return;
     if(!document.getElementById('view-diario-v68')){
         const diario=document.createElement('section');diario.id='view-diario-v68';diario.className='view hidden';
-        diario.innerHTML='<p id="painel-diario-data-v68" class="pl68-diary-date"></p><div id="painel-diario-resumo-v68" class="card pl68-diary-summary"></div><div class="pl68-hub-grid"><button type="button" class="pl68-hub-button pl68-hub-full" onclick="abrirLinhaDiaV39()"><strong>Ver meu dia</strong><span>Pesagens, alimentação, fotos e observações na mesma data</span></button><button type="button" class="pl68-hub-button" data-view="historico" onclick="showView(\'historico\')"><strong>Peso</strong><span>Pesagens e bioimpedância</span></button><button type="button" class="pl68-hub-button" data-view="medidas" onclick="showView(\'medidas\')"><strong>Medidas</strong><span>Registros e fotos corporais</span></button><button type="button" class="pl68-hub-button" data-view="calorias" onclick="showView(\'calorias\')"><strong>Alimentação</strong><span>Refeições, gastos e nutrientes</span></button><button type="button" class="pl68-hub-button" data-view="remedio" onclick="showView(\'remedio\')"><strong>Remédios</strong><span>Aplicações e histórico de uso</span></button><button type="button" class="pl68-hub-button" onclick="abrirCalendarioV49()"><strong>Calendário</strong><span>Consultar outra data</span></button><button type="button" class="pl68-hub-button" onclick="abrirImportadorV60()"><strong>Importar dados</strong><span>Arquivos, imagens e históricos</span></button></div>';
+        diario.innerHTML='<p id="painel-diario-data-v68" class="pl68-diary-date"></p><div id="painel-diario-resumo-v68" class="card pl68-diary-summary"></div><div class="pl68-hub-grid"><button type="button" class="pl68-hub-button pl68-hub-full" onclick="abrirLinhaDiaV39()"><strong>Ver meu dia</strong><span>Pesagens, alimentação, fotos e observações na mesma data</span></button><button type="button" class="pl68-hub-button" data-view="historico" onclick="showView(\'historico\')"><strong>Peso</strong><span>Pesagens e bioimpedância</span></button><button type="button" class="pl68-hub-button" data-view="medidas" onclick="showView(\'medidas\')"><strong>Medidas</strong><span>Registros e fotos corporais</span></button><button type="button" class="pl68-hub-button" data-view="calorias" onclick="showView(\'calorias\')"><strong>Alimentação</strong><span>Refeições, gastos e nutrientes</span></button><button type="button" class="pl68-hub-button" data-view="remedio" onclick="showView(\'remedio\')"><strong>Remédios</strong><span>Aplicações e histórico de uso</span></button><button type="button" class="pl68-hub-button" onclick="abrirCalendarioV49()"><strong>Calendário</strong><span>Consultar outra data</span></button><button type="button" class="pl68-hub-button" onclick="abrirEventosV40()"><strong>Eventos</strong><span>Acontecimentos e marcadores da jornada</span></button></div>';
         container.appendChild(diario);
     }
     if(!document.getElementById('view-mais-v68')){
@@ -21494,6 +21473,119 @@ window.addEventListener('load', () => setTimeout(() => {
     restaurarPreferenciasGraficosV72(false);
     sincronizarControlesGraficosV72();
 }, 1750));
+
+/* ============================================================================
+ * V73 — NAVEGAÇÃO INTEGRADA E BOTÃO VOLTAR GLOBAL
+ * ========================================================================== */
+const PL_SCHEMA_VERSION_V73 = 73;
+let historicoViewsV73 = [];
+let navegandoHistoricoV73 = false;
+let grupoSubpaginaV73 = {};
+
+function garantirEstilosNavegacaoV73() {
+    if (document.getElementById('style-navegacao-v73')) return;
+    const st = document.createElement('style');
+    st.id = 'style-navegacao-v73';
+    st.textContent = `
+      .page-heading-row-v73{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 18px}
+      .page-heading-row-v73 .page-heading{margin:0;min-width:0;flex:1 1 auto}
+      .page-back-v73{width:44px;height:44px;min-width:44px;padding:0;border:1px solid var(--border);border-radius:50%;background:var(--card-bg,#fff);color:var(--accent);display:grid;place-items:center;box-shadow:none;cursor:pointer;flex:0 0 auto}
+      .page-back-v73 svg{width:22px;height:22px}.page-back-v73:active{transform:scale(.96)}
+      .integrated-view-v73{width:100%;min-width:0}
+      .integrated-surface-v73{position:static!important;inset:auto!important;z-index:auto!important;background:transparent!important;padding:0!important;display:block!important;align-items:initial!important;justify-content:initial!important;overflow:visible!important}
+      .integrated-surface-v73.hidden{display:none!important}
+      #view-eventos-v73 #modal-eventos-v40 .events-modal-card-v40{width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;margin:0!important}
+      #view-eventos-v73 #modal-eventos-v40 .photo-carousel-head{display:none!important}
+      #view-comparacao-fotos-v73 #modal-comparacao-fotos-v46 .photo-compare-card-v46{width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;margin:0!important}
+      #view-comparacao-fotos-v73 #modal-comparacao-fotos-v46 .photo-compare-head-v46 h3,#view-lixeira-v73 #modal-lixeira-v47 .trash-head-v47 h3{display:none!important}
+      #view-comparacao-fotos-v73 #modal-comparacao-fotos-v46 .photo-compare-head-v46,#view-lixeira-v73 #modal-lixeira-v47 .trash-head-v47{display:block!important}
+      #view-comparacao-fotos-v73 #modal-comparacao-fotos-v46 .photo-compare-head-v46 .photo-icon-button{display:none!important}
+      #view-comparacao-fotos-v73 #modal-comparacao-fotos-v46{padding:0!important}
+      #view-lixeira-v73 #modal-lixeira-v47 .trash-sheet-v47{width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;border-radius:20px!important;padding:16px!important;box-shadow:none!important;background:var(--card-bg,#fff)!important;border:1px solid var(--border)!important}
+      #view-lixeira-v73 #modal-lixeira-v47 .trash-head-v47{position:static!important;top:auto!important;background:transparent!important;padding:0!important}
+      #view-lixeira-v73 #modal-lixeira-v47 .trash-head-v47 .photo-icon-button{display:none!important}
+      @media(max-width:430px){.page-heading-row-v73{margin-bottom:15px}.page-back-v73{width:42px;height:42px;min-width:42px}#view-eventos-v73 #modal-eventos-v40 .events-modal-card-v40,#view-comparacao-fotos-v73 #modal-comparacao-fotos-v46 .photo-compare-card-v46{padding:14px!important}}
+    `;
+    document.head.appendChild(st);
+}
+
+function viewExisteV73(viewId){return !!document.getElementById('view-'+viewId);}
+function grupoPrincipalV73(viewId){
+    if(viewId==='dashboard')return'dashboard';
+    if(['diario-v68','historico','peso','medidas','calorias','remedio','linha-dia','calendario-v49'].includes(viewId))return'diario-v68';
+    if(viewId==='graficos')return'graficos';if(viewId==='ciclos-v48')return'ciclos-v48';return'mais-v68';
+}
+function aplicarGrupoBottomNavV73(viewId){
+    const grupo=grupoSubpaginaV73[viewId]||grupoPrincipalV73(viewId);
+    document.querySelectorAll('#bottom-nav .nav-item').forEach(btn=>{const ativa=btn.dataset.view===grupo;btn.classList.toggle('active',ativa);if(ativa)btn.setAttribute('aria-current','page');else btn.removeAttribute('aria-current');});
+}
+function atualizarBotaoVoltarV73(){
+    garantirEstilosNavegacaoV73();const btn=document.getElementById('page-back-v73');const inicio=(activeViewId||'dashboard')==='dashboard';if(btn)btn.classList.toggle('hidden',inicio);
+}
+function voltarTelaV73(){
+    const atual=activeViewId||'dashboard';let destino='';while(historicoViewsV73.length){const candidato=historicoViewsV73.pop();if(candidato&&candidato!==atual&&viewExisteV73(candidato)){destino=candidato;break;}}if(!destino)destino='dashboard';navegandoHistoricoV73=true;try{showView(destino,document.querySelector(`[data-view="${destino}"]`));}finally{navegandoHistoricoV73=false;}
+}
+window.voltarTelaV73=voltarTelaV73;
+
+function prepararContainerIntegradoV73(wrapperId){let wrapper=document.getElementById(wrapperId);if(wrapper)return wrapper;const container=document.querySelector('#app .container');if(!container)return null;wrapper=document.createElement('section');wrapper.id=wrapperId;wrapper.className='view integrated-view-v73 hidden';container.appendChild(wrapper);return wrapper;}
+
+/* Eventos */
+const garantirInterfaceEventosAntesV73=garantirInterfaceEventosV40;
+function converterEventosParaViewV73(){const modal=document.getElementById('modal-eventos-v40');if(!modal)return;const wrapper=prepararContainerIntegradoV73('view-eventos-v73');if(!wrapper||modal.parentElement===wrapper)return;modal.classList.remove('modal');modal.classList.add('integrated-surface-v73','hidden');modal.removeAttribute('role');modal.removeAttribute('aria-modal');modal.querySelector('.photo-carousel-head .photo-icon-button')?.remove();wrapper.appendChild(modal);}
+garantirInterfaceEventosV40=function(){if(!document.getElementById('modal-eventos-v40'))garantirInterfaceEventosAntesV73();else atualizarBarraEventosV40();converterEventosParaViewV73();};
+const abrirEventosAntesV73=abrirEventosV40;
+abrirEventosV40=function(){const origem=activeViewId||'dashboard';garantirInterfaceEventosV40();abrirEventosAntesV73();grupoSubpaginaV73['eventos-v73']=grupoPrincipalV73(origem);showView('eventos-v73');const t=document.getElementById('page-title');if(t)t.textContent='Eventos';};
+fecharEventosV40=function(){document.getElementById('modal-eventos-v40')?.classList.add('hidden');if(activeViewId==='eventos-v73')voltarTelaV73();};
+abrirLinhaDoDiaDoEventoV40=function(){const evento=eventoDetalheAtualV40;if(!evento)return;fecharDetalheEventoV40();document.getElementById('modal-eventos-v40')?.classList.add('hidden');abrirLinhaDiaV39(evento.dataInicio);};
+window.garantirInterfaceEventosV40=garantirInterfaceEventosV40;window.abrirEventosV40=abrirEventosV40;window.fecharEventosV40=fecharEventosV40;window.abrirLinhaDoDiaDoEventoV40=abrirLinhaDoDiaDoEventoV40;
+
+/* Comparação Fotográfica Avançada */
+const garantirComparacaoFotosAntesV73=garantirModalComparacaoFotosV46;
+function converterComparacaoFotosParaViewV73(){const modal=document.getElementById('modal-comparacao-fotos-v46');if(!modal)return;const wrapper=prepararContainerIntegradoV73('view-comparacao-fotos-v73');if(!wrapper||modal.parentElement===wrapper)return;modal.classList.remove('modal','photo-compare-modal-v46');modal.classList.add('integrated-surface-v73','hidden');modal.removeAttribute('role');modal.removeAttribute('aria-modal');modal.querySelector('.photo-compare-head-v46 .photo-icon-button')?.remove();wrapper.appendChild(modal);}
+garantirModalComparacaoFotosV46=function(){garantirComparacaoFotosAntesV73();converterComparacaoFotosParaViewV73();};
+const abrirComparacaoFotosAntesV73=abrirComparacaoFotosV46;
+abrirComparacaoFotosV46=function(categoria='',ancoraId='',depoisId=''){const origem=activeViewId||'dashboard';garantirModalComparacaoFotosV46();abrirComparacaoFotosAntesV73(categoria,ancoraId,depoisId);grupoSubpaginaV73['comparacao-fotos-v73']=grupoPrincipalV73(origem);showView('comparacao-fotos-v73');const t=document.getElementById('page-title');if(t)t.textContent='Comparar Fotos';};
+fecharComparacaoFotosV46=function(){document.getElementById('modal-comparacao-fotos-v46')?.classList.add('hidden');arrasteComparacaoV46=null;if(activeViewId==='comparacao-fotos-v73')voltarTelaV73();};
+window.garantirModalComparacaoFotosV46=garantirModalComparacaoFotosV46;window.abrirComparacaoFotosV46=abrirComparacaoFotosV46;window.fecharComparacaoFotosV46=fecharComparacaoFotosV46;
+
+/* Lixeira */
+const garantirInterfaceLixeiraAntesV73=garantirInterfaceLixeiraV47;
+function converterLixeiraParaViewV73(){const modal=document.getElementById('modal-lixeira-v47');if(!modal)return;const wrapper=prepararContainerIntegradoV73('view-lixeira-v73');if(!wrapper||modal.parentElement===wrapper)return;modal.classList.remove('trash-modal-v47');modal.classList.add('integrated-surface-v73','hidden');modal.querySelector('.trash-head-v47 .photo-icon-button')?.remove();const sheet=modal.querySelector('.trash-sheet-v47');if(sheet){sheet.removeAttribute('role');sheet.removeAttribute('aria-modal');}wrapper.appendChild(modal);}
+garantirInterfaceLixeiraV47=function(){garantirInterfaceLixeiraAntesV73();converterLixeiraParaViewV73();};
+const abrirLixeiraAntesV73=abrirLixeiraV47;
+abrirLixeiraV47=function(){const origem=activeViewId||'conta';garantirInterfaceLixeiraV47();abrirLixeiraAntesV73();grupoSubpaginaV73['lixeira-v73']=grupoPrincipalV73(origem);showView('lixeira-v73');const t=document.getElementById('page-title');if(t)t.textContent='Lixeira';};
+fecharLixeiraV47=function(){document.getElementById('modal-lixeira-v47')?.classList.add('hidden');if(activeViewId==='lixeira-v73')voltarTelaV73();};
+window.garantirInterfaceLixeiraV47=garantirInterfaceLixeiraV47;window.abrirLixeiraV47=abrirLixeiraV47;window.fecharLixeiraV47=fecharLixeiraV47;
+
+function ajustarDiarioV73(){garantirRotasPainelV68();const diario=document.getElementById('view-diario-v68');if(!diario)return;const antigo=[...diario.querySelectorAll('.pl68-hub-button')].find(b=>/Importar dados/i.test(b.textContent||''));if(antigo){antigo.onclick=abrirEventosV40;antigo.innerHTML='<strong>Eventos</strong><span>Acontecimentos e marcadores da jornada</span>';}}
+function removerControlesAntigosV73(){document.querySelector('#view-linha-dia .timeline-footer-actions-v39')?.remove();[...document.querySelectorAll('#view-importar-v60 > button.btn')].filter(b=>/Voltar ao Início/i.test(b.textContent||'')).forEach(b=>b.remove());document.querySelector('#view-qualidade-evolucao > button.btn')?.remove();document.querySelector('#view-graficos .graph-order-action-v32')?.remove();document.querySelector('#view-configs .v30-import-card')?.remove();}
+
+/* O Importar Dados universal absorve o caso de balanças que exportam músculo em percentual. */
+const itemPesoAntesV73=itemPesoV60;
+itemPesoV60=function(obj){const r=itemPesoAntesV73(obj);if(!r)return r;if(r.musculoEsqueletico===undefined){const pct=primeiroNumeroV60(obj,['musculo percentual','músculo percentual','muscle percent','muscle percentage','skeletal muscle percent']);if(pct!==null&&pct>0&&pct<=100)r.musculoEsqueletico=r.peso*pct/100;}if(r.massaGorda===undefined&&r.gorduraCorporalPercentual!==undefined)r.massaGorda=r.peso*Number(r.gorduraCorporalPercentual)/100;if(r.gorduraCorporalPercentual===undefined&&r.massaGorda!==undefined&&r.peso>0)r.gorduraCorporalPercentual=Number(r.massaGorda)/r.peso*100;if(r.massaMagra===undefined&&r.massaGorda!==undefined)r.massaMagra=Math.max(0,r.peso-Number(r.massaGorda));return r;};
+window.itemPesoV60=itemPesoV60;
+
+/* Histórico real da navegação + Voltar global em todas as páginas, menos Início. */
+const showViewAntesV73=showView;
+showView=function(viewId,navEl){
+    const destino=String(viewId||'dashboard'),origem=String(activeViewId||'dashboard');
+    if(!navegandoHistoricoV73&&destino!==origem&&viewExisteV73(origem)){if(historicoViewsV73[historicoViewsV73.length-1]!==origem)historicoViewsV73.push(origem);if(historicoViewsV73.length>60)historicoViewsV73.splice(0,historicoViewsV73.length-60);}
+    if(origem==='eventos-v73'&&destino!==origem)document.getElementById('modal-eventos-v40')?.classList.add('hidden');
+    if(origem==='comparacao-fotos-v73'&&destino!==origem)document.getElementById('modal-comparacao-fotos-v46')?.classList.add('hidden');
+    if(origem==='lixeira-v73'&&destino!==origem)document.getElementById('modal-lixeira-v47')?.classList.add('hidden');
+    const r=showViewAntesV73(destino,navEl);
+    if(destino==='eventos-v73'){document.getElementById('modal-eventos-v40')?.classList.remove('hidden');renderFiltrosEventosV40();renderListaEventosV40();atualizarBarraEventosV40();const t=document.getElementById('page-title');if(t)t.textContent='Eventos';}
+    else if(destino==='comparacao-fotos-v73'){document.getElementById('modal-comparacao-fotos-v46')?.classList.remove('hidden');const t=document.getElementById('page-title');if(t)t.textContent='Comparar Fotos';}
+    else if(destino==='lixeira-v73'){document.getElementById('modal-lixeira-v47')?.classList.remove('hidden');renderLixeiraV47();const t=document.getElementById('page-title');if(t)t.textContent='Lixeira';}
+    aplicarGrupoBottomNavV73(destino);atualizarBotaoVoltarV73();removerControlesAntigosV73();return r;
+};
+window.showView=showView;
+
+const updateUIAntesV73=updateUI;
+updateUI=function(...args){const r=updateUIAntesV73(...args);ajustarDiarioV73();removerControlesAntigosV73();atualizarBotaoVoltarV73();if(activeViewId==='eventos-v73'){try{renderFiltrosEventosV40();renderListaEventosV40();}catch{}}if(activeViewId==='lixeira-v73'){try{renderLixeiraV47();}catch{}}return r;};
+
+function inicializarNavegacaoV73(){garantirEstilosNavegacaoV73();garantirInterfaceEventosV40();garantirModalComparacaoFotosV46();garantirInterfaceLixeiraV47();ajustarDiarioV73();removerControlesAntigosV73();atualizarBotaoVoltarV73();aplicarGrupoBottomNavV73(activeViewId||'dashboard');}
+window.addEventListener('load',()=>setTimeout(inicializarNavegacaoV73,1900));
 
 </script>
 
