@@ -2472,7 +2472,6 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
         <div id="foto-carousel-info" class="photo-carousel-info"></div>
         <div class="photo-carousel-toolbar">
             <button type="button" class="photo-icon-button" onclick="baixarFotoOriginalRemedio()" title="Baixar original" aria-label="Baixar foto original"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v12m-5-5 5 5 5-5"/></svg></button>
-            <button type="button" class="photo-icon-button" onclick="definirFotoPrincipalRegistro('remedio')" title="Usar como Foto 1" aria-label="Usar como Foto 1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg></button>
             <div>
                 <div id="foto-carousel-contador" class="photo-carousel-counter" aria-live="polite">0 de 0</div>
                 <div class="photo-swipe-hint">Arraste para os lados</div>
@@ -2497,7 +2496,6 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
         <div id="foto-peso-carousel-info" class="photo-carousel-info"></div>
         <div class="photo-carousel-toolbar">
             <button type="button" class="photo-icon-button" onclick="baixarFotoOriginalPeso()" title="Baixar original" aria-label="Baixar foto original"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v12m-5-5 5 5 5-5"/></svg></button>
-            <button type="button" class="photo-icon-button" onclick="definirFotoPrincipalRegistro('peso')" title="Usar como Foto 1" aria-label="Usar como Foto 1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg></button>
             <div>
                 <div id="foto-peso-carousel-contador" class="photo-carousel-counter" aria-live="polite">0 de 0</div>
                 <div class="photo-swipe-hint">Arraste para os lados</div>
@@ -2522,7 +2520,6 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
         <div id="foto-medida-carousel-info" class="photo-carousel-info"></div>
         <div class="photo-carousel-toolbar">
             <button type="button" class="photo-icon-button" onclick="baixarFotoOriginalMedida()" title="Baixar original" aria-label="Baixar foto original"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v12m-5-5 5 5 5-5"/></svg></button>
-            <button type="button" class="photo-icon-button" onclick="definirFotoPrincipalRegistro('medida')" title="Usar como Foto 1" aria-label="Usar como Foto 1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg></button>
             <div>
                 <div id="foto-medida-carousel-contador" class="photo-carousel-counter" aria-live="polite">0 de 0</div>
                 <div class="photo-swipe-hint">Arraste para os lados</div>
@@ -2546,7 +2543,6 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
         <div id="foto-inicial-modal-info" class="photo-carousel-info"></div>
         <div class="photo-carousel-toolbar">
             <button type="button" class="photo-icon-button" onclick="baixarFotoInicial()" title="Baixar original" aria-label="Baixar foto original"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v12m-5-5 5 5 5-5"/></svg></button>
-            <button type="button" class="photo-icon-button" onclick="definirFotoInicialPrincipal()" title="Usar como Foto 1" aria-label="Usar como Foto 1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg></button>
             <div><div id="foto-inicial-modal-contador" class="photo-carousel-counter" aria-live="polite">0 de 0</div><div class="photo-swipe-hint">Arraste para os lados</div></div>
             <button type="button" class="photo-icon-button danger" onclick="removerFotoInicial()" title="Remover foto" aria-label="Remover foto inicial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6m4-6v6"/></svg></button>
         </div>
@@ -13794,7 +13790,7 @@ function garantirEntradaComparacaoHomeV46() {
     const resumo = document.getElementById('resumo-automatico-v30');
     if (resumo && !document.getElementById('painel-evolucao-fotos-v46')) {
         const painel = document.createElement('div'); painel.id = 'painel-evolucao-fotos-v46'; painel.className = 'card dashboard-bordered-card photo-evolution-home-v46';
-        painel.innerHTML = '<div class="photo-evolution-home-head-v46"><div><h3>Evolução por Fotos</h3><div class="small">Principais por categoria e favoritas</div></div><button type="button" class="btn btn-outline" onclick="abrirComparacaoFotosV46()">Comparar</button></div><div id="conteudo-evolucao-fotos-v46"></div>';
+        painel.innerHTML = '<div class="photo-evolution-home-head-v46"><div><h3>Evolução por Fotos</h3><div class="small">Padrões por categoria e favoritas</div></div><button type="button" class="btn btn-outline" onclick="abrirComparacaoFotosV46()">Comparar</button></div><div id="conteudo-evolucao-fotos-v46"></div>';
         resumo.after(painel);
     }
 }
@@ -13815,7 +13811,7 @@ async function renderPainelEvolucaoFotosV46() {
     }
     const favoritas = todos.filter(item => item.foto.fotoFavorita === true).slice().sort((a,b)=>String(b.data).localeCompare(String(a.data))).slice(0,10);
     if (!principais.length && !favoritas.length) {
-        alvo.innerHTML = '<div class="small">Nenhuma foto principal ou favorita foi marcada ainda. Abra qualquer foto e use <b>“Tornar principal de …”</b> ou <b>“Favoritar”</b>. O painel será montado automaticamente aqui.</div>';
+        alvo.innerHTML = '<div class="small">Nenhuma foto disponível para montar o painel. Ao abrir uma foto, você pode usar <b>“Tornar padrão”</b> ou <b>“Favoritar”</b>.</div>';
         return;
     }
     const idsParaHidratar = [];
@@ -13828,7 +13824,7 @@ async function renderPainelEvolucaoFotosV46() {
         const acao = grupo.companheiro
             ? '<button type="button" class="photo-tag-action-v46" onclick="abrirComparacaoFotosV46(\'' + escapeHtml(grupo.categoria) + '\',\'' + escapeHtml(String(primeiroId)) + '\',\'' + escapeHtml(String(segundoId)) + '\')">Comparar</button>'
             : '<button type="button" class="photo-tag-action-v46" data-abrir-principal-v46="' + indice + '">Ver foto</button>';
-        return '<div class="photo-evolution-tile-v46"><div class="photo-evolution-tile-head-v46"><strong>' + escapeHtml(rotulo) + '</strong>' + acao + '</div><div class="photo-evolution-pair-v46"><button type="button" class="photo-evolution-thumb-v46" data-home-photo-v46="principal-' + indice + '"><span>Principal</span></button>' + (grupo.companheiro ? '<button type="button" class="photo-evolution-thumb-v46" data-home-photo-v46="comparacao-' + indice + '"><span>' + (grupo.companheiro.data >= grupo.principal.data ? 'Mais recente' : 'Anterior') + '</span></button>' : '<div class="photo-evolution-thumb-v46"><span>Sem comparação</span></div>') + '</div><div class="photo-evolution-meta-v46">' + escapeHtml(formatDateBR(grupo.principal.data)) + (grupo.companheiro ? ' ↔ ' + escapeHtml(formatDateBR(grupo.companheiro.data)) : '') + '</div></div>';
+        return '<div class="photo-evolution-tile-v46"><div class="photo-evolution-tile-head-v46"><strong>' + escapeHtml(rotulo) + '</strong>' + acao + '</div><div class="photo-evolution-pair-v46"><button type="button" class="photo-evolution-thumb-v46" data-home-photo-v46="principal-' + indice + '"><span>Padrão</span></button>' + (grupo.companheiro ? '<button type="button" class="photo-evolution-thumb-v46" data-home-photo-v46="comparacao-' + indice + '"><span>' + (grupo.companheiro.data >= grupo.principal.data ? 'Mais recente' : 'Anterior') + '</span></button>' : '<div class="photo-evolution-thumb-v46"><span>Sem comparação</span></div>') + '</div><div class="photo-evolution-meta-v46">' + escapeHtml(formatDateBR(grupo.principal.data)) + (grupo.companheiro ? ' ↔ ' + escapeHtml(formatDateBR(grupo.companheiro.data)) : '') + '</div></div>';
     }).join('');
     let favHtml = '';
     if (favoritas.length) {
@@ -22229,6 +22225,156 @@ function inicializarV79() {
 }
 garantirEstilosV79();
 window.addEventListener('load', () => setTimeout(inicializarV79, 2300));
+
+
+/* V80 — fotos: padrão por categoria + favorita por registro/data.
+   - Remove o botão Comparar de dentro do visualizador e o antigo ícone estrela "Foto 1".
+   - "Tornar padrão" define a referência da categoria; sem definição explícita, vale a foto mais recente da categoria.
+   - "Favoritar" define a foto principal do registro; sem favorita explícita, vale a Foto 1 do registro. */
+function fotoPrincipalRegistroV80(registro = {}) {
+    const fotos = obterFotosRegistro(registro || {});
+    return fotos.find(foto => foto?.fotoFavorita === true) || fotos[0] || null;
+}
+window.fotoPrincipalRegistroV80 = fotoPrincipalRegistroV80;
+
+const principalCategoriaAntesV80 = principalCategoriaV46;
+principalCategoriaV46 = function(categoria, dados = appData) {
+    const chave = normalizarCategoriaFotoV37(categoria || 'outros');
+    const explicita = principalCategoriaAntesV80(chave, dados);
+    if (explicita) return { ...explicita, automatico: false };
+    if (dados !== appData) return null;
+    const candidatos = todasFotosComparacaoV46().filter(item => item.categoria === chave && item.data);
+    if (!candidatos.length) return null;
+    const maisRecente = candidatos[candidatos.length - 1];
+    return {
+        ...maisRecente,
+        ref: referenciaFotoV46(maisRecente.tipo, maisRecente.registroId, maisRecente.foto.fotoDocId, chave),
+        automatico: true
+    };
+};
+window.principalCategoriaV46 = principalCategoriaV46;
+
+ehPrincipalFotoV46 = function(tipo, registroId, fotoDocId, categoria = '') {
+    const principal = principalCategoriaV46(categoria || 'outros');
+    if (!principal?.foto?.fotoDocId) return false;
+    return String(principal.foto.fotoDocId) === String(fotoDocId) &&
+        String(principal.tipo || '') === String(tipo || '') &&
+        String(principal.registroId || '') === String(tipo === 'inicial' ? '' : (registroId || ''));
+};
+window.ehPrincipalFotoV46 = ehPrincipalFotoV46;
+
+alternarPrincipalCategoriaFotoV46 = function(tipo, registroId, fotoDocId) {
+    const registro = localizarRegistroFotoV46(tipo, registroId);
+    const foto = obterFotosRegistro(registro || {}).find(item => String(item.fotoDocId) === String(fotoDocId));
+    if (!foto) return alert('A foto não foi encontrada.');
+    const categoria = normalizarCategoriaFotoV37(foto.fotoCategoria || 'outros');
+    const ref = referenciaFotoV46(tipo, registroId, fotoDocId, categoria);
+    mapaPrincipaisV46()[categoria] = ref;
+    motivoProximaCopia = 'Antes de alterar foto padrão da categoria';
+    salvarDados(true, true);
+    atualizarInterfacesFotosV46(tipo);
+};
+window.alternarPrincipalCategoriaFotoV46 = alternarPrincipalCategoriaFotoV46;
+
+alternarFavoritaFotoV46 = function(tipo, registroId, fotoDocId) {
+    const registro = localizarRegistroFotoV46(tipo, registroId);
+    if (!registro) return alert('O registro desta foto não foi encontrado.');
+    const fotos = obterFotosRegistro(registro);
+    const alvo = fotos.find(foto => String(foto.fotoDocId) === String(fotoDocId));
+    if (!alvo) return alert('A foto não foi encontrada.');
+    const removerFavorita = alvo.fotoFavorita === true;
+    registro.fotos = fotos.map(foto => ({
+        ...foto,
+        fotoFavorita: removerFavorita ? false : String(foto.fotoDocId) === String(fotoDocId)
+    }));
+    motivoProximaCopia = removerFavorita ? 'Antes de remover foto favorita do registro' : 'Antes de definir foto principal do registro';
+    salvarDados(true, true);
+    atualizarInterfacesFotosV46(tipo);
+};
+window.alternarFavoritaFotoV46 = alternarFavoritaFotoV46;
+
+controlesFotoAtualV46 = function(tipo, registroId, foto) {
+    if (!foto?.fotoDocId) return '';
+    const categoria = normalizarCategoriaFotoV37(foto.fotoCategoria || 'outros');
+    const favorita = foto.fotoFavorita === true;
+    const padrao = ehPrincipalFotoV46(tipo, registroId, foto.fotoDocId, categoria);
+    const rotulo = rotuloCategoria(PL_CATEGORIAS_FOTOS, categoria);
+    return '<div class="photo-actions-v46">' +
+        '<button type="button" class="photo-tag-action-v46 ' + (favorita ? 'active' : '') + '" onclick="alternarFavoritaFotoV46(\'' + tipo + '\',\'' + escapeHtml(String(registroId || '')) + '\',\'' + escapeHtml(String(foto.fotoDocId)) + '\')">' + (favorita ? '★ Favorita' : '☆ Favoritar') + '</button>' +
+        '<button type="button" class="photo-tag-action-v46 ' + (padrao ? 'active' : '') + '" onclick="alternarPrincipalCategoriaFotoV46(\'' + tipo + '\',\'' + escapeHtml(String(registroId || '')) + '\',\'' + escapeHtml(String(foto.fotoDocId)) + '\')">' + (padrao ? '◆ Padrão de ' + escapeHtml(rotulo) : '◇ Tornar padrão') + '</button>' +
+        '</div>';
+};
+window.controlesFotoAtualV46 = controlesFotoAtualV46;
+
+/* Abrir um registro passa a começar pela favorita; se não houver, usa Foto 1. */
+const abrirCarrosselFotosPesosAntesV80 = abrirCarrosselFotosPesos;
+abrirCarrosselFotosPesos = function(idInicial = '', fotoInicialId = '') {
+    if (idInicial && !fotoInicialId) {
+        const registro = (appData.pesos || []).find(item => String(item.id) === String(idInicial));
+        fotoInicialId = fotoPrincipalRegistroV80(registro)?.fotoDocId || '';
+    }
+    return abrirCarrosselFotosPesosAntesV80(idInicial, fotoInicialId);
+};
+window.abrirCarrosselFotosPesos = abrirCarrosselFotosPesos;
+
+const abrirCarrosselFotosMedidasAntesV80 = abrirCarrosselFotosMedidas;
+abrirCarrosselFotosMedidas = function(idInicial = '') {
+    const retorno = abrirCarrosselFotosMedidasAntesV80(idInicial);
+    if (idInicial) {
+        const registro = (appData.medidas || []).find(item => String(item.id) === String(idInicial));
+        const principal = fotoPrincipalRegistroV80(registro);
+        if (principal) {
+            const indice = fotosMedidasCarrossel.findIndex(item => String(item.registro?.id) === String(idInicial) && String(item.foto?.fotoDocId) === String(principal.fotoDocId));
+            if (indice >= 0 && indice !== indiceFotoMedida) { indiceFotoMedida = indice; renderCarrosselFotosMedidas(); }
+        }
+    }
+    return retorno;
+};
+window.abrirCarrosselFotosMedidas = abrirCarrosselFotosMedidas;
+
+const abrirCarrosselFotosAntesV80 = abrirCarrosselFotos;
+abrirCarrosselFotos = function(idInicial = '') {
+    const retorno = abrirCarrosselFotosAntesV80(idInicial);
+    if (idInicial) {
+        const registro = (appData.remedios || []).find(item => String(item.id) === String(idInicial));
+        const principal = fotoPrincipalRegistroV80(registro);
+        if (principal) {
+            const indice = fotosRemediosCarrossel.findIndex(item => String(item.registro?.id) === String(idInicial) && String(item.foto?.fotoDocId) === String(principal.fotoDocId));
+            if (indice >= 0 && indice !== indiceFotoRemedio) { indiceFotoRemedio = indice; renderCarrosselFotos(); }
+        }
+    }
+    return retorno;
+};
+window.abrirCarrosselFotos = abrirCarrosselFotos;
+
+/* O card Antes/Depois também respeita a favorita do registro; sem favorita, Foto 1. */
+renderAntesDepoisDashboard = async function() {
+    const antes = document.getElementById('foto-antes-dashboard'), depois = document.getElementById('foto-depois-dashboard'), infoAntes = document.getElementById('info-antes-dashboard'), infoDepois = document.getElementById('info-depois-dashboard');
+    if (!antes || !depois || !infoAntes || !infoDepois) return;
+    const token = ++renderAntesDepoisToken;
+    const inicialConfigurada = obterFotoInicialConfigurada();
+    const registroAntes = inicialConfigurada ? null : obterPrimeiroPesoComFotoDesdeDataInicial();
+    const fotoAntes = inicialConfigurada || fotoPrincipalRegistroV80(registroAntes || {}) || null;
+    const registroDepois = obterPesoMaisRecenteComFoto();
+    const fotoDepois = fotoPrincipalRegistroV80(registroDepois || {}) || null;
+    const pesoInicial = numeroInformado(appData.config?.pesoInicial), pesoDepois = numeroInformado(registroDepois?.peso), variacao = pesoInicial !== null && pesoDepois !== null ? pesoDepois - pesoInicial : null;
+    infoAntes.innerHTML = registroAntes ? '<div>' + formatDateBR(registroAntes.data) + '</div><strong>' + formatBR(registroAntes.peso) + ' kg</strong>' : '<div>' + formatDateBR(appData.config?.dataInicial) + '</div><strong>' + (pesoInicial === null ? '--' : formatBR(appData.config.pesoInicial) + ' kg') + '</strong>';
+    infoDepois.innerHTML = registroDepois ? '<div>' + formatDateBR(registroDepois.data) + '</div><strong>' + formatBR(registroDepois.peso) + ' kg</strong>' + (variacao === null ? '' : '<div class="before-after-change ' + (variacao < 0 ? 'negative' : 'positive') + '">' + formatBR(Math.abs(variacao)) + ' kg ' + (variacao < 0 ? 'perdidos' : 'ganhos') + '</div>') : '<div>--</div><strong>--</strong>';
+    if (fotoAntes) await mostrarImagemResilienteV21(antes, fotoAntes, 'Foto inicial', { ativa: () => token === renderAntesDepoisToken, aoClicar: inicialConfigurada ? abrirVisualizacaoFotoInicial : () => abrirCarrosselFotosPesos(registroAntes.id, fotoAntes.fotoDocId) });
+    else antes.innerHTML = '<div class="before-after-placeholder">Nenhuma foto inicial.<button type="button" class="btn btn-outline" onclick="irParaFotoInicialConfiguracoes()">Anexar nas configurações</button></div>';
+    if (fotoDepois) await mostrarImagemResilienteV21(depois, fotoDepois, 'Foto mais recente do peso', { ativa: () => token === renderAntesDepoisToken, aoClicar: () => abrirCarrosselFotosPesos(registroDepois.id, fotoDepois.fotoDocId) });
+    else depois.innerHTML = '<div class="before-after-placeholder">Nenhuma foto de peso.<button type="button" class="btn btn-outline" onclick="abrirLancamentoPeso()">Anexar na aba Peso</button></div>';
+};
+window.renderAntesDepoisDashboard = renderAntesDepoisDashboard;
+
+function inicializarV80() {
+    /* Defesa extra para instalações que possam ter DOM antigo em cache. */
+    document.querySelectorAll('.photo-carousel-toolbar button[onclick^="definirFotoPrincipalRegistro"], .photo-carousel-toolbar button[onclick="definirFotoInicialPrincipal()"]')
+        .forEach(botao => botao.remove());
+    renderPainelEvolucaoFotosV46?.();
+}
+window.addEventListener('load', () => setTimeout(inicializarV80, 2400));
+
 
 </script>
 
