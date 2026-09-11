@@ -9,9 +9,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Projeto Leve">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="manifest" href="./manifest.json?v=70-iconfix2">
-    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192-v70.png">
-    <link rel="apple-touch-icon" href="./icons/icon-192-v70.png">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
     <script>
         // Captura o evento antes do carregamento do Firebase Authentication.
         window.__projetoLeveInstallPrompt = null;
@@ -1420,110 +1420,6 @@
         .water-secondary-v33 { margin-top:4px; font-size:12px; font-weight:800; color:var(--text-secondary); }
         .water-dual-help-v33 { margin-top:-4px; margin-bottom:10px; color:var(--text-secondary); font-size:11px; }
 </style>
-<style id="painel-estilos-v68">
-/* V68 — Painel: previsões em primeiro plano, com a base V67 preservada. */
-:root{--bg-color:#eff6fb;--card-bg:#fff;--soft-bg:#edf5fb;--input-bg:#fff;--accent:#027caf;--accent-hover:#02699a;--accent-soft:#e1f2ff;--text-primary:#132b40;--text-secondary:#50677a;--border:#d7e5ee;--shadow:0 4px 18px rgba(20,67,96,.04);--pl68-teal:#087969;--pl68-teal-soft:#eaf7f2}
-body{background:var(--bg-color);font-size:16px;padding-bottom:calc(96px + env(safe-area-inset-bottom));}
-.container{max-width:920px;padding:16px;}
-button,input,select,textarea{font-family:inherit;}
-input,select,textarea{font-size:1rem;}
-.card{border:1px solid var(--border);border-radius:18px;background:var(--card-bg);box-shadow:var(--shadow);backdrop-filter:none;}
-.app-header{position:static;padding:6px 2px 14px;margin:0;background:none;box-shadow:none;backdrop-filter:none;border:0;border-radius:0;gap:8px;}
-.app-brand{gap:10px}.app-brand-icon{width:40px;height:40px}.app-brand-name{font-size:1.1rem;font-weight:700;letter-spacing:-.02em;color:var(--text-primary)}.app-welcome{font-size:.875rem;color:var(--text-secondary)}
-.header-actions{gap:7px}.header-icon-btn{width:44px;height:44px;border:1px solid var(--border);border-radius:50%;background:var(--card-bg);box-shadow:none;}
-body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"] #header-cycle-status-v58{display:none;}
-.page-heading{font-size:1.55rem;margin:10px 0 18px;font-weight:700;}
-#bottom-nav{left:50%;right:auto;transform:translateX(-50%);bottom:0;width:min(920px,100%);border-radius:20px 20px 0 0;border:1px solid var(--border);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:6px 8px calc(9px + env(safe-area-inset-bottom));gap:4px;background:#fff;box-shadow:0 -4px 24px rgba(20,67,96,.06);}
-#bottom-nav .nav-item{display:flex;align-items:center;justify-content:center;flex-direction:column;min-width:0;width:100%;max-width:none;min-height:58px;border:0;border-radius:12px;padding:7px 2px;font-size:.75rem;font-weight:600;line-height:1.2;text-overflow:clip;overflow:visible;white-space:normal;background:none;color:var(--text-secondary);cursor:pointer;}
-#bottom-nav .nav-item svg{width:23px;height:23px;flex-shrink:0;margin-bottom:5px}#bottom-nav .nav-item.active{color:var(--accent);background:var(--accent-soft)}
-#view-dashboard{max-width:760px;margin:0 auto;}.pl68-primary{display:grid;gap:14px;margin-bottom:16px;}.pl68-primary .card{margin:0;min-width:0;}
-.pl68-heading h2{font-size:clamp(1.4rem,5.1vw,1.85rem);line-height:1.2;letter-spacing:-.025em;font-weight:700;margin:5px 0 7px;}.pl68-heading p{font-size:.875rem;color:var(--text-secondary);margin:0;}
-.pl68-cycle{font:inherit;display:inline-flex;align-items:center;gap:8px;max-width:100%;border:0;min-height:42px;padding:0;color:var(--accent);background:transparent;text-align:left;font-size:.875rem;font-weight:600;cursor:pointer;}.pl68-cycle svg{width:19px;height:19px;flex-shrink:0}.pl68-cycle span{overflow-wrap:anywhere}
-.pl68-forecasts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch;}.pl68-forecast{display:flex;flex-direction:column;padding:16px!important;border-top:3px solid var(--accent)!important;min-width:0;}.pl68-forecast.pl68-actual{border-top-color:var(--pl68-teal)!important;background:var(--pl68-teal-soft)!important;}
-.pl68-kicker{text-transform:none;letter-spacing:0;display:flex;align-items:center;gap:6px;color:var(--accent);font-size:.875rem;font-weight:600;}.pl68-actual .pl68-kicker{color:var(--pl68-teal)}.pl68-kicker svg{width:19px;height:19px;flex-shrink:0}
-.pl68-forecast>.value{font-size:1.35rem!important;color:var(--text-primary)!important;line-height:1.25;margin:12px 0 7px!important;overflow-wrap:normal;}.pl68-date-main{font-size:clamp(1.5rem,5.8vw,2.1rem);font-weight:700;letter-spacing:-.025em;line-height:1.15}.pl68-date-year{font-size:.875rem;color:var(--text-secondary);margin-top:4px;font-weight:500;}.pl68-forecast .forecast-detail{font-size:.875rem!important;line-height:1.4;margin-top:4px;color:var(--text-secondary)!important;font-weight:400}.pl68-empty-forecast{font-size:1.15rem;font-weight:600;line-height:1.35}
-.pl68-rate{font-size:1rem!important;font-weight:600;margin:3px 0 6px;color:var(--text-primary)!important;line-height:1.4}.pl68-explain{display:flex;justify-content:space-between;gap:4px;background:none;border:0;border-radius:6px;color:var(--text-secondary);font:inherit;font-size:.8rem;min-height:44px;margin-top:auto;padding:5px 0;text-align:left;cursor:pointer;}
-.pl68-insight{padding:11px 14px;border-radius:12px;background:var(--soft-bg);color:var(--text-secondary);font-size:.875rem;line-height:1.45}.pl68-insight.positive{background:var(--pl68-teal-soft);color:#096658}.pl68-insight.negative{background:#fff0ed;color:#a93227;}
-.pl68-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.pl68-current{padding:18px!important;}.pl68-caption{font-size:.8rem;line-height:1.5;color:var(--text-secondary);}.pl68-weight-row{align-items:flex-end;gap:8px;}.pl68-current #dash-peso-atual{font-size:clamp(1.85rem,7.2vw,2.6rem);line-height:1.15;font-weight:700;letter-spacing:-.025em;margin:5px 0 0;color:var(--text-primary)}.pl68-loss{text-align:right}.pl68-loss .value{font-size:1.05rem!important;line-height:1.3}.pl68-progress{height:7px;background:#dce9f0;overflow:hidden;border-radius:7px;margin:18px 0 9px;}.pl68-progress span{display:block;height:100%;width:0;background:var(--accent);border-radius:inherit;transition:width .2s ease;}.pl68-progress-detail{font-size:.8rem;color:var(--text-secondary)}.pl68-progress-detail #dash-falta-kg{font-size:inherit!important;font-weight:600;color:inherit!important;}
-.pl68-position{border-top:1px solid var(--border);margin-top:14px;padding-top:10px;font-size:.875rem;display:grid;gap:7px}.pl68-position #dash-status,.pl68-position #dash-meta-hoje,.pl68-position #dash-saldo{font-size:inherit!important;line-height:1.4;margin:0!important}.pl68-position #dash-status{font-weight:600}.pl68-position #dash-info-meta{margin:0!important;font-size:.75rem;}
-.pl68-register{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;min-height:50px;font-size:1rem;border-radius:13px;box-shadow:none;font-weight:600}.pl68-register svg{width:21px;height:21px}.pl68-chart-card{padding:16px!important}.pl68-chart-card h3{font-size:1rem;margin:0;font-weight:600}.pl68-text-button{border:0;background:none;color:var(--accent);font:inherit;font-size:.875rem;min-height:44px;cursor:pointer;padding:3px 0}.pl68-chart{width:100%;min-height:180px;display:grid;align-items:center}.pl68-chart svg{display:block;width:100%;height:220px;overflow:visible}.pl68-legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--text-secondary);font-size:.75rem;margin-top:2px}.pl68-legend span{display:flex;align-items:center;gap:6px}.pl68-legend i{display:block;width:17px;border-top:2px solid var(--pl68-teal)}.pl68-legend .pl68-line-plan{border-top:2px dashed var(--accent)}.pl68-chart-empty{padding:35px 12px;text-align:center;font-size:.875rem;color:var(--text-secondary)}
-#dashboard-extra-v67{margin:0;gap:12px}#dashboard-extra-v67 .card{padding:15px;border-top:1px solid var(--border)!important;background:#fff!important;}#dashboard-extra-v67 .label{font-size:.8rem;letter-spacing:0;text-transform:none}#dashboard-extra-v67 .value{font-size:1.25rem;line-height:1.3;margin:7px 0}#dashboard-extra-v67 .small{font-size:.75rem;line-height:1.5}
-.pl68-details{padding:0 16px!important}.pl68-details summary,.pl68-complements>summary{font-size:.875rem;font-weight:600;cursor:pointer;min-height:48px;padding:14px 0}.pl68-details[open]{padding-bottom:16px!important}.pl68-details h4{font-size:.875rem;margin:10px 0 5px}.pl68-details p{font-size:.8rem;line-height:1.55;margin:6px 0;color:var(--text-secondary)}.pl68-details dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;font-size:.8rem}.pl68-details dd{margin:0;text-align:right;font-weight:600}.pl68-details dt{color:var(--text-secondary)}.pl68-complements{border-top:1px solid var(--border);margin-top:12px;}.pl68-complements .card{margin-bottom:14px;}
-#quick-weight-fab-v25{display:none!important}.quick-weight-card{border-radius:20px;padding:20px;border:1px solid var(--border)}#quick-weight-value-v25{min-height:54px;font-size:1.8rem;text-align:center}.quick-weight-save,.quick-weight-close{min-height:46px!important}
-.pl68-hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:16px}.pl68-hub-button{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;min-width:0;min-height:90px;width:100%;border:1px solid var(--border);border-radius:16px;padding:16px;background:#fff;color:var(--text-primary);font:inherit;text-align:left;cursor:pointer;box-shadow:var(--shadow)}.pl68-hub-button strong{font-size:1rem;font-weight:600}.pl68-hub-button span{font-size:.8rem;color:var(--text-secondary);line-height:1.4}.pl68-hub-button:hover{background:var(--accent-soft)}.pl68-hub-full{grid-column:1/-1;background:var(--accent-soft)}.pl68-diary-date{color:var(--text-secondary);font-size:.875rem;margin:0 0 16px}.pl68-diary-summary{margin-bottom:16px;padding:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;font-size:.875rem}
-.pl68-shortcuts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}.pl68-shortcuts button{font:inherit;font-size:.875rem;min-height:44px;padding:9px 12px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--accent);cursor:pointer}
-@media(min-width:760px){.pl68-forecasts{gap:16px}.pl68-forecast{padding:22px!important}.pl68-current{padding:22px!important}.pl68-hub-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:380px){.container{padding:12px}.pl68-forecasts{gap:9px}.pl68-forecast{padding:12px!important}.pl68-current{padding:14px!important}.pl68-primary{gap:12px}.app-brand-name{font-size:1rem}.app-brand-icon{width:34px;height:34px}.header-actions{gap:5px}.pl68-hub-button{padding:13px}.pl68-chart-card{padding:12px!important}}
-@media(prefers-reduced-motion:reduce){.pl68-progress span{transition:none}}
-
-
-/* V69: somente acabamento dos novos dados pessoais. */
-#perfil-bio{min-height:96px;resize:vertical;}
-</style>
-<meta name="application-version" content="68.0-Painel">
-
-
-<!-- V72 — calendário compacto + filtros de gráficos persistentes -->
-<style id="pl-v72-calendar-chart-fixes">
-/* Calendário: navegação compacta, mês central e ações logo abaixo. */
-#view-calendario-v49 .calendar-toolbar-v49{
-    display:block !important;
-    width:100%;
-    margin:0;
-}
-#view-calendario-v49 .calendar-nav-row-v72{
-    display:grid;
-    grid-template-columns:42px minmax(0,1fr) 42px;
-    align-items:center;
-    gap:8px;
-    width:100%;
-}
-#view-calendario-v49 .calendar-nav-btn-v72{
-    width:42px !important;
-    min-width:42px !important;
-    height:40px !important;
-    min-height:40px !important;
-    padding:0 !important;
-    border-radius:12px !important;
-    display:grid !important;
-    place-items:center;
-    font-size:24px !important;
-    line-height:1 !important;
-}
-#view-calendario-v49 .calendar-toolbar-v49 .month{
-    grid-column:2;
-    text-align:center;
-    font-size:20px !important;
-    line-height:1.2;
-    min-width:0;
-}
-#view-calendario-v49 .calendar-actions-row-v72{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-    width:min(100%,260px);
-    margin:10px auto 0;
-}
-#view-calendario-v49 .calendar-actions-row-v72 .btn{
-    width:100% !important;
-    min-width:0 !important;
-    min-height:40px !important;
-    height:40px !important;
-    padding:7px 12px !important;
-    border-radius:12px !important;
-    font-size:14px !important;
-    line-height:1 !important;
-}
-@media (max-width:560px){
-    #view-calendario-v49 > .card{padding:16px !important;}
-    #view-calendario-v49 .calendar-nav-row-v72{grid-template-columns:40px minmax(0,1fr) 40px;gap:7px;}
-    #view-calendario-v49 .calendar-nav-btn-v72{width:40px !important;min-width:40px !important;height:38px !important;min-height:38px !important;}
-    #view-calendario-v49 .calendar-toolbar-v49 .month{font-size:18px !important;}
-    #view-calendario-v49 .calendar-actions-row-v72{margin-top:8px;width:min(100%,230px);}
-    #view-calendario-v49 .calendar-actions-row-v72 .btn{height:38px !important;min-height:38px !important;font-size:13px !important;}
-}
-</style>
-
 </head>
 <body>
 
@@ -1590,7 +1486,7 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
             </div>
             <div class="header-actions">
                 <button id="btn-install-app" class="install-app-btn hidden" type="button">Instalar</button>
-                <button id="btn-profile-open" class="header-icon-btn" type="button" aria-label="Abrir perfil" title="Perfil">
+                <button id="btn-profile-open" class="header-icon-btn" type="button" aria-label="Abrir conta" title="Conta">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                 </button>
                 <button id="btn-settings-open" class="header-icon-btn" type="button" aria-label="Abrir ajustes" title="Ajustes">
@@ -1598,65 +1494,39 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                 </button>
             </div>
         </header>
-        <div id="page-heading-row-v73" class="page-heading-row-v73">
-            <h2 id="page-title" class="page-heading">Início</h2>
-            <button id="page-back-v73" type="button" class="page-back-v73 hidden" onclick="voltarTelaV73()" aria-label="Voltar para a tela anterior" title="Voltar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg>
-            </button>
-        </div>
+        <h2 id="page-title" class="page-heading">Início</h2>
 
         <!-- TELAS -->
         
         <!-- Início -->
         <section id="view-dashboard" class="view">
-            <div id="painel-principal-v68" class="pl68-primary">
-                <div id="painel-intro-v68" class="pl68-heading">
-                    <button type="button" class="pl68-cycle" onclick="abrirCiclosV48()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4m14-1v2a3 3 0 01-3 3H3"/></svg><span id="painel-ciclo-v68">Meu ciclo</span><span aria-hidden="true">›</span></button>
-                    <h2 id="painel-titulo-v68">Quando chego à meta?</h2>
-                    <p id="painel-objetivo-v68">Configure o ciclo para acompanhar as previsões.</p>
-                </div>
-                <div id="painel-previsoes-v68" class="pl68-forecasts">
-                    <div class="card pl68-forecast pl68-plan">
-                        <div class="pl68-kicker label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>Pela meta</div>
-                        <div class="value" id="dash-previsao-meta">—</div>
-                        <div class="pl68-rate" id="painel-meta-dia-v68">—</div>
-                        <button class="pl68-explain" type="button" onclick="abrirExplicacaoPainelV68('meta')">Plano do ciclo <span aria-hidden="true">›</span></button>
-                    </div>
-                    <div class="card pl68-forecast pl68-actual">
-                        <div class="pl68-kicker label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6l6 6 4-4 8 10M15 18h6v-6"/></svg>Pelo ritmo</div>
-                        <div class="value" id="dash-previsao">—</div>
-                        <div class="pl68-rate" id="dash-media-dia">—</div>
-                        <button class="pl68-explain" type="button" onclick="abrirExplicacaoPainelV68('ritmo')">Últimos 7 dias <span aria-hidden="true">›</span></button>
-                    </div>
-                </div>
-                <div class="pl68-insight neutral" id="painel-diferenca-v68" role="status">As previsões aparecerão com os dados do ciclo.</div>
-                <div id="painel-peso-v68" class="card pl68-current">
-                    <div class="pl68-row pl68-weight-row">
-                        <div><div class="pl68-caption" id="painel-data-peso-v68">Última pesagem</div><div class="value" id="dash-peso-atual">—</div></div>
-                        <div class="pl68-loss"><div class="value" id="dash-total-perdido">—</div><div class="pl68-caption">Neste ciclo</div></div>
-                    </div>
-                    <div id="painel-progresso-v68" class="pl68-progress" role="progressbar" aria-label="Progresso do ciclo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="painel-progresso-barra-v68"></span></div>
-                    <div class="pl68-row pl68-progress-detail"><span id="painel-progresso-texto-v68">—</span><span>Faltam <strong id="dash-falta-kg">—</strong></span></div>
-                    <div class="pl68-position">
-                        <div class="pl68-row"><span>Planejado hoje</span><strong id="dash-meta-hoje">—</strong></div>
-                        <div class="pl68-row"><strong id="dash-status">Configure o ciclo</strong><span id="dash-saldo">—</span></div>
-                        <div id="dash-info-meta" class="pl68-caption"></div>
-                    </div>
-                </div>
-                <button type="button" id="painel-registrar-v68" class="btn btn-primary pl68-register" onclick="abrirPesoRapidoV25()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Registrar peso</button>
-                <div id="painel-evolucao-v68" class="card pl68-chart-card">
-                    <div class="pl68-row"><h3>Ciclo em andamento</h3><button type="button" class="pl68-text-button" onclick="showView('graficos')">Ver evolução ›</button></div>
-                    <div class="pl68-caption" id="painel-grafico-periodo-v68"></div>
-                    <div id="painel-grafico-v68" class="pl68-chart" aria-live="off"></div>
-                    <div class="pl68-legend"><span><i class="pl68-line-plan"></i>Meta do ciclo</span><span><i class="pl68-line-real"></i>Pesagens</span></div>
-                </div>
-                <div class="grid-2 dashboard-extra-v67" id="dashboard-extra-v67">
-                    <div class="card"><div class="label">Média Calorias</div><div class="value neutral" id="dash-media-calorias-v67">Não há dados</div><div class="small" id="dash-media-calorias-info-v67">Últimos 7 dias</div></div>
-                    <div class="card"><div class="label">Dias de Remédio</div><div class="value neutral" id="dash-dias-remedio-v67">Não há dados</div><div class="small" id="dash-dias-remedio-info-v67">Nenhum tratamento em andamento</div></div>
-                </div>
-                <details id="painel-calculo-v68" class="card pl68-details"><summary>Entender as previsões</summary><div id="painel-calculo-conteudo-v68"></div></details>
+            <div class="grid-2">
+                <div class="card dash-card dashboard-bordered-card"><div class="label">Peso Atual</div><div class="value" id="dash-peso-atual">--</div></div>
+                <div class="card dash-card dashboard-bordered-card"><div class="label">Meta de Hoje</div><div class="value" id="dash-meta-hoje">--</div></div>
             </div>
-            <details id="painel-complementos-v68" class="pl68-complements"><summary>Mais informações do ciclo</summary><div id="painel-complementos-conteudo-v68"></div></details>
+            <div class="card dashboard-bordered-card">
+                <div class="label">Situação Atual</div>
+                <div class="value" id="dash-status" style="margin-top: 5px;">--</div>
+                <div class="small" id="dash-info-meta" style="margin-top: 10px; color: var(--text-secondary)"></div>
+            </div>
+            <div class="grid-2">
+                <div class="card dash-card dashboard-bordered-card"><div class="label">Ritmo do Ciclo</div><div class="value" id="dash-media-dia">--</div></div>
+                <div class="card dash-card dashboard-bordered-card"><div class="label">Total Perdido</div><div class="value" id="dash-total-perdido">--</div></div>
+            </div>
+            <div class="grid-2">
+                <div class="card dashboard-bordered-card"><div class="label">Saldo</div><div class="value" id="dash-saldo">--</div></div>
+                <div class="card dashboard-bordered-card"><div class="label">Faltam</div><div class="value" id="dash-falta-kg">--</div></div>
+            </div>
+            <div class="grid-2 forecast-grid">
+                <div class="card dashboard-bordered-card previsao-card">
+                    <div class="label">Projeção pela Meta</div>
+                    <div class="value" id="dash-previsao-meta">Calculando...</div>
+                </div>
+                <div class="card dashboard-bordered-card previsao-card">
+                    <div class="label">Projeção pelo Ritmo</div>
+                    <div class="value" id="dash-previsao">Calculando...</div>
+                </div>
+            </div>
 
             <div class="card dashboard-bordered-card rhythm-trend-card-v43" id="tendencia-ritmo-v43">
                 <div class="rhythm-trend-head-v43">
@@ -1884,13 +1754,9 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                             <input type="date" id="remedio-data" required>
                         </div>
                         <div class="form-group">
-                            <div class="medicine-name-head-v67">
-                                <label for="remedio-nome">Nome do Remédio</label>
-                                <button type="button" class="btn btn-outline medicine-quick-add-v67" onclick="abrirCadastroRapidoV67()" title="Cadastrar remédio rapidamente" aria-label="Cadastrar remédio rapidamente">+</button>
-                            </div>
-                            <select id="remedio-nome" required>
-                                <option value="">Selecione</option>
-                            </select>
+                            <label>Nome do Remédio</label>
+                            <input type="text" id="remedio-nome" list="lista-nomes-remedios" autocomplete="off" placeholder="Digite ou selecione" required>
+                            <datalist id="lista-nomes-remedios"></datalist>
                         </div>
                         <div class="form-group">
                             <label>Dose (mg)</label>
@@ -1899,19 +1765,6 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                         <div class="form-group">
                             <label>Peso (kg)</label>
                             <input type="number" min="0" step="0.1" id="remedio-peso" required>
-                        </div>
-                    </div>
-                    <div id="cadastro-rapido-remedio-v67" class="medicine-quick-box-v67 hidden">
-                        <div class="medicine-quick-title-v67">Cadastro rápido</div>
-                        <div class="grid-2">
-                            <div class="form-group"><label>Nome</label><input type="text" id="quick-med-nome-v67" maxlength="300" placeholder="Ex: Ozivy"></div>
-                            <div class="form-group"><label>Data inicial</label><input type="date" id="quick-med-inicio-v67"></div>
-                        </div>
-                        <div class="form-group"><label>Data final (opcional)</label><input type="date" id="quick-med-fim-v67"></div>
-                        <div class="medicine-period-note-v67">Na data final o remédio deixa de aparecer nos cards e a contagem de dias é encerrada.</div>
-                        <div class="grid-2" style="margin-top:10px">
-                            <button type="button" class="btn btn-outline" onclick="fecharCadastroRapidoV67()">Cancelar</button>
-                            <button type="button" class="btn btn-primary" onclick="salvarCadastroRapidoV67()">Cadastrar</button>
                         </div>
                     </div>
                     <button type="button" class="btn btn-clear-outline" style="margin-bottom: 10px;" onclick="limparFormularioRemedio()">Limpar</button>
@@ -2072,7 +1925,9 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                 <div id="chart-remedios-subtitle" class="chart-subtitle"></div>
                 <div class="chart-container"><canvas id="chartRemedios"></canvas></div>
             </div>
-
+            <div class="graph-order-action-v32">
+                <button type="button" class="btn btn-outline" onclick="abrirOrdenacaoGraficosV32()">Ordenar</button>
+            </div>
             <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
@@ -2273,7 +2128,7 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
         <!-- Conta -->
         <section id="view-conta" class="view hidden">
             <div class="card">
-                <h3>Dados Pessoais</h3>
+                <h3>Perfil e Conta</h3>
                 <form id="form-perfil">
                     <div class="form-group"><label>Nome</label><input type="text" id="perfil-nome" placeholder="Seu nome"></div>
                     <div class="grid-2">
@@ -2284,16 +2139,12 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                         <div class="form-group"><label>Gênero</label><select id="perfil-genero"><option value="">Selecione</option><option value="Homem">Homem</option><option value="Mulher">Mulher</option></select></div>
                         <div class="form-group"><label>Altura (m)</label><input type="text" inputmode="decimal" id="perfil-altura" placeholder="Ex: 1,65"></div>
                     </div>
-                    <div class="grid-2">
-                        <div class="form-group"><label>Celular</label><input type="tel" id="perfil-celular" maxlength="30" autocomplete="tel" placeholder="Ex: (13) 99999-9999"></div>
-                        <div class="form-group"><label>Cidade / UF</label><input type="text" id="perfil-cidade" maxlength="120" autocomplete="address-level2" placeholder="Ex: Praia Grande / SP"></div>
-                    </div>
-                    <div class="form-group"><label>Bio</label><textarea id="perfil-bio" rows="4" maxlength="500" placeholder="Um pouco sobre você, rotina, objetivos ou o que quiser registrar."></textarea></div>
                     <div class="profile-action-row">
                         <button type="button" id="btn-desfazer-perfil" class="btn btn-undo" onclick="desfazerPerfilConta()" aria-label="Desfazer Perfil e Conta" title="Desfazer">↶</button>
                         <button type="button" class="btn btn-clear-outline" onclick="limparPerfilConta()">Limpar</button>
                         <button type="button" class="btn btn-outline" onclick="fecharPerfil()">Voltar</button>
                     </div>
+                    <button type="button" class="btn btn-danger hidden" id="btn-logout-perfil" style="margin-top: 12px;">Sair da conta</button>
                 </form>
             </div>
             <div class="card">
@@ -2306,7 +2157,6 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                     <div id="storage-usage" class="small" style="margin:8px 0" aria-live="polite"></div>
                     <div id="sync-status">Dados locais + Firestore. Fotos originais permanecem neste aparelho.</div>
                 </div>
-                <button type="button" class="btn btn-danger hidden" id="btn-logout-perfil" style="margin-top: 12px;">Sair da conta</button>
             </div>
             <div class="card">
                 <h3>Backup e Relatórios</h3>
@@ -2380,6 +2230,30 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                 <div id="integridade-detalhes-v30" class="v30-integrity-details"></div>
             </div>
 
+            <div class="card v30-import-card">
+                <h3>Importar Dados de Balança</h3>
+                <p class="small" style="margin-bottom:12px;color:var(--text-secondary)">Importe CSV ou Excel e associe as colunas do arquivo aos campos do Projeto Leve. Registros da mesma data podem ser atualizados sem apagar fotos ou observações existentes.</p>
+                <div class="form-group">
+                    <label for="balanca-arquivo-v30">Arquivo da balança</label>
+                    <input type="file" id="balanca-arquivo-v30" accept=".csv,.txt,.xlsx,.xls,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" onchange="carregarArquivoBalancaV30(event)">
+                </div>
+                <div id="balanca-import-status-v30" class="v30-import-status">Nenhum arquivo selecionado.</div>
+                <div id="balanca-mapeamento-v30" class="v30-import-map hidden">
+                    <div id="balanca-preview-v30" class="v30-import-preview"></div>
+                    <div id="balanca-map-grid-v30" class="v30-import-map-grid"></div>
+                    <div class="v30-import-options">
+                        <div class="form-group" style="margin-bottom:0">
+                            <label for="balanca-existente-v30">Se já existir peso na mesma data</label>
+                            <select id="balanca-existente-v30"><option value="mesclar" selected>Atualizar campos importados e preservar o restante</option><option value="ignorar">Ignorar essa linha</option></select>
+                        </div>
+                    </div>
+                    <div class="v30-import-actions">
+                        <button type="button" class="btn btn-clear-outline" onclick="limparImportadorBalancaV30()">Limpar</button>
+                        <button type="button" class="btn btn-primary" onclick="importarDadosBalancaV30()">Importar Registros</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
                 <h3>Limpeza por Data</h3>
                 <p class="small" style="margin-bottom: 10px; color: var(--text-secondary)">Exclui pesos, medidas, remédios, calorias, fotos e metas personalizadas da data escolhida e anteriores.</p>
@@ -2401,15 +2275,36 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
 <div id="restore-overlay" class="hidden" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:99999;background:rgba(241,245,249,.95);display:grid;place-items:center;padding:24px;text-align:center;font-weight:700">Conferindo e salvando os dados. Aguarde...</div>
 
 <!-- Navigation Bar -->
-<nav id="bottom-nav" class="hidden" aria-label="Navegação principal">
-    <button type="button" class="nav-item active" data-view="dashboard" onclick="showView('dashboard',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 10l9-7 9 7v10H3zM9 20v-7h6v7"/></svg><span>Início</span></button>
-    <button type="button" class="nav-item" data-view="diario-v68" onclick="abrirDiarioPainelV68()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="3" width="15" height="18" rx="2"/><path d="M3 7h4M3 12h4M3 17h4M10 8h6M10 12h6"/></svg><span>Diário</span></button>
-    <button type="button" class="nav-item" data-view="graficos" onclick="showView('graficos',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 3v17h17M7 9l5 5 4-6 5 3"/></svg><span>Evolução</span></button>
-    <button type="button" class="nav-item" data-view="ciclos-v48" onclick="abrirCiclosV48()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4m14-1v2a3 3 0 01-3 3H3"/></svg><span>Ciclos</span></button>
-    <button type="button" class="nav-item" data-view="mais-v68" onclick="showView('mais-v68',this)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg><span>Mais</span></button>
+<nav id="bottom-nav" class="hidden">
+    <a class="nav-item active" data-view="dashboard" onclick="showView('dashboard', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Início
+    </a>
+    <a class="nav-item" data-view="historico" onclick="showView('historico', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12"></path><path d="M6 21h12"></path><path d="M8 3c0 5 8 5 8 10s-8 5-8 8"></path><path d="M16 3c0 5-8 5-8 10s8 5 8 8"></path></svg>
+        Peso
+    </a>
+    <a class="nav-item" data-view="medidas" onclick="showView('medidas', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        Medidas
+    </a>
+    <a class="nav-item" data-view="calorias" onclick="showView('calorias', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11h16"></path><path d="M6 11a6 6 0 0 1 12 0"></path><path d="M3 11h18l-2 9H5z"></path><path d="M12 5V2"></path></svg>
+        Calorias
+    </a>
+    <a class="nav-item" data-view="remedio" onclick="showView('remedio', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7.1-7.1l7 7a5 5 0 0 1-7.1 7.1Z"></path><path d="m7 10 7 7"></path><path d="m14.5 6.5 3-3a2.1 2.1 0 0 1 3 3l-3 3"></path></svg>
+        Remédio
+    </a>
+    <a class="nav-item" data-view="graficos" onclick="showView('graficos', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+        Gráficos
+    </a>
+    <a class="nav-item" data-view="metas" onclick="showView('metas', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Simular
+    </a>
 </nav>
-
-
 
 <!-- Visualização organizada dos históricos -->
 <div id="modal-detalhes-registro" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="detalhes-registro-titulo">
@@ -3732,7 +3627,7 @@ function htmlPrevisaoDashboard(dataISO) {
 function obterPesosValidosParaCalculo() {
     const dataInicial = appData.config.dataInicial || hojeISO();
     return [...appData.pesos]
-        .filter(p => p && dataISOValida(p.data) && p.data >= dataInicial && p.data <= hojeISO() && numeroValido(p.peso) > 0)
+        .filter(p => p && p.data && p.data >= dataInicial && Number.isFinite(Number(p.peso)))
         .sort((a, b) => a.data.localeCompare(b.data));
 }
 
@@ -3752,11 +3647,11 @@ function obterPesoAtual() {
 
 function calcularMediaRealDia() {
     if (!temConfigCalculo()) return NaN;
-    const referencia = referenciaPesoPainelV68();
-    if (!referencia.registrado || !Number.isFinite(referencia.peso)) return NaN;
-    const dias = diffDays(referencia.data, appData.config.dataInicial);
-    if (dias <= 0) return NaN;
-    return (referencia.peso - numeroValido(appData.config.pesoInicial)) / dias;
+    const atual = obterPesoAtual();
+    if (!Number.isFinite(atual)) return NaN;
+    const dias = diffDays(hojeISO(), appData.config.dataInicial);
+    if (dias <= 0) return 0;
+    return (atual - numeroValido(appData.config.pesoInicial)) / dias;
 }
 
 function numeroInformado(valor) {
@@ -3796,7 +3691,9 @@ function atualizarCalculosMetasPersonalizadas() {
         const meta = data && dataInicial && pesoInicial !== null && metaKgPorDia !== null
             ? pesoInicial + (diffDays(data, dataInicial) * metaKgPorDia)
             : NaN;
-        const previsao = pesoProjetadoPainelV68(data);
+        const previsao = data && pesoAtual !== null && Number.isFinite(media)
+            ? pesoAtual + (diffDays(data, hoje) * media)
+            : NaN;
         return {
             ...item,
             meta: Number.isFinite(meta) ? meta : '',
@@ -3952,7 +3849,7 @@ function renderDashboard() {
     const previsaoEl = document.getElementById('dash-previsao');
     if (Number.isFinite(media) && media < 0 && pesoAtual > pesoMeta) {
         const diasRestantes = Math.max(0, Math.ceil((pesoMeta - pesoAtual) / media));
-        previsaoEl.innerHTML = htmlPrevisaoDashboard(addDiasISO(referenciaPesoPainelV68().data, diasRestantes));
+        previsaoEl.innerHTML = htmlPrevisaoDashboard(addDiasISO(hoje, diasRestantes));
     } else if (pesoAtual <= pesoMeta) {
         previsaoEl.innerHTML = `
             <div>Meta Atingida!</div>
@@ -6055,7 +5952,8 @@ function simularMeta() {
     const meta = calcularMetaDaData(data);
     const media = calcularMediaRealDia();
     const pesoAtual = obterPesoAtual();
-    const previsao = pesoProjetadoPainelV68(data);
+    const dias = diffDays(data, hojeISO());
+    const previsao = pesoAtual + (dias * media);
     ultimaSimulacao = { data, meta, previsao };
 
     document.getElementById('res-simulacao').innerHTML = `
@@ -6285,7 +6183,7 @@ function gerarTabelaMetas(tipo) {
         const iso = config.proximaData(i);
         const diasAteData = diffDays(iso, hoje);
         const meta = calcularMetaDaData(iso);
-        const prev = pesoProjetadoPainelV68(iso);
+        const prev = Number.isFinite(media) && Number.isFinite(pesoAtual) ? pesoAtual + (diasAteData * media) : NaN;
         
         linhas.push(`
             <tr>
@@ -11354,7 +11252,7 @@ function criarTelaLinhaDiaV39() {
             <div id="linha-dia-resumo-v39" class="timeline-summary-v39"></div>
         </div>
         <div id="linha-dia-conteudo-v39"></div>
-
+        <div class="timeline-footer-actions-v39"><button type="button" class="btn btn-outline" onclick="showView('dashboard',document.querySelector('[data-view=&quot;dashboard&quot;]'))">Voltar ao Início</button></div>
     `;
     dashboard.after(section);
 
@@ -12848,7 +12746,7 @@ function criarTelaQualidadeV44() {
             </div>
         </div>
         <div id="qualidade-resultado-v44"></div>
-
+        <button type="button" class="btn btn-outline" onclick="showView('dashboard', document.querySelector('[data-view=dashboard]'))">Voltar ao Início</button>
         <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
     `;
     container.appendChild(sec);
@@ -18715,7 +18613,7 @@ function garantirViewImportadorV60(){
         <h3>Arquivos que precisam de interpretação</h3>
         <div class="import-help-v60"><strong>Imagem, PDF, backup de outro app ou formato desconhecido?</strong><br>Envie o mesmo arquivo nesta conversa. Eu analiso, digo exatamente o que encontrei e peço sua confirmação. Depois da sua autorização, preparo um arquivo <b>Projeto Leve Import</b> para este botão carregar e conferir antes da gravação.<br><br>Por segurança, esta versão do app não envia seus arquivos automaticamente para serviços externos e não guarda chave de API.</div>
       </div>
-
+      <button type="button" class="btn btn-outline" onclick="showView('dashboard',document.querySelector('[data-view=dashboard]'))">Voltar ao Início</button>
       <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>`;
     ref.parentElement.appendChild(sec);
 }
@@ -20418,1174 +20316,6 @@ window.addEventListener('load', () => setTimeout(() => {
     moverResumoParaCalculosV66();
     if (activeViewId === 'graficos') renderGraficos();
 }, 720));
-
-
-
-/* =========================================================
-   V67 — Cadastro de Remédios + dias de uso + indicadores Home
-   Aplicado sobre a base V66 anexada pelo usuário, sem alterar
-   a navegação, o cabeçalho, os cards existentes ou o layout geral.
-   ========================================================= */
-const PL_SCHEMA_VERSION_V67 = 67;
-let medicamentoEdicaoV67 = '';
-
-function chaveMedicamentoV67(valor){
-    return String(valor || '').trim().replace(/\s+/g,' ').toLocaleLowerCase('pt-BR');
-}
-function novoIdMedicamentoV67(prefix='med'){
-    return prefix + '_' + (crypto.randomUUID?.() || (Date.now().toString(36)+Math.random().toString(36).slice(2,9)));
-}
-function normalizarPeriodoMedicamentoV67(periodo={}){
-    const inicio=dataISOValida(String(periodo.dataInicio||''))?String(periodo.dataInicio):'';
-    let fim=dataISOValida(String(periodo.dataFim||''))?String(periodo.dataFim):'';
-    if(fim&&inicio&&fim<=inicio) fim='';
-    return {
-        id:idRegistroSeguro(periodo.id||novoIdMedicamentoV67('periodo')),
-        dataInicio:inicio,
-        dataFim:fim,
-        criadoEm:textoSeguro(periodo.criadoEm||'',80),
-        atualizadoEm:textoSeguro(periodo.atualizadoEm||'',80)
-    };
-}
-function normalizarMedicamentoCadastroV67(item={}){
-    const nome=textoSeguro(item.nome||'',300).trim();
-    let periodos=Array.isArray(item.periodos)?item.periodos.map(normalizarPeriodoMedicamentoV67).filter(p=>p.dataInicio):[];
-    if(!periodos.length&&dataISOValida(String(item.dataInicio||''))) periodos=[normalizarPeriodoMedicamentoV67({dataInicio:item.dataInicio,dataFim:item.dataFim||'',id:item.periodoId})];
-    periodos.sort((a,b)=>String(a.dataInicio).localeCompare(String(b.dataInicio)));
-    return {
-        id:idRegistroSeguro(item.id||novoIdMedicamentoV67('med')),
-        nome,
-        periodos,
-        observacao:textoSeguro(item.observacao||'',2000),
-        criadoEm:textoSeguro(item.criadoEm||'',80),
-        atualizadoEm:textoSeguro(item.atualizadoEm||'',80)
-    };
-}
-function inferirPeriodosDosLancamentosV67(registros){
-    const ordenados=[...(registros||[])].filter(r=>r?.data&&numeroValido(r.mg)!==null).sort((a,b)=>String(a.data).localeCompare(String(b.data))||(Number(a.ordemCadastro)||0)-(Number(b.ordemCadastro)||0));
-    const periodos=[];let atual=null;
-    for(const r of ordenados){
-        const dose=numeroValido(r.mg);
-        if(dose!==null&&Math.abs(dose)<0.000001){
-            if(atual&&r.data>atual.dataInicio){atual.dataFim=r.data;periodos.push(atual);atual=null;}
-            continue;
-        }
-        if(dose!==null&&dose>0&&!atual) atual={id:novoIdMedicamentoV67('periodo'),dataInicio:r.data,dataFim:'',criadoEm:'',atualizadoEm:''};
-    }
-    if(atual)periodos.push(atual);
-    return periodos;
-}
-function migrarCatalogoMedicamentosV67(raw,dados){
-    const mapa=new Map();
-    const incluir=(nome,periodos=[],observacao='')=>{
-        const limpo=String(nome||'').trim().replace(/\s+/g,' ');if(!limpo)return;
-        const chave=chaveMedicamentoV67(limpo);let med=mapa.get(chave);
-        if(!med){med={id:novoIdMedicamentoV67('med'),nome:limpo,periodos:[],observacao,criadoEm:'',atualizadoEm:''};mapa.set(chave,med);}
-        for(const p of periodos){const np=normalizarPeriodoMedicamentoV67(p);if(!np.dataInicio)continue;if(!med.periodos.some(x=>x.dataInicio===np.dataInicio&&x.dataFim===np.dataFim))med.periodos.push(np);}
-    };
-    for(const t of (Array.isArray(raw?.tratamentos)?raw.tratamentos:(dados?.tratamentos||[]))){
-        if(t?.nome&&dataISOValida(String(t.dataInicio||''))) incluir(t.nome,[{dataInicio:t.dataInicio,dataFim:t.dataFim||''}],t.observacao||'');
-    }
-    const grupos=new Map();
-    for(const r of (dados?.remedios||[])){const ch=chaveMedicamentoV67(r.nome);if(!ch)continue;if(!grupos.has(ch))grupos.set(ch,[]);grupos.get(ch).push(r);}
-    for(const regs of grupos.values()){
-        const nome=regs.find(r=>r.nome)?.nome||'',ch=chaveMedicamentoV67(nome);
-        if(!mapa.has(ch)) incluir(nome,inferirPeriodosDosLancamentosV67(regs));
-    }
-    return [...mapa.values()].map(normalizarMedicamentoCadastroV67).filter(m=>m.nome&&m.periodos.length).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
-}
-
-const normalizarDadosAntesV67 = normalizarDados;
-normalizarDados = function(raw){
-    const origem=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
-    const dados=normalizarDadosAntesV67(origem);
-    const possuiCatalogo=Object.prototype.hasOwnProperty.call(origem,'medicamentosCadastrados');
-    dados.medicamentosCadastrados=possuiCatalogo
-        ? (Array.isArray(origem.medicamentosCadastrados)?origem.medicamentosCadastrados:[]).map(normalizarMedicamentoCadastroV67).filter(m=>m.nome&&m.periodos.length)
-        : migrarCatalogoMedicamentosV67(origem,dados);
-    dados.medicamentosCadastrados.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
-    dados.schemaVersion=Math.max(Number(dados.schemaVersion)||0,PL_SCHEMA_VERSION_V67);
-    return dados;
-};
-
-function listaMedicamentosV67(){return Array.isArray(appData?.medicamentosCadastrados)?appData.medicamentosCadastrados:[];}
-function periodosOrdenadosV67(med){return [...(med?.periodos||[])].filter(p=>dataISOValida(String(p.dataInicio||''))).sort((a,b)=>String(a.dataInicio).localeCompare(String(b.dataInicio)));}
-function periodoMaisRecenteV67(med){const p=periodosOrdenadosV67(med);return p[p.length-1]||null;}
-function periodoAtivoEmDataV67(med,data=hojeISO()){
-    /* Data final exclusiva: nesse dia o medicamento já não está ativo. */
-    return periodosOrdenadosV67(med).filter(p=>p.dataInicio<=data&&(!p.dataFim||data<p.dataFim)).sort((a,b)=>b.dataInicio.localeCompare(a.dataInicio))[0]||null;
-}
-function medicamentoPorNomeV67(nome){return listaMedicamentosV67().find(m=>chaveMedicamentoV67(m.nome)===chaveMedicamentoV67(nome))||null;}
-function registrosPeriodoMedicamentoV67(med,periodo){
-    if(!med||!periodo)return[];const chave=chaveMedicamentoV67(med.nome);
-    return [...(appData.remedios||[])].filter(r=>chaveMedicamentoV67(r.nome)===chave&&r.data>=periodo.dataInicio&&(!periodo.dataFim||r.data<periodo.dataFim)).sort((a,b)=>String(a.data).localeCompare(String(b.data))||(Number(a.ordemCadastro)||0)-(Number(b.ordemCadastro)||0));
-}
-function primeiraDosePeriodoV67(med,periodo){return registrosPeriodoMedicamentoV67(med,periodo).find(r=>{const n=numeroValido(r.mg);return n!==null&&n>0;})||null;}
-function ultimaDosePeriodoV67(med,periodo,data=hojeISO()){
-    return registrosPeriodoMedicamentoV67(med,periodo).filter(r=>r.data<=data&&numeroValido(r.mg)!==null).sort((a,b)=>String(b.data).localeCompare(String(a.data))||(Number(b.ordemCadastro)||0)-(Number(a.ordemCadastro)||0))[0]||null;
-}
-function diasEntreInclusivoV67(inicio,fim=hojeISO()){
-    if(!dataISOValida(inicio)||!dataISOValida(fim)||fim<inicio)return null;
-    return Math.floor((Date.parse(fim+'T00:00:00Z')-Date.parse(inicio+'T00:00:00Z'))/86400000)+1;
-}
-function diasUsoMedicamentoV67(med,periodo,data=hojeISO()){
-    if(!periodo||!periodoAtivoEmDataV67(med,data))return null;
-    const primeira=primeiraDosePeriodoV67(med,periodo);return primeira?diasEntreInclusivoV67(primeira.data,data):null;
-}
-
-function garantirEstilosMedicamentosV67(){
-    if(document.getElementById('style-medicamentos-v67'))return;
-    const st=document.createElement('style');st.id='style-medicamentos-v67';st.textContent=`
-      .medicine-name-head-v67{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}.medicine-name-head-v67 label{margin:0;min-width:0}.medicine-quick-add-v67{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important;padding:0!important;border-radius:11px;font-size:23px;line-height:1}
-      .medicine-quick-box-v67{margin:0 0 12px;padding:12px;border:1px dashed rgba(2,132,199,.42);border-radius:16px;background:var(--soft-bg)}.medicine-quick-title-v67{font-weight:900;margin-bottom:8px}.medicine-period-note-v67{margin-top:5px;color:var(--text-secondary);font-size:10px;line-height:1.35}
-      .medicine-day-count-v67{margin-top:5px;color:var(--accent-hover);font-size:11px;font-weight:800}
-      .medicine-registry-list-v67{display:grid;gap:10px}.medicine-registry-row-v67{border:1px solid var(--border);border-radius:17px;padding:12px;background:#fff}.medicine-registry-head-v67{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.medicine-registry-name-v67{font-weight:900;font-size:15px;color:var(--text-primary);overflow-wrap:anywhere}.medicine-registry-meta-v67{margin-top:4px;color:var(--text-secondary);font-size:11px;line-height:1.4}.medicine-registry-status-v67{flex:0 0 auto;padding:5px 8px;border-radius:999px;background:var(--soft-bg);font-size:9px;font-weight:900}.medicine-registry-status-v67.active{color:var(--success);background:#f0fdf4}.medicine-registry-status-v67.future{color:var(--accent);background:var(--accent-soft)}.medicine-registry-actions-v67{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:10px}.medicine-registry-actions-v67 .btn{min-height:38px;padding:7px 6px;font-size:10px}.medicine-registry-summary-v67{margin-top:10px;color:var(--text-secondary);font-size:11px}
-      #form-cadastro-medicamento-v67 .registry-note-v67{margin:-4px 0 12px;color:var(--text-secondary);font-size:10px;line-height:1.4}
-      .dashboard-extra-v67 .value{font-size:clamp(15px,4.6vw,20px);line-height:1.15;overflow-wrap:anywhere}.dashboard-extra-v67 .small{margin-top:5px;line-height:1.25}
-      @media(max-width:390px){.medicine-registry-actions-v67{grid-template-columns:1fr 1fr}.medicine-registry-actions-v67 .btn:last-child{grid-column:1/-1}.medicine-quick-box-v67 .grid-2{grid-template-columns:1fr}}
-    `;document.head.appendChild(st);
-}
-
-function configurarCardCadastroMedicamentosV67(){
-    const antigo=document.getElementById('card-tratamentos-v49');if(!antigo)return;
-    antigo.innerHTML='<div class="v49-head"><div><h3>Cadastro de Remédios</h3><div class="small">Cadastre medicamentos e os períodos em que estão em uso.</div></div><button type="button" class="btn btn-outline" onclick="abrirCadastroRemediosV67()">Gerenciar</button></div><div id="resumo-cadastro-remedios-v67" class="medicine-registry-summary-v67"></div>';
-    renderResumoCadastroMedicamentosV67();
-}
-function garantirViewCadastroMedicamentosV67(){
-    const sec=document.getElementById('view-tratamentos-v49');if(!sec||sec.dataset.v67Registry==='1')return;
-    sec.dataset.v67Registry='1';
-    sec.innerHTML=`
-      <div class="card"><div class="v49-head"><div><h3>Cadastro de Remédios</h3><div class="small">Inclua, edite ou exclua medicamentos. Cada novo uso pode ter seu próprio período.</div></div><div class="v49-actions"><button type="button" class="btn btn-primary" onclick="novoMedicamentoV67()">+ Cadastrar remédio</button><button type="button" class="btn btn-outline" onclick="showView('remedio',document.querySelector('[data-view=remedio]'))">Voltar</button></div></div></div>
-      <div id="form-cadastro-medicamento-card-v67" class="card hidden"><h3 id="form-cadastro-medicamento-title-v67">Cadastrar remédio</h3><form id="form-cadastro-medicamento-v67" onsubmit="salvarCadastroMedicamentoV67(event)"><input type="hidden" id="cadastro-medicamento-id-v67"><div class="grid-2"><div class="form-group"><label>Nome do remédio</label><input type="text" id="cadastro-medicamento-nome-v67" maxlength="300" required placeholder="Ex: Ozivy"></div><div class="form-group"><label>Data inicial</label><input type="date" id="cadastro-medicamento-inicio-v67" required></div><div class="form-group"><label>Data final (opcional)</label><input type="date" id="cadastro-medicamento-fim-v67"></div></div><div class="registry-note-v67">A data final é o primeiro dia em que o medicamento deixa de ser considerado ativo. Deixe em branco enquanto o tratamento estiver em andamento.</div><div class="grid-2"><button type="button" class="btn btn-outline" onclick="cancelarCadastroMedicamentoV67()">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div></form></div>
-      <div class="card"><div class="v49-head"><div><h3>Remédios cadastrados</h3><div class="small">Períodos anteriores são preservados. Ao iniciar novamente o mesmo remédio, a contagem recomeça na primeira dose do novo período.</div></div></div><div id="lista-cadastro-remedios-v67" class="medicine-registry-list-v67"></div></div>
-      <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>`;
-}
-function renderResumoCadastroMedicamentosV67(){
-    const el=document.getElementById('resumo-cadastro-remedios-v67');if(!el)return;const hoje=hojeISO(),lista=listaMedicamentosV67(),ativos=lista.filter(m=>periodoAtivoEmDataV67(m,hoje));
-    el.textContent=lista.length?(lista.length+' medicamento(s) cadastrado(s) • '+ativos.length+' em andamento'):'Nenhum medicamento cadastrado.';
-}
-function statusPeriodoMedicamentoV67(periodo){const hoje=hojeISO();if(!periodo)return['Sem período',''];if(periodo.dataInicio>hoje)return['Futuro','future'];if(!periodo.dataFim||hoje<periodo.dataFim)return['Em andamento','active'];return['Encerrado',''];}
-function renderCadastroMedicamentosV67(){
-    garantirViewCadastroMedicamentosV67();renderResumoCadastroMedicamentosV67();const el=document.getElementById('lista-cadastro-remedios-v67');if(!el)return;const lista=[...listaMedicamentosV67()].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
-    if(!lista.length){el.innerHTML='<div class="small">Nenhum remédio cadastrado. Toque em “Cadastrar remédio” para começar.</div>';return;}
-    el.innerHTML=lista.map(m=>{const periodos=periodosOrdenadosV67(m),p=periodos[periodos.length-1]||null,[status,classe]=statusPeriodoMedicamentoV67(p),anteriores=Math.max(0,periodos.length-1);return '<div class="medicine-registry-row-v67"><div class="medicine-registry-head-v67"><div><div class="medicine-registry-name-v67">'+escapeHtml(m.nome)+'</div><div class="medicine-registry-meta-v67">'+(p?('Último período: '+formatDateBR(p.dataInicio)+(p.dataFim?' até '+formatDateBR(p.dataFim):' • sem data final')):'Sem período')+(anteriores?' • '+anteriores+' período(s) anterior(es)':'')+'</div></div><span class="medicine-registry-status-v67 '+classe+'">'+status+'</span></div><div class="medicine-registry-actions-v67"><button type="button" class="btn btn-outline" onclick="editarMedicamentoV67(\''+escapeHtml(m.id)+'\')">Editar</button><button type="button" class="btn btn-outline" onclick="novoPeriodoMedicamentoV67(\''+escapeHtml(m.id)+'\')">+ Novo período</button><button type="button" class="btn btn-clear-outline" onclick="excluirMedicamentoV67(\''+escapeHtml(m.id)+'\')">Excluir</button></div></div>';}).join('');
-}
-function abrirCadastroRemediosV67(){garantirViewCadastroMedicamentosV67();showView('tratamentos-v49',null);renderCadastroMedicamentosV67();}
-function preencherFormCadastroMedicamentoV67(med=null,novoPeriodo=false){
-    garantirViewCadastroMedicamentosV67();const card=document.getElementById('form-cadastro-medicamento-card-v67');card?.classList.remove('hidden');medicamentoEdicaoV67=novoPeriodo?'':(med?.id||'');
-    const p=novoPeriodo?null:periodoMaisRecenteV67(med);document.getElementById('cadastro-medicamento-id-v67').value=novoPeriodo?('novo-periodo:'+(med?.id||'')):medicamentoEdicaoV67;document.getElementById('cadastro-medicamento-nome-v67').value=med?.nome||'';document.getElementById('cadastro-medicamento-nome-v67').readOnly=!!novoPeriodo;document.getElementById('cadastro-medicamento-inicio-v67').value=novoPeriodo?hojeISO():(p?.dataInicio||hojeISO());document.getElementById('cadastro-medicamento-fim-v67').value=novoPeriodo?'':(p?.dataFim||'');const title=document.getElementById('form-cadastro-medicamento-title-v67');if(title)title.textContent=novoPeriodo?'Novo período • '+(med?.nome||'Remédio'):(med?'Editar remédio':'Cadastrar remédio');card?.scrollIntoView({behavior:'smooth',block:'start'});
-}
-function novoMedicamentoV67(){preencherFormCadastroMedicamentoV67(null,false);}
-function editarMedicamentoV67(id){const med=listaMedicamentosV67().find(m=>String(m.id)===String(id));if(med)preencherFormCadastroMedicamentoV67(med,false);}
-function novoPeriodoMedicamentoV67(id){const med=listaMedicamentosV67().find(m=>String(m.id)===String(id));if(!med)return;const ativo=periodoAtivoEmDataV67(med,hojeISO());if(ativo)return alert('Este remédio já possui um período em andamento. Edite o cadastro atual antes de iniciar outro.');preencherFormCadastroMedicamentoV67(med,true);}
-function cancelarCadastroMedicamentoV67(){medicamentoEdicaoV67='';document.getElementById('form-cadastro-medicamento-card-v67')?.classList.add('hidden');const nome=document.getElementById('cadastro-medicamento-nome-v67');if(nome)nome.readOnly=false;}
-function validarPeriodoV67(inicio,fim){if(!dataISOValida(inicio))throw new Error('Informe uma data inicial válida.');if(fim&&(!dataISOValida(fim)||fim<=inicio))throw new Error('A data final precisa ser posterior à data inicial.');}
-function persistirCadastroMedicamentosV67(motivo,selecionarNome=''){motivoProximaCopia=motivo;salvarDados(true,true);renderSeletorMedicamentosV67(selecionarNome);renderResumoCadastroMedicamentosV67();renderCadastroMedicamentosV67();renderResumoRemedioAtualV21();renderCardsDashboardV67();}
-function salvarCadastroMedicamentoV67(evento){
-    evento?.preventDefault?.();try{
-        const token=document.getElementById('cadastro-medicamento-id-v67')?.value||'',nome=document.getElementById('cadastro-medicamento-nome-v67')?.value.trim()||'',inicio=document.getElementById('cadastro-medicamento-inicio-v67')?.value||'',fim=document.getElementById('cadastro-medicamento-fim-v67')?.value||'';
-        if(!nome)throw new Error('Informe o nome do remédio.');validarPeriodoV67(inicio,fim);appData.medicamentosCadastrados=listaMedicamentosV67();const agora=new Date().toISOString();
-        if(token.startsWith('novo-periodo:')){const id=token.slice('novo-periodo:'.length),med=appData.medicamentosCadastrados.find(m=>String(m.id)===String(id));if(!med)throw new Error('Remédio não encontrado.');if(periodoAtivoEmDataV67(med,inicio))throw new Error('Já existe um período deste remédio em andamento nessa data.');med.periodos.push({id:novoIdMedicamentoV67('periodo'),dataInicio:inicio,dataFim:fim,criadoEm:agora,atualizadoEm:agora});med.atualizadoEm=agora;
-        }else if(token){const med=appData.medicamentosCadastrados.find(m=>String(m.id)===String(token));if(!med)throw new Error('Remédio não encontrado.');const p=periodoMaisRecenteV67(med);med.nome=nome;if(p){p.dataInicio=inicio;p.dataFim=fim;p.atualizadoEm=agora;}else med.periodos=[{id:novoIdMedicamentoV67('periodo'),dataInicio:inicio,dataFim:fim,criadoEm:agora,atualizadoEm:agora}];med.atualizadoEm=agora;
-        }else{const existente=medicamentoPorNomeV67(nome);if(existente){if(periodoAtivoEmDataV67(existente,inicio))throw new Error('Este remédio já possui um período em andamento. Use Editar ou informe uma data final antes de iniciar outro período.');existente.periodos.push({id:novoIdMedicamentoV67('periodo'),dataInicio:inicio,dataFim:fim,criadoEm:agora,atualizadoEm:agora});existente.atualizadoEm=agora;}else appData.medicamentosCadastrados.push({id:novoIdMedicamentoV67('med'),nome,periodos:[{id:novoIdMedicamentoV67('periodo'),dataInicio:inicio,dataFim:fim,criadoEm:agora,atualizadoEm:agora}],observacao:'',criadoEm:agora,atualizadoEm:agora});}
-        appData.medicamentosCadastrados=appData.medicamentosCadastrados.map(normalizarMedicamentoCadastroV67).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));cancelarCadastroMedicamentoV67();persistirCadastroMedicamentosV67(token?'Antes de editar cadastro de remédio':'Antes de cadastrar remédio',nome);
-    }catch(e){alert(e?.message||String(e));}
-}
-function excluirMedicamentoV67(id){const med=listaMedicamentosV67().find(m=>String(m.id)===String(id));if(!med)return;if(!confirm('Excluir o cadastro de '+med.nome+'? Os lançamentos históricos de doses serão preservados.'))return;appData.medicamentosCadastrados=listaMedicamentosV67().filter(m=>String(m.id)!==String(id));persistirCadastroMedicamentosV67('Antes de excluir cadastro de remédio');}
-
-function renderSeletorMedicamentosV67(valorPreferido=''){
-    const select=document.getElementById('remedio-nome');if(!select||select.tagName!=='SELECT')return;
-    const valor=valorPreferido||select.value||'';const nomes=[...new Set(listaMedicamentosV67().map(m=>m.nome).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
-    select.innerHTML='<option value="">Selecione</option>'+nomes.map(n=>'<option value="'+escapeHtml(n)+'">'+escapeHtml(n)+'</option>').join('');
-    const escolhido=nomes.find(n=>chaveMedicamentoV67(n)===chaveMedicamentoV67(valor));if(escolhido)select.value=escolhido;
-}
-function abrirCadastroRapidoV67(){
-    const box=document.getElementById('cadastro-rapido-remedio-v67');if(!box)return;box.classList.toggle('hidden');
-    if(!box.classList.contains('hidden')){document.getElementById('quick-med-inicio-v67').value=document.getElementById('remedio-data')?.value||hojeISO();document.getElementById('quick-med-nome-v67')?.focus();}
-}
-function fecharCadastroRapidoV67(){document.getElementById('cadastro-rapido-remedio-v67')?.classList.add('hidden');}
-function salvarCadastroRapidoV67(){
-    try{
-        const nome=document.getElementById('quick-med-nome-v67')?.value.trim()||'',inicio=document.getElementById('quick-med-inicio-v67')?.value||'',fim=document.getElementById('quick-med-fim-v67')?.value||'';
-        if(!nome)throw new Error('Informe o nome do remédio.');validarPeriodoV67(inicio,fim);appData.medicamentosCadastrados=listaMedicamentosV67();const existente=medicamentoPorNomeV67(nome),agora=new Date().toISOString();
-        if(existente){if(periodoAtivoEmDataV67(existente,inicio))throw new Error('Este remédio já possui um período em andamento.');existente.periodos.push({id:novoIdMedicamentoV67('periodo'),dataInicio:inicio,dataFim:fim,criadoEm:agora,atualizadoEm:agora});existente.atualizadoEm=agora;}else appData.medicamentosCadastrados.push({id:novoIdMedicamentoV67('med'),nome,periodos:[{id:novoIdMedicamentoV67('periodo'),dataInicio:inicio,dataFim:fim,criadoEm:agora,atualizadoEm:agora}],observacao:'',criadoEm:agora,atualizadoEm:agora});
-        appData.medicamentosCadastrados=appData.medicamentosCadastrados.map(normalizarMedicamentoCadastroV67);motivoProximaCopia='Antes de cadastro rápido de remédio';salvarDados(true,true);renderSeletorMedicamentosV67(nome);renderResumoCadastroMedicamentosV67();renderCadastroMedicamentosV67();fecharCadastroRapidoV67();document.getElementById('quick-med-nome-v67').value='';document.getElementById('quick-med-fim-v67').value='';
-    }catch(e){alert(e?.message||String(e));}
-}
-
-/* Dose Atual: somente medicamentos cujo período esteja ativo hoje. */
-renderResumoRemedioAtualV21 = function(){
-    const container=document.getElementById('resumo-remedio-atual');if(!container)return;const hoje=hojeISO(),ativos=[];
-    for(const med of listaMedicamentosV67()){
-        const periodo=periodoAtivoEmDataV67(med,hoje);if(!periodo)continue;const atual=ultimaDosePeriodoV67(med,periodo,hoje);if(!atual)continue;const doseAtual=numeroValido(atual.mg);if(doseAtual===null||Math.abs(doseAtual)<0.000001)continue;
-        const regs=registrosPeriodoMedicamentoV67(med,periodo).filter(r=>r.data<=hoje&&String(r.id)!==String(atual.id));const anterior=[...regs].reverse().find(r=>numeroValido(r.mg)!==null)||null;const dias=diasUsoMedicamentoV67(med,periodo,hoje);ativos.push({med,atual,anterior,dias});
-    }
-    if(!ativos.length){container.innerHTML='';return;}
-    ativos.sort((a,b)=>String(b.atual.data).localeCompare(String(a.atual.data)));
-    container.innerHTML=ativos.map(({med,atual,anterior,dias})=>{const comparacao=comparacaoV21(numeroValido(atual.mg),numeroValido(anterior?.mg),' mg',()=>null);return '<div class="card medicine-summary-card record-summary-card"><div class="label">Dose Atual</div><div class="value medicine-current-dose">'+formatBR(atual.mg)+' mg</div><div class="medicine-current-name">'+escapeHtml(med.nome||'Remédio')+'</div><div class="medicine-day-count-v67">'+(dias===null?'Contagem inicia na primeira dose':dias+' dia'+(dias===1?'':'s')+' de uso')+'</div><div class="metric-delta '+comparacao.classe+'">'+comparacao.texto+'</div></div>';}).join('');
-};
-
-const renderRemediosAntesV67=renderRemedios;
-renderRemedios=function(...args){const valor=document.getElementById('remedio-nome')?.value||'';const r=renderRemediosAntesV67(...args);renderSeletorMedicamentosV67(valor);renderResumoRemedioAtualV21();configurarCardCadastroMedicamentosV67();return r;};
-
-/* O antigo Esquema de Tratamento permanece apenas como dado legado para compatibilidade.
-   Na interface, ele é substituído integralmente pelo Cadastro de Remédios. */
-renderResumoTratamentosV49=function(){renderResumoCadastroMedicamentosV67();};
-renderTratamentosV49=function(){renderCadastroMedicamentosV67();};
-abrirTratamentosV49=function(){abrirCadastroRemediosV67();};
-window.renderTratamentosV49=renderTratamentosV49;window.abrirTratamentosV49=abrirTratamentosV49;
-
-function mediaCalorias7DiasV67(){
-    const hoje=hojeISO(),fim=Date.parse(hoje+'T00:00:00Z'),inicio=fim-6*86400000,valores=[];
-    for(const dia of (appData.calorias||[])){
-        if(!dataISOValida(String(dia.data||'')))continue;const ms=Date.parse(dia.data+'T00:00:00Z');if(ms<inicio||ms>fim)continue;
-        const liquido=totalConsumidoV24(dia)-totalGastoV24(dia);if(Number.isFinite(liquido))valores.push(liquido);
-    }
-    if(!valores.length)return null;return{media:valores.reduce((s,v)=>s+v,0)/valores.length,dias:valores.length};
-}
-function tratamentoAtualDashboardV67(){
-    const hoje=hojeISO(),opcoes=[];
-    for(const med of listaMedicamentosV67()){
-        const p=periodoAtivoEmDataV67(med,hoje);if(!p)continue;const primeira=primeiraDosePeriodoV67(med,p);if(!primeira)continue;const dias=diasEntreInclusivoV67(primeira.data,hoje);if(dias!==null)opcoes.push({med,primeira,dias});
-    }
-    /* Se houver mais de um remédio ativo, destaca o tratamento iniciado mais recentemente. */
-    opcoes.sort((a,b)=>String(b.primeira.data).localeCompare(String(a.primeira.data)));return opcoes[0]||null;
-}
-function renderCardsDashboardV67(){
-    const media=mediaCalorias7DiasV67(),v=document.getElementById('dash-media-calorias-v67'),i=document.getElementById('dash-media-calorias-info-v67');
-    if(v){v.textContent=media?Math.round(media.media).toLocaleString('pt-BR')+' kcal/dia':'Não há dados';v.className='value neutral';}
-    if(i)i.textContent=media?('Consumido − gasto • '+media.dias+' dia'+(media.dias===1?'':'s')+' com lançamento'):'Nenhum lançamento nos últimos 7 dias';
-    const trat=tratamentoAtualDashboardV67(),dv=document.getElementById('dash-dias-remedio-v67'),di=document.getElementById('dash-dias-remedio-info-v67');
-    if(dv){dv.textContent=trat?(trat.dias+' dia'+(trat.dias===1?'':'s')):'Não há dados';dv.className='value neutral';}
-    if(di)di.textContent=trat?(trat.med.nome+' • desde '+formatDateBR(trat.primeira.data)):'Nenhum tratamento em andamento com dose lançada';
-}
-const renderDashboardAntesV67=renderDashboard;
-renderDashboard=function(...args){const r=renderDashboardAntesV67(...args);renderCardsDashboardV67();return r;};
-
-const showViewAntesV67=showView;
-showView=function(viewId,navEl){
-    if(viewId==='tratamentos-v49')garantirViewCadastroMedicamentosV67();
-    const r=showViewAntesV67(viewId,navEl);
-    if(viewId==='tratamentos-v49'){const t=document.getElementById('page-title');if(t)t.textContent='Cadastro de Remédios';renderCadastroMedicamentosV67();}
-    return r;
-};window.showView=showView;
-
-const updateUIAntesV67=updateUI;
-updateUI=function(...args){
-    const r=updateUIAntesV67(...args);configurarCardCadastroMedicamentosV67();renderSeletorMedicamentosV67();renderResumoRemedioAtualV21();renderResumoCadastroMedicamentosV67();renderCardsDashboardV67();if(activeViewId==='tratamentos-v49')renderCadastroMedicamentosV67();return r;
-};
-
-const editarRemedioAntesV67=editarRemedio;
-editarRemedio=function(id){
-    const item=(appData.remedios||[]).find(x=>String(x.id)===String(id));
-    if(item&&!medicamentoPorNomeV67(item.nome)){
-        const p=inferirPeriodosDosLancamentosV67((appData.remedios||[]).filter(r=>chaveMedicamentoV67(r.nome)===chaveMedicamentoV67(item.nome)));
-        if(p.length){appData.medicamentosCadastrados=listaMedicamentosV67();appData.medicamentosCadastrados.push(normalizarMedicamentoCadastroV67({id:novoIdMedicamentoV67('med'),nome:item.nome,periodos:p}));}
-    }
-    const r=editarRemedioAntesV67(id);renderSeletorMedicamentosV67(item?.nome||'');return r;
-};window.editarRemedio=editarRemedio;
-
-window.abrirCadastroRemediosV67=abrirCadastroRemediosV67;window.novoMedicamentoV67=novoMedicamentoV67;window.editarMedicamentoV67=editarMedicamentoV67;window.novoPeriodoMedicamentoV67=novoPeriodoMedicamentoV67;window.cancelarCadastroMedicamentoV67=cancelarCadastroMedicamentoV67;window.salvarCadastroMedicamentoV67=salvarCadastroMedicamentoV67;window.excluirMedicamentoV67=excluirMedicamentoV67;window.abrirCadastroRapidoV67=abrirCadastroRapidoV67;window.fecharCadastroRapidoV67=fecharCadastroRapidoV67;window.salvarCadastroRapidoV67=salvarCadastroRapidoV67;
-
-window.addEventListener('load',()=>setTimeout(()=>{
-    garantirEstilosMedicamentosV67();garantirViewCadastroMedicamentosV67();configurarCardCadastroMedicamentosV67();renderSeletorMedicamentosV67();renderResumoRemedioAtualV21();renderResumoCadastroMedicamentosV67();renderCardsDashboardV67();
-},950));
-
-
-
-/* V68 — Painel sobre a base V67. Navegação e cálculos compartilham os dados existentes. */
-function referenciaPesoPainelV68() {
-    const pesos = obterPesosValidosParaCalculo().filter(p => dataISOValida(p.data) && p.data <= hojeISO() && numeroValido(p.peso) > 0);
-    const ultimo = pesos[pesos.length - 1];
-    return ultimo ? {data:ultimo.data, peso:numeroValido(ultimo.peso), registrado:true, quantidade:pesos.length}
-        : {data:appData.config?.dataInicial || '', peso:numeroValido(appData.config?.pesoInicial), registrado:false, quantidade:0};
-}
-
-function pesoProjetadoPainelV68(data) {
-    const referencia = referenciaPesoPainelV68();
-    const ritmo = calcularMediaUltimos7DiasPainelV69();
-    if (!referencia.registrado || !dataISOValida(data) || !Number.isFinite(ritmo)) return NaN;
-    return referencia.peso + diffDays(data, referencia.data) * ritmo;
-}
-
-function previsaoRitmoPainelV68() {
-    if (!temConfigCalculo()) return {estado:'configurar'};
-    const referencia = referenciaPesoPainelV68();
-    const inicial = numeroValido(appData.config.pesoInicial);
-    const meta = numeroValido(appData.config.pesoMeta);
-    const direcao = Math.sign(meta - inicial);
-    const ritmo = calcularMediaUltimos7DiasPainelV69();
-    if (obterCicloAtivoV48()?.tipo === 'manutencao') return {estado:'manutencao'};
-    if (!referencia.registrado) return {estado:'aguardando'};
-    if (direcao === 0 || (direcao < 0 ? referencia.peso <= meta : referencia.peso >= meta)) {
-        const primeiro = obterPesosValidosParaCalculo().find(p => direcao === 0 ? numeroValido(p.peso) === meta : (direcao < 0 ? numeroValido(p.peso) <= meta : numeroValido(p.peso) >= meta));
-        return {estado:'atingida', data:primeiro?.data || referencia.data, referencia};
-    }
-    if (!Number.isFinite(ritmo)) return {estado:'aguardando', referencia};
-    if (ritmo === 0 || Math.sign(ritmo) !== direcao) return {estado:'sem-ritmo', referencia, ritmo};
-    const dias = Math.max(0, Math.ceil((meta - referencia.peso) / ritmo));
-    const data = addDiasISO(referencia.data, dias);
-    if (!dataISOValida(data)) return {estado:'sem-ritmo', referencia, ritmo};
-    return {estado:data < hojeISO() ? 'desatualizada' : 'prevista', data, dias, referencia, ritmo};
-}
-
-function textoRitmoPainelV68(ritmo) {
-    if (!Number.isFinite(ritmo)) return 'Sem base suficiente';
-    const gramas = Math.abs(ritmo * 1000).toLocaleString('pt-BR',{maximumFractionDigits:1});
-    return gramas + ' g/dia' + (ritmo > 0 ? ' de ganho' : '');
-}
-
-function htmlDataPainelV68(data) {
-    if (!dataISOValida(data)) return '<div class="pl68-empty-forecast">Sem previsão</div>';
-    const dt = parseDate(data), distancia = diffDays(data,hojeISO());
-    const principal = dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}).replace(' de ',' ').replace('.','');
-    const detalhe = distancia > 0 ? 'Em '+distancia+' dia'+(distancia===1?'':'s') : distancia === 0 ? 'Hoje' : 'Há '+Math.abs(distancia)+' dia'+(distancia===-1?'':'s');
-    return '<div class="pl68-date-main">'+escapeHtml(principal)+'</div><div class="pl68-date-year">'+dt.getFullYear()+'</div><div class="forecast-detail">'+detalhe+'</div>';
-}
-
-function renderExplicacaoPainelV68() {
-    const out=document.getElementById('painel-calculo-conteudo-v68');if(!out)return;
-    if(!temConfigCalculo()){out.innerHTML='<p>Abra Ciclos e configure o peso inicial, a meta final e a meta diária.</p>';return;}
-    const ref=referenciaPesoPainelV68(), cfg=appData.config, ritmo=calcularMediaUltimos7DiasPainelV69();
-    const dias=ref.registrado?diffDays(ref.data,cfg.dataInicial):0;
-    out.innerHTML='<h4>Pela meta do ciclo</h4><dl><dt>Início do ciclo</dt><dd>'+formatDateBR(cfg.dataInicial)+'</dd><dt>Peso inicial</dt><dd>'+formatBR(cfg.pesoInicial)+' kg</dd><dt>Meta final</dt><dd>'+formatBR(cfg.pesoMeta)+' kg</dd><dt>Meta diária</dt><dd>'+textoRitmoPainelV68(numeroValido(cfg.metaKgPorDia))+'</dd></dl><p>A data planejada usa o percurso completo desde o início do ciclo. Novas pesagens não mudam esse plano.</p><h4>Pelo ritmo observado</h4><dl><dt>Última pesagem</dt><dd>'+(ref.registrado?formatDateBR(ref.data):'Sem registro')+'</dd><dt>Pesagens do ciclo</dt><dd>'+ref.quantidade+'</dd><dt>Dias até a última pesagem</dt><dd>'+Math.max(0,dias)+'</dd><dt>Ritmo do ciclo</dt><dd>'+textoRitmoPainelV68(ritmo)+'</dd></dl><p>O ritmo usa a diferença entre o peso inicial e a última pesagem, dividida pelos dias entre essas datas. A previsão parte da data dessa pesagem.</p><p>Projeção matemática, se o ritmo continuar. Dias sem pesagem não são tratados como estagnação.</p>';
-}
-
-function abrirExplicacaoPainelV68() {
-    const detalhes=document.getElementById('painel-calculo-v68');if(!detalhes)return;
-    renderExplicacaoPainelV68();detalhes.open=true;detalhes.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
-}
-
-function renderPainelV68() {
-    const texto=(id,valor)=>{const el=document.getElementById(id);if(el)el.textContent=valor;};
-    const ciclo=obterCicloAtivoV48(), cfg=appData.config||{}, pronto=temConfigCalculo();
-    const ref=referenciaPesoPainelV68(), ritmo=calcularMediaUltimos7DiasPainelV69();
-    const cicloDias=dataISOValida(cfg.dataInicial)?Math.max(0,diffDays(hojeISO(),cfg.dataInicial))+1:null;
-    texto('painel-ciclo-v68',(ciclo?.nome||'Ciclo livre')+(cicloDias?' · Dia '+cicloDias:''));
-    texto('painel-titulo-v68',ciclo?.tipo==='manutencao'?'Como está minha manutenção?':'Quando chego à meta?');
-    texto('painel-objetivo-v68',pronto?'Objetivo deste ciclo: '+formatBR(cfg.pesoMeta)+' kg':'Configure o ciclo para acompanhar as previsões.');
-    texto('painel-meta-dia-v68',pronto?textoRitmoPainelV68(numeroValido(cfg.metaKgPorDia)):'—');
-    const media=document.getElementById('dash-media-dia');if(media){media.textContent=pronto?textoRitmoPainelV68(ritmo):'—';media.className='pl68-rate';}
-    const idade=ref.registrado?diffDays(hojeISO(),ref.data):null;
-    texto('painel-data-peso-v68',ref.registrado?'Última pesagem · '+(idade===0?'hoje':formatDateBR(ref.data)):'Peso inicial do ciclo');
-    const barra=document.getElementById('painel-progresso-barra-v68'), progresso=document.getElementById('painel-progresso-v68');
-    const pesoInicial=numeroValido(cfg.pesoInicial),meta=numeroValido(cfg.pesoMeta),direcao=Math.sign(meta-pesoInicial);
-    const valorProgresso=pronto && meta!==pesoInicial ? Math.max(0,Math.min(100,100*(ref.peso-pesoInicial)/(meta-pesoInicial))) : 0;
-    if(barra)barra.style.width=valorProgresso+'%';if(progresso)progresso.setAttribute('aria-valuenow',valorProgresso.toFixed(1));
-    texto('painel-progresso-texto-v68',pronto?Math.round(valorProgresso)+'% do objetivo':'Aguardando configuração');
-    const insight=document.getElementById('painel-diferenca-v68');if(insight)insight.className='pl68-insight neutral';
-    if(!pronto){texto('painel-diferenca-v68','Configure seu ciclo para acompanhar as duas previsões.');renderExplicacaoPainelV68();renderGraficoPainelV68();return;}
-    if(ciclo?.tipo==='manutencao'){
-        texto('painel-objetivo-v68','Faixa de manutenção: '+formatBR(ciclo.pesoMetaMin)+' a '+formatBR(ciclo.pesoMetaMax)+' kg');
-        texto('painel-diferenca-v68','Acompanhamento pela faixa de manutenção deste ciclo.');
-        texto('painel-progresso-texto-v68','Manutenção');if(progresso)progresso.hidden=true;
-        renderExplicacaoPainelV68();renderGraficoPainelV68();return;
-    }
-    if(progresso)progresso.hidden=false;
-    texto('dash-falta-kg',formatBR(direcao<0?Math.max(0,ref.peso-meta):Math.max(0,meta-ref.peso))+' kg');
-    const planejada=calcularDataPlanejadaParaMeta(), real=previsaoRitmoPainelV68();
-    const planoEl=document.getElementById('dash-previsao-meta'),realEl=document.getElementById('dash-previsao');
-    if(planoEl)planoEl.innerHTML=planejada?htmlDataPainelV68(planejada.data):'<div class="pl68-empty-forecast">Sem previsão</div><div class="forecast-detail">Confira a meta diária.</div>';
-    if(realEl){
-        if(real.estado==='prevista'||real.estado==='desatualizada')realEl.innerHTML=htmlDataPainelV68(real.data);
-        else if(real.estado==='atingida')realEl.innerHTML='<div class="pl68-empty-forecast">Meta atingida</div><div class="forecast-detail">'+formatDateBR(real.data)+'</div>';
-        else realEl.innerHTML='<div class="pl68-empty-forecast">'+(real.estado==='sem-ritmo'?'Sem previsão':'Aguardando pesos')+'</div><div class="forecast-detail">'+(real.estado==='sem-ritmo'?'O ritmo ainda não aponta para a meta.':'Registre pesos em dias diferentes.')+'</div>';
-    }
-    if(real.estado==='desatualizada')texto('painel-diferenca-v68','A previsão passou. Registre um novo peso para atualizar a estimativa.');
-    else if(real.estado==='atingida'){texto('painel-diferenca-v68','Meta alcançada em '+formatDateBR(real.data)+'.');if(insight)insight.className='pl68-insight positive';}
-    else if(real.estado==='prevista'&&planejada){
-        const diferenca=diffDays(planejada.data,real.data);
-        texto('painel-diferenca-v68',diferenca===0?'Chegada projetada na mesma data do plano.':'Chegada projetada '+Math.abs(diferenca)+' dia'+(Math.abs(diferenca)===1?'':'s')+' '+(diferenca>0?'antes':'depois')+' do plano.');
-        if(insight)insight.className='pl68-insight '+(diferenca>=0?'positive':'negative');
-    }else texto('painel-diferenca-v68','As previsões serão comparadas quando houver um ritmo na direção da meta.');
-    const metaHoje=calcularMetaDaData(hojeISO()),saldo=metaHoje-ref.peso,bom=direcao<=0?saldo>=0:saldo<=0;
-    texto('dash-status',bom?'Meta em dia':'Meta em atraso');
-    const status=document.getElementById('dash-status');if(status)status.className=bom?'positive':'negative';
-    texto('dash-saldo',saldo===0?'No peso planejado':formatBR(Math.abs(saldo))+' kg '+(saldo>0?'abaixo':'acima'));
-    const saldoEl=document.getElementById('dash-saldo');if(saldoEl)saldoEl.className=bom?'positive':'negative';
-    texto('dash-info-meta',ref.registrado?(idade===0?'Comparação com a pesagem de hoje.':'Comparação com a última pesagem, de '+formatDateBR(ref.data)+' ('+idade+' dia'+(idade===1?'':'s')+' atrás).'):'Registre uma pesagem para atualizar seu acompanhamento.');
-    renderExplicacaoPainelV68();renderGraficoPainelV68();
-}
-
-function renderGraficoPainelV68() {
-    const box=document.getElementById('painel-grafico-v68');if(!box)return;
-    if(activeViewId!=='dashboard')return;
-    const registros=obterPesosValidosParaCalculo(), inicio=appData.config?.dataInicial, inicial=numeroValido(appData.config?.pesoInicial);
-    if(!temConfigCalculo()||!registros.length||!dataISOValida(inicio)){
-        box.innerHTML='<div class="pl68-chart-empty">Registre pesagens para acompanhar a evolução do ciclo.</div>';const periodo=document.getElementById('painel-grafico-periodo-v68');if(periodo)periodo.textContent='';return;
-    }
-    const ultimo=registros[registros.length-1], dias=diffDays(ultimo.data,inicio), width=Math.max(260,Math.round(box.clientWidth||360)), height=220;
-    if(dias<=0){box.innerHTML='<div class="pl68-chart-empty">A evolução aparecerá com pesagens em dias diferentes.</div>';return;}
-    const pontos=[{data:inicio,peso:inicial},...registros],porData=new Map(pontos.map(p=>[p.data,{data:p.data,peso:numeroValido(p.peso)}]));
-    const todos=[...porData.values()].sort((a,b)=>a.data.localeCompare(b.data));
-    const plano=[{data:inicio,peso:inicial},{data:ultimo.data,peso:calcularMetaDaData(ultimo.data)}].filter(p=>Number.isFinite(p.peso));
-    const valores=[...todos,...plano].map(p=>p.peso),min=Math.min(...valores),max=Math.max(...valores),margem=Math.max(.35,(max-min)*.12),lo=min-margem,hi=max+margem;
-    const left=58,right=12,top=28,bottom=165,x=d=>left+diffDays(d,inicio)/dias*(width-left-right),y=w=>bottom-(w-lo)/(hi-lo)*(bottom-top);
-    const numero=n=>Number(n).toFixed(2),texto=(v)=>escapeHtml(String(v));
-    const selecionados=todos.filter((p,i)=>i===0||i===todos.length-1||i%Math.max(1,Math.ceil(todos.length/150))===0);
-    const caminho=lista=>lista.map((p,i)=>(i?'L':'M')+numero(x(p.data))+','+numero(y(p.peso))).join(' ');
-    let svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+width+' '+height+'" role="img" aria-label="Peso e meta do ciclo até a última pesagem"><title>Evolução do ciclo</title><desc>'+texto('Peso inicial '+formatBR(inicial)+' kg. Última pesagem '+formatBR(ultimo.peso)+' kg em '+formatDateBR(ultimo.data)+'.')+'</desc>';
-    svg+='<text x="0" y="15" font-size="12" fill="var(--text-secondary)">Peso (kg)</text>';
-    for(let i=0;i<4;i++){const valor=lo+(hi-lo)*i/3,yy=y(valor);svg+='<line x1="'+left+'" x2="'+(width-right)+'" y1="'+numero(yy)+'" y2="'+numero(yy)+'" stroke="var(--border)"/><text x="'+(left-9)+'" y="'+numero(yy+4)+'" text-anchor="end" font-size="12" fill="var(--text-secondary)">'+texto(valor.toLocaleString('pt-BR',{maximumFractionDigits:1}))+'</text>';}
-    svg+='<path d="'+caminho(plano)+'" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 4"/><path d="'+caminho(selecionados)+'" fill="none" stroke="var(--pl68-teal)" stroke-width="2.5" stroke-linejoin="round"/>';
-    svg+='<circle cx="'+numero(x(ultimo.data))+'" cy="'+numero(y(numeroValido(ultimo.peso)))+'" r="3" fill="var(--pl68-teal)"/>';
-    const rotulos=[[inicio,left,'start'],[ultimo.data,width-right,'end']];
-    if(width>=340&&dias>3)rotulos.splice(1,0,[addDiasISO(inicio,Math.round(dias/2)),x(addDiasISO(inicio,Math.round(dias/2))),'middle']);
-    for(const [data,xx,alinha]of rotulos)svg+='<text x="'+numero(xx)+'" y="187" text-anchor="'+alinha+'" font-size="12" fill="var(--text-secondary)">'+texto(formatDateCurtaBR(data))+'</text>';
-    svg+='<text x="'+(width-right)+'" y="211" text-anchor="end" font-size="12" fill="var(--text-secondary)">Data</text></svg>';box.innerHTML=svg;
-    const periodo=document.getElementById('painel-grafico-periodo-v68');if(periodo)periodo.textContent=formatDateBR(inicio)+' a '+formatDateBR(ultimo.data);
-}
-
-function garantirRotasPainelV68() {
-    const container=document.querySelector('#app .container');if(!container)return;
-    if(!document.getElementById('view-diario-v68')){
-        const diario=document.createElement('section');diario.id='view-diario-v68';diario.className='view hidden';
-        diario.innerHTML='<p id="painel-diario-data-v68" class="pl68-diary-date"></p><div id="painel-diario-resumo-v68" class="card pl68-diary-summary"></div><div class="pl68-hub-grid"><button type="button" class="pl68-hub-button pl68-hub-full" onclick="abrirLinhaDiaV39()"><strong>Ver meu dia</strong><span>Pesagens, alimentação, fotos e observações na mesma data</span></button><button type="button" class="pl68-hub-button" data-view="historico" onclick="showView(\'historico\')"><strong>Peso</strong><span>Pesagens e bioimpedância</span></button><button type="button" class="pl68-hub-button" data-view="medidas" onclick="showView(\'medidas\')"><strong>Medidas</strong><span>Registros e fotos corporais</span></button><button type="button" class="pl68-hub-button" data-view="calorias" onclick="showView(\'calorias\')"><strong>Alimentação</strong><span>Refeições, gastos e nutrientes</span></button><button type="button" class="pl68-hub-button" data-view="remedio" onclick="showView(\'remedio\')"><strong>Remédios</strong><span>Aplicações e histórico de uso</span></button><button type="button" class="pl68-hub-button" onclick="abrirCalendarioV49()"><strong>Calendário</strong><span>Consultar outra data</span></button><button type="button" class="pl68-hub-button" onclick="abrirEventosV40()"><strong>Eventos</strong><span>Acontecimentos e marcadores da jornada</span></button></div>';
-        container.appendChild(diario);
-    }
-    if(!document.getElementById('view-mais-v68')){
-        const mais=document.createElement('section');mais.id='view-mais-v68';mais.className='view hidden';
-        mais.innerHTML='<div class="pl68-hub-grid"><button type="button" class="pl68-hub-button pl68-hub-full" data-view="metas" onclick="showView(\'metas\')"><strong>Cálculos e análises</strong><span>Simulador, datas, tendências, resumos e comparações</span></button><button type="button" class="pl68-hub-button" onclick="abrirCadastroRemediosV67()"><strong>Cadastro de remédios</strong><span>Medicamentos e períodos de uso</span></button><button type="button" class="pl68-hub-button" onclick="abrirComparacaoFotosV46()"><strong>Comparar fotos</strong><span>Antes e depois por categoria</span></button><button type="button" class="pl68-hub-button" onclick="abrirImportadorV60()"><strong>Importar dados</strong><span>Revisar e completar registros</span></button><button type="button" class="pl68-hub-button" onclick="abrirCalendarioV49()"><strong>Calendário</strong><span>Todos os dias da jornada</span></button><button type="button" class="pl68-hub-button" onclick="abrirAjustes()"><strong>Configurações e backups</strong><span>Backup, restauração, segurança e ferramentas do app</span></button><button type="button" class="pl68-hub-button" onclick="abrirCiclosV48()"><strong>Ciclos e metas</strong><span>Ciclo padrão, atual e histórico</span></button></div>';
-        container.appendChild(mais);
-    }
-    const graficos=document.getElementById('view-graficos');
-    if(graficos&&!document.getElementById('painel-atalhos-graficos-v68')){const links=document.createElement('div');links.id='painel-atalhos-graficos-v68';links.className='pl68-shortcuts';links.innerHTML='<button type="button" onclick="showView(\'metas\')">Cálculos e análises</button><button type="button" onclick="abrirComparacaoFotosV46()">Comparar fotos</button>';graficos.prepend(links);}
-}
-
-function renderDiarioPainelV68() {
-    const hoje=hojeISO(),date=document.getElementById('painel-diario-data-v68'),resumo=document.getElementById('painel-diario-resumo-v68');
-    if(date)date.textContent=parseDate(hoje).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
-    if(resumo){const pesos=(appData.pesos||[]).filter(r=>r.data===hoje&&numeroValido(r.peso)>0),dia=(appData.calorias||[]).find(r=>r.data===hoje),refs=dia?.refeicoes?.length||0;resumo.innerHTML='<span>'+(pesos.length?'Peso: <strong>'+formatBR(pesos[pesos.length-1].peso)+' kg</strong>':'Sem pesagem hoje')+'</span><span>'+refs+' refeiç'+(refs===1?'ão registrada':'ões registradas')+'</span>';}
-}
-function abrirDiarioPainelV68(){garantirRotasPainelV68();renderDiarioPainelV68();showView('diario-v68');}
-
-function organizarComplementosPainelV68() {
-    const dash=document.getElementById('view-dashboard'),destino=document.getElementById('painel-complementos-conteudo-v68');if(!dash||!destino)return;
-    for(const filho of [...dash.children]){
-        if(['painel-principal-v68','painel-complementos-v68','quick-weight-fab-v25'].includes(filho.id)||filho.id.startsWith('personalize-footer-')||filho.classList.contains('app-footer-note'))continue;
-        destino.appendChild(filho);
-    }
-    document.getElementById('painel-complementos-v68').hidden=!destino.children.length;
-}
-
-const coletarBlocosAntesPainelV68=coletarBlocosViewV49;
-coletarBlocosViewV49=function(view){
-    if(view?.id==='view-dashboard'){
-        organizarComplementosPainelV68();
-        return [...coletarBlocosAntesPainelV68(document.getElementById('painel-principal-v68')),...coletarBlocosAntesPainelV68(document.getElementById('painel-complementos-conteudo-v68'))];
-    }
-    return coletarBlocosAntesPainelV68(view);
-};
-const coletarGruposCardsAntesPainelV68=coletarGruposCardsV53;
-coletarGruposCardsV53=function(view){return coletarGruposCardsAntesPainelV68(view).filter(g=>!['painel-principal-v68','painel-complementos-conteudo-v68'].includes(g.container.id));};
-const rotuloBlocoAntesPainelV68=rotuloBlocoV49;
-rotuloBlocoV49=function(el){
-    const nomes={'painel-intro-v68':'Ciclo e objetivo','painel-previsoes-v68':'As duas previsões','painel-diferenca-v68':'Comparação das datas','painel-peso-v68':'Peso e progresso','painel-registrar-v68':'Registrar peso','painel-evolucao-v68':'Gráfico do ciclo','dashboard-extra-v67':'Média de calorias e dias de remédio','painel-calculo-v68':'Explicação das previsões'};
-    return nomes[el?.id]||rotuloBlocoAntesPainelV68(el);
-};
-const aplicarLayoutAntesPainelV68=aplicarLayoutViewV49;
-aplicarLayoutViewV49=function(view){
-    if(view?.id!=='view-dashboard')return aplicarLayoutAntesPainelV68(view);
-    organizarComplementosPainelV68();const destino=document.getElementById('painel-complementos-conteudo-v68');if(!destino)return;
-    const principal=document.getElementById('painel-principal-v68'),blocos=coletarBlocosViewV49(view),cfg=cfgLayoutViewV49(view.id),map=new Map(blocos.map(b=>[b.dataset.plBlockKey,b]));
-    if(!ordemPadraoViewsV49.has(view.id))ordemPadraoViewsV49.set(view.id,blocos.map(b=>b.dataset.plBlockKey));
-    const ordem=[...cfg.ordem.filter(k=>map.has(k)),...blocos.map(b=>b.dataset.plBlockKey).filter(k=>!cfg.ordem.includes(k))];
-    const editouPainel=cfg.ordem.some(k=>/^id:painel-(intro|previsoes|diferenca|peso|registrar|evolucao|calculo)-v68$/.test(k));
-    for(const k of ordem){const bloco=map.get(k);if(editouPainel)principal.appendChild(bloco);else if(bloco.parentElement===destino)destino.appendChild(bloco);}
-    const configurado=Object.prototype.hasOwnProperty.call(appData.config.layoutViewsV49,view.id);
-    for(const b of blocos)b.classList.toggle('pl-user-hidden-v49',configurado?cfg.ocultos.includes(b.dataset.plBlockKey):b.dataset.plDefaultHidden==='true');
-    aplicarLayoutCardsV53(view);
-    document.getElementById('painel-complementos-v68').hidden=!destino.children.length;
-};
-
-const renderDashboardAntesPainelV68=renderDashboard;
-renderDashboard=function(...args){const resultado=renderDashboardAntesPainelV68(...args);renderPainelV68();return resultado;};
-const updateUIAntesPainelV68=updateUI;
-updateUI=function(...args){const resultado=updateUIAntesPainelV68(...args);garantirRotasPainelV68();organizarComplementosPainelV68();renderDiarioPainelV68();return resultado;};
-const showViewAntesPainelV68=showView;
-showView=function(viewId,navEl){
-    garantirRotasPainelV68();const retorno=showViewAntesPainelV68(viewId,navEl);document.body.dataset.painelView=viewId;
-    const diario=['diario-v68','historico','peso','medidas','calorias','remedio','linha-dia','calendario-v49'];
-    const grupo=diario.includes(viewId)?'diario-v68':viewId==='dashboard'?'dashboard':viewId==='graficos'?'graficos':viewId==='ciclos-v48'?'ciclos-v48':'mais-v68';
-    document.querySelectorAll('#bottom-nav .nav-item').forEach(b=>{const ativa=b.dataset.view===grupo;b.classList.toggle('active',ativa);if(ativa)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
-    if(viewId==='dashboard'){organizarComplementosPainelV68();renderPainelV68();}
-    if(viewId==='diario-v68'){document.getElementById('page-title').textContent='Diário';renderDiarioPainelV68();}
-    if(viewId==='mais-v68')document.getElementById('page-title').textContent='Mais';
-    return retorno;
-};
-window.showView=showView;
-window.abrirDiarioPainelV68=abrirDiarioPainelV68;
-window.abrirExplicacaoPainelV68=abrirExplicacaoPainelV68;
-window.abrirPesoRapidoV25=abrirPesoRapidoV25;
-window.abrirPerfil=abrirPerfil;
-
-function inicializarPainelV68(){
-    garantirRotasPainelV68();organizarComplementosPainelV68();document.body.dataset.painelView=activeViewId||'dashboard';
-    const textoBotao=(id,rotulo)=>{const b=document.getElementById(id);if(b){b.textContent=rotulo;b.setAttribute('aria-label',rotulo);}};
-    textoBotao('quick-weight-save-v25','Salvar');textoBotao('quick-weight-close-v25','Cancelar');
-    renderPainelV68();renderDiarioPainelV68();
-    const chart=document.getElementById('painel-grafico-v68');if(chart&&typeof ResizeObserver!=='undefined'){let largura=0;new ResizeObserver(entries=>{const proxima=Math.round(entries[0].contentRect.width);if(proxima>0&&proxima!==largura){largura=proxima;renderGraficoPainelV68();}}).observe(chart);}
-}
-window.addEventListener('load',inicializarPainelV68);
-
-
-/* V69 — correção pontual sobre a V68: ritmo do Painel = média dos últimos 7 dias;
-   Perfil contém somente dados pessoais e o ícone ao lado volta a ser Configurações. */
-function dadosRitmoUltimos7DiasPainelV69() {
-    const hoje = hojeISO();
-    const inicioJanela = addDiasISO(hoje, -7);
-    const inicioCiclo = dataISOValida(appData.config?.dataInicial) ? appData.config.dataInicial : inicioJanela;
-    const inicio = inicioCiclo > inicioJanela ? inicioCiclo : inicioJanela;
-    const porData = new Map();
-
-    const pesoInicial = numeroValido(appData.config?.pesoInicial);
-    if (Number.isFinite(pesoInicial) && dataISOValida(inicioCiclo) && inicioCiclo >= inicio && inicioCiclo <= hoje) {
-        porData.set(inicioCiclo, { data: inicioCiclo, peso: pesoInicial, origem: 'inicial' });
-    }
-
-    for (const registro of obterPesosValidosParaCalculo()) {
-        if (!dataISOValida(registro.data) || registro.data < inicio || registro.data > hoje) continue;
-        const peso = numeroValido(registro.peso);
-        if (!Number.isFinite(peso) || peso <= 0) continue;
-        // Se houver mais de uma pesagem no mesmo dia, a última cadastrada prevalece.
-        porData.set(registro.data, { data: registro.data, peso, origem: 'pesagem' });
-    }
-
-    const pontos = [...porData.values()].sort((a, b) => a.data.localeCompare(b.data));
-    if (pontos.length < 2) return { ritmo: NaN, pontos, inicio, hoje, dias: 0 };
-    const primeiro = pontos[0];
-    const ultimo = pontos[pontos.length - 1];
-    const dias = diffDays(ultimo.data, primeiro.data);
-    if (dias <= 0) return { ritmo: NaN, pontos, primeiro, ultimo, inicio, hoje, dias: 0 };
-    return {
-        ritmo: (ultimo.peso - primeiro.peso) / dias,
-        pontos, primeiro, ultimo, inicio, hoje, dias
-    };
-}
-
-function calcularMediaUltimos7DiasPainelV69() {
-    return dadosRitmoUltimos7DiasPainelV69().ritmo;
-}
-
-// A explicação do Painel precisa descrever exatamente a conta que está sendo usada.
-renderExplicacaoPainelV68 = function() {
-    const out = document.getElementById('painel-calculo-conteudo-v68');
-    if (!out) return;
-    if (!temConfigCalculo()) {
-        out.innerHTML = '<p>Abra Ciclos e configure o peso inicial, a meta final e a meta diária.</p>';
-        return;
-    }
-    const ref = referenciaPesoPainelV68();
-    const cfg = appData.config;
-    const resumo = dadosRitmoUltimos7DiasPainelV69();
-    const ritmo = resumo.ritmo;
-    const intervalo = resumo.dias || 0;
-    const periodo = resumo.primeiro && resumo.ultimo
-        ? formatDateBR(resumo.primeiro.data) + ' a ' + formatDateBR(resumo.ultimo.data)
-        : formatDateBR(resumo.inicio) + ' a ' + formatDateBR(resumo.hoje);
-    out.innerHTML = '<h4>Pela meta do ciclo</h4><dl><dt>Início do ciclo</dt><dd>' + formatDateBR(cfg.dataInicial) + '</dd><dt>Peso inicial</dt><dd>' + formatBR(cfg.pesoInicial) + ' kg</dd><dt>Meta final</dt><dd>' + formatBR(cfg.pesoMeta) + ' kg</dd><dt>Meta diária</dt><dd>' + textoRitmoPainelV68(numeroValido(cfg.metaKgPorDia)) + '</dd></dl><p>A data planejada usa o percurso completo desde o início do ciclo. Novas pesagens não mudam esse plano.</p><h4>Pelo ritmo observado</h4><dl><dt>Janela analisada</dt><dd>Últimos 7 dias</dd><dt>Período usado</dt><dd>' + periodo + '</dd><dt>Pontos de peso usados</dt><dd>' + resumo.pontos.length + '</dd><dt>Intervalo real</dt><dd>' + intervalo + ' dia' + (intervalo === 1 ? '' : 's') + '</dd><dt>Ritmo/dia</dt><dd>' + textoRitmoPainelV68(ritmo) + '</dd><dt>Última pesagem</dt><dd>' + (ref.registrado ? formatDateBR(ref.data) : 'Sem registro') + '</dd></dl><p>O ritmo/dia é a variação entre o primeiro e o último peso disponíveis na janela dos últimos 7 dias, dividida pelo número real de dias entre eles. Se houver mais de uma pesagem no mesmo dia, vale a última.</p><p>A previsão parte da última pesagem registrada e projeta esse ritmo recente até a meta.</p>';
-};
-
-// Campos pessoais adicionais persistem dentro de config e também entram normalmente nos backups.
-const normalizarDadosAntesPerfilV69 = normalizarDados;
-normalizarDados = function(raw) {
-    const dados = normalizarDadosAntesPerfilV69(raw);
-    const cfg = raw?.config && typeof raw.config === 'object' ? raw.config : {};
-    dados.config.celular = textoSeguro(cfg.celular, 30);
-    dados.config.cidade = textoSeguro(cfg.cidade, 120);
-    dados.config.bio = textoSeguro(cfg.bio, 500);
-    return dados;
-};
-
-const preencherCamposPerfilAntesV69 = preencherCamposPerfil;
-preencherCamposPerfil = function() {
-    const r = preencherCamposPerfilAntesV69();
-    const celular = document.getElementById('perfil-celular');
-    const cidade = document.getElementById('perfil-cidade');
-    const bio = document.getElementById('perfil-bio');
-    if (celular) celular.value = appData.config?.celular || '';
-    if (cidade) cidade.value = appData.config?.cidade || '';
-    if (bio) bio.value = appData.config?.bio || '';
-    return r;
-};
-
-const snapshotPerfilContaAntesV69 = snapshotPerfilConta;
-snapshotPerfilConta = function() {
-    return {
-        ...snapshotPerfilContaAntesV69(),
-        celular: appData.config?.celular || '',
-        cidade: appData.config?.cidade || '',
-        bio: appData.config?.bio || ''
-    };
-};
-
-const aplicarCamposPerfilContaAntesV69 = aplicarCamposPerfilConta;
-aplicarCamposPerfilConta = function(snapshot = {}) {
-    aplicarCamposPerfilContaAntesV69(snapshot);
-    const celular = document.getElementById('perfil-celular');
-    const cidade = document.getElementById('perfil-cidade');
-    const bio = document.getElementById('perfil-bio');
-    if (celular) celular.value = snapshot.celular || '';
-    if (cidade) cidade.value = snapshot.cidade || '';
-    if (bio) bio.value = snapshot.bio || '';
-};
-
-const salvarPerfilAutomaticamenteAntesV69 = salvarPerfilAutomaticamente;
-salvarPerfilAutomaticamente = function() {
-    appData.config.celular = document.getElementById('perfil-celular')?.value.trim() || '';
-    appData.config.cidade = document.getElementById('perfil-cidade')?.value.trim() || '';
-    appData.config.bio = document.getElementById('perfil-bio')?.value.trim() || '';
-    return salvarPerfilAutomaticamenteAntesV69();
-};
-
-const salvarPerfilUsuarioAntesV69 = salvarPerfilUsuario;
-salvarPerfilUsuario = function() {
-    appData.config.celular = document.getElementById('perfil-celular')?.value.trim() || '';
-    appData.config.cidade = document.getElementById('perfil-cidade')?.value.trim() || '';
-    appData.config.bio = document.getElementById('perfil-bio')?.value.trim() || '';
-    return salvarPerfilUsuarioAntesV69();
-};
-
-function organizarPerfilEAjustesV69() {
-    const perfil = document.getElementById('view-conta');
-    const ajustes = document.getElementById('view-configs');
-    if (!perfil || !ajustes) return;
-
-    const formPerfil = document.getElementById('form-perfil');
-    const cardPerfil = formPerfil?.closest('.card');
-    if (cardPerfil) {
-        const titulo = cardPerfil.querySelector('h3');
-        if (titulo) titulo.textContent = 'Dados Pessoais';
-    }
-
-    const footerAjustes = ajustes.querySelector(':scope > .app-footer-note');
-    for (const filho of [...perfil.children]) {
-        if (filho === cardPerfil || filho.classList.contains('app-footer-note')) continue;
-        if (filho.classList.contains('card')) ajustes.insertBefore(filho, footerAjustes || null);
-    }
-
-    // V58 movia este card para Conta. Em V69 ele pertence a Configurações.
-    const pwa = document.querySelector('.pwa-install-card');
-    if (pwa && pwa.parentElement !== ajustes) ajustes.insertBefore(pwa, footerAjustes || null);
-}
-
-function aplicarModoConfiguracoesV69() {
-    organizarPerfilEAjustesV69();
-    document.getElementById('ciclo-padrao-editor-intro-v59')?.classList.add('hidden');
-    document.getElementById('ciclo-config-card-v48')?.classList.add('hidden');
-    const tituloMetas = document.getElementById('titulo-metas-padrao-v58');
-    if (tituloMetas) tituloMetas.innerHTML = '<div class="settings-main-title-v58">Metas Padrão</div><div class="settings-main-subtitle-v58">Configurações usadas quando não houver um ciclo em andamento e como base opcional para novos ciclos.</div>';
-    const titulo = document.getElementById('page-title');
-    if (titulo) titulo.textContent = 'Configurações';
-    renderConta();
-}
-
-const abrirPerfilAntesV69 = abrirPerfil;
-abrirPerfil = function() {
-    organizarPerfilEAjustesV69();
-    const r = abrirPerfilAntesV69();
-    const titulo = document.getElementById('page-title');
-    if (titulo) titulo.textContent = 'Perfil';
-    return r;
-};
-window.abrirPerfil = abrirPerfil;
-
-function abrirAjustesGeraisV69() {
-    organizarPerfilEAjustesV69();
-    preencherCamposConfig();
-    showView('configs', document.getElementById('btn-settings-open'));
-    aplicarModoConfiguracoesV69();
-}
-abrirAjustes = abrirAjustesGeraisV69;
-window.abrirAjustes = abrirAjustesGeraisV69;
-
-// O cabeçalho deixa de criar a linha/atalho de ciclo. Ciclos continuam na navegação própria.
-atualizarCabecalhoCicloV58 = function() {
-    document.getElementById('header-cycle-status-v58')?.remove();
-};
-
-// V58/V59 transformavam a engrenagem em ícone de Ciclos. Restauramos apenas a engrenagem.
-reformarBotaoCiclosV58 = function() {
-    const b = document.getElementById('btn-settings-open');
-    if (!b) return;
-    b.setAttribute('aria-label', 'Abrir configurações');
-    b.setAttribute('title', 'Configurações');
-    b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.35 1.1V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.1-.35H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 0 .35-1.1V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.18.34.43.63.75.84.32.21.7.32 1.1.32H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"></path></svg>';
-    b.onclick = abrirAjustesGeraisV69;
-};
-
-function inicializarAjustesPerfilV69() {
-    organizarPerfilEAjustesV69();
-    atualizarCabecalhoCicloV58();
-    reformarBotaoCiclosV58();
-    const perfilBtn = document.getElementById('btn-profile-open');
-    if (perfilBtn) perfilBtn.onclick = abrirPerfil;
-    const logout = document.getElementById('btn-logout-perfil');
-    if (logout) logout.onclick = sairUsuario;
-    for (const id of ['perfil-celular','perfil-cidade','perfil-bio']) {
-        const el = document.getElementById(id);
-        if (!el || el.dataset.v69Autosave === '1') continue;
-        el.dataset.v69Autosave = '1';
-        el.addEventListener('focus', pushHistoricoPerfilConta);
-        el.addEventListener('input', agendarSalvarPerfil);
-        el.addEventListener('change', agendarSalvarPerfil);
-    }
-    preencherCamposPerfil();
-}
-
-window.addEventListener('load', () => setTimeout(inicializarAjustesPerfilV69, 1250));
-
-/* =========================================================
-   V71 — Perfil e Configurações separados de verdade
-   - Perfil: dados pessoais + conta conectada + banco híbrido + fotos híbridas.
-   - Configurações: backup, restauração, segurança, importação, limpeza e instalação.
-   - Metas de peso, composição, medidas ideais e Metas Padrão não aparecem em
-     Configurações gerais; continuam editáveis exclusivamente por Ciclos.
-   ========================================================= */
-let modoTelaConfiguracoesV71 = 'geral';
-
-function elementosPerfilConfiguracoesV71() {
-    const perfil = document.getElementById('view-conta');
-    const ajustes = document.getElementById('view-configs');
-    const cardPerfil = document.getElementById('form-perfil')?.closest('.card') || null;
-    const cardConta = document.getElementById('perfil-email')?.closest('.card') || null;
-    const cardMetas = document.getElementById('form-config')?.closest('.card') || null;
-    const tituloMetas = document.getElementById('titulo-metas-padrao-v58');
-    const introCicloPadrao = document.getElementById('ciclo-padrao-editor-intro-v59');
-    const resumoCiclo = document.getElementById('ciclo-config-card-v48');
-    return { perfil, ajustes, cardPerfil, cardConta, cardMetas, tituloMetas, introCicloPadrao, resumoCiclo };
-}
-
-function organizarPerfilEAjustesV71() {
-    const { perfil, ajustes, cardPerfil, cardConta } = elementosPerfilConfiguracoesV71();
-    if (!perfil || !ajustes) return;
-
-    // Conta e sincronização pertencem ao Perfil.
-    if (cardConta && cardConta.parentElement !== perfil) {
-        if (cardPerfil?.parentElement === perfil) cardPerfil.insertAdjacentElement('afterend', cardConta);
-        else perfil.prepend(cardConta);
-    }
-
-    // Qualquer outro card operacional que tenha sido parar no Perfil volta a Configurações.
-    const footerAjustes = ajustes.querySelector(':scope > .app-footer-note');
-    for (const filho of [...perfil.children]) {
-        if (filho === cardPerfil || filho === cardConta || filho.classList.contains('app-footer-note')) continue;
-        if (filho.classList.contains('card')) ajustes.insertBefore(filho, footerAjustes || null);
-    }
-
-    // Instalação do PWA é uma configuração do aplicativo, não da conta.
-    const pwa = document.querySelector('.pwa-install-card');
-    if (pwa && pwa.parentElement !== ajustes) ajustes.insertBefore(pwa, footerAjustes || null);
-
-    // Garante que os painéis da captura continuem dentro de Conta Conectada.
-    try { garantirPainelFirebaseV64?.(); } catch {}
-    try { garantirPainelDriveV65?.(); } catch {}
-}
-
-function aplicarVisibilidadeConfiguracoesV71(modo = modoTelaConfiguracoesV71) {
-    organizarPerfilEAjustesV71();
-    const { ajustes, cardConta, cardMetas, tituloMetas, introCicloPadrao, resumoCiclo } = elementosPerfilConfiguracoesV71();
-    if (!ajustes) return;
-    const editor = modo === 'ciclo-padrao';
-
-    // Itens exclusivos do editor do Ciclo Padrão.
-    cardMetas?.classList.toggle('hidden', !editor);
-    tituloMetas?.classList.toggle('hidden', !editor);
-    introCicloPadrao?.classList.toggle('hidden', !editor);
-    resumoCiclo?.classList.add('hidden');
-
-    // Em edição de ciclo, oculta as ferramentas gerais para não misturar contextos.
-    for (const filho of [...ajustes.children]) {
-        if (filho === cardMetas || filho === tituloMetas || filho === introCicloPadrao || filho === resumoCiclo) continue;
-        if (filho === cardConta) continue; // este deve estar no Perfil.
-        if (filho.classList.contains('app-footer-note')) {
-            filho.classList.remove('hidden');
-            continue;
-        }
-        if (filho.classList.contains('card')) filho.classList.toggle('hidden', editor);
-    }
-
-    const titulo = document.getElementById('page-title');
-    if (titulo && document.body.dataset.painelView === 'configs') {
-        titulo.textContent = editor ? 'Editar Ciclo Padrão' : 'Configurações';
-    }
-}
-
-// Corrige o organizador V69: ele movia TODOS os cards do Perfil para Configurações.
-const organizarPerfilEAjustesAntesV71 = organizarPerfilEAjustesV69;
-organizarPerfilEAjustesV69 = function() {
-    try { organizarPerfilEAjustesAntesV71(); } catch {}
-    organizarPerfilEAjustesV71();
-};
-
-// Configurações gerais: sem metas. Elas pertencem a Ciclos.
-const abrirAjustesAntesV71 = abrirAjustes;
-function abrirAjustesGeraisV71() {
-    modoTelaConfiguracoesV71 = 'geral';
-    const r = abrirAjustesAntesV71();
-    aplicarVisibilidadeConfiguracoesV71('geral');
-    const titulo = document.getElementById('page-title');
-    if (titulo) titulo.textContent = 'Configurações';
-    return r;
-}
-abrirAjustes = abrirAjustesGeraisV71;
-window.abrirAjustes = abrirAjustesGeraisV71;
-
-// Ciclo Padrão: continua usando os mesmos campos, mas só é alcançado por Ciclos.
-const editarCicloPadraoAntesV71 = editarCicloPadraoV59;
-editarCicloPadraoV59 = function() {
-    modoTelaConfiguracoesV71 = 'ciclo-padrao';
-    organizarPerfilEAjustesV71();
-    const r = editarCicloPadraoAntesV71();
-    aplicarVisibilidadeConfiguracoesV71('ciclo-padrao');
-    const titulo = document.getElementById('page-title');
-    if (titulo) titulo.textContent = 'Editar Ciclo Padrão';
-    return r;
-};
-window.editarCicloPadraoV59 = editarCicloPadraoV59;
-
-// Perfil: Dados Pessoais seguido exatamente do bloco Conta Conectada e suas sincronizações.
-const abrirPerfilAntesV71 = abrirPerfil;
-abrirPerfil = function() {
-    const r = abrirPerfilAntesV71();
-    organizarPerfilEAjustesV71();
-    try { renderConta(); } catch {}
-    const titulo = document.getElementById('page-title');
-    if (titulo) titulo.textContent = 'Perfil';
-    return r;
-};
-window.abrirPerfil = abrirPerfil;
-
-// Mantém a separação também em navegações internas que chamam showView diretamente.
-const showViewAntesV71 = showView;
-showView = function(viewId, navEl) {
-    const r = showViewAntesV71(viewId, navEl);
-    if (viewId === 'configs') aplicarVisibilidadeConfiguracoesV71(modoTelaConfiguracoesV71);
-    if (viewId === 'conta') organizarPerfilEAjustesV71();
-    return r;
-};
-window.showView = showView;
-
-function inicializarPerfilConfiguracoesV71() {
-    organizarPerfilEAjustesV71();
-    modoTelaConfiguracoesV71 = 'geral';
-    aplicarVisibilidadeConfiguracoesV71('geral');
-    const perfilBtn = document.getElementById('btn-profile-open');
-    if (perfilBtn) perfilBtn.onclick = abrirPerfil;
-    const ajustesBtn = document.getElementById('btn-settings-open');
-    if (ajustesBtn) ajustesBtn.onclick = abrirAjustesGeraisV71;
-}
-window.addEventListener('load', () => setTimeout(inicializarPerfilConfiguracoesV71, 1500));
-
-
-/* ============================================================================
- * V72 — CORREÇÕES DE CALENDÁRIO E FILTROS DOS GRÁFICOS
- * - calendário compacto e reorganizado;
- * - período e ciclo dos gráficos passam a ser filtros realmente funcionais;
- * - o último período e o último ciclo escolhidos ficam persistidos por usuário;
- * - o filtro de ciclo é aplicado ao redor de TODA a cadeia de renderização,
- *   inclusive gráficos adicionados em versões posteriores.
- * ========================================================================== */
-const PL_FILTROS_GRAFICOS_V72 = ['ciclo','todos','7d','1m','3m','6m','1a','5a'];
-
-function chavePreferenciasGraficosV72() {
-    const uid = currentUser?.uid || 'guest';
-    return 'projeto_leve_filtros_graficos_v72_' + uid;
-}
-
-function cicloGraficoValidoV72(valor) {
-    const v = String(valor || 'ativo');
-    if (v === 'ativo' || v === 'todos') return v;
-    const temSemCiclo = ['pesos','medidas','remedios','calorias'].some(chave =>
-        (appData?.[chave] || []).some(registro => !registro?.cicloId)
-    );
-    if (v === 'sem-ciclo') return temSemCiclo ? v : 'ativo';
-    return (appData?.ciclos || []).some(ciclo => String(ciclo?.id) === v) ? v : 'ativo';
-}
-
-function salvarPreferenciasGraficosV72() {
-    const periodo = PL_FILTROS_GRAFICOS_V72.includes(filtroGraficoAtual) ? filtroGraficoAtual : 'ciclo';
-    const ciclo = cicloGraficoValidoV72(filtroCicloGraficoV48);
-    const prefs = { periodo, ciclo, salvoEm: new Date().toISOString() };
-    try { localStorage.setItem(chavePreferenciasGraficosV72(), JSON.stringify(prefs)); } catch {}
-    appData.config = appData.config || {};
-    appData.config.filtroGraficoAtualV66 = periodo;
-    appData.config.filtroCicloGrafico = ciclo;
-    // Persistência local sem disparar updateUI(), evitando que o próprio salvamento
-    // reverta visualmente o select que o usuário acabou de alterar.
-    try { salvarDadosLocalmente(); } catch {}
-}
-
-function lerPreferenciasGraficosV72() {
-    let local = null;
-    try { local = JSON.parse(localStorage.getItem(chavePreferenciasGraficosV72()) || 'null'); } catch {}
-    const config = appData?.config || {};
-    const periodoLocal = PL_FILTROS_GRAFICOS_V72.includes(local?.periodo) ? local.periodo : null;
-    const periodoConfig = PL_FILTROS_GRAFICOS_V72.includes(config.filtroGraficoAtualV66) ? config.filtroGraficoAtualV66 : null;
-    return {
-        periodo: periodoLocal || periodoConfig || 'ciclo',
-        ciclo: cicloGraficoValidoV72(local?.ciclo || config.filtroCicloGrafico || 'ativo')
-    };
-}
-
-function sincronizarControlesGraficosV72() {
-    const periodo = document.getElementById('grafico-filtro-select');
-    if (periodo) {
-        const primeira = periodo.querySelector('option[value="ciclo"]');
-        if (primeira) {
-            primeira.textContent = filtroCicloGraficoV48 === 'ativo'
-                ? 'Ciclo Atual'
-                : (!['todos','sem-ciclo'].includes(filtroCicloGraficoV48) ? 'Ciclo Selecionado' : 'Ciclo Atual');
-        }
-        if ([...periodo.options].some(op => op.value === filtroGraficoAtual)) periodo.value = filtroGraficoAtual;
-    }
-    const ciclo = document.getElementById('grafico-ciclo-select-v48');
-    if (ciclo && [...ciclo.options].some(op => op.value === filtroCicloGraficoV48)) ciclo.value = filtroCicloGraficoV48;
-}
-
-function restaurarPreferenciasGraficosV72(renderizar = false) {
-    const prefs = lerPreferenciasGraficosV72();
-    const mudou = filtroGraficoAtual !== prefs.periodo || String(filtroCicloGraficoV48) !== String(prefs.ciclo);
-    filtroGraficoAtual = prefs.periodo;
-    filtroCicloGraficoV48 = prefs.ciclo;
-    appData.config = appData.config || {};
-    appData.config.filtroGraficoAtualV66 = prefs.periodo;
-    appData.config.filtroCicloGrafico = prefs.ciclo;
-    sincronizarControlesGraficosV72();
-    if (renderizar && mudou && activeViewId === 'graficos') renderGraficos();
-    return mudou;
-}
-
-// Substitui o manipulador final do período. Não chama a cadeia antiga porque a
-// V66 salvava a preferência via salvarDados(), que chama updateUI() e podia
-// recolocar o valor anterior durante a própria interação.
-alterarFiltroGrafico = function(filtro) {
-    const novo = PL_FILTROS_GRAFICOS_V72.includes(String(filtro)) ? String(filtro) : 'ciclo';
-    filtroGraficoAtual = novo;
-    sincronizarControlesGraficosV72();
-    salvarPreferenciasGraficosV72();
-    renderGraficos();
-};
-window.alterarFiltroGrafico = alterarFiltroGrafico;
-
-// Mantém filtros de período curtos (7 dias, 1 mês etc.) ao trocar de ciclo.
-// Só converte Ciclo/Todo o histórico quando isso é necessário semanticamente.
-alterarFiltroCicloGraficoV48 = function(valor) {
-    const novoCiclo = cicloGraficoValidoV72(valor);
-    filtroCicloGraficoV48 = novoCiclo;
-    if ((novoCiclo === 'todos' || novoCiclo === 'sem-ciclo') && filtroGraficoAtual === 'ciclo') filtroGraficoAtual = 'todos';
-    else if (!['todos','sem-ciclo'].includes(novoCiclo) && filtroGraficoAtual === 'todos') filtroGraficoAtual = 'ciclo';
-    appData.config = appData.config || {};
-    appData.config.filtroCicloGrafico = novoCiclo;
-    sincronizarControlesGraficosV72();
-    salvarPreferenciasGraficosV72();
-    renderGraficos();
-};
-window.alterarFiltroCicloGraficoV48 = alterarFiltroCicloGraficoV48;
-
-// Filtro de ciclo envolvendo toda a cadeia de gráficos. Isso impede que gráficos
-// complementares (TMB, macros, calorias, remédios etc.) escapem do ciclo selecionado.
-const renderGraficosAntesV72 = renderGraficos;
-renderGraficos = function() {
-    if (activeViewId !== 'graficos') return renderGraficosAntesV72();
-    const originais = {
-        pesos: appData.pesos,
-        medidas: appData.medidas,
-        remedios: appData.remedios,
-        calorias: appData.calorias
-    };
-    const precisaFiltrarCiclo = filtroCicloGraficoV48 !== 'todos';
-    if (precisaFiltrarCiclo) {
-        appData.pesos = (originais.pesos || []).filter(registroNoFiltroCicloV48);
-        appData.medidas = (originais.medidas || []).filter(registroNoFiltroCicloV48);
-        appData.remedios = (originais.remedios || []).filter(registroNoFiltroCicloV48);
-        appData.calorias = (originais.calorias || []).filter(registroNoFiltroCicloV48);
-    }
-    try {
-        return renderGraficosAntesV72();
-    } finally {
-        appData.pesos = originais.pesos;
-        appData.medidas = originais.medidas;
-        appData.remedios = originais.remedios;
-        appData.calorias = originais.calorias;
-        requestAnimationFrame(sincronizarControlesGraficosV72);
-    }
-};
-
-function ajustarToolbarCalendarioV72() {
-    const toolbar = document.querySelector('#view-calendario-v49 .calendar-toolbar-v49');
-    if (!toolbar || toolbar.dataset.v72 === '1') return;
-    const tituloAtual = document.getElementById('calendario-mes-v49')?.textContent || 'Calendário';
-    toolbar.innerHTML = `
-        <div class="calendar-nav-row-v72">
-            <button type="button" class="btn btn-outline calendar-nav-btn-v72" onclick="mudarMesCalendarioV49(-1)" aria-label="Mês anterior" title="Mês anterior">‹</button>
-            <div id="calendario-mes-v49" class="month">${escapeHtml(tituloAtual)}</div>
-            <button type="button" class="btn btn-outline calendar-nav-btn-v72" onclick="mudarMesCalendarioV49(1)" aria-label="Próximo mês" title="Próximo mês">›</button>
-        </div>
-        <div class="calendar-actions-row-v72">
-            <button type="button" class="btn btn-outline" onclick="irHojeCalendarioV49()">Hoje</button>
-            <button type="button" class="btn btn-outline" onclick="showView('dashboard',document.querySelector('[data-view=dashboard]'))">Voltar</button>
-        </div>`;
-    toolbar.dataset.v72 = '1';
-    try { renderCalendarioV49(); } catch {}
-}
-
-const abrirCalendarioAntesV72 = abrirCalendarioV49;
-abrirCalendarioV49 = function() {
-    const r = abrirCalendarioAntesV72();
-    ajustarToolbarCalendarioV72();
-    try { renderCalendarioV49(); } catch {}
-    return r;
-};
-window.abrirCalendarioV49 = abrirCalendarioV49;
-
-const showViewAntesV72 = showView;
-showView = function(viewId, navEl) {
-    if (viewId === 'graficos') restaurarPreferenciasGraficosV72(false);
-    const r = showViewAntesV72(viewId, navEl);
-    if (viewId === 'graficos') {
-        setTimeout(() => {
-            sincronizarControlesGraficosV72();
-            renderGraficos();
-        }, 0);
-    }
-    if (viewId === 'calendario-v49') {
-        ajustarToolbarCalendarioV72();
-        try { renderCalendarioV49(); } catch {}
-    }
-    return r;
-};
-window.showView = showView;
-
-const updateUIAntesV72 = updateUI;
-updateUI = function() {
-    const r = updateUIAntesV72();
-    // V66 pode restaurar os filtros a partir do config durante updateUI. V72 aplica
-    // novamente a preferência mais recente do dispositivo, que é a fonte primária.
-    restaurarPreferenciasGraficosV72(false);
-    if (activeViewId === 'graficos') setTimeout(renderGraficos, 0);
-    if (activeViewId === 'calendario-v49') ajustarToolbarCalendarioV72();
-    return r;
-};
-
-window.addEventListener('load', () => setTimeout(() => {
-    ajustarToolbarCalendarioV72();
-    restaurarPreferenciasGraficosV72(false);
-    sincronizarControlesGraficosV72();
-}, 1750));
-
-/* ============================================================================
- * V73 — NAVEGAÇÃO INTEGRADA E BOTÃO VOLTAR GLOBAL
- * ========================================================================== */
-const PL_SCHEMA_VERSION_V73 = 73;
-let historicoViewsV73 = [];
-let navegandoHistoricoV73 = false;
-let grupoSubpaginaV73 = {};
-
-function garantirEstilosNavegacaoV73() {
-    if (document.getElementById('style-navegacao-v73')) return;
-    const st = document.createElement('style');
-    st.id = 'style-navegacao-v73';
-    st.textContent = `
-      .page-heading-row-v73{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 18px}
-      .page-heading-row-v73 .page-heading{margin:0;min-width:0;flex:1 1 auto}
-      .page-back-v73{width:44px;height:44px;min-width:44px;padding:0;border:1px solid var(--border);border-radius:50%;background:var(--card-bg,#fff);color:var(--accent);display:grid;place-items:center;box-shadow:none;cursor:pointer;flex:0 0 auto}
-      .page-back-v73 svg{width:22px;height:22px}.page-back-v73:active{transform:scale(.96)}
-      .integrated-view-v73{width:100%;min-width:0}
-      .integrated-surface-v73{position:static!important;inset:auto!important;z-index:auto!important;background:transparent!important;padding:0!important;display:block!important;align-items:initial!important;justify-content:initial!important;overflow:visible!important}
-      .integrated-surface-v73.hidden{display:none!important}
-      #view-eventos-v73 #modal-eventos-v40 .events-modal-card-v40{width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;margin:0!important}
-      #view-eventos-v73 #modal-eventos-v40 .photo-carousel-head{display:none!important}
-      #view-comparacao-fotos-v73 #modal-comparacao-fotos-v46 .photo-compare-card-v46{width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;margin:0!important}
-      #view-comparacao-fotos-v73 #modal-comparacao-fotos-v46 .photo-compare-head-v46 h3,#view-lixeira-v73 #modal-lixeira-v47 .trash-head-v47 h3{display:none!important}
-      #view-comparacao-fotos-v73 #modal-comparacao-fotos-v46 .photo-compare-head-v46,#view-lixeira-v73 #modal-lixeira-v47 .trash-head-v47{display:block!important}
-      #view-comparacao-fotos-v73 #modal-comparacao-fotos-v46 .photo-compare-head-v46 .photo-icon-button{display:none!important}
-      #view-comparacao-fotos-v73 #modal-comparacao-fotos-v46{padding:0!important}
-      #view-lixeira-v73 #modal-lixeira-v47 .trash-sheet-v47{width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;border-radius:20px!important;padding:16px!important;box-shadow:none!important;background:var(--card-bg,#fff)!important;border:1px solid var(--border)!important}
-      #view-lixeira-v73 #modal-lixeira-v47 .trash-head-v47{position:static!important;top:auto!important;background:transparent!important;padding:0!important}
-      #view-lixeira-v73 #modal-lixeira-v47 .trash-head-v47 .photo-icon-button{display:none!important}
-      @media(max-width:430px){.page-heading-row-v73{margin-bottom:15px}.page-back-v73{width:42px;height:42px;min-width:42px}#view-eventos-v73 #modal-eventos-v40 .events-modal-card-v40,#view-comparacao-fotos-v73 #modal-comparacao-fotos-v46 .photo-compare-card-v46{padding:14px!important}}
-    `;
-    document.head.appendChild(st);
-}
-
-function viewExisteV73(viewId){return !!document.getElementById('view-'+viewId);}
-function grupoPrincipalV73(viewId){
-    if(viewId==='dashboard')return'dashboard';
-    if(['diario-v68','historico','peso','medidas','calorias','remedio','linha-dia','calendario-v49'].includes(viewId))return'diario-v68';
-    if(viewId==='graficos')return'graficos';if(viewId==='ciclos-v48')return'ciclos-v48';return'mais-v68';
-}
-function aplicarGrupoBottomNavV73(viewId){
-    const grupo=grupoSubpaginaV73[viewId]||grupoPrincipalV73(viewId);
-    document.querySelectorAll('#bottom-nav .nav-item').forEach(btn=>{const ativa=btn.dataset.view===grupo;btn.classList.toggle('active',ativa);if(ativa)btn.setAttribute('aria-current','page');else btn.removeAttribute('aria-current');});
-}
-function atualizarBotaoVoltarV73(){
-    garantirEstilosNavegacaoV73();const btn=document.getElementById('page-back-v73');const inicio=(activeViewId||'dashboard')==='dashboard';if(btn)btn.classList.toggle('hidden',inicio);
-}
-function voltarTelaV73(){
-    const atual=activeViewId||'dashboard';let destino='';while(historicoViewsV73.length){const candidato=historicoViewsV73.pop();if(candidato&&candidato!==atual&&viewExisteV73(candidato)){destino=candidato;break;}}if(!destino)destino='dashboard';navegandoHistoricoV73=true;try{showView(destino,document.querySelector(`[data-view="${destino}"]`));}finally{navegandoHistoricoV73=false;}
-}
-window.voltarTelaV73=voltarTelaV73;
-
-function prepararContainerIntegradoV73(wrapperId){let wrapper=document.getElementById(wrapperId);if(wrapper)return wrapper;const container=document.querySelector('#app .container');if(!container)return null;wrapper=document.createElement('section');wrapper.id=wrapperId;wrapper.className='view integrated-view-v73 hidden';container.appendChild(wrapper);return wrapper;}
-
-/* Eventos */
-const garantirInterfaceEventosAntesV73=garantirInterfaceEventosV40;
-function converterEventosParaViewV73(){const modal=document.getElementById('modal-eventos-v40');if(!modal)return;const wrapper=prepararContainerIntegradoV73('view-eventos-v73');if(!wrapper||modal.parentElement===wrapper)return;modal.classList.remove('modal');modal.classList.add('integrated-surface-v73','hidden');modal.removeAttribute('role');modal.removeAttribute('aria-modal');modal.querySelector('.photo-carousel-head .photo-icon-button')?.remove();wrapper.appendChild(modal);}
-garantirInterfaceEventosV40=function(){if(!document.getElementById('modal-eventos-v40'))garantirInterfaceEventosAntesV73();else atualizarBarraEventosV40();converterEventosParaViewV73();};
-const abrirEventosAntesV73=abrirEventosV40;
-abrirEventosV40=function(){const origem=activeViewId||'dashboard';garantirInterfaceEventosV40();abrirEventosAntesV73();grupoSubpaginaV73['eventos-v73']=grupoPrincipalV73(origem);showView('eventos-v73');const t=document.getElementById('page-title');if(t)t.textContent='Eventos';};
-fecharEventosV40=function(){document.getElementById('modal-eventos-v40')?.classList.add('hidden');if(activeViewId==='eventos-v73')voltarTelaV73();};
-abrirLinhaDoDiaDoEventoV40=function(){const evento=eventoDetalheAtualV40;if(!evento)return;fecharDetalheEventoV40();document.getElementById('modal-eventos-v40')?.classList.add('hidden');abrirLinhaDiaV39(evento.dataInicio);};
-window.garantirInterfaceEventosV40=garantirInterfaceEventosV40;window.abrirEventosV40=abrirEventosV40;window.fecharEventosV40=fecharEventosV40;window.abrirLinhaDoDiaDoEventoV40=abrirLinhaDoDiaDoEventoV40;
-
-/* Comparação Fotográfica Avançada */
-const garantirComparacaoFotosAntesV73=garantirModalComparacaoFotosV46;
-function converterComparacaoFotosParaViewV73(){const modal=document.getElementById('modal-comparacao-fotos-v46');if(!modal)return;const wrapper=prepararContainerIntegradoV73('view-comparacao-fotos-v73');if(!wrapper||modal.parentElement===wrapper)return;modal.classList.remove('modal','photo-compare-modal-v46');modal.classList.add('integrated-surface-v73','hidden');modal.removeAttribute('role');modal.removeAttribute('aria-modal');modal.querySelector('.photo-compare-head-v46 .photo-icon-button')?.remove();wrapper.appendChild(modal);}
-garantirModalComparacaoFotosV46=function(){garantirComparacaoFotosAntesV73();converterComparacaoFotosParaViewV73();};
-const abrirComparacaoFotosAntesV73=abrirComparacaoFotosV46;
-abrirComparacaoFotosV46=function(categoria='',ancoraId='',depoisId=''){const origem=activeViewId||'dashboard';garantirModalComparacaoFotosV46();abrirComparacaoFotosAntesV73(categoria,ancoraId,depoisId);grupoSubpaginaV73['comparacao-fotos-v73']=grupoPrincipalV73(origem);showView('comparacao-fotos-v73');const t=document.getElementById('page-title');if(t)t.textContent='Comparar Fotos';};
-fecharComparacaoFotosV46=function(){document.getElementById('modal-comparacao-fotos-v46')?.classList.add('hidden');arrasteComparacaoV46=null;if(activeViewId==='comparacao-fotos-v73')voltarTelaV73();};
-window.garantirModalComparacaoFotosV46=garantirModalComparacaoFotosV46;window.abrirComparacaoFotosV46=abrirComparacaoFotosV46;window.fecharComparacaoFotosV46=fecharComparacaoFotosV46;
-
-/* Lixeira */
-const garantirInterfaceLixeiraAntesV73=garantirInterfaceLixeiraV47;
-function converterLixeiraParaViewV73(){const modal=document.getElementById('modal-lixeira-v47');if(!modal)return;const wrapper=prepararContainerIntegradoV73('view-lixeira-v73');if(!wrapper||modal.parentElement===wrapper)return;modal.classList.remove('trash-modal-v47');modal.classList.add('integrated-surface-v73','hidden');modal.querySelector('.trash-head-v47 .photo-icon-button')?.remove();const sheet=modal.querySelector('.trash-sheet-v47');if(sheet){sheet.removeAttribute('role');sheet.removeAttribute('aria-modal');}wrapper.appendChild(modal);}
-garantirInterfaceLixeiraV47=function(){garantirInterfaceLixeiraAntesV73();converterLixeiraParaViewV73();};
-const abrirLixeiraAntesV73=abrirLixeiraV47;
-abrirLixeiraV47=function(){const origem=activeViewId||'conta';garantirInterfaceLixeiraV47();abrirLixeiraAntesV73();grupoSubpaginaV73['lixeira-v73']=grupoPrincipalV73(origem);showView('lixeira-v73');const t=document.getElementById('page-title');if(t)t.textContent='Lixeira';};
-fecharLixeiraV47=function(){document.getElementById('modal-lixeira-v47')?.classList.add('hidden');if(activeViewId==='lixeira-v73')voltarTelaV73();};
-window.garantirInterfaceLixeiraV47=garantirInterfaceLixeiraV47;window.abrirLixeiraV47=abrirLixeiraV47;window.fecharLixeiraV47=fecharLixeiraV47;
-
-function ajustarDiarioV73(){garantirRotasPainelV68();const diario=document.getElementById('view-diario-v68');if(!diario)return;const antigo=[...diario.querySelectorAll('.pl68-hub-button')].find(b=>/Importar dados/i.test(b.textContent||''));if(antigo){antigo.onclick=abrirEventosV40;antigo.innerHTML='<strong>Eventos</strong><span>Acontecimentos e marcadores da jornada</span>';}}
-function removerControlesAntigosV73(){document.querySelector('#view-linha-dia .timeline-footer-actions-v39')?.remove();[...document.querySelectorAll('#view-importar-v60 > button.btn')].filter(b=>/Voltar ao Início/i.test(b.textContent||'')).forEach(b=>b.remove());document.querySelector('#view-qualidade-evolucao > button.btn')?.remove();document.querySelector('#view-graficos .graph-order-action-v32')?.remove();document.querySelector('#view-configs .v30-import-card')?.remove();}
-
-/* O Importar Dados universal absorve o caso de balanças que exportam músculo em percentual. */
-const itemPesoAntesV73=itemPesoV60;
-itemPesoV60=function(obj){const r=itemPesoAntesV73(obj);if(!r)return r;if(r.musculoEsqueletico===undefined){const pct=primeiroNumeroV60(obj,['musculo percentual','músculo percentual','muscle percent','muscle percentage','skeletal muscle percent']);if(pct!==null&&pct>0&&pct<=100)r.musculoEsqueletico=r.peso*pct/100;}if(r.massaGorda===undefined&&r.gorduraCorporalPercentual!==undefined)r.massaGorda=r.peso*Number(r.gorduraCorporalPercentual)/100;if(r.gorduraCorporalPercentual===undefined&&r.massaGorda!==undefined&&r.peso>0)r.gorduraCorporalPercentual=Number(r.massaGorda)/r.peso*100;if(r.massaMagra===undefined&&r.massaGorda!==undefined)r.massaMagra=Math.max(0,r.peso-Number(r.massaGorda));return r;};
-window.itemPesoV60=itemPesoV60;
-
-/* Histórico real da navegação + Voltar global em todas as páginas, menos Início. */
-const showViewAntesV73=showView;
-showView=function(viewId,navEl){
-    const destino=String(viewId||'dashboard'),origem=String(activeViewId||'dashboard');
-    if(!navegandoHistoricoV73&&destino!==origem&&viewExisteV73(origem)){if(historicoViewsV73[historicoViewsV73.length-1]!==origem)historicoViewsV73.push(origem);if(historicoViewsV73.length>60)historicoViewsV73.splice(0,historicoViewsV73.length-60);}
-    if(origem==='eventos-v73'&&destino!==origem)document.getElementById('modal-eventos-v40')?.classList.add('hidden');
-    if(origem==='comparacao-fotos-v73'&&destino!==origem)document.getElementById('modal-comparacao-fotos-v46')?.classList.add('hidden');
-    if(origem==='lixeira-v73'&&destino!==origem)document.getElementById('modal-lixeira-v47')?.classList.add('hidden');
-    const r=showViewAntesV73(destino,navEl);
-    if(destino==='eventos-v73'){document.getElementById('modal-eventos-v40')?.classList.remove('hidden');renderFiltrosEventosV40();renderListaEventosV40();atualizarBarraEventosV40();const t=document.getElementById('page-title');if(t)t.textContent='Eventos';}
-    else if(destino==='comparacao-fotos-v73'){document.getElementById('modal-comparacao-fotos-v46')?.classList.remove('hidden');const t=document.getElementById('page-title');if(t)t.textContent='Comparar Fotos';}
-    else if(destino==='lixeira-v73'){document.getElementById('modal-lixeira-v47')?.classList.remove('hidden');renderLixeiraV47();const t=document.getElementById('page-title');if(t)t.textContent='Lixeira';}
-    aplicarGrupoBottomNavV73(destino);atualizarBotaoVoltarV73();removerControlesAntigosV73();return r;
-};
-window.showView=showView;
-
-const updateUIAntesV73=updateUI;
-updateUI=function(...args){const r=updateUIAntesV73(...args);ajustarDiarioV73();removerControlesAntigosV73();atualizarBotaoVoltarV73();if(activeViewId==='eventos-v73'){try{renderFiltrosEventosV40();renderListaEventosV40();}catch{}}if(activeViewId==='lixeira-v73'){try{renderLixeiraV47();}catch{}}return r;};
-
-function inicializarNavegacaoV73(){garantirEstilosNavegacaoV73();garantirInterfaceEventosV40();garantirModalComparacaoFotosV46();garantirInterfaceLixeiraV47();ajustarDiarioV73();removerControlesAntigosV73();atualizarBotaoVoltarV73();aplicarGrupoBottomNavV73(activeViewId||'dashboard');}
-window.addEventListener('load',()=>setTimeout(inicializarNavegacaoV73,1900));
 
 </script>
 
