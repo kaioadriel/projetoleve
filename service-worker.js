@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v77-logo-transparente';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v77-logo-transparente';
+const CACHE_VERSION = 'projeto-leve-v78-metas-auto';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v78-metas-auto';
 const APP_SHELL = [
   './',
   './index.html',

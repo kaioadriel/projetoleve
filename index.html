@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Projeto Leve">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="manifest" href="./manifest.json?v=76-icon-restore">
+    <link rel="manifest" href="./manifest.json?v=78-metas-auto">
     <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192-v70.png">
     <link rel="apple-touch-icon" href="./icons/icon-192-v70.png">
     <script>
@@ -21588,6 +21588,389 @@ updateUI=function(...args){const r=updateUIAntesV73(...args);ajustarDiarioV73();
 
 function inicializarNavegacaoV73(){garantirEstilosNavegacaoV73();garantirInterfaceEventosV40();garantirModalComparacaoFotosV46();garantirInterfaceLixeiraV47();ajustarDiarioV73();removerControlesAntigosV73();atualizarBotaoVoltarV73();aplicarGrupoBottomNavV73(activeViewId||'dashboard');}
 window.addEventListener('load',()=>setTimeout(inicializarNavegacaoV73,1900));
+
+/* =========================================================
+   V78 — padronização de metas + cálculo assistido
+   - Corrige Limpar de composição para incluir métricas V29.
+   - Padroniza a ordem: Peso > Composição > Medidas.
+   - Adiciona Calcular em Peso e Medidas no Ciclo Padrão.
+   - Adiciona Calcular em Peso, Composição e Medidas no Novo Ciclo.
+   ========================================================= */
+const PL_SCHEMA_VERSION_V78 = 78;
+const PL_BMI_SAUDAVEL_MIN_V78 = 18.5;
+const PL_BMI_SAUDAVEL_MAX_V78 = 24.9;
+const PL_BMI_ALVO_V78 = (PL_BMI_SAUDAVEL_MIN_V78 + PL_BMI_SAUDAVEL_MAX_V78) / 2; // 21,7: centro da faixa saudável adulta.
+const PL_RITMO_PERDA_PADRAO_V78 = -0.07; // kg/dia ≈ 0,49 kg/semana.
+
+function arredondarV78(valor, casas=1) {
+    const fator = 10 ** casas;
+    return Math.round((Number(valor) + Number.EPSILON) * fator) / fator;
+}
+function escreverNumeroCampoV78(id, valor, casas=1) {
+    const el = document.getElementById(id);
+    if (!el || !Number.isFinite(Number(valor))) return;
+    const n = arredondarV78(Number(valor), casas);
+    /* Campos number exigem ponto; os campos text do app usam vírgula. */
+    el.value = el.type === 'number'
+        ? String(n)
+        : (typeof formatBR === 'function' ? formatBR(n) : String(n).replace('.', ','));
+}
+function dadosPerfilCalculoV78({sexoObrigatorio=true}={}) {
+    const altura = alturaCmPerfilV29?.();
+    const idade = idadePerfilV29?.();
+    const sexo = sexoPerfilV29?.();
+    const faltam = [];
+    if (!idade) faltam.push('Data de nascimento');
+    if (!altura) faltam.push('Altura');
+    if (sexoObrigatorio && !sexo) faltam.push('Gênero');
+    if (faltam.length) {
+        alert('Para calcular automaticamente, preencha em Perfil: ' + faltam.join(', ') + '.');
+        return null;
+    }
+    if (idade < 18) {
+        alert('O cálculo automático de metas desta versão usa referências para adultos. Para menores de 18 anos, defina as metas manualmente com orientação profissional.');
+        return null;
+    }
+    return {altura, idade, sexo};
+}
+function pesoMaisRecenteV78() {
+    const itens = [...(appData?.pesos || [])]
+        .filter(p => p && dataISOValida?.(p.data) && numeroValido(p.peso) !== null && numeroValido(p.peso) > 0)
+        .sort((a,b) => String(a.data).localeCompare(String(b.data)) || String(a.id || '').localeCompare(String(b.id || '')));
+    if (itens.length) return numeroValido(itens[itens.length - 1].peso);
+    const atual = typeof obterPesoAtual === 'function' ? numeroValido(obterPesoAtual()) : null;
+    return atual !== null && atual > 0 ? atual : null;
+}
+function faixaPesoIMCV78(alturaCm) {
+    const h = alturaCm / 100;
+    return {
+        min: PL_BMI_SAUDAVEL_MIN_V78 * h * h,
+        max: PL_BMI_SAUDAVEL_MAX_V78 * h * h,
+        alvo: PL_BMI_ALVO_V78 * h * h
+    };
+}
+function notaIdadePesoV78(idade) {
+    return idade >= 65 ? ' Em pessoas com 65 anos ou mais, o IMC deve ser interpretado com cautela e a meta pode precisar de individualização.' : '';
+}
+function preencherInfoV78(id, texto) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = texto;
+}
+
+function calcularMetasPesoPadraoV78() {
+    const perfil = dadosPerfilCalculoV78({sexoObrigatorio:false});
+    if (!perfil) return;
+    pushHistoricoMetasPeso?.();
+    const faixa = faixaPesoIMCV78(perfil.altura);
+    const atual = pesoMaisRecenteV78();
+    pausandoAutosave = true;
+    const data = document.getElementById('cfg-data-init');
+    if (data && !data.value) data.value = hojeISO();
+    if (atual !== null) escreverNumeroCampoV78('cfg-peso-init', atual, 2);
+    escreverNumeroCampoV78('cfg-peso-meta', faixa.alvo, 2);
+    const ritmo = document.getElementById('cfg-meta-dia');
+    if (ritmo) {
+        if (atual !== null && atual > faixa.alvo + 0.1) escreverNumeroCampoV78('cfg-meta-dia', PL_RITMO_PERDA_PADRAO_V78, 2);
+        else if (atual !== null && Math.abs(atual - faixa.alvo) <= 0.1) ritmo.value = '0';
+        else if (atual !== null && atual < faixa.alvo - 0.1) ritmo.value = '';
+    }
+    pausandoAutosave = false;
+    const calMsg = 'Faixa de peso pelo IMC adulto 18,5–24,9: ' + formatBR(arredondarV78(faixa.min,1)) + ' a ' + formatBR(arredondarV78(faixa.max,1)) + ' kg. A meta automática usa o centro da faixa (IMC 21,7): ' + formatBR(arredondarV78(faixa.alvo,1)) + ' kg.';
+    const ritmoMsg = atual !== null && atual > faixa.alvo + 0.1 ? ' Ritmo inicial sugerido: 0,07 kg/dia (aprox. 0,49 kg/semana). Meta de calorias fica manual porque depende do nível de atividade.' : (atual !== null && atual < faixa.alvo - 0.1 ? ' Como o peso atual está abaixo do alvo calculado, a Meta kg/dia ficou em branco para não sugerir ganho de peso automaticamente.' : ' Meta de calorias fica manual porque depende do nível de atividade.');
+    preencherInfoV78('calculo-metas-peso-info-v78', calMsg + ritmoMsg + notaIdadePesoV78(perfil.idade));
+    const status = document.getElementById('salvar-metas-status');
+    if (status) { status.classList.remove('error'); status.textContent = 'Metas calculadas. Revise e toque em Salvar.'; }
+}
+window.calcularMetasPesoPadraoV78 = calcularMetasPesoPadraoV78;
+
+/* Referências antropométricas médias para preenchimento assistido.
+   - Pescoço, peito, quadril, coxa e panturrilha: ANSUR II, normalizados pela estatura média por sexo.
+   - Braço: média de circunferência em repouso em adultos saudáveis (Lipowicz et al., 2026),
+     escalada proporcionalmente pela mesma estatura de referência apenas para adaptação à altura.
+   - Barriga/cintura: relação cintura/altura de saúde; o app usa o centro 0,45 da faixa 0,40–0,49.
+   Não são "medidas perfeitas" universais; são referências editáveis. */
+const PL_MEDIDAS_ANSUR_V78 = {
+    masculino: {
+        estatura: 175.6,
+        pescoco: 39.8,
+        peito: 105.9,
+        quadril: 102.0,
+        coxa: 62.5,
+        panturrilha: 39.2,
+        braco: 31.7
+    },
+    feminino: {
+        estatura: 162.9,
+        pescoco: 32.98,
+        peito: 94.69,
+        quadril: 102.1,
+        coxa: 61.61,
+        panturrilha: 37.33,
+        braco: 28.4
+    }
+};
+function medidasReferenciaV78(altura, sexo) {
+    const ref = PL_MEDIDAS_ANSUR_V78[sexo];
+    if (!ref) return null;
+    const escala = altura / ref.estatura;
+    return {
+        pescoco: ref.pescoco * escala,
+        peito: ref.peito * escala,
+        cintura: altura * 0.45,
+        quadril: ref.quadril * escala,
+        coxa: ref.coxa * escala,
+        panturrilha: ref.panturrilha * escala,
+        braco: ref.braco * escala
+    };
+}
+function textoMedidasReferenciaV78(perfil) {
+    return 'Barriga usa 45% da altura, dentro da faixa saudável de relação cintura/altura de 0,40–0,49. Pescoço, peito, quadril, coxa e panturrilha usam referências antropométricas médias ANSUR II, ajustadas proporcionalmente à altura e ao gênero. Braço usa a média de circunferência em repouso observada em adultos saudáveis, também ajustada proporcionalmente à altura. São referências, não medidas clínicas ideais universais. A idade é validada para uso adulto, mas não é usada para inventar um ajuste sem referência específica.' + (perfil.idade >= 65 ? ' Para 65 anos ou mais, revise as metas com atenção individual.' : '');
+}
+function calcularMedidasIdeaisPadraoV78() {
+    const perfil = dadosPerfilCalculoV78({sexoObrigatorio:true});
+    if (!perfil) return;
+    const refs = medidasReferenciaV78(perfil.altura, perfil.sexo);
+    if (!refs) return alert('Não foi possível selecionar uma referência para o gênero informado.');
+    pushHistoricoMedidasIdeais?.();
+    pausandoAutosave = true;
+    const mapa = {pescoco:'id-pescoco',peito:'id-peito',cintura:'id-cintura',quadril:'id-quadril',coxa:'id-coxa',panturrilha:'id-panturrilha',braco:'id-braco'};
+    Object.entries(mapa).forEach(([chave,id]) => escreverNumeroCampoV78(id, refs[chave], 1));
+    pausandoAutosave = false;
+    preencherInfoV78('calculo-medidas-ideais-info-v78', textoMedidasReferenciaV78(perfil));
+    const status = document.getElementById('salvar-medidas-status');
+    if (status) { status.classList.remove('error'); status.textContent = 'Medidas de referência calculadas. Revise e toque em Salvar.'; }
+}
+window.calcularMedidasIdeaisPadraoV78 = calcularMedidasIdeaisPadraoV78;
+
+/* Corrige de forma definitiva o botão Limpar das Metas de Composição.
+   A função global antiga havia sido exportada antes das métricas adicionadas na V29. */
+function limparMetasComposicaoV78() {
+    pushHistoricoMetasComposicao?.();
+    pausandoAutosave = true;
+    Object.values(PL_COMPOSICAO_RANGE_FIELDS_V29 || {}).forEach(cfg => {
+        const min = document.getElementById(cfg.minId);
+        const max = document.getElementById(cfg.maxId);
+        if (min) min.value = '';
+        if (max) max.value = '';
+    });
+    pausandoAutosave = false;
+    salvarAjustesAutomaticamente?.();
+    preencherInfoV78('calculo-metas-composicao-info-v29', 'Usa idade, gênero, altura e peso-meta como referência. Os valores são estimativas gerais e podem ser alterados antes de salvar.');
+    const status = document.getElementById('salvar-composicao-status');
+    if (status) { status.classList.remove('error'); status.textContent = 'Metas de composição limpas.'; }
+}
+limparMetasComposicao = limparMetasComposicaoV78;
+window.limparMetasComposicao = limparMetasComposicaoV78;
+
+function garantirBotoesCalcularPadraoV78() {
+    const form = document.getElementById('form-config');
+    if (!form) return;
+    const linhaPeso = document.getElementById('btn-desfazer-metas')?.closest('.settings-action-row');
+    if (linhaPeso && !document.getElementById('btn-calcular-metas-peso-v78')) {
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.id = 'btn-calcular-metas-peso-v78'; btn.className = 'btn btn-outline full-row-action'; btn.textContent = 'Calcular'; btn.onclick = calcularMetasPesoPadraoV78;
+        const info = document.createElement('div');
+        info.id = 'calculo-metas-peso-info-v78'; info.className = 'small calc-reference-note-v78';
+        info.textContent = 'Calcula uma meta de peso a partir da faixa saudável de IMC adulto e, quando for perda de peso, sugere um ritmo inicial conservador. Calorias continuam manuais.';
+        linhaPeso.before(btn, info);
+    }
+    const linhaMedidas = document.getElementById('btn-desfazer-medidas')?.closest('.settings-action-row');
+    if (linhaMedidas && !document.getElementById('btn-calcular-medidas-ideais-v78')) {
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.id = 'btn-calcular-medidas-ideais-v78'; btn.className = 'btn btn-outline full-row-action'; btn.textContent = 'Calcular'; btn.onclick = calcularMedidasIdeaisPadraoV78;
+        const info = document.createElement('div');
+        info.id = 'calculo-medidas-ideais-info-v78'; info.className = 'small calc-reference-note-v78';
+        info.textContent = 'Calcula referências automáticas usando idade, altura e gênero. A barriga usa relação cintura/altura; as demais medidas usam referências antropométricas médias.';
+        linhaMedidas.before(btn, info);
+    }
+}
+
+function preencherFaixaCicloV78(chave, min, max) {
+    const cfg = camposComposicaoCicloV51()?.[chave];
+    if (!cfg) return;
+    const minEl = document.getElementById(idCampoComposicaoCicloV58(chave,'min'));
+    const maxEl = document.getElementById(idCampoComposicaoCicloV58(chave,'max'));
+    if (minEl) minEl.value = cfg.inteiro ? String(Math.round(min)) : formatBR(arredondarV78(min, 2));
+    if (maxEl) maxEl.value = cfg.inteiro ? String(Math.round(max)) : formatBR(arredondarV78(max, 2));
+}
+function valoresComposicaoCalculadosV78(peso, altura, idade, sexo) {
+    const gordura = faixaGorduraPorIdadeV29(sexo,idade);
+    const musculoPct = faixaMusculoPercentualV29(sexo,idade);
+    const agua = sexo === 'masculino' ? {min:50,max:65} : {min:45,max:60};
+    const ossea = faixaMassaOsseaV29(sexo,peso);
+    const baseTmb = (10*peso)+(6.25*altura)-(5*idade)+(sexo==='masculino'?5:-161);
+    return {
+        musculo:{min:peso*musculoPct.min/100,max:peso*musculoPct.max/100},
+        massaGorda:{min:peso*gordura.min/100,max:peso*gordura.max/100},
+        agua,
+        gordura,
+        imc:{min:18.5,max:24.9},
+        tmb:{min:Math.max(1,baseTmb*.90),max:baseTmb*1.10},
+        visceral:{min:1,max:9},
+        massaMagra:{min:peso*(1-gordura.max/100),max:peso*(1-gordura.min/100)},
+        massaOssea:ossea,
+        proteina:{min:16,max:20},
+        idadeCorporal:{min:Math.min(18,idade),max:idade}
+    };
+}
+function calcularMetasPesoCicloV78() {
+    const perfil = dadosPerfilCalculoV78({sexoObrigatorio:false});
+    if (!perfil) return;
+    const faixa = faixaPesoIMCV78(perfil.altura);
+    const atual = pesoMaisRecenteV78();
+    if (atual !== null) escreverNumeroCampoV78('ciclo-peso-inicial-v48', atual, 2);
+    escreverNumeroCampoV78('ciclo-peso-meta-v48', faixa.alvo, 2);
+    const ritmo = document.getElementById('ciclo-meta-dia-v48');
+    if (ritmo) {
+        if (atual !== null && atual > faixa.alvo + 0.1) escreverNumeroCampoV78('ciclo-meta-dia-v48', PL_RITMO_PERDA_PADRAO_V78, 2);
+        else if (atual !== null && Math.abs(atual-faixa.alvo)<=0.1) ritmo.value='0';
+        else if (atual !== null && atual < faixa.alvo - 0.1) ritmo.value='';
+    }
+    const tipo = document.getElementById('ciclo-tipo-v48')?.value || '';
+    if (tipo === 'manutencao' && atual !== null) {
+        escreverNumeroCampoV78('ciclo-peso-meta-v48', atual, 2);
+        if (ritmo) ritmo.value='0';
+    }
+    const msg = tipo === 'manutencao' && atual !== null
+        ? 'Ciclo de manutenção: o peso atual foi usado como peso-meta e o ritmo ficou em 0 kg/dia. A faixa saudável pelo IMC para sua altura é ' + formatBR(arredondarV78(faixa.min,1)) + ' a ' + formatBR(arredondarV78(faixa.max,1)) + ' kg. Calorias continuam manuais.'
+        : 'Faixa de peso pelo IMC adulto 18,5–24,9: ' + formatBR(arredondarV78(faixa.min,1)) + ' a ' + formatBR(arredondarV78(faixa.max,1)) + ' kg. Meta automática no centro da faixa (IMC 21,7): ' + formatBR(arredondarV78(faixa.alvo,1)) + ' kg.' + (atual !== null && atual > faixa.alvo + 0.1 ? ' Ritmo sugerido: 0,07 kg/dia de perda.' : ' O ritmo ficou sem sugestão automática quando não há perda a estimar.') + ' Calorias continuam manuais.';
+    preencherInfoV78('calculo-metas-peso-ciclo-info-v78', msg + notaIdadePesoV78(perfil.idade));
+}
+function calcularMetasComposicaoCicloV78() {
+    const perfil = dadosPerfilCalculoV78({sexoObrigatorio:true});
+    if (!perfil) return;
+    const meta = numeroValido(document.getElementById('ciclo-peso-meta-v48')?.value);
+    const inicial = numeroValido(document.getElementById('ciclo-peso-inicial-v48')?.value);
+    const atual = pesoMaisRecenteV78();
+    const peso = meta !== null && meta > 0 ? meta : (inicial !== null && inicial > 0 ? inicial : (atual !== null ? atual : faixaPesoIMCV78(perfil.altura).alvo));
+    const valores = valoresComposicaoCalculadosV78(peso,perfil.altura,perfil.idade,perfil.sexo);
+    Object.entries(valores).forEach(([chave,faixa]) => preencherFaixaCicloV78(chave,faixa.min,faixa.max));
+    preencherInfoV78('calculo-composicao-ciclo-info-v78', 'Estimativas preenchidas usando ' + perfil.idade + ' anos, ' + (perfil.sexo==='masculino'?'perfil masculino':'perfil feminino') + ', ' + formatBR(perfil.altura/100) + ' m e ' + formatBR(arredondarV78(peso,1)) + ' kg como peso de referência. Revise antes de salvar o ciclo.');
+}
+function calcularMedidasIdeaisCicloV78() {
+    const perfil = dadosPerfilCalculoV78({sexoObrigatorio:true});
+    if (!perfil) return;
+    const refs = medidasReferenciaV78(perfil.altura,perfil.sexo);
+    if (!refs) return;
+    for (const [chave,valor] of Object.entries(refs)) escreverNumeroCampoV78(idCampoMedidaCicloV58(chave),valor,1);
+    preencherInfoV78('calculo-medidas-ciclo-info-v78', textoMedidasReferenciaV78(perfil));
+}
+window.calcularMetasPesoCicloV78 = calcularMetasPesoCicloV78;
+window.calcularMetasComposicaoCicloV78 = calcularMetasComposicaoCicloV78;
+window.calcularMedidasIdeaisCicloV78 = calcularMedidasIdeaisCicloV78;
+
+function criarBotaoInfoCicloV78(idBtn, textoBtn, handler, idInfo, textoInfo) {
+    const frag = document.createDocumentFragment();
+    const btn = document.createElement('button');
+    btn.type='button'; btn.id=idBtn; btn.className='btn btn-outline full-row-action cycle-calc-btn-v78'; btn.textContent=textoBtn; btn.onclick=handler;
+    const info=document.createElement('div');
+    info.id=idInfo; info.className='small calc-reference-note-v78'; info.textContent=textoInfo;
+    frag.append(btn,info);
+    return {frag,btn,info};
+}
+function ajustarDetalhesCicloV78() {
+    const box=document.getElementById('ciclo-metas-detalhadas-v58');
+    if(!box)return;
+    const headers=[...box.querySelectorAll(':scope > h4')];
+    const hMed=headers.find(h=>/^Medidas ideais$/i.test(h.textContent.trim()));
+    const hComp=headers.find(h=>/^Metas de composição corporal$/i.test(h.textContent.trim()));
+    const hFoto=headers.find(h=>/^Foto inicial do ciclo$/i.test(h.textContent.trim()));
+    if(!hMed||!hComp||!hFoto)return;
+    hMed.textContent='Medidas Ideais';
+    hComp.textContent='Metas de Composição Corporal';
+    const gridMed=hMed.nextElementSibling;
+    const gridComp=hComp.nextElementSibling;
+    const fotoNodes=[]; let node=hFoto;
+    while(node){const next=node.nextElementSibling;fotoNodes.push(node);node=next;}
+    let btnComp=document.getElementById('btn-calcular-composicao-ciclo-v78');
+    let infoComp=document.getElementById('calculo-composicao-ciclo-info-v78');
+    if(!btnComp){const c=criarBotaoInfoCicloV78('btn-calcular-composicao-ciclo-v78','Calcular',calcularMetasComposicaoCicloV78,'calculo-composicao-ciclo-info-v78','Usa idade, gênero, altura e peso-meta do ciclo como referência.');btnComp=c.btn;infoComp=c.info;}
+    let btnMed=document.getElementById('btn-calcular-medidas-ciclo-v78');
+    let infoMed=document.getElementById('calculo-medidas-ciclo-info-v78');
+    if(!btnMed){const c=criarBotaoInfoCicloV78('btn-calcular-medidas-ciclo-v78','Calcular',calcularMedidasIdeaisCicloV78,'calculo-medidas-ciclo-info-v78','Calcula referências automáticas usando idade, gênero e altura do Perfil.');btnMed=c.btn;infoMed=c.info;}
+    box.replaceChildren(hComp,gridComp,btnComp,infoComp,hMed,gridMed,btnMed,infoMed,...fotoNodes);
+}
+function padronizarFormularioCicloV78() {
+    const card=document.getElementById('form-ciclo-card-v48');
+    if(!card)return;
+    montarCamposDetalhadosCicloV58();
+    ajustarDetalhesCicloV78();
+    let boxPeso=document.getElementById('ciclo-metas-peso-v78');
+    if(!boxPeso){
+        const pesoInicial=document.getElementById('ciclo-peso-inicial-v48')?.closest('.form-group');
+        const pesoMeta=document.getElementById('ciclo-peso-meta-v48')?.closest('.form-group');
+        const ritmo=document.getElementById('ciclo-meta-dia-v48')?.closest('.form-group');
+        const calorias=document.getElementById('ciclo-calorias-v48')?.closest('.form-group');
+        const manutencao=document.getElementById('ciclo-manutencao-v48');
+        boxPeso=document.createElement('div');boxPeso.id='ciclo-metas-peso-v78';boxPeso.className='cycle-detailed-box-v58 cycle-weight-box-v78';
+        const h=document.createElement('h4');h.textContent='Metas de Peso';
+        const g1=document.createElement('div');g1.className='grid-2';
+        const g2=document.createElement('div');g2.className='grid-2';
+        if(pesoInicial)g1.appendChild(pesoInicial);if(pesoMeta)g1.appendChild(pesoMeta);
+        if(ritmo)g2.appendChild(ritmo);if(calorias)g2.appendChild(calorias);
+        const c=criarBotaoInfoCicloV78('btn-calcular-metas-peso-ciclo-v78','Calcular',calcularMetasPesoCicloV78,'calculo-metas-peso-ciclo-info-v78','Calcula peso-meta pela faixa saudável de IMC adulto e sugere ritmo inicial quando houver perda de peso. Calorias permanecem manuais.');
+        boxPeso.append(h,g1,g2);if(manutencao)boxPeso.append(manutencao);boxPeso.append(c.btn,c.info);
+    }
+    const detalhes=document.getElementById('ciclo-metas-detalhadas-v58');
+    const observacao=document.getElementById('ciclo-observacao-v48')?.closest('.form-group');
+    if(observacao){observacao.before(boxPeso);if(detalhes)boxPeso.after(detalhes);}
+    else {const acoes=card.querySelector('.cycle-form-actions-v48');if(acoes){acoes.before(boxPeso);if(detalhes)boxPeso.after(detalhes);}}
+    [...card.querySelectorAll(':scope > .grid-2')].forEach(grid=>{
+        const grupos=[...grid.children].filter(el=>el.classList?.contains('form-group'));
+        if(!grupos.length)grid.remove();else if(grupos.length===1)grid.classList.add('cycle-grid-single-v78');
+    });
+}
+
+/* O construtor V58 continua responsável por criar os campos e listeners; a V78 só reorganiza e acrescenta controles. */
+const montarCamposDetalhadosCicloAntesV78 = montarCamposDetalhadosCicloV58;
+montarCamposDetalhadosCicloV58 = function(...args) {
+    const r = montarCamposDetalhadosCicloAntesV78(...args);
+    ajustarDetalhesCicloV78();
+    return r;
+};
+
+const reformarViewCiclosAntesV78 = reformarViewCiclosV58;
+reformarViewCiclosV58 = function(...args) {
+    const r = reformarViewCiclosAntesV78(...args);
+    padronizarFormularioCicloV78();
+    return r;
+};
+
+const reformarTelaMetasPadraoAntesV78 = reformarTelaMetasPadraoV58;
+reformarTelaMetasPadraoV58 = function(...args) {
+    const r = reformarTelaMetasPadraoAntesV78(...args);
+    garantirBotoesCalcularPadraoV78();
+    return r;
+};
+
+const editarCicloPadraoAntesV78 = editarCicloPadraoV59;
+editarCicloPadraoV59 = function(...args) {
+    const r = editarCicloPadraoAntesV78(...args);
+    garantirBotoesCalcularPadraoV78();
+    return r;
+};
+window.editarCicloPadraoV59 = editarCicloPadraoV59;
+
+function garantirEstilosMetasV78(){
+    if(document.getElementById('style-metas-v78'))return;
+    const style=document.createElement('style');style.id='style-metas-v78';
+    style.textContent=`
+        .calc-reference-note-v78{margin:-4px 0 12px;color:var(--text-secondary);line-height:1.45}
+        .cycle-calc-btn-v78{margin-top:10px}
+        .cycle-weight-box-v78{margin-top:14px}
+        .cycle-grid-single-v78{grid-template-columns:1fr!important}
+        #ciclo-metas-peso-v78 + #ciclo-metas-detalhadas-v58{margin-top:4px}
+    `;
+    document.head.appendChild(style);
+}
+function inicializarMetasV78(){
+    garantirEstilosMetasV78();
+    garantirBotoesCalcularPadraoV78();
+    try{reformarViewCiclosV58();}catch(e){console.warn('V78: formulário de ciclos será ajustado quando aberto.',e);}
+    window.limparMetasComposicao = limparMetasComposicaoV78;
+}
+garantirEstilosMetasV78();
+window.addEventListener('load',()=>setTimeout(inicializarMetasV78,2100));
 
 </script>
 
