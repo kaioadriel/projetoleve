@@ -20760,8 +20760,10 @@ function renderPainelV68() {
     const texto=(id,valor)=>{const el=document.getElementById(id);if(el)el.textContent=valor;};
     const ciclo=obterCicloAtivoV48(), cfg=appData.config||{}, pronto=temConfigCalculo();
     const ref=referenciaPesoPainelV68(), ritmo=calcularMediaUltimos7DiasPainelV69();
-    const cicloDias=dataISOValida(cfg.dataInicial)?Math.max(0,diffDays(hojeISO(),cfg.dataInicial))+1:null;
-    texto('painel-ciclo-v68',(ciclo?.nome||'Ciclo livre')+(cicloDias?' · Dia '+cicloDias:''));
+    const inicioCicloPainel=dataISOValida(ciclo?.dataInicio)?ciclo.dataInicio:(dataISOValida(cfg.dataInicial)?cfg.dataInicial:null);
+    const cicloDias=inicioCicloPainel?Math.max(1,diffDays(hojeISO(),inicioCicloPainel)+1):null;
+    const nomeCicloPainel=ciclo?.nome||'Ciclo livre';
+    texto('painel-ciclo-v68','Ciclo: '+nomeCicloPainel+(cicloDias?' - Ativo há '+cicloDias+' dia'+(cicloDias===1?'':'s'):''));
     texto('painel-titulo-v68',ciclo?.tipo==='manutencao'?'Como está minha manutenção?':'Quando chego à meta?');
     texto('painel-objetivo-v68',pronto?'Objetivo deste ciclo: '+formatBR(cfg.pesoMeta)+' kg':'Configure o ciclo para acompanhar as previsões.');
     texto('painel-meta-dia-v68',pronto?textoRitmoPainelV68(numeroValido(cfg.metaKgPorDia)):'—');
@@ -20922,7 +20924,7 @@ window.abrirPerfil=abrirPerfil;
 function inicializarPainelV68(){
     garantirRotasPainelV68();organizarComplementosPainelV68();document.body.dataset.painelView=activeViewId||'dashboard';
     const textoBotao=(id,rotulo)=>{const b=document.getElementById(id);if(b){b.textContent=rotulo;b.setAttribute('aria-label',rotulo);}};
-    textoBotao('quick-weight-save-v25','Salvar');textoBotao('quick-weight-close-v25','Cancelar');
+    textoBotao('quick-weight-save-v25','Salvar');
     renderPainelV68();renderDiarioPainelV68();
     const chart=document.getElementById('painel-grafico-v68');if(chart&&typeof ResizeObserver!=='undefined'){let largura=0;new ResizeObserver(entries=>{const proxima=Math.round(entries[0].contentRect.width);if(proxima>0&&proxima!==largura){largura=proxima;renderGraficoPainelV68();}}).observe(chart);}
 }
