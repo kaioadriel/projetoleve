@@ -22694,6 +22694,215 @@ fecharCarrosselFotosPesos = function() {
 window.fecharCarrosselFotosPesos = fecharCarrosselFotosPesos;
 controlesVisualizador['modal-fotos-pesos'].fechar = () => fecharCarrosselFotosPesos();
 
+
+/* V84 — ações completas nas metas dos ciclos + aviso obrigatório ao trocar a data das fotos.
+   - Cada bloco de metas do formulário de ciclo exibe Calcular, Limpar e Salvar.
+   - No visualizador comum de fotos, qualquer mudança para outra data exige confirmação.
+   - A Comparação Fotográfica Avançada usa fluxo próprio e não recebe este aviso. */
+const PL_SCHEMA_VERSION_V84 = 84;
+
+function limparMetasPesoCicloV84() {
+    ['ciclo-peso-inicial-v48','ciclo-peso-meta-v48','ciclo-meta-dia-v48','ciclo-calorias-v48'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+    });
+    preencherInfoV78?.('calculo-metas-peso-ciclo-info-v78','Campos limpos.');
+}
+function limparComposicaoCicloV84() {
+    for (const chave of Object.keys(camposComposicaoCicloV51())) {
+        for (const lado of ['min','max']) {
+            const el = document.getElementById(idCampoComposicaoCicloV58(chave,lado));
+            if (el) el.value = '';
+        }
+    }
+    preencherInfoV78?.('calculo-composicao-ciclo-info-v78','Campos limpos.');
+}
+function limparMedidasIdeaisCicloV84() {
+    for (const chave of ['pescoco','peito','cintura','quadril','coxa','panturrilha','braco']) {
+        const el = document.getElementById(idCampoMedidaCicloV58(chave));
+        if (el) el.value = '';
+    }
+    preencherInfoV78?.('calculo-medidas-ciclo-info-v78','Campos limpos.');
+}
+window.limparMetasPesoCicloV84 = limparMetasPesoCicloV84;
+window.limparComposicaoCicloV84 = limparComposicaoCicloV84;
+window.limparMedidasIdeaisCicloV84 = limparMedidasIdeaisCicloV84;
+
+function criarLinhaAcoesMetasCicloV84(id, botaoCalcular, limparFn) {
+    let linha = document.getElementById(id);
+    if (!linha) {
+        linha = document.createElement('div');
+        linha.id = id;
+        linha.className = 'cycle-goal-actions-v84';
+    }
+    if (botaoCalcular && botaoCalcular.parentElement !== linha) linha.appendChild(botaoCalcular);
+    if (!linha.querySelector('[data-v84-clear]')) {
+        const limpar = document.createElement('button');
+        limpar.type = 'button'; limpar.className = 'btn btn-clear-outline'; limpar.textContent = 'Limpar';
+        limpar.dataset.v84Clear = '1'; limpar.onclick = limparFn; linha.appendChild(limpar);
+    }
+    if (!linha.querySelector('[data-v84-save]')) {
+        const salvar = document.createElement('button');
+        salvar.type = 'button'; salvar.className = 'btn btn-primary'; salvar.textContent = 'Salvar';
+        salvar.dataset.v84Save = '1'; salvar.onclick = () => salvarCicloV48(); linha.appendChild(salvar);
+    }
+    return linha;
+}
+
+function garantirAcoesMetasCicloV84() {
+    const boxPeso = document.getElementById('ciclo-metas-peso-v78');
+    const calcPeso = document.getElementById('btn-calcular-metas-peso-ciclo-v78');
+    const infoPeso = document.getElementById('calculo-metas-peso-ciclo-info-v78');
+    if (boxPeso && calcPeso) {
+        const linha = criarLinhaAcoesMetasCicloV84('acoes-metas-peso-ciclo-v84', calcPeso, limparMetasPesoCicloV84);
+        if (infoPeso) infoPeso.before(linha); else boxPeso.appendChild(linha);
+    }
+
+    const box = document.getElementById('ciclo-metas-detalhadas-v58');
+    const calcComp = document.getElementById('btn-calcular-composicao-ciclo-v78');
+    const infoComp = document.getElementById('calculo-composicao-ciclo-info-v78');
+    if (box && calcComp) {
+        const linha = criarLinhaAcoesMetasCicloV84('acoes-composicao-ciclo-v84', calcComp, limparComposicaoCicloV84);
+        if (infoComp) infoComp.before(linha); else box.appendChild(linha);
+    }
+    const calcMed = document.getElementById('btn-calcular-medidas-ciclo-v78');
+    const infoMed = document.getElementById('calculo-medidas-ciclo-info-v78');
+    if (box && calcMed) {
+        const linha = criarLinhaAcoesMetasCicloV84('acoes-medidas-ciclo-v84', calcMed, limparMedidasIdeaisCicloV84);
+        if (infoMed) infoMed.before(linha); else box.appendChild(linha);
+    }
+}
+
+const ajustarDetalhesCicloAntesV84 = ajustarDetalhesCicloV78;
+ajustarDetalhesCicloV78 = function(...args) {
+    const r = ajustarDetalhesCicloAntesV84(...args);
+    garantirAcoesMetasCicloV84();
+    return r;
+};
+const padronizarFormularioCicloAntesV84 = padronizarFormularioCicloV78;
+padronizarFormularioCicloV78 = function(...args) {
+    const r = padronizarFormularioCicloAntesV84(...args);
+    garantirAcoesMetasCicloV84();
+    return r;
+};
+
+function garantirEstilosV84() {
+    if (document.getElementById('style-v84')) return;
+    const style = document.createElement('style'); style.id = 'style-v84';
+    style.textContent = `
+      .cycle-goal-actions-v84{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 8px}
+      .cycle-goal-actions-v84 .btn{min-width:0;padding-left:8px;padding-right:8px}
+      @media(max-width:350px){.cycle-goal-actions-v84{gap:6px}.cycle-goal-actions-v84 .btn{font-size:11px}}
+    `;
+    document.head.appendChild(style);
+}
+
+function dataEntradaFotoV84(entrada) { return String(entrada?.registro?.data || ''); }
+function confirmarTrocaDataFotosV84(origem, destino) {
+    const de = dataEntradaFotoV84(origem), para = dataEntradaFotoV84(destino);
+    if (!de || !para || de === para) return true;
+    return confirm('Você está saindo das fotos de ' + formatDateBR(de) + ' e indo para ' + formatDateBR(para) + '. Deseja continuar?');
+}
+
+/* Navegação por peso: o modo V83 já confirma ao sair da data escolhida pela tabela.
+   Nos demais caminhos, a confirmação acontece exatamente quando o próximo item pertence a outra data. */
+const mudarFotoCarrosselPesosAntesV84 = mudarFotoCarrosselPesos;
+mudarFotoCarrosselPesos = function(direcao) {
+    if (modoFotosPesoPorDataV83) return mudarFotoCarrosselPesosAntesV84(direcao);
+    if (!fotosPesosCarrossel.length) return;
+    const atual = fotosPesosCarrossel[indiceFotoPeso];
+    const novoIndice = (indiceFotoPeso + direcao + fotosPesosCarrossel.length) % fotosPesosCarrossel.length;
+    const destino = fotosPesosCarrossel[novoIndice];
+    if (!confirmarTrocaDataFotosV84(atual, destino)) return;
+    indiceFotoPeso = novoIndice;
+    return renderCarrosselFotosPesos();
+};
+window.mudarFotoCarrosselPesos = mudarFotoCarrosselPesos;
+controlesVisualizador['modal-fotos-pesos'].mudar = direcao => mudarFotoCarrosselPesos(direcao);
+
+const mudarFotoCarrosselMedidasAntesV84 = mudarFotoCarrosselMedidas;
+mudarFotoCarrosselMedidas = function(direcao) {
+    if (!fotosMedidasCarrossel.length) return;
+    const atual = fotosMedidasCarrossel[indiceFotoMedida];
+    const novoIndice = (indiceFotoMedida + direcao + fotosMedidasCarrossel.length) % fotosMedidasCarrossel.length;
+    const destino = fotosMedidasCarrossel[novoIndice];
+    if (!confirmarTrocaDataFotosV84(atual, destino)) return;
+    indiceFotoMedida = novoIndice;
+    return renderCarrosselFotosMedidas();
+};
+window.mudarFotoCarrosselMedidas = mudarFotoCarrosselMedidas;
+controlesVisualizador['modal-fotos-medidas'].mudar = direcao => mudarFotoCarrosselMedidas(direcao);
+
+/* Fotos de remédios também usam o visualizador comum. Mantém a mesma regra: outra data, outro consentimento. */
+const mudarFotoCarrosselRemediosAntesV84 = mudarFotoCarrossel;
+mudarFotoCarrossel = function(direcao) {
+    if (!fotosRemediosCarrossel.length) return;
+    const atual = fotosRemediosCarrossel[indiceFotoRemedio];
+    const novoIndice = (indiceFotoRemedio + direcao + fotosRemediosCarrossel.length) % fotosRemediosCarrossel.length;
+    const destino = fotosRemediosCarrossel[novoIndice];
+    if (!confirmarTrocaDataFotosV84(atual, destino)) return;
+    indiceFotoRemedio = novoIndice;
+    return renderCarrosselFotos();
+};
+window.mudarFotoCarrossel = mudarFotoCarrossel;
+if (controlesVisualizador['modal-fotos-remedios']) controlesVisualizador['modal-fotos-remedios'].mudar = direcao => mudarFotoCarrossel(direcao);
+
+/* Trocar o filtro também pode saltar de data. Primeiro tenta permanecer na data atual;
+   se a categoria só existir em outra data, pede autorização antes de exibi-la. */
+const filtrarFotosPesoAntesV84 = filtrarFotosPeso;
+filtrarFotosPeso = function(categoria) {
+    if (modoFotosPesoPorDataV83) return filtrarFotosPesoAntesV84(categoria);
+    const filtroAnterior = filtroCategoriaPesoAtual || 'todas';
+    const listaAnterior = fotosPesosCarrossel;
+    const indiceAnterior = indiceFotoPeso;
+    const atual = listaAnterior[indiceAnterior];
+    const novoFiltro = categoria === 'todas' ? 'todas' : normalizarCategoriaFotoV37(categoria);
+    const novaLista = montarFotosFiltradasV79(appData.pesos, novoFiltro);
+    filtroCategoriaPesoAtual = novoFiltro;
+    atualizarFiltroFotosComContagemV79('peso', novoFiltro);
+    if (!novaLista.length) { fotosPesosCarrossel = []; indiceFotoPeso = 0; return mostrarCategoriaSemFotoV79('peso', novoFiltro); }
+    let alvo = novaLista.findIndex(item => String(item.foto?.fotoDocId||'') === String(atual?.foto?.fotoDocId||''));
+    if (alvo < 0 && atual?.registro?.data) alvo = novaLista.findIndex(item => dataEntradaFotoV84(item) === String(atual.registro.data));
+    if (alvo < 0) alvo = 0;
+    if (atual && !confirmarTrocaDataFotosV84(atual, novaLista[alvo])) {
+        filtroCategoriaPesoAtual = filtroAnterior; fotosPesosCarrossel = listaAnterior; indiceFotoPeso = indiceAnterior;
+        atualizarFiltroFotosComContagemV79('peso', filtroAnterior);
+        return;
+    }
+    fotosPesosCarrossel = novaLista; indiceFotoPeso = alvo; return renderCarrosselFotosPesos();
+};
+window.filtrarFotosPeso = filtrarFotosPeso;
+
+const filtrarFotosMedidasAntesV84 = filtrarFotosMedidas;
+filtrarFotosMedidas = function(categoria) {
+    const filtroAnterior = filtroCategoriaMedidaAtual || 'todas';
+    const listaAnterior = fotosMedidasCarrossel;
+    const indiceAnterior = indiceFotoMedida;
+    const atual = listaAnterior[indiceAnterior];
+    const novoFiltro = categoria === 'todas' ? 'todas' : normalizarCategoriaFotoV37(categoria);
+    const novaLista = montarFotosFiltradasV79(appData.medidas, novoFiltro);
+    filtroCategoriaMedidaAtual = novoFiltro;
+    atualizarFiltroFotosComContagemV79('medida', novoFiltro);
+    if (!novaLista.length) { fotosMedidasCarrossel = []; indiceFotoMedida = 0; return mostrarCategoriaSemFotoV79('medida', novoFiltro); }
+    let alvo = novaLista.findIndex(item => String(item.foto?.fotoDocId||'') === String(atual?.foto?.fotoDocId||''));
+    if (alvo < 0 && atual?.registro?.data) alvo = novaLista.findIndex(item => dataEntradaFotoV84(item) === String(atual.registro.data));
+    if (alvo < 0) alvo = 0;
+    if (atual && !confirmarTrocaDataFotosV84(atual, novaLista[alvo])) {
+        filtroCategoriaMedidaAtual = filtroAnterior; fotosMedidasCarrossel = listaAnterior; indiceFotoMedida = indiceAnterior;
+        atualizarFiltroFotosComContagemV79('medida', filtroAnterior);
+        return;
+    }
+    fotosMedidasCarrossel = novaLista; indiceFotoMedida = alvo; return renderCarrosselFotosMedidas();
+};
+window.filtrarFotosMedidas = filtrarFotosMedidas;
+
+function inicializarV84() {
+    garantirEstilosV84();
+    try { padronizarFormularioCicloV78(); } catch (e) { console.warn('V84: ações das metas serão aplicadas quando o formulário de ciclo abrir.', e); }
+    garantirAcoesMetasCicloV84();
+}
+garantirEstilosV84();
+window.addEventListener('load', () => setTimeout(inicializarV84, 2750));
+
 </script>
 
 </body>
