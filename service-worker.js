@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v80-fotos-padrao-favorita';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v80-fotos-padrao-favorita';
+const CACHE_VERSION = 'projeto-leve-v83-fotos-por-data';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v83-fotos-por-data';
 const APP_SHELL = [
   './',
   './index.html',

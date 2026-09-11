@@ -4072,7 +4072,7 @@ function renderHistoricoPeso() {
         const temFoto = temFotoRemedio(p);
         const quantidadeFotos = obterFotosRegistro(p).length;
         const foto = temFoto
-            ? `<button type="button" class="photo-history-icon" title="Abrir ${quantidadeFotos} foto(s) local(is)" aria-label="Abrir ${quantidadeFotos} foto(s) local(is)" onclick="abrirCarrosselFotosPesos('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg>${quantidadeFotos > 1 ? `<span class="photo-count-badge">${quantidadeFotos}</span>` : ''}</button>`
+            ? `<button type="button" class="photo-history-icon" title="Abrir ${quantidadeFotos} foto(s) local(is)" aria-label="Abrir ${quantidadeFotos} foto(s) local(is)" onclick="abrirFotosPesoDoRegistroV83('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg>${quantidadeFotos > 1 ? `<span class="photo-count-badge">${quantidadeFotos}</span>` : ''}</button>`
             : '<span aria-label="Sem foto">—</span>';
         return `
             <tr>
@@ -18099,11 +18099,15 @@ window.aoMudarCopiarMetasPadraoV58=aoMudarCopiarMetasPadraoV58;
 function reformarViewCiclosV58() {
     garantirViewCiclosV48(); montarCamposDetalhadosCicloV58();
     const view=document.getElementById('view-ciclos-v48'); if(!view)return;
-    const cards=[...view.querySelectorAll(':scope > .card')];
-    if(cards[0]){
-        const h=cards[0].querySelector('h3'); if(h)h.textContent='Criar novo ciclo';
-        const s=cards[0].querySelector('.small'); if(s)s.textContent='Crie uma nova fase com metas próprias e histórico independente.';
-        const b=cards[0].querySelector('button'); if(b)b.textContent='+ Criar novo ciclo';
+    // V81: identifica o card de criação pelo botão correto. Antes o código usava
+    // o primeiro .card da tela e podia renomear acidentalmente o botão Editar
+    // do primeiro ciclo exibido no carrossel para "+ Criar novo ciclo".
+    const novoCicloBotao=[...view.querySelectorAll('button')].find(b=>/novoCicloV48\s*\(/.test(b.getAttribute('onclick')||''));
+    const novoCicloCard=novoCicloBotao?.closest('.card');
+    if(novoCicloCard){
+        const h=novoCicloCard.querySelector('h3'); if(h)h.textContent='Criar novo ciclo';
+        const s=novoCicloCard.querySelector('.small'); if(s)s.textContent='Crie uma nova fase com metas próprias e histórico independente.';
+        novoCicloBotao.textContent='+ Criar novo ciclo';
     }
     const listaCard=document.getElementById('lista-ciclos-v48')?.closest('.card');
     if(listaCard){
@@ -22375,6 +22379,320 @@ function inicializarV80() {
 }
 window.addEventListener('load', () => setTimeout(inicializarV80, 2400));
 
+
+/* V82 — Antes/Depois restrito ao ciclo ativo + simplificação das ações de foto.
+   Regras do card inicial:
+   ANTES: favorita do registro mais antigo com foto do ciclo -> foto inicial do ciclo -> Foto 1 do registro mais antigo.
+   DEPOIS: favorita do registro mais recente com foto do ciclo -> Foto 1 do registro mais recente.
+   A ação "Tornar padrão" foi removida para evitar dupla semântica com Favoritar. */
+(function(){
+    function registroPertenceAoCicloAtivoV82(registro, ciclo) {
+        if (!registro || !ciclo) return false;
+        if (typeof pertenceAoCicloV56 === 'function') return pertenceAoCicloV56(registro, ciclo);
+        if (String(registro.cicloId || '') === String(ciclo.id || '')) return true;
+        if (registro.cicloId) return false;
+        return typeof cicloContemDataV48 === 'function' && cicloContemDataV48(ciclo, registro.data || '');
+    }
+
+    function registrosPesoComFotoCicloV82(ciclo) {
+        return (appData.pesos || [])
+            .map((registro, indice) => ({ registro, indice }))
+            .filter(({registro}) => registroPertenceAoCicloAtivoV82(registro, ciclo) && obterFotosRegistro(registro || {}).length)
+            .sort((a,b) => {
+                const porData = String(a.registro?.data || '').localeCompare(String(b.registro?.data || ''));
+                return porData || (a.indice - b.indice);
+            });
+    }
+
+    function fotoFavoritaDoRegistroV82(registro) {
+        return obterFotosRegistro(registro || {}).find(foto => foto?.fotoFavorita === true) || null;
+    }
+
+    function fotoUmDoRegistroV82(registro) {
+        return obterFotosRegistro(registro || {})[0] || null;
+    }
+
+    function fotoInicialDoCicloV82(ciclo) {
+        return obterFotosRegistro(ciclo?.fotoInicial || {})[0] || null;
+    }
+
+    /* Só existe uma ação conceitual no visualizador: Favoritar.
+       Para foto inicial do ciclo não há "registro daquela data", portanto nenhum botão é exibido. */
+    controlesFotoAtualV46 = function(tipo, registroId, foto) {
+        if (!foto?.fotoDocId || tipo === 'inicial') return '';
+        const favorita = foto.fotoFavorita === true;
+        return '<div class="photo-actions-v46">' +
+            '<button type="button" class="photo-tag-action-v46 ' + (favorita ? 'active' : '') + '" onclick="alternarFavoritaFotoV46(\'' + tipo + '\',\'' + escapeHtml(String(registroId || '')) + '\',\'' + escapeHtml(String(foto.fotoDocId)) + '\')">' + (favorita ? '★ Favorita' : '☆ Favoritar') + '</button>' +
+            '</div>';
+    };
+    window.controlesFotoAtualV46 = controlesFotoAtualV46;
+
+    const renderAntesDepoisDashboardAntesV82 = renderAntesDepoisDashboard;
+    renderAntesDepoisDashboard = async function() {
+        const antes = document.getElementById('foto-antes-dashboard');
+        const depois = document.getElementById('foto-depois-dashboard');
+        const infoAntes = document.getElementById('info-antes-dashboard');
+        const infoDepois = document.getElementById('info-depois-dashboard');
+        if (!antes || !depois || !infoAntes || !infoDepois) return;
+
+        const ciclo = typeof obterCicloAtivoV48 === 'function' ? obterCicloAtivoV48() : null;
+        if (!ciclo) return renderAntesDepoisDashboardAntesV82();
+
+        const token = ++renderAntesDepoisToken;
+        const registros = registrosPesoComFotoCicloV82(ciclo);
+        const entradaAntes = registros[0] || null;
+        const entradaDepois = registros[registros.length - 1] || null;
+        const registroAntes = entradaAntes?.registro || null;
+        const registroDepois = entradaDepois?.registro || null;
+
+        const favoritaAntes = fotoFavoritaDoRegistroV82(registroAntes);
+        const fotoCiclo = fotoInicialDoCicloV82(ciclo);
+        const fotoAntes = favoritaAntes || fotoCiclo || fotoUmDoRegistroV82(registroAntes);
+        const origemAntes = favoritaAntes ? 'registro' : (fotoCiclo ? 'ciclo' : (fotoAntes ? 'registro' : 'nenhuma'));
+
+        const favoritaDepois = fotoFavoritaDoRegistroV82(registroDepois);
+        const fotoDepois = favoritaDepois || fotoUmDoRegistroV82(registroDepois);
+
+        const pesoAntes = origemAntes === 'ciclo' ? numeroInformado(ciclo.pesoInicial) : numeroInformado(registroAntes?.peso);
+        const pesoDepois = numeroInformado(registroDepois?.peso);
+        const variacao = pesoAntes !== null && pesoDepois !== null ? Math.round((pesoDepois - pesoAntes) * 100) / 100 : null;
+        const saldoFoto = variacao === null ? '' : variacao === 0
+            ? '<div class="before-after-change">Sem alteração de peso</div>'
+            : '<div class="before-after-change ' + (variacao < 0 ? 'negative' : 'positive') + '">' + formatBR(Math.abs(variacao)) + ' kg ' + (variacao < 0 ? 'perdidos' : 'ganhos') + '</div>';
+
+        if (origemAntes === 'ciclo') {
+            infoAntes.innerHTML = '<div>' + formatDateBR(ciclo.dataInicio) + '</div><strong>' + (pesoAntes === null ? '--' : formatBR(pesoAntes) + ' kg') + '</strong>';
+        } else if (registroAntes) {
+            infoAntes.innerHTML = '<div>' + formatDateBR(registroAntes.data) + '</div><strong>' + (pesoAntes === null ? '--' : formatBR(pesoAntes) + ' kg') + '</strong>';
+        } else {
+            infoAntes.innerHTML = '<div>' + formatDateBR(ciclo.dataInicio) + '</div><strong>' + (numeroInformado(ciclo.pesoInicial) === null ? '--' : formatBR(ciclo.pesoInicial) + ' kg') + '</strong>';
+        }
+
+        infoDepois.innerHTML = registroDepois
+            ? '<div>' + formatDateBR(registroDepois.data) + '</div><strong>' + (pesoDepois === null ? '--' : formatBR(pesoDepois) + ' kg') + '</strong>' + saldoFoto
+            : '<div>--</div><strong>--</strong>';
+
+        if (fotoAntes) {
+            const aoClicarAntes = origemAntes === 'ciclo'
+                ? abrirVisualizacaoFotoInicial
+                : () => abrirCarrosselFotosPesos(registroAntes.id, fotoAntes.fotoDocId);
+            await mostrarImagemResilienteV21(antes, fotoAntes, origemAntes === 'ciclo' ? 'Foto inicial do ciclo' : 'Foto do primeiro registro do ciclo', {
+                ativa: () => token === renderAntesDepoisToken,
+                aoClicar: aoClicarAntes
+            });
+        } else {
+            antes.innerHTML = '<div class="before-after-placeholder">Nenhuma foto disponível no início deste ciclo.</div>';
+        }
+
+        if (fotoDepois && registroDepois) {
+            await mostrarImagemResilienteV21(depois, fotoDepois, 'Foto do registro mais recente do ciclo', {
+                ativa: () => token === renderAntesDepoisToken,
+                aoClicar: () => abrirCarrosselFotosPesos(registroDepois.id, fotoDepois.fotoDocId)
+            });
+        } else {
+            depois.innerHTML = '<div class="before-after-placeholder">Nenhuma foto de peso neste ciclo.</div>';
+        }
+    };
+    window.renderAntesDepoisDashboard = renderAntesDepoisDashboard;
+
+    function limparBotoesPadraoV82() {
+        document.querySelectorAll('.photo-actions-v46 button').forEach(botao => {
+            const texto = (botao.textContent || '').toLowerCase();
+            if (texto.includes('tornar padrão') || texto.includes('padrão de') || texto.includes('tornar principal') || texto.includes('principal de')) botao.remove();
+        });
+    }
+
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            limparBotoesPadraoV82();
+            renderAntesDepoisDashboard();
+        }, 2600);
+    });
+})();
+
+/* V83 — Fotos abertas pelo ícone da tabela de Peso ficam restritas ao registro/data escolhido.
+   Só ao tentar ultrapassar a primeira/última foto o app oferece, com confirmação explícita,
+   a data vizinha que também possui fotos. Outras entradas do visualizador mantêm o modo geral. */
+let modoFotosPesoPorDataV83 = false;
+let registroFotosPesoV83 = '';
+
+function registroPesoAtualV83() {
+    return (appData.pesos || []).find(registro => String(registro.id) === String(registroFotosPesoV83)) || null;
+}
+
+function registrosPesoComFotosOrdenadosV83() {
+    return [...(appData.pesos || [])]
+        .map((registro, indice) => ({ registro, indice }))
+        .filter(({registro}) => obterFotosRegistro(registro || {}).length > 0)
+        .sort((a, b) => {
+            const porData = String(b.registro?.data || '').localeCompare(String(a.registro?.data || ''));
+            return porData || (b.indice - a.indice);
+        });
+}
+
+function atualizarTituloFotosPesoV83() {
+    const titulo = document.getElementById('titulo-comparar-fotos-pesos');
+    if (!titulo) return;
+    const registro = registroPesoAtualV83();
+    titulo.textContent = modoFotosPesoPorDataV83 && registro?.data
+        ? 'Fotos de ' + formatDateBR(registro.data)
+        : 'Comparar Fotos de Peso';
+}
+
+function contagemFotosRegistroV83(registro) {
+    const mapa = new Map(PL_CATEGORIAS_FOTOS.map(([chave]) => [chave, 0]));
+    let total = 0;
+    for (const foto of obterFotosRegistro(registro || {})) {
+        const chave = normalizarCategoriaFotoV37(foto?.fotoCategoria);
+        mapa.set(chave, (mapa.get(chave) || 0) + 1);
+        total++;
+    }
+    return { mapa, total };
+}
+
+function atualizarFiltroFotosPesoDataV83(selecionada = 'todas') {
+    const select = document.getElementById('filtro-fotos-peso');
+    const registro = registroPesoAtualV83();
+    if (!select || !registro) return;
+    const { mapa, total } = contagemFotosRegistroV83(registro);
+    const atual = selecionada === 'todas' ? 'todas' : normalizarCategoriaFotoV37(selecionada);
+    select.innerHTML = '<option value="todas">Todas as categorias (' + total + ')</option>' +
+        PL_CATEGORIAS_FOTOS.map(([chave, rotulo]) => '<option value="' + escapeHtml(chave) + '">' + escapeHtml(rotulo) + ' (' + (mapa.get(chave) || 0) + ')</option>').join('');
+    select.value = [...select.options].some(opcao => opcao.value === atual) ? atual : 'todas';
+}
+
+function montarFotosRegistroV83(registro, categoria = 'todas') {
+    const chave = categoria === 'todas' ? 'todas' : normalizarCategoriaFotoV37(categoria);
+    return obterFotosRegistro(registro || {})
+        .map(foto => ({ registro, foto }))
+        .filter(item => chave === 'todas' || normalizarCategoriaFotoV37(item.foto?.fotoCategoria) === chave);
+}
+
+function reconstruirFotosPesoDataV83(categoria = 'todas', fotoPreferidaId = '') {
+    const registro = registroPesoAtualV83();
+    filtroCategoriaPesoAtual = categoria === 'todas' ? 'todas' : normalizarCategoriaFotoV37(categoria);
+    atualizarFiltroFotosPesoDataV83(filtroCategoriaPesoAtual);
+    fotosPesosCarrossel = montarFotosRegistroV83(registro, filtroCategoriaPesoAtual);
+    if (!fotosPesosCarrossel.length) {
+        indiceFotoPeso = 0;
+        mostrarCategoriaSemFotoV79('peso', filtroCategoriaPesoAtual);
+        atualizarTituloFotosPesoV83();
+        return false;
+    }
+    const preferida = String(fotoPreferidaId || '');
+    indiceFotoPeso = preferida
+        ? Math.max(0, fotosPesosCarrossel.findIndex(item => String(item.foto?.fotoDocId || '') === preferida))
+        : 0;
+    atualizarTituloFotosPesoV83();
+    renderCarrosselFotosPesos();
+    return true;
+}
+
+function abrirFotosPesoDoRegistroV83(idRegistro) {
+    const registro = (appData.pesos || []).find(item => String(item.id) === String(idRegistro));
+    if (!registro || !obterFotosRegistro(registro).length) return alert('Este registro não possui fotos.');
+    modoFotosPesoPorDataV83 = true;
+    registroFotosPesoV83 = String(registro.id);
+    filtroCategoriaPesoAtual = 'todas';
+    const favorita = obterFotosRegistro(registro).find(foto => foto?.fotoFavorita === true);
+    const primeira = obterFotosRegistro(registro)[0];
+    reconstruirFotosPesoDataV83('todas', favorita?.fotoDocId || primeira?.fotoDocId || '');
+    abrirVisualizadorFoto('modal-fotos-pesos');
+}
+window.abrirFotosPesoDoRegistroV83 = abrirFotosPesoDoRegistroV83;
+
+function mudarDataFotosPesoV83(direcao) {
+    const registros = registrosPesoComFotosOrdenadosV83();
+    const atual = registros.findIndex(({registro}) => String(registro.id) === String(registroFotosPesoV83));
+    if (atual < 0) return;
+    const destinoIndice = atual + (direcao > 0 ? 1 : -1);
+    const destino = registros[destinoIndice]?.registro;
+    if (!destino) return;
+    const origem = registros[atual].registro;
+    const pergunta = 'As fotos de ' + formatDateBR(origem.data) + ' terminaram. Deseja ver as fotos de ' + formatDateBR(destino.data) + '?';
+    if (!confirm(pergunta)) return;
+    registroFotosPesoV83 = String(destino.id);
+    /* Ao trocar de data, abre todas as categorias da nova data para não esconder fotos por um filtro antigo. */
+    filtroCategoriaPesoAtual = 'todas';
+    const favorita = obterFotosRegistro(destino).find(foto => foto?.fotoFavorita === true);
+    const primeira = obterFotosRegistro(destino)[0];
+    reconstruirFotosPesoDataV83('todas', favorita?.fotoDocId || primeira?.fotoDocId || '');
+}
+
+const mudarFotoCarrosselPesosAntesV83 = mudarFotoCarrosselPesos;
+mudarFotoCarrosselPesos = function(direcao) {
+    if (!modoFotosPesoPorDataV83) return mudarFotoCarrosselPesosAntesV83(direcao);
+    if (!fotosPesosCarrossel.length) return mudarDataFotosPesoV83(direcao);
+    const proximo = indiceFotoPeso + direcao;
+    if (proximo >= 0 && proximo < fotosPesosCarrossel.length) {
+        indiceFotoPeso = proximo;
+        return renderCarrosselFotosPesos();
+    }
+    return mudarDataFotosPesoV83(direcao);
+};
+window.mudarFotoCarrosselPesos = mudarFotoCarrosselPesos;
+controlesVisualizador['modal-fotos-pesos'].mudar = direcao => mudarFotoCarrosselPesos(direcao);
+
+const filtrarFotosPesoAntesV83 = filtrarFotosPeso;
+filtrarFotosPeso = function(categoria) {
+    if (!modoFotosPesoPorDataV83) return filtrarFotosPesoAntesV83(categoria);
+    return reconstruirFotosPesoDataV83(categoria || 'todas');
+};
+window.filtrarFotosPeso = filtrarFotosPeso;
+
+const atualizarInterfacesFotosV46AntesV83 = atualizarInterfacesFotosV46;
+atualizarInterfacesFotosV46 = function(tipo = '') {
+    if (tipo === 'peso' && modoFotosPesoPorDataV83) {
+        const atualId = fotosPesosCarrossel[indiceFotoPeso]?.foto?.fotoDocId || '';
+        reconstruirFotosPesoDataV83(filtroCategoriaPesoAtual || 'todas', atualId);
+        renderPainelEvolucaoFotosV46();
+        if (!document.getElementById('modal-comparacao-fotos-v46')?.classList.contains('hidden')) renderComparacaoFotosV46();
+        return;
+    }
+    return atualizarInterfacesFotosV46AntesV83(tipo);
+};
+
+const excluirFotoAtualPesoAntesV83 = excluirFotoAtualPeso;
+excluirFotoAtualPeso = async function() {
+    const estavaRestrito = modoFotosPesoPorDataV83;
+    const idRegistro = registroFotosPesoV83;
+    const categoria = filtroCategoriaPesoAtual || 'todas';
+    await excluirFotoAtualPesoAntesV83();
+    if (!estavaRestrito || !modoFotosPesoPorDataV83 || visualizadorFotoAtivo !== 'modal-fotos-pesos') return;
+    registroFotosPesoV83 = idRegistro;
+    const registro = registroPesoAtualV83();
+    if (!registro || !obterFotosRegistro(registro).length) {
+        fotosPesosCarrossel = [];
+        indiceFotoPeso = 0;
+        atualizarFiltroFotosPesoDataV83('todas');
+        mostrarCategoriaSemFotoV79('peso', 'todas');
+        atualizarTituloFotosPesoV83();
+        return;
+    }
+    reconstruirFotosPesoDataV83(categoria);
+};
+window.excluirFotoAtualPeso = excluirFotoAtualPeso;
+
+const abrirCarrosselFotosPesosAntesV83 = abrirCarrosselFotosPesos;
+abrirCarrosselFotosPesos = function(idInicial = '', fotoInicialId = '') {
+    modoFotosPesoPorDataV83 = false;
+    registroFotosPesoV83 = '';
+    atualizarTituloFotosPesoV83();
+    return abrirCarrosselFotosPesosAntesV83(idInicial, fotoInicialId);
+};
+window.abrirCarrosselFotosPesos = abrirCarrosselFotosPesos;
+
+const fecharCarrosselFotosPesosAntesV83 = fecharCarrosselFotosPesos;
+fecharCarrosselFotosPesos = function() {
+    const retorno = fecharCarrosselFotosPesosAntesV83();
+    modoFotosPesoPorDataV83 = false;
+    registroFotosPesoV83 = '';
+    filtroCategoriaPesoAtual = 'todas';
+    atualizarTituloFotosPesoV83();
+    return retorno;
+};
+window.fecharCarrosselFotosPesos = fecharCarrosselFotosPesos;
+controlesVisualizador['modal-fotos-pesos'].fechar = () => fecharCarrosselFotosPesos();
 
 </script>
 
