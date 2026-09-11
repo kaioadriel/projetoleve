@@ -21972,6 +21972,264 @@ function inicializarMetasV78(){
 garantirEstilosMetasV78();
 window.addEventListener('load',()=>setTimeout(inicializarMetasV78,2100));
 
+
+/* V79 — carrossel de ciclos + filtros de fotos com contagem e estado vazio real. */
+const PL_SCHEMA_VERSION_V79 = 79;
+
+function garantirEstilosV79() {
+    if (document.getElementById('style-v79')) return;
+    const style = document.createElement('style');
+    style.id = 'style-v79';
+    style.textContent = `
+      #lista-ciclos-v48.cycles-carousel-v79{
+        display:grid!important;
+        grid-auto-flow:column;
+        grid-auto-columns:100%;
+        gap:12px!important;
+        overflow-x:auto;
+        overflow-y:hidden;
+        scroll-snap-type:x mandatory;
+        scroll-behavior:smooth;
+        -webkit-overflow-scrolling:touch;
+        overscroll-behavior-inline:contain;
+        scrollbar-width:none;
+        padding:2px 0 5px;
+      }
+      #lista-ciclos-v48.cycles-carousel-v79::-webkit-scrollbar{display:none}
+      #lista-ciclos-v48.cycles-carousel-v79>.cycle-row-v48{
+        width:100%;
+        min-width:0;
+        margin:0!important;
+        scroll-snap-align:start;
+        scroll-snap-stop:always;
+        align-self:start;
+      }
+      .cycle-carousel-footer-v79{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
+        margin:10px 0 2px;
+        min-height:38px;
+      }
+      .cycle-carousel-first-v79{
+        width:auto!important;
+        min-height:36px!important;
+        padding:7px 11px!important;
+        border-radius:999px!important;
+        font-size:10px!important;
+        display:inline-flex!important;
+        align-items:center;
+        justify-content:center;
+        gap:6px;
+      }
+      .cycle-carousel-first-v79[hidden]{display:none!important}
+      .cycle-carousel-counter-v79{
+        color:var(--text-secondary);
+        font-size:11px;
+        font-weight:800;
+        white-space:nowrap;
+      }
+      .photo-empty-v79{
+        min-height:260px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:7px;
+        padding:28px 18px;
+        text-align:center;
+        color:#e2e8f0;
+      }
+      .photo-empty-v79 svg{width:42px;height:42px;opacity:.78}
+      .photo-empty-v79 strong{font-size:16px}
+      .photo-empty-v79 span{font-size:12px;opacity:.78}
+    `;
+    document.head.appendChild(style);
+}
+
+function indiceVisualCarrosselCiclosV79(alvo) {
+    const cards = [...alvo.querySelectorAll(':scope > .cycle-row-v48')];
+    if (!cards.length) return 0;
+    let melhor = 0, distancia = Infinity;
+    for (let i=0;i<cards.length;i++) {
+        const d = Math.abs(cards[i].getBoundingClientRect().left - alvo.getBoundingClientRect().left);
+        if (d < distancia) { distancia = d; melhor = i; }
+    }
+    return melhor;
+}
+
+function atualizarRodapeCarrosselCiclosV79(alvo) {
+    const footer = document.getElementById('cycle-carousel-footer-v79');
+    const contador = document.getElementById('cycle-carousel-counter-v79');
+    const primeiro = document.getElementById('cycle-carousel-first-v79');
+    if (!alvo || !footer || !contador || !primeiro) return;
+    const total = alvo.querySelectorAll(':scope > .cycle-row-v48').length;
+    if (!total) { footer.hidden = true; return; }
+    footer.hidden = false;
+    const atual = Math.min(total, indiceVisualCarrosselCiclosV79(alvo) + 1);
+    contador.textContent = total === 1 ? '1 ciclo' : `${atual} de ${total} ciclos`;
+    primeiro.hidden = total <= 1;
+    primeiro.disabled = atual === 1;
+}
+
+function prepararCarrosselCiclosV79() {
+    garantirEstilosV79();
+    const alvo = document.getElementById('lista-ciclos-v48');
+    if (!alvo) return;
+    alvo.classList.add('cycles-carousel-v79');
+    let footer = document.getElementById('cycle-carousel-footer-v79');
+    if (!footer) {
+        footer = document.createElement('div');
+        footer.id = 'cycle-carousel-footer-v79';
+        footer.className = 'cycle-carousel-footer-v79';
+        footer.innerHTML = `
+          <button type="button" id="cycle-carousel-first-v79" class="btn btn-outline cycle-carousel-first-v79" title="Voltar ao ciclo mais recente" aria-label="Voltar ao ciclo mais recente">↤ <span>Mais recente</span></button>
+          <div id="cycle-carousel-counter-v79" class="cycle-carousel-counter-v79" aria-live="polite"></div>`;
+        alvo.insertAdjacentElement('afterend', footer);
+        document.getElementById('cycle-carousel-first-v79')?.addEventListener('click', () => {
+            alvo.scrollTo({left:0, behavior:'smooth'});
+            setTimeout(() => atualizarRodapeCarrosselCiclosV79(alvo), 220);
+        });
+    } else if (footer.previousElementSibling !== alvo) {
+        alvo.insertAdjacentElement('afterend', footer);
+    }
+    let raf = 0;
+    alvo.onscroll = () => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => atualizarRodapeCarrosselCiclosV79(alvo));
+    };
+    alvo.scrollLeft = 0;
+    requestAnimationFrame(() => atualizarRodapeCarrosselCiclosV79(alvo));
+}
+
+const renderListaCiclosAntesV79 = renderListaCiclosV48;
+renderListaCiclosV48 = function(...args) {
+    const r = renderListaCiclosAntesV79(...args);
+    prepararCarrosselCiclosV79();
+    return r;
+};
+window.renderListaCiclosV48 = renderListaCiclosV48;
+
+function montarFotosFiltradasV79(registros, categoria) {
+    const cat = categoria === 'todas' ? 'todas' : normalizarCategoriaFotoV37(categoria);
+    return [...(registros || [])]
+      .sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')))
+      .flatMap(registro => obterFotosRegistro(registro).map(foto => ({registro,foto})))
+      .filter(item => cat === 'todas' || normalizarCategoriaFotoV37(item.foto?.fotoCategoria) === cat);
+}
+
+function contagemFotosPorCategoriaV79(registros) {
+    const mapa = new Map(PL_CATEGORIAS_FOTOS.map(([chave]) => [chave, 0]));
+    let total = 0;
+    for (const registro of (registros || [])) {
+        for (const foto of obterFotosRegistro(registro)) {
+            const chave = normalizarCategoriaFotoV37(foto?.fotoCategoria);
+            mapa.set(chave, (mapa.get(chave) || 0) + 1);
+            total++;
+        }
+    }
+    return { mapa, total };
+}
+
+function atualizarFiltroFotosComContagemV79(tipo, selecionada) {
+    const ehPeso = tipo === 'peso';
+    const select = document.getElementById(ehPeso ? 'filtro-fotos-peso' : 'filtro-fotos-medidas');
+    if (!select) return;
+    const registros = ehPeso ? appData.pesos : appData.medidas;
+    const {mapa,total} = contagemFotosPorCategoriaV79(registros);
+    const atual = selecionada || select.value || 'todas';
+    select.innerHTML = `<option value="todas">Todas as categorias (${total})</option>` +
+      PL_CATEGORIAS_FOTOS.map(([chave,rotulo]) => `<option value="${escapeHtml(chave)}">${escapeHtml(rotulo)} (${mapa.get(chave)||0})</option>`).join('');
+    const valor = atual === 'todas' ? 'todas' : normalizarCategoriaFotoV37(atual);
+    select.value = [...select.options].some(o=>o.value===valor) ? valor : 'todas';
+}
+
+function mostrarCategoriaSemFotoV79(tipo, categoria) {
+    const ehPeso = tipo === 'peso';
+    const stage = document.getElementById(ehPeso ? 'foto-peso-carousel-stage' : 'foto-medida-carousel-stage');
+    const info = document.getElementById(ehPeso ? 'foto-peso-carousel-info' : 'foto-medida-carousel-info');
+    const contador = document.getElementById(ehPeso ? 'foto-peso-carousel-contador' : 'foto-medida-carousel-contador');
+    const chave = categoria === 'todas' ? 'todas' : normalizarCategoriaFotoV37(categoria);
+    const rotulo = chave === 'todas' ? 'Todas as categorias' : rotuloCategoria(PL_CATEGORIAS_FOTOS, chave);
+    if (stage) stage.innerHTML = `<div class="photo-empty-v79"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m4 17 5-4 3 2 3-3 5 5"/></svg><strong>Nenhuma foto anexada</strong><span>${escapeHtml(rotulo)} (0)</span></div>`;
+    if (info) info.innerHTML = '';
+    if (contador) contador.textContent = '0 de 0';
+}
+
+const abrirCarrosselFotosPesosAntesV79 = abrirCarrosselFotosPesos;
+abrirCarrosselFotosPesos = function(idInicial='', fotoInicialId='') {
+    garantirEstilosV79();
+    filtroCategoriaPesoAtual = 'todas';
+    atualizarFiltroFotosComContagemV79('peso', 'todas');
+    fotosPesosCarrossel = montarFotosFiltradasV79(appData.pesos, 'todas');
+    if (!fotosPesosCarrossel.length) return alert('Nenhuma foto foi adicionada aos lançamentos de peso.');
+    indiceFotoPeso = idInicial ? Math.max(0, fotosPesosCarrossel.findIndex(x => String(x.registro.id)===String(idInicial) && (!fotoInicialId || String(x.foto.fotoDocId)===String(fotoInicialId)))) : 0;
+    abrirVisualizadorFoto('modal-fotos-pesos');
+    renderCarrosselFotosPesos();
+};
+window.abrirCarrosselFotosPesos = abrirCarrosselFotosPesos;
+
+filtrarFotosPeso = function(categoria) {
+    garantirEstilosV79();
+    filtroCategoriaPesoAtual = categoria === 'todas' ? 'todas' : normalizarCategoriaFotoV37(categoria);
+    fotosPesosCarrossel = montarFotosFiltradasV79(appData.pesos, filtroCategoriaPesoAtual);
+    indiceFotoPeso = 0;
+    atualizarFiltroFotosComContagemV79('peso', filtroCategoriaPesoAtual);
+    if (!fotosPesosCarrossel.length) return mostrarCategoriaSemFotoV79('peso', filtroCategoriaPesoAtual);
+    renderCarrosselFotosPesos();
+};
+window.filtrarFotosPeso = filtrarFotosPeso;
+
+const renderCarrosselFotosPesosAntesV79 = renderCarrosselFotosPesos;
+renderCarrosselFotosPesos = async function(...args) {
+    atualizarFiltroFotosComContagemV79('peso', filtroCategoriaPesoAtual || 'todas');
+    if (!fotosPesosCarrossel.length) return mostrarCategoriaSemFotoV79('peso', filtroCategoriaPesoAtual || 'todas');
+    return renderCarrosselFotosPesosAntesV79(...args);
+};
+window.renderCarrosselFotosPesos = renderCarrosselFotosPesos;
+
+const abrirCarrosselFotosMedidasAntesV79 = abrirCarrosselFotosMedidas;
+abrirCarrosselFotosMedidas = function(idInicial='') {
+    garantirEstilosV79();
+    filtroCategoriaMedidaAtual = 'todas';
+    atualizarFiltroFotosComContagemV79('medida', 'todas');
+    fotosMedidasCarrossel = montarFotosFiltradasV79(appData.medidas, 'todas');
+    if (!fotosMedidasCarrossel.length) return alert('Nenhuma foto foi adicionada aos lançamentos de medidas.');
+    indiceFotoMedida = idInicial ? Math.max(0, fotosMedidasCarrossel.findIndex(x=>String(x.registro.id)===String(idInicial))) : 0;
+    abrirVisualizadorFoto('modal-fotos-medidas');
+    renderCarrosselFotosMedidas();
+};
+window.abrirCarrosselFotosMedidas = abrirCarrosselFotosMedidas;
+
+filtrarFotosMedidas = function(categoria) {
+    garantirEstilosV79();
+    filtroCategoriaMedidaAtual = categoria === 'todas' ? 'todas' : normalizarCategoriaFotoV37(categoria);
+    fotosMedidasCarrossel = montarFotosFiltradasV79(appData.medidas, filtroCategoriaMedidaAtual);
+    indiceFotoMedida = 0;
+    atualizarFiltroFotosComContagemV79('medida', filtroCategoriaMedidaAtual);
+    if (!fotosMedidasCarrossel.length) return mostrarCategoriaSemFotoV79('medida', filtroCategoriaMedidaAtual);
+    renderCarrosselFotosMedidas();
+};
+window.filtrarFotosMedidas = filtrarFotosMedidas;
+
+const renderCarrosselFotosMedidasAntesV79 = renderCarrosselFotosMedidas;
+renderCarrosselFotosMedidas = async function(...args) {
+    atualizarFiltroFotosComContagemV79('medida', filtroCategoriaMedidaAtual || 'todas');
+    if (!fotosMedidasCarrossel.length) return mostrarCategoriaSemFotoV79('medida', filtroCategoriaMedidaAtual || 'todas');
+    return renderCarrosselFotosMedidasAntesV79(...args);
+};
+window.renderCarrosselFotosMedidas = renderCarrosselFotosMedidas;
+
+function inicializarV79() {
+    garantirEstilosV79();
+    try { prepararCarrosselCiclosV79(); } catch(e) { console.warn('V79: carrossel de ciclos aguardará a tela ser aberta.', e); }
+    atualizarFiltroFotosComContagemV79('peso', filtroCategoriaPesoAtual || 'todas');
+    atualizarFiltroFotosComContagemV79('medida', filtroCategoriaMedidaAtual || 'todas');
+}
+garantirEstilosV79();
+window.addEventListener('load', () => setTimeout(inicializarV79, 2300));
+
 </script>
 
 </body>

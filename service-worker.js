@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v78-metas-auto';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v78-metas-auto';
+const CACHE_VERSION = 'projeto-leve-v79-ciclos-fotos';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v79-ciclos-fotos';
 const APP_SHELL = [
   './',
   './index.html',
