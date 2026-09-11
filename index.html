@@ -1609,33 +1609,54 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
         
         <!-- Início -->
         <section id="view-dashboard" class="view">
-            <div class="grid-2">
-                <div class="card dash-card dashboard-bordered-card"><div class="label">Peso Atual</div><div class="value" id="dash-peso-atual">--</div></div>
-                <div class="card dash-card dashboard-bordered-card"><div class="label">Meta de Hoje</div><div class="value" id="dash-meta-hoje">--</div></div>
-            </div>
-            <div class="card dashboard-bordered-card">
-                <div class="label">Situação Atual</div>
-                <div class="value" id="dash-status" style="margin-top: 5px;">--</div>
-                <div class="small" id="dash-info-meta" style="margin-top: 10px; color: var(--text-secondary)"></div>
-            </div>
-            <div class="grid-2">
-                <div class="card dash-card dashboard-bordered-card"><div class="label">Ritmo do Ciclo</div><div class="value" id="dash-media-dia">--</div></div>
-                <div class="card dash-card dashboard-bordered-card"><div class="label">Total Perdido</div><div class="value" id="dash-total-perdido">--</div></div>
-            </div>
-            <div class="grid-2">
-                <div class="card dashboard-bordered-card"><div class="label">Saldo</div><div class="value" id="dash-saldo">--</div></div>
-                <div class="card dashboard-bordered-card"><div class="label">Faltam</div><div class="value" id="dash-falta-kg">--</div></div>
-            </div>
-            <div class="grid-2 forecast-grid">
-                <div class="card dashboard-bordered-card previsao-card">
-                    <div class="label">Projeção pela Meta</div>
-                    <div class="value" id="dash-previsao-meta">Calculando...</div>
+            <div id="painel-principal-v68" class="pl68-primary">
+                <div id="painel-intro-v68" class="pl68-heading">
+                    <button type="button" class="pl68-cycle" onclick="abrirCiclosV48()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4m14-1v2a3 3 0 01-3 3H3"/></svg><span id="painel-ciclo-v68">Meu ciclo</span><span aria-hidden="true">›</span></button>
+                    <h2 id="painel-titulo-v68">Quando chego à meta?</h2>
+                    <p id="painel-objetivo-v68">Configure o ciclo para acompanhar as previsões.</p>
                 </div>
-                <div class="card dashboard-bordered-card previsao-card">
-                    <div class="label">Projeção pelo Ritmo</div>
-                    <div class="value" id="dash-previsao">Calculando...</div>
+                <div id="painel-previsoes-v68" class="pl68-forecasts">
+                    <div class="card pl68-forecast pl68-plan">
+                        <div class="pl68-kicker label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>Pela meta</div>
+                        <div class="value" id="dash-previsao-meta">—</div>
+                        <div class="pl68-rate" id="painel-meta-dia-v68">—</div>
+                        <button class="pl68-explain" type="button" onclick="abrirExplicacaoPainelV68('meta')">Plano do ciclo <span aria-hidden="true">›</span></button>
+                    </div>
+                    <div class="card pl68-forecast pl68-actual">
+                        <div class="pl68-kicker label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6l6 6 4-4 8 10M15 18h6v-6"/></svg>Pelo ritmo</div>
+                        <div class="value" id="dash-previsao">—</div>
+                        <div class="pl68-rate" id="dash-media-dia">—</div>
+                        <button class="pl68-explain" type="button" onclick="abrirExplicacaoPainelV68('ritmo')">Últimos 7 dias <span aria-hidden="true">›</span></button>
+                    </div>
                 </div>
+                <div class="pl68-insight neutral" id="painel-diferenca-v68" role="status">As previsões aparecerão com os dados do ciclo.</div>
+                <div id="painel-peso-v68" class="card pl68-current">
+                    <div class="pl68-row pl68-weight-row">
+                        <div><div class="pl68-caption" id="painel-data-peso-v68">Última pesagem</div><div class="value" id="dash-peso-atual">—</div></div>
+                        <div class="pl68-loss"><div class="value" id="dash-total-perdido">—</div><div class="pl68-caption">Neste ciclo</div></div>
+                    </div>
+                    <div id="painel-progresso-v68" class="pl68-progress" role="progressbar" aria-label="Progresso do ciclo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="painel-progresso-barra-v68"></span></div>
+                    <div class="pl68-row pl68-progress-detail"><span id="painel-progresso-texto-v68">—</span><span>Faltam <strong id="dash-falta-kg">—</strong></span></div>
+                    <div class="pl68-position">
+                        <div class="pl68-row"><span>Planejado hoje</span><strong id="dash-meta-hoje">—</strong></div>
+                        <div class="pl68-row"><strong id="dash-status">Configure o ciclo</strong><span id="dash-saldo">—</span></div>
+                        <div id="dash-info-meta" class="pl68-caption"></div>
+                    </div>
+                </div>
+                <button type="button" id="painel-registrar-v68" class="btn btn-primary pl68-register" onclick="abrirPesoRapidoV25()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Registrar peso</button>
+                <div id="painel-evolucao-v68" class="card pl68-chart-card">
+                    <div class="pl68-row"><h3>Ciclo em andamento</h3><button type="button" class="pl68-text-button" onclick="showView('graficos')">Ver evolução ›</button></div>
+                    <div class="pl68-caption" id="painel-grafico-periodo-v68"></div>
+                    <div id="painel-grafico-v68" class="pl68-chart" aria-live="off"></div>
+                    <div class="pl68-legend"><span><i class="pl68-line-plan"></i>Meta do ciclo</span><span><i class="pl68-line-real"></i>Pesagens</span></div>
+                </div>
+                <div class="grid-2 dashboard-extra-v67" id="dashboard-extra-v67">
+                    <div class="card"><div class="label">Média Calorias</div><div class="value neutral" id="dash-media-calorias-v67">Não há dados</div><div class="small" id="dash-media-calorias-info-v67">Últimos 7 dias</div></div>
+                    <div class="card"><div class="label">Dias de Remédio</div><div class="value neutral" id="dash-dias-remedio-v67">Não há dados</div><div class="small" id="dash-dias-remedio-info-v67">Nenhum tratamento em andamento</div></div>
+                </div>
+                <details id="painel-calculo-v68" class="card pl68-details"><summary>Entender as previsões</summary><div id="painel-calculo-conteudo-v68"></div></details>
             </div>
+            <details id="painel-complementos-v68" class="pl68-complements"><summary>Mais informações do ciclo</summary><div id="painel-complementos-conteudo-v68"></div></details>
 
             <div class="card dashboard-bordered-card rhythm-trend-card-v43" id="tendencia-ritmo-v43">
                 <div class="rhythm-trend-head-v43">
@@ -21565,115 +21586,6 @@ updateUI=function(...args){const r=updateUIAntesV73(...args);ajustarDiarioV73();
 
 function inicializarNavegacaoV73(){garantirEstilosNavegacaoV73();garantirInterfaceEventosV40();garantirModalComparacaoFotosV46();garantirInterfaceLixeiraV47();ajustarDiarioV73();removerControlesAntigosV73();atualizarBotaoVoltarV73();aplicarGrupoBottomNavV73(activeViewId||'dashboard');}
 window.addEventListener('load',()=>setTimeout(inicializarNavegacaoV73,1900));
-
-
-
-/* ==========================================================================
- * V74 — Tela inicial V2 sobre a base funcional V73
- * - Somente o conteúdo da tela Início voltou ao layout da V2.
- * - Mantém a lógica atual do app, inclusive ritmo/projeção pelos últimos 7 dias.
- * - Mantém Comparação Fotográfica Avançada como tela integrada, sem modal/X.
- * ========================================================================== */
-const PL_SCHEMA_VERSION_V74 = 74;
-
-/* A V68 acrescentava um renderer específico do Painel. Como a V74 usa o DOM
-   original da V2 no Início, esse renderer deixa de alterar classes/valores. */
-renderPainelV68 = function() {};
-window.renderPainelV68 = renderPainelV68;
-
-/* Restaura a personalização de blocos do dashboard original. As adaptações da
-   V68 procuravam containers que não existem no layout V2. */
-const coletarBlocosViewAntesV74 = coletarBlocosViewV49;
-coletarBlocosViewV49 = function(view) {
-    if (view?.id === 'view-dashboard' && typeof coletarBlocosAntesPainelV68 === 'function') {
-        return coletarBlocosAntesPainelV68(view);
-    }
-    return coletarBlocosViewAntesV74(view);
-};
-
-const aplicarLayoutViewAntesV74 = aplicarLayoutViewV49;
-aplicarLayoutViewV49 = function(view) {
-    if (view?.id === 'view-dashboard' && typeof aplicarLayoutAntesPainelV68 === 'function') {
-        return aplicarLayoutAntesPainelV68(view);
-    }
-    return aplicarLayoutViewAntesV74(view);
-};
-
-/* O visual é V2, mas a regra funcional herdada da V73 continua sendo a atual:
-   ritmo/dia e projeção pelo ritmo usam exclusivamente a janela dos últimos 7 dias. */
-function atualizarRitmoDashboardV74() {
-    if ((activeViewId || 'dashboard') !== 'dashboard') return;
-    const ritmoEl = document.getElementById('dash-media-dia');
-    const previsaoEl = document.getElementById('dash-previsao');
-    if (!ritmoEl || !previsaoEl) return;
-
-    if (!temConfigCalculo()) {
-        ritmoEl.innerText = '--';
-        ritmoEl.className = 'value neutral';
-        return;
-    }
-
-    const ciclo = obterCicloAtivoV48?.();
-    if (ciclo?.tipo === 'manutencao') return;
-
-    const ritmo = calcularMediaUltimos7DiasPainelV69();
-    if (Number.isFinite(ritmo)) {
-        ritmoEl.innerText = formatComSinal(ritmo) + ' kg/dia';
-        ritmoEl.className = 'value ' + classePositivoNegativo(ritmo, false);
-    } else {
-        ritmoEl.innerText = '--';
-        ritmoEl.className = 'value neutral';
-    }
-
-    const real = previsaoRitmoPainelV68();
-    if (real.estado === 'prevista' || real.estado === 'desatualizada') {
-        previsaoEl.innerHTML = htmlPrevisaoDashboard(real.data);
-    } else if (real.estado === 'atingida') {
-        previsaoEl.innerHTML = '<div>Meta Atingida!</div><div class="small forecast-detail" style="color: var(--success);">' + escapeHtml(formatDateBR(real.data)) + '</div>';
-    } else if (real.estado === 'manutencao') {
-        previsaoEl.innerHTML = '<div>Não se aplica</div><div class="small forecast-detail">Ciclo de manutenção</div>';
-    } else if (real.estado === 'sem-ritmo') {
-        previsaoEl.innerHTML = '<div>Sem projeção</div><div class="small forecast-detail">O ritmo dos últimos 7 dias não aponta para a meta.</div>';
-    } else {
-        previsaoEl.innerHTML = '<div>Sem projeção</div><div class="small forecast-detail">Registre pesos em dias diferentes nos últimos 7 dias.</div>';
-    }
-}
-
-const renderDashboardAntesV74 = renderDashboard;
-renderDashboard = function(...args) {
-    const r = renderDashboardAntesV74(...args);
-    atualizarRitmoDashboardV74();
-    return r;
-};
-window.renderDashboard = renderDashboard;
-
-/* Defesa extra: mesmo que uma rotina antiga recrie o comparador como modal,
-   toda abertura V74 o recoloca na view integrada da V73 e remove o botão X. */
-function reforcarComparacaoFotosIntegradaV74() {
-    try { garantirModalComparacaoFotosV46(); } catch {}
-    try { converterComparacaoFotosParaViewV73(); } catch {}
-    const painel = document.getElementById('modal-comparacao-fotos-v46');
-    if (!painel) return;
-    painel.classList.remove('modal', 'photo-compare-modal-v46');
-    painel.classList.add('integrated-surface-v73');
-    painel.removeAttribute('role');
-    painel.removeAttribute('aria-modal');
-    painel.querySelector('.photo-compare-head-v46 .photo-icon-button')?.remove();
-}
-
-const abrirComparacaoFotosAntesV74 = abrirComparacaoFotosV46;
-abrirComparacaoFotosV46 = function(...args) {
-    reforcarComparacaoFotosIntegradaV74();
-    const r = abrirComparacaoFotosAntesV74(...args);
-    reforcarComparacaoFotosIntegradaV74();
-    return r;
-};
-window.abrirComparacaoFotosV46 = abrirComparacaoFotosV46;
-
-window.addEventListener('load', () => setTimeout(() => {
-    atualizarRitmoDashboardV74();
-    reforcarComparacaoFotosIntegradaV74();
-}, 2100));
 
 </script>
 
