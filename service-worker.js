@@ -1,12 +1,13 @@
-const CACHE_VERSION = 'projeto-leve-v76-icone-interno';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v76-icone-interno';
+const CACHE_VERSION = 'projeto-leve-v77-logo-transparente';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v77-logo-transparente';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
   './icons/icon-192-v70.png',
   './icons/icon-512-v70.png',
-  './icons/icon-maskable-512-v70.png'
+  './icons/icon-maskable-512-v70.png',
+  './icons/logo-transparente-v77.png'
 ];
 
 self.addEventListener('install', event => {
