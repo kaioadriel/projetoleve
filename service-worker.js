@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v74-inicio-v2';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v74-inicio-v2';
+const CACHE_VERSION = 'projeto-leve-v76-icone-interno';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v76-icone-interno';
 const APP_SHELL = [
   './',
   './index.html',
