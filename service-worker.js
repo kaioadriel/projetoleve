@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v84-metas-e-aviso-fotos';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v84-metas-e-aviso-fotos';
+const CACHE_VERSION = 'projeto-leve-v85-ciclos-e-atualizacao-seletiva';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v85-ciclos-e-atualizacao-seletiva';
 const APP_SHELL = [
   './',
   './index.html',

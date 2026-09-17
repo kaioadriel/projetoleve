@@ -22903,6 +22903,300 @@ function inicializarV84() {
 garantirEstilosV84();
 window.addEventListener('load', () => setTimeout(inicializarV84, 2750));
 
+
+/* =========================================================
+   V85 — cálculos completos por perfil, edição isolada de ciclos
+   e atualização seletiva de registros existentes.
+   ========================================================= */
+const PL_SCHEMA_VERSION_V85 = 85;
+
+/* As referências de medidas passam a considerar o peso-meta do próprio
+   usuário. Altura define a escala principal; o peso-meta só ajusta a
+   proporção corporal em relação ao IMC de referência para aquela altura. */
+function pesoMetaReferenciaV85(altura, preferido = null) {
+    const informado = numeroValido(preferido);
+    if (informado !== null && informado > 0) return informado;
+    const configurado = numeroValido(document.getElementById('cfg-peso-meta')?.value);
+    if (configurado !== null && configurado > 0) return configurado;
+    const salvo = numeroValido(appData.config?.pesoMeta);
+    if (salvo !== null && salvo > 0) return salvo;
+    return faixaPesoIMCV78(altura).alvo;
+}
+function medidasReferenciaCompletaV85(altura, sexo, idade, pesoMeta) {
+    const base = PL_MEDIDAS_ANSUR_V78?.[sexo];
+    if (!base || !Number.isFinite(Number(altura))) return null;
+    const peso = pesoMetaReferenciaV85(altura, pesoMeta);
+    const pesoCentral = faixaPesoIMCV78(altura).alvo;
+    /* Circunferências variam aproximadamente com uma dimensão linear do corpo.
+       O limite evita que uma meta extrema gere uma recomendação artificial. */
+    const ajustePeso = Math.max(.88, Math.min(1.12, Math.sqrt(peso / pesoCentral)));
+    /* Não existe uma medida ideal universal por idade adulta. O ajuste é
+       deliberadamente pequeno e só atua em faixas mais altas de idade. */
+    const ajusteIdade = idade >= 65 ? .985 : idade >= 50 ? .992 : 1;
+    const escala = (altura / base.estatura) * ajustePeso * ajusteIdade;
+    return {
+        pescoco: base.pescoco * escala,
+        peito: base.peito * escala,
+        cintura: altura * .45 * ajustePeso,
+        quadril: base.quadril * escala,
+        coxa: base.coxa * escala,
+        panturrilha: base.panturrilha * escala,
+        braco: base.braco * escala
+    };
+}
+medidasReferenciaV78 = function(altura, sexo, idade = 0, pesoMeta = null) {
+    return medidasReferenciaCompletaV85(altura, sexo, Number(idade) || 0, pesoMeta);
+};
+function textoMedidasReferenciaV85(perfil, pesoMeta) {
+    return 'Referências preenchidas para perfil ' + (perfil.sexo === 'masculino' ? 'masculino' : 'feminino') +
+        ', ' + perfil.idade + ' anos, ' + formatBR(perfil.altura / 100) + ' m e peso-meta de ' + formatBR(pesoMeta) +
+        ' kg. Peito, pescoço, quadril, coxa, panturrilha e braço usam médias antropométricas por sexo, ajustadas à altura, idade adulta e peso-meta. Barriga usa a relação cintura/altura, ajustada proporcionalmente ao peso-meta. São referências editáveis, não metas clínicas universais.';
+}
+calcularMedidasIdeaisPadraoV78 = function() {
+    const perfil = dadosPerfilCalculoV78({sexoObrigatorio:true});
+    if (!perfil) return;
+    const pesoMeta = pesoMetaReferenciaV85(perfil.altura);
+    const refs = medidasReferenciaCompletaV85(perfil.altura, perfil.sexo, perfil.idade, pesoMeta);
+    if (!refs) return alert('Não foi possível selecionar uma referência para o gênero informado.');
+    pushHistoricoMedidasIdeais?.();
+    pausandoAutosave = true;
+    const mapa = {pescoco:'id-pescoco',peito:'id-peito',cintura:'id-cintura',quadril:'id-quadril',coxa:'id-coxa',panturrilha:'id-panturrilha',braco:'id-braco'};
+    Object.entries(mapa).forEach(([chave,id]) => escreverNumeroCampoV78(id, refs[chave], 1));
+    pausandoAutosave = false;
+    preencherInfoV78('calculo-medidas-ideais-info-v78', textoMedidasReferenciaV85(perfil, pesoMeta));
+    const status = document.getElementById('salvar-medidas-status');
+    if (status) { status.classList.remove('error'); status.textContent = 'Medidas de referência calculadas. Revise e toque em Salvar.'; }
+};
+window.calcularMedidasIdeaisPadraoV78 = calcularMedidasIdeaisPadraoV78;
+
+calcularMedidasIdeaisCicloV78 = function() {
+    const perfil = dadosPerfilCalculoV78({sexoObrigatorio:true});
+    if (!perfil) return;
+    const metaDoCiclo = numeroValido(document.getElementById('ciclo-peso-meta-v48')?.value);
+    const pesoMeta = pesoMetaReferenciaV85(perfil.altura, metaDoCiclo);
+    const refs = medidasReferenciaCompletaV85(perfil.altura, perfil.sexo, perfil.idade, pesoMeta);
+    if (!refs) return alert('Não foi possível selecionar uma referência para o gênero informado.');
+    for (const [chave,valor] of Object.entries(refs)) escreverNumeroCampoV78(idCampoMedidaCicloV58(chave),valor,1);
+    preencherInfoV78('calculo-medidas-ciclo-info-v78', textoMedidasReferenciaV85(perfil, pesoMeta));
+};
+window.calcularMedidasIdeaisCicloV78 = calcularMedidasIdeaisCicloV78;
+
+/* A edição deixa de aparecer dentro da tela de lista. O mesmo formulário é
+   levado para uma página própria, com retorno sempre no topo. */
+function garantirEditorCicloV85() {
+    garantirViewCiclosV48();
+    let view = document.getElementById('view-editor-ciclo-v85');
+    if (!view) {
+        view = document.createElement('section');
+        view.id = 'view-editor-ciclo-v85';
+        view.className = 'view hidden';
+        view.innerHTML = '<div class="cycle-editor-back-v85"><button type="button" class="btn btn-outline" onclick="voltarGerenciamentoCiclosV85()">← Voltar para Gerenciar Ciclos</button></div><div id="editor-ciclo-slot-v85"></div><div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>';
+        document.getElementById('view-ciclos-v48')?.insertAdjacentElement('afterend', view);
+    }
+    return view;
+}
+function moverFormularioParaEditorV85() {
+    const view = garantirEditorCicloV85();
+    const card = document.getElementById('form-ciclo-card-v48');
+    const slot = document.getElementById('editor-ciclo-slot-v85');
+    if (card && slot && card.parentElement !== slot) slot.appendChild(card);
+    return view;
+}
+function abrirEditorCicloV85(titulo) {
+    const view = moverFormularioParaEditorV85();
+    const card = document.getElementById('form-ciclo-card-v48');
+    if (card) card.classList.remove('hidden');
+    showView('editor-ciclo-v85', document.querySelector('[data-view="ciclos-v48"]'));
+    const pageTitle = document.getElementById('page-title');
+    if (pageTitle) pageTitle.textContent = titulo || 'Editar Ciclo';
+    window.scrollTo({top:0,behavior:'smooth'});
+    return view;
+}
+function voltarGerenciamentoCiclosV85() {
+    cicloEdicaoIdV48 = '';
+    cicloEncerramentoV48 = false;
+    document.getElementById('form-ciclo-card-v48')?.classList.add('hidden');
+    abrirCiclosV48();
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+window.voltarGerenciamentoCiclosV85 = voltarGerenciamentoCiclosV85;
+
+const novoCicloAntesV85 = novoCicloV48;
+novoCicloV48 = function(...args) {
+    const retorno = novoCicloAntesV85.apply(this,args);
+    abrirEditorCicloV85('Novo Ciclo');
+    return retorno;
+};
+const editarCicloAntesV85 = editarCicloV48;
+editarCicloV48 = function(...args) {
+    const retorno = editarCicloAntesV85.apply(this,args);
+    if (retorno === undefined && !cicloEdicaoIdV48) return retorno;
+    abrirEditorCicloV85('Editar Ciclo');
+    return retorno;
+};
+const prepararEncerramentoCicloAntesV85 = prepararEncerramentoCicloV48;
+prepararEncerramentoCicloV48 = function(...args) {
+    const retorno = prepararEncerramentoCicloAntesV85.apply(this,args);
+    abrirEditorCicloV85('Encerrar Ciclo');
+    return retorno;
+};
+const cancelarEdicaoCicloAntesV85 = cancelarEdicaoCicloV48;
+cancelarEdicaoCicloV48 = function(...args) {
+    const retorno = cancelarEdicaoCicloAntesV85.apply(this,args);
+    if (activeViewId === 'editor-ciclo-v85') abrirCiclosV48();
+    return retorno;
+};
+window.novoCicloV48 = novoCicloV48;
+window.editarCicloV48 = editarCicloV48;
+window.prepararEncerramentoCicloV48 = prepararEncerramentoCicloV48;
+window.cancelarEdicaoCicloV48 = cancelarEdicaoCicloV48;
+
+/* Atualiza, por escolha do usuário, o vínculo pela data e as metas congeladas
+   do registro. Isso faz os cartões refletirem uma meta de ciclo que foi
+   alterada depois do lançamento original. */
+function metasDaDataParaAtualizacaoV85(data) {
+    const ciclo = obterCicloParaDataV48(data);
+    const padrao = typeof garantirMetasPadraoV58 === 'function' ? garantirMetasPadraoV58() : (appData.config || {});
+    const fonte = ciclo || padrao || {};
+    let pesoMeta = numeroValido(fonte.pesoMeta);
+    if (pesoMeta === null && fonte.tipo === 'manutencao') {
+        const min = numeroValido(fonte.pesoMetaMin), max = numeroValido(fonte.pesoMetaMax);
+        if (min !== null && max !== null) pesoMeta = (min + max) / 2;
+    }
+    return {
+        cicloId: ciclo?.id || '',
+        pesoMeta: pesoMeta === null ? '' : pesoMeta,
+        calorias: numeroOuVazio(fonte.metaCalorias),
+        medidas: medidasCicloV48(fonte.medidasIdeais || {}),
+        composicao: metasComposicaoV25(fonte.metasComposicao || {})
+    };
+}
+function atualizarRegistrosSelecionadosV85(selecoes) {
+    const total = {peso:0,composicao:0,medidas:0,calorias:0};
+    if (selecoes.peso || selecoes.composicao) {
+        for (const registro of (appData.pesos || [])) {
+            if (!dataISOValida(registro?.data)) continue;
+            const metas = metasDaDataParaAtualizacaoV85(registro.data);
+            if (selecoes.peso) {
+                registro.cicloId = metas.cicloId;
+                registro.meta = metas.pesoMeta;
+                registro.metaPesoUsada = metas.pesoMeta;
+                total.peso++;
+            }
+            if (selecoes.composicao) {
+                registro.cicloId = metas.cicloId;
+                registro.metasComposicaoUsadas = metasComposicaoV25(metas.composicao);
+                total.composicao++;
+            }
+        }
+    }
+    if (selecoes.medidas) {
+        for (const registro of (appData.medidas || [])) {
+            if (!dataISOValida(registro?.data)) continue;
+            const metas = metasDaDataParaAtualizacaoV85(registro.data);
+            registro.cicloId = metas.cicloId;
+            registro.metaPesoUsada = metas.pesoMeta;
+            registro.metasMedidasUsadas = medidasCicloV48(metas.medidas);
+            total.medidas++;
+        }
+    }
+    if (selecoes.calorias) {
+        for (const registro of (appData.calorias || [])) {
+            if (!dataISOValida(registro?.data)) continue;
+            const metas = metasDaDataParaAtualizacaoV85(registro.data);
+            registro.cicloId = metas.cicloId;
+            registro.metaCaloriasUsada = metas.calorias;
+            total.calorias++;
+        }
+    }
+    return total;
+}
+function garantirModalAtualizarRegistrosV85() {
+    if (document.getElementById('modal-atualizar-registros-v85')) return;
+    const modal = document.createElement('div');
+    modal.id = 'modal-atualizar-registros-v85';
+    modal.className = 'cycle-update-modal-v85 hidden';
+    modal.innerHTML = '<div class="cycle-update-card-v85" role="dialog" aria-modal="true" aria-labelledby="titulo-atualizar-registros-v85"><h3 id="titulo-atualizar-registros-v85">Atualizar registros existentes</h3><p class="small">Cada item será associado novamente ao ciclo correspondente à sua data e receberá as metas vigentes naquele ciclo. Os valores medidos e as refeições não são alterados.</p><label class="cycle-update-option-v85 all"><input type="checkbox" id="atualizar-tudo-v85" checked onchange="alternarTudoAtualizacaoV85(this.checked)"><span><b>Tudo</b><small>Atualizar Peso, Composição Corporal, Medidas e Calorias.</small></span></label><div class="cycle-update-options-v85"><label class="cycle-update-option-v85"><input type="checkbox" data-atualizar-v85="peso" checked onchange="sincronizarTudoAtualizacaoV85()"><span><b>Peso</b><small>Meta de peso e ciclo do registro.</small></span></label><label class="cycle-update-option-v85"><input type="checkbox" data-atualizar-v85="composicao" checked onchange="sincronizarTudoAtualizacaoV85()"><span><b>Composição Corporal</b><small>Faixas de composição usadas no registro de peso.</small></span></label><label class="cycle-update-option-v85"><input type="checkbox" data-atualizar-v85="medidas" checked onchange="sincronizarTudoAtualizacaoV85()"><span><b>Medidas</b><small>Metas de pescoço, peito, barriga e demais medidas.</small></span></label><label class="cycle-update-option-v85"><input type="checkbox" data-atualizar-v85="calorias" checked onchange="sincronizarTudoAtualizacaoV85()"><span><b>Calorias</b><small>Meta calórica usada para o saldo do dia.</small></span></label></div><div class="cycle-update-actions-v85"><button type="button" class="btn btn-outline" onclick="fecharAtualizacaoRegistrosV85()">Cancelar</button><button type="button" class="btn btn-primary" onclick="confirmarAtualizacaoRegistrosV85()">Atualizar selecionados</button></div></div>';
+    document.body.appendChild(modal);
+    modal.addEventListener('click', evento => { if (evento.target === modal) fecharAtualizacaoRegistrosV85(); });
+}
+function abrirAtualizacaoRegistrosV85() {
+    garantirModalAtualizarRegistrosV85();
+    const modal = document.getElementById('modal-atualizar-registros-v85');
+    modal?.classList.remove('hidden');
+}
+function fecharAtualizacaoRegistrosV85() { document.getElementById('modal-atualizar-registros-v85')?.classList.add('hidden'); }
+function alternarTudoAtualizacaoV85(marcado) {
+    document.querySelectorAll('[data-atualizar-v85]').forEach(campo => campo.checked = !!marcado);
+}
+function sincronizarTudoAtualizacaoV85() {
+    const campos = [...document.querySelectorAll('[data-atualizar-v85]')];
+    const tudo = document.getElementById('atualizar-tudo-v85');
+    if (tudo) tudo.checked = campos.length > 0 && campos.every(campo => campo.checked);
+}
+async function confirmarAtualizacaoRegistrosV85() {
+    const selecoes = {};
+    document.querySelectorAll('[data-atualizar-v85]').forEach(campo => selecoes[campo.dataset.atualizarV85] = campo.checked);
+    if (!Object.values(selecoes).some(Boolean)) return alert('Selecione ao menos um tipo de registro para atualizar.');
+    if (!confirm('Atualizar os registros selecionados conforme a data e as metas de cada ciclo?')) return;
+    const total = atualizarRegistrosSelecionadosV85(selecoes);
+    pausaSyncCicloV48 = true;
+    motivoProximaCopia = 'Antes de atualizar registros existentes por ciclo';
+    try { await salvarDados(true,true); }
+    finally { pausaSyncCicloV48 = false; }
+    fecharAtualizacaoRegistrosV85();
+    renderCiclosV48();
+    updateUI();
+    const texto = Object.entries(total).filter(([chave]) => selecoes[chave]).map(([chave,quantidade]) => ({peso:'Peso',composicao:'Composição Corporal',medidas:'Medidas',calorias:'Calorias'}[chave] + ': ' + quantidade)).join(' • ');
+    alert('Registros atualizados. ' + texto + '.');
+}
+reclassificarRegistrosCiclosV48 = abrirAtualizacaoRegistrosV85;
+window.reclassificarRegistrosCiclosV48 = reclassificarRegistrosCiclosV48;
+window.abrirAtualizacaoRegistrosV85 = abrirAtualizacaoRegistrosV85;
+window.fecharAtualizacaoRegistrosV85 = fecharAtualizacaoRegistrosV85;
+window.alternarTudoAtualizacaoV85 = alternarTudoAtualizacaoV85;
+window.sincronizarTudoAtualizacaoV85 = sincronizarTudoAtualizacaoV85;
+window.confirmarAtualizacaoRegistrosV85 = confirmarAtualizacaoRegistrosV85;
+
+function ajustarTelaCiclosV85() {
+    const botao = [...(document.querySelectorAll('#view-ciclos-v48 button'))].find(item => /reclassificar registros/i.test(item.textContent || ''));
+    if (botao) {
+        botao.textContent = 'Atualizar registros existentes';
+        botao.setAttribute('onclick','abrirAtualizacaoRegistrosV85()');
+    }
+    [...document.querySelectorAll('#view-ciclos-v48 button')].filter(item => /voltar (aos ajustes|para ciclos)/i.test(item.textContent || '')).forEach(item => item.remove());
+}
+function removerAtalhoCiclosMaisV85() {
+    document.querySelectorAll('#view-mais-v68 .pl68-hub-button').forEach(botao => {
+        const titulo = botao.querySelector('strong')?.textContent?.trim().toLocaleLowerCase('pt-BR') || '';
+        if (titulo === 'ciclos e metas') botao.remove();
+    });
+}
+function garantirEstilosV85() {
+    if (document.getElementById('style-v85')) return;
+    const style = document.createElement('style'); style.id = 'style-v85';
+    style.textContent = '.cycle-editor-back-v85{margin:4px 0 12px}.cycle-editor-back-v85 .btn{width:auto}.cycle-update-modal-v85{position:fixed;inset:0;z-index:30000;display:flex;align-items:flex-end;justify-content:center;padding:12px;background:rgba(15,23,42,.62);backdrop-filter:blur(3px)}.cycle-update-modal-v85.hidden{display:none!important}.cycle-update-card-v85{width:min(560px,100%);max-height:88dvh;overflow:auto;background:var(--card-bg,#fff);border:1px solid var(--border);border-radius:22px;padding:18px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 16px 48px rgba(15,23,42,.24)}.cycle-update-card-v85 h3{margin:0 0 8px}.cycle-update-options-v85{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.cycle-update-option-v85{display:flex;gap:9px;align-items:flex-start;padding:11px;border:1px solid var(--border);border-radius:13px;background:var(--soft-bg);cursor:pointer}.cycle-update-option-v85.all{margin:14px 0 0;background:var(--accent-soft)}.cycle-update-option-v85 input{width:18px;height:18px;flex:0 0 auto;margin-top:1px}.cycle-update-option-v85 span{display:grid;gap:3px;font-size:13px}.cycle-update-option-v85 small{font-size:10px;color:var(--text-secondary);line-height:1.35}.cycle-update-actions-v85{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}@media(max-width:420px){.cycle-update-options-v85{grid-template-columns:1fr}}';
+    document.head.appendChild(style);
+}
+const showViewAntesV85 = showView;
+showView = function(viewId, navEl) {
+    const retorno = showViewAntesV85(viewId,navEl);
+    if (viewId === 'ciclos-v48') { ajustarTelaCiclosV85(); const titulo = document.getElementById('page-title'); if (titulo) titulo.textContent = 'Gerenciar Ciclos'; }
+    if (viewId === 'mais-v68') removerAtalhoCiclosMaisV85();
+    return retorno;
+};
+window.showView = showView;
+function inicializarV85() {
+    garantirEstilosV85();
+    garantirEditorCicloV85();
+    moverFormularioParaEditorV85();
+    document.getElementById('form-ciclo-card-v48')?.classList.add('hidden');
+    ajustarTelaCiclosV85();
+    removerAtalhoCiclosMaisV85();
+}
+garantirEstilosV85();
+window.addEventListener('load', () => setTimeout(inicializarV85, 3100));
+
 </script>
 
 </body>
