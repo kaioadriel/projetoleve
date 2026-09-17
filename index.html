@@ -23271,6 +23271,22 @@ function instalarEstilosCaloriasV86(){
 instalarEstilosCaloriasV86();
 window.addEventListener('load',()=>setTimeout(atualizarRotulosCaloriasV86,3250));
 
+/* V87 — comparação sobreposta com a ordem visual correta.
+   A foto "Antes" fica sempre no primeiro lado (esquerda) e a foto
+   "Depois" é revelada à direita pelo divisor. */
+const PL_SCHEMA_VERSION_V87 = 87;
+const aplicarTransformacaoComparacaoAntesV87 = aplicarTransformacaoComparacaoV46;
+aplicarTransformacaoComparacaoV46 = function() {
+    const retorno = aplicarTransformacaoComparacaoAntesV87();
+    const divisor = Math.max(0, Math.min(100, Number(comparacaoFotosEstadoV46?.divisor) || 0));
+    const depois = document.querySelector('#photo-compare-stage-v46 .photo-compare-overlay-after-v46');
+    if (depois) {
+        depois.style.clipPath = 'polygon(' + divisor + '% 0,100% 0,100% 100%,' + divisor + '% 100%)';
+    }
+    return retorno;
+};
+window.aplicarTransformacaoComparacaoV46 = aplicarTransformacaoComparacaoV46;
+
 </script>
 
 </body>
