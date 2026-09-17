@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v85-ciclos-e-atualizacao-seletiva';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v85-ciclos-e-atualizacao-seletiva';
+const CACHE_VERSION = 'projeto-leve-v86-calorias-restante';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v86-calorias-restante';
 const APP_SHELL = [
   './',
   './index.html',

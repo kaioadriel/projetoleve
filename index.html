@@ -1968,7 +1968,7 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                 </form>
             </div>
             <h3 class="section-title">Histórico</h3>
-            <div class="table-container calorie-history-table"><table><colgroup><col class="calorie-col-date"><col class="calorie-col-total"><col class="calorie-col-balance"><col class="calorie-col-photo"><col class="calorie-col-actions"></colgroup><thead><tr><th>Data</th><th>Total</th><th>Saldo</th><th>Foto</th><th>Ações</th></tr></thead><tbody id="lista-calorias"></tbody></table></div>
+            <div class="table-container calorie-history-table"><table><colgroup><col class="calorie-col-date"><col class="calorie-col-total"><col class="calorie-col-balance"><col class="calorie-col-photo"><col class="calorie-col-actions"></colgroup><thead><tr><th>Data</th><th>Total</th><th>Restante</th><th>Foto</th><th>Ações</th></tr></thead><tbody id="lista-calorias"></tbody></table></div>
             <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>
         </section>
 
@@ -6938,11 +6938,11 @@ function criarPdfRelatorio() {
     if (!calorias.length) {
         texto('Nenhuma refeição registrada.', margem + 4, y - 2, 9, false, '0.39 0.45 0.54'); y -= 22;
     } else calorias.forEach((dia, indice) => {
-        const total = totalCaloriasDia(dia), meta = metaCaloriasUsadaV21(dia), saldo = meta === null ? null : meta - total;
+        const total = totalCaloriasDia(dia), meta = metaCaloriasUsadaV21(dia), restante = meta === null ? null : meta - totalConsumidoV24(dia);
         const detalhes = dia.refeicoes.map(r => r.tipo + ': ' + Math.round(r.calorias) + ' kcal' + (r.observacoes ? ' (' + r.observacoes + ')' : '')).join('  |  ');
         if (y < 72) { novaPagina(); tituloSecao('Histórico de Calorias — continuação'); }
         if (indice % 2) preencher(margem, y - 40, larguraUtil, 44, '0.97 0.98 0.99');
-        texto(formatDateBR(dia.data) + '  |  Total: ' + Math.round(total) + ' kcal  |  Meta: ' + (meta===null?'--':Math.round(meta)+' kcal') + '  |  Saldo: ' + (saldo===null?'--':(saldo>=0?'+':'')+Math.round(saldo)+' kcal'), margem + 5, y - 12, 8.5, true);
+        texto(formatDateBR(dia.data) + '  |  Total: ' + Math.round(total) + ' kcal  |  Meta: ' + (meta===null?'--':Math.round(meta)+' kcal') + '  |  Restante: ' + (restante===null?'--':Math.round(restante)+' kcal'), margem + 5, y - 12, 8.5, true);
         texto(truncarTextoPdf(detalhes, larguraUtil - 10, 8), margem + 5, y - 29, 8);
         y -= 44;
     });
@@ -23196,6 +23196,80 @@ function inicializarV85() {
 }
 garantirEstilosV85();
 window.addEventListener('load', () => setTimeout(inicializarV85, 3100));
+
+/* V86 — meta alimentar independente dos gastos calóricos.
+   Restante = Meta − Consumido. Total = Consumido − Gasto. */
+const PL_SCHEMA_VERSION_V86 = 86;
+function restanteCaloriasV86(dia){
+    const meta=metaCaloriasUsadaV21(dia),consumido=totalConsumidoV24(dia);
+    return meta===null?null:meta-consumido;
+}
+function classeRestanteCaloriasV86(restante){return restante===null||restante>=0?'calorie-normal-v86':'negative';}
+function classeTotalCaloriasV86(total,dia){
+    const meta=metaCaloriasUsadaV21(dia);
+    if(total===null)return 'calorie-normal-v86';
+    if(total<0)return 'positive';
+    return meta!==null&&total>meta?'negative':'calorie-normal-v86';
+}
+function textoKcalV86(valor){return valor===null?'--':Math.round(valor)+' kcal';}
+
+/* Mantém gráficos e análises de meta coerentes com a nova regra. */
+saldoCaloriasV21=restanteCaloriasV86;
+
+renderCalorias=function(){
+    const lista=document.getElementById('lista-calorias'),resumo=document.getElementById('resumo-calorias');
+    if(!lista||!resumo)return;
+    const dias=ordenarPorDataV21(appData.calorias||[]),atual=dias[0]||null,anterior=dias[1]||null;
+    const consumido=atual?totalConsumidoV24(atual):null,gasto=atual?totalGastoV24(atual):null,total=atual?totalCaloriasDia(atual):null,restante=atual?restanteCaloriasV86(atual):null;
+    const consumidoAnt=anterior?totalConsumidoV24(anterior):null,gastoAnt=anterior?totalGastoV24(anterior):null,totalAnt=anterior?totalCaloriasDia(anterior):null,restanteAnt=anterior?restanteCaloriasV86(anterior):null;
+    const meta=atual?metaCaloriasUsadaV21(atual):null;
+    const cards=[
+        ['Total Consumido',textoKcalV86(consumido),textoComparacaoCaloriasV53(consumido,consumidoAnt),'neutral','Refeições do dia'],
+        ['Total Gasto',textoKcalV86(gasto),textoComparacaoCaloriasV53(gasto,gastoAnt),'neutral','Gastos registrados'],
+        ['Total',textoKcalV86(total),textoComparacaoCaloriasV53(total,totalAnt),classeTotalCaloriasV86(total,atual),'Consumido − gasto'],
+        ['Restante',textoKcalV86(restante),textoComparacaoCaloriasV53(restante,restanteAnt),classeRestanteCaloriasV86(restante),meta===null?'Meta não informada':'Meta: '+Math.round(meta)+' kcal']
+    ];
+    resumo.innerHTML=cards.map(item=>'<div class="card metric-summary-card"><div class="label">'+item[0]+'</div><div class="value '+item[3]+'">'+item[1]+'</div><div class="metric-delta neutral">'+item[2]+'</div><div class="small">'+item[4]+'</div></div>').join('');
+    if(!dias.length){
+        lista.innerHTML='<tr><td colspan="5" style="text-align:center">Nenhuma refeição ou gasto lançado.</td></tr>';
+        aplicarPaginacaoTabelaV53('lista-calorias','calorias',0);aplicarLayoutCardsV53(document.getElementById('view-calorias'));return;
+    }
+    lista.innerHTML=dias.map(dia=>{
+        const totalDia=totalCaloriasDia(dia),restanteDia=restanteCaloriasV86(dia),fotos=fotosDiaCaloriasV53(dia).length;
+        return '<tr><td class="calorie-col-date">'+formatDateCurtaBR(dia.data)+'</td>'+ 
+            '<td class="calorie-col-total '+classeTotalCaloriasV86(totalDia,dia)+'" title="Consumido '+Math.round(totalConsumidoV24(dia))+' • Gasto '+Math.round(totalGastoV24(dia))+'">'+textoKcalV86(totalDia)+'</td>'+ 
+            '<td class="calorie-col-balance '+classeRestanteCaloriasV86(restanteDia)+'" title="'+(metaCaloriasUsadaV21(dia)===null?'Meta não informada':'Meta: '+Math.round(metaCaloriasUsadaV21(dia))+' kcal')+'">'+textoKcalV86(restanteDia)+'</td>'+ 
+            '<td class="calorie-col-photo">'+iconeFotoHistoricoV53(fotos,dia.id)+'</td><td class="calorie-col-actions"><div class="calorie-action-buttons"><button class="btn btn-outline compact-action" title="Visualizar" onclick="visualizarRegistro(\'caloria\',\''+dia.id+'\')">'+PL_ICONE_VISUALIZAR+'</button><button class="btn btn-outline compact-action" title="Excluir" style="border-color:var(--danger);color:var(--danger)" onclick="excluirCaloria(\''+dia.id+'\')">−</button></div></td></tr>';
+    }).join('');
+    aplicarPaginacaoTabelaV53('lista-calorias','calorias',dias.length);aplicarLayoutCardsV53(document.getElementById('view-calorias'));
+};
+window.renderCalorias=renderCalorias;
+
+/* O modal do dia recebe os mesmos nomes e cores dos cards e do histórico. */
+const visualizarRegistroAntesV86=visualizarRegistro;
+visualizarRegistro=function(tipo,id){
+    const retorno=visualizarRegistroAntesV86(tipo,id);
+    if(tipo!=='caloria')return retorno;
+    const dia=(appData.calorias||[]).find(item=>String(item.id)===String(id));if(!dia)return retorno;
+    const consumido=totalConsumidoV24(dia),gasto=totalGastoV24(dia),total=totalCaloriasDia(dia),restante=restanteCaloriasV86(dia),meta=metaCaloriasUsadaV21(dia);
+    const grade=document.getElementById('modal-detalhes-registro')?.querySelector('.detail-grid');
+    if(grade)grade.innerHTML=valorDetalhe('Consumido',textoKcalV86(consumido))+valorDetalhe('Gasto',textoKcalV86(gasto),'positive')+valorDetalhe('Total',textoKcalV86(total),classeTotalCaloriasV86(total,dia))+valorDetalhe('Meta',meta===null?'--':textoKcalV86(meta))+valorDetalhe('Restante',textoKcalV86(restante),classeRestanteCaloriasV86(restante));
+    return retorno;
+};
+window.visualizarRegistro=visualizarRegistro;
+
+function atualizarRotulosCaloriasV86(){document.querySelectorAll('#view-calorias th').forEach(cabecalho=>{if(cabecalho.textContent.trim()==='Saldo')cabecalho.textContent='Restante';});}
+const showViewAntesV86=showView;
+showView=function(viewId,navEl){const retorno=showViewAntesV86(viewId,navEl);if(viewId==='calorias'){atualizarRotulosCaloriasV86();renderCalorias();}return retorno;};
+window.showView=showView;
+function instalarEstilosCaloriasV86(){
+    if(document.getElementById('style-calorias-v86'))return;
+    const style=document.createElement('style');style.id='style-calorias-v86';
+    style.textContent='.calorie-normal-v86{color:var(--text-primary)!important;}';
+    document.head.appendChild(style);
+}
+instalarEstilosCaloriasV86();
+window.addEventListener('load',()=>setTimeout(atualizarRotulosCaloriasV86,3250));
 
 </script>
 
