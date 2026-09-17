@@ -23287,6 +23287,59 @@ aplicarTransformacaoComparacaoV46 = function() {
 };
 window.aplicarTransformacaoComparacaoV46 = aplicarTransformacaoComparacaoV46;
 
+/* V88 — o puxador central do comparador passa a receber toque e arrasto.
+   Antes ele era apenas visual (pointer-events: none), por isso não respondia
+   no celular. */
+const PL_SCHEMA_VERSION_V88 = 88;
+let arrasteDivisorComparacaoV88 = null;
+
+function atualizarDivisorPeloToqueV88(evento, divisor) {
+    const quadro = divisor?.closest('.photo-compare-overlay-v46');
+    if (!quadro) return;
+    const limites = quadro.getBoundingClientRect();
+    if (!limites.width) return;
+    const porcentagem = ((evento.clientX - limites.left) / limites.width) * 100;
+    comparacaoFotosEstadoV46.divisor = Math.max(0, Math.min(100, Math.round(porcentagem)));
+    aplicarTransformacaoComparacaoV46();
+}
+
+function iniciarArrasteDivisorComparacaoV88(evento) {
+    const divisor = evento.target.closest('#photo-compare-stage-v46 .photo-compare-divider-v46');
+    if (!divisor || comparacaoFotosEstadoV46.modo !== 'sobrepor') return;
+    evento.preventDefault();
+    evento.stopPropagation();
+    arrasteDivisorComparacaoV88 = { id: evento.pointerId, divisor };
+    divisor.setPointerCapture?.(evento.pointerId);
+    atualizarDivisorPeloToqueV88(evento, divisor);
+}
+
+function moverArrasteDivisorComparacaoV88(evento) {
+    if (!arrasteDivisorComparacaoV88 || arrasteDivisorComparacaoV88.id !== evento.pointerId) return;
+    evento.preventDefault();
+    evento.stopPropagation();
+    atualizarDivisorPeloToqueV88(evento, arrasteDivisorComparacaoV88.divisor);
+}
+
+function terminarArrasteDivisorComparacaoV88(evento) {
+    if (!arrasteDivisorComparacaoV88 || (evento && arrasteDivisorComparacaoV88.id !== evento.pointerId)) return;
+    arrasteDivisorComparacaoV88 = null;
+}
+
+function instalarArrasteDivisorComparacaoV88() {
+    if (document.documentElement.dataset.arrasteDivisorV88) return;
+    document.documentElement.dataset.arrasteDivisorV88 = '1';
+    document.addEventListener('pointerdown', iniciarArrasteDivisorComparacaoV88, true);
+    document.addEventListener('pointermove', moverArrasteDivisorComparacaoV88, true);
+    document.addEventListener('pointerup', terminarArrasteDivisorComparacaoV88, true);
+    document.addEventListener('pointercancel', terminarArrasteDivisorComparacaoV88, true);
+    const estilo = document.createElement('style');
+    estilo.id = 'style-arraste-divisor-v88';
+    estilo.textContent = '#photo-compare-stage-v46 .photo-compare-divider-v46{width:40px!important;transform:translateX(-50%);background:transparent!important;box-shadow:none!important;pointer-events:auto!important;touch-action:none;cursor:ew-resize}#photo-compare-stage-v46 .photo-compare-divider-v46:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;transform:translateX(-50%);background:#fff;box-shadow:0 0 0 1px rgba(15,23,42,.45)}#photo-compare-stage-v46 .photo-compare-divider-v46:after{width:40px;height:40px;pointer-events:none;box-shadow:0 2px 9px rgba(15,23,42,.28)}';
+    document.head.appendChild(estilo);
+}
+
+instalarArrasteDivisorComparacaoV88();
+
 </script>
 
 </body>

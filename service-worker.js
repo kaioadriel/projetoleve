@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v87-sobrepor-antes-primeiro';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v87-sobrepor-antes-primeiro';
+const CACHE_VERSION = 'projeto-leve-v88-divisor-arrastavel';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v88-divisor-arrastavel';
 const APP_SHELL = [
   './',
   './index.html',
