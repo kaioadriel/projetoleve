@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v90-ritmo-ciclo-direto';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v90-ritmo-ciclo-direto';
+const CACHE_VERSION = 'projeto-leve-v91-importar-calorias-perdidas';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v91-importar-calorias-perdidas';
 const APP_SHELL = [
   './',
   './index.html',

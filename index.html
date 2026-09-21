@@ -18761,10 +18761,11 @@ function itemRemedioV60(obj){
     const peso=primeiroNumeroV60(obj,['peso','weight']);return {tipo:'remedio',data,nome,mg,peso:peso===null?'':peso,observacoes:obsImportV60(obj)};
 }
 function itemCaloriaV60(obj,tipoForcado=''){
-    const data=primeiraDataV60(obj),calorias=primeiroNumeroV60(obj,['calorias','calorias kcal','kcal','calories','energia']);if(!data||calorias===null||calorias<=0)return null;
+    const data=primeiraDataV60(obj),calorias=primeiroNumeroV60(obj,['calorias','calorias kcal','kcal','calories','energia','total de calorias perdidas','total calorias perdidas','calorias perdidas','total calories burned']);if(!data||calorias===null||calorias<=0)return null;
     const tipoTxt=chaveImportV60(valorPorAliasV60(obj,['tipo','natureza','categoria','kind'])||tipoForcado);
-    const ehGasto=tipoForcado==='gasto'||tipoTxt.includes('gasto')||tipoTxt.includes('exercise')||tipoTxt.includes('exercicio')||valorPorAliasV60(obj,['gasto','calorias gastas','calories burned'])!==undefined;
-    if(ehGasto){const descricao=textoImportV60(valorPorAliasV60(obj,['descricao','descrição','atividade','exercise','nome'])||'Outros');return {tipo:'gasto',data,descricao:descricao||'Outros',calorias,observacoes:obsImportV60(obj)};}
+    const totalCaloriasPerdidas=valorPorAliasV60(obj,['total de calorias perdidas','total calorias perdidas','calorias perdidas','total calories burned']);
+    const ehGasto=tipoForcado==='gasto'||tipoTxt.includes('gasto')||tipoTxt.includes('exercise')||tipoTxt.includes('exercicio')||valorPorAliasV60(obj,['gasto','calorias gastas','calories burned'])!==undefined||totalCaloriasPerdidas!==undefined;
+    if(ehGasto){const descricao=textoImportV60(valorPorAliasV60(obj,['descricao','descrição','atividade','exercise','nome'])||(totalCaloriasPerdidas!==undefined?'Gasto Diário':'Outros'));return {tipo:'gasto',data,descricao:descricao||'Outros',calorias,observacoes:obsImportV60(obj)};}
     const ref=textoImportV60(valorPorAliasV60(obj,['refeicao','refeição','meal','descricao','descrição','nome'])||'Outros');return {tipo:'refeicao',data,refeicao:ref||'Outros',calorias,observacoes:obsImportV60(obj)};
 }
 function itemEventoV60(obj){
@@ -18952,7 +18953,7 @@ function reformarImportadorV61(){
 
 function tamanhoArquivoV61(file){const kb=Math.max(1,Math.round((file?.size||0)/1024));return kb>=1024?(kb/1024).toLocaleString('pt-BR',{maximumFractionDigits:1})+' MB':kb.toLocaleString('pt-BR')+' KB';}
 function dataLocalArquivoV61(file){try{const d=new Date(file?.lastModified||Date.now());return dataLocalISO(d);}catch{return hojeISO();}}
-function mesNumeroV61(nome){const m={janeiro:1,fevereiro:2,marco:3,'março':3,abril:4,maio:5,junho:6,julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12,january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};return m[chaveImportV60(nome)]||0;}
+function mesNumeroV61(nome){const m={janeiro:1,jan:1,fevereiro:2,fev:2,marco:3,'março':3,mar:3,abril:4,abr:4,maio:5,mai:5,junho:6,jun:6,julho:7,jul:7,agosto:8,ago:8,setembro:9,set:9,outubro:10,out:10,novembro:11,nov:11,dezembro:12,dez:12,january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};return m[chaveImportV60(nome)]||0;}
 function isoPartesV61(a,m,d){a=Number(a);m=Number(m);d=Number(d);if(a<100)a+=a<70?2000:1900;const iso=String(a).padStart(4,'0')+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');return dataISOValida(iso)?iso:'';}
 function extrairDataTextoV61(texto,file){
     const t=String(texto||'');let m;
@@ -18960,6 +18961,7 @@ function extrairDataTextoV61(texto,file){
     m=t.match(/\b([0-2]?\d|3[01])[\/.\-](0?[1-9]|1[0-2])[\/.\-]((?:20|19)?\d{2})\b/);if(m)return isoPartesV61(m[3],m[2],m[1]);
     m=t.match(/\b([0-2]?\d|3[01])\s+de\s+([A-Za-zÀ-ÿ]+)\s+de\s+((?:20|19)\d{2})\b/i);if(m){const mes=mesNumeroV61(m[2]);if(mes)return isoPartesV61(m[3],mes,m[1]);}
     m=t.match(/\b([0-2]?\d|3[01])\s+([A-Za-zÀ-ÿ]{3,})\s+((?:20|19)\d{2})\b/i);if(m){const mes=mesNumeroV61(m[2]);if(mes)return isoPartesV61(m[3],mes,m[1]);}
+    m=t.match(/\b([0-2]?\d|3[01])\s+de\s+([A-Za-zÀ-ÿ]{3,})\b/i);if(m){const mes=mesNumeroV61(m[2]);if(mes){const referencia=dataLocalArquivoV61(file);let ano=Number(referencia.slice(0,4));let iso=isoPartesV61(ano,mes,m[1]);if(iso&&iso>referencia)iso=isoPartesV61(ano-1,mes,m[1]);return iso;}}
     if(/\bhoje\b/i.test(t))return hojeISO();
     return dataLocalArquivoV61(file);
 }
@@ -18985,7 +18987,7 @@ function construirObsNutricaoV61(texto){
 }
 function propostaTextoLivreV61(texto,file){
     const p=propostaVaziaV60(file?.name||'texto');const t=String(texto||'').trim();if(!t){p.avisos.push('Não encontrei texto legível.');return p;}
-    const data=extrairDataTextoV61(t,file);const usouDataArquivo=!(/\b(20\d{2}|19\d{2})[\/-]/.test(t)||/\b\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}\b/.test(t)||/\b\d{1,2}\s+de\s+[A-Za-zÀ-ÿ]+\s+de\s+\d{4}\b/i.test(t)||/\bhoje\b/i.test(t));
+    const data=extrairDataTextoV61(t,file);const usouDataArquivo=!(/\b(20\d{2}|19\d{2})[\/-]/.test(t)||/\b\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}\b/.test(t)||/\b\d{1,2}\s+de\s+[A-Za-zÀ-ÿ]+(?:\s+de\s+\d{4})?\b/i.test(t)||/\bhoje\b/i.test(t));
     if(usouDataArquivo)p.avisos.push((file?.name||'Arquivo')+': a data não ficou clara no conteúdo; usei '+formatDateBR(data)+' (data do arquivo) como sugestão.');
     const bodyContext=textoTemV61(t,['gordura corporal','body fat','musculo esqueletico','músculo esquelético','skeletal muscle','agua corporal','body water','massa gorda','fat mass','imc','bmi','gordura visceral','visceral fat']);
     const nutritionContext=textoTemV61(t,['calorias','calories','energia','kcal'])&&textoTemV61(t,['proteina','protein','carboidrato','carbohydrate','gordura','fat','refeicao','refeição','meal','almoco','almoço','jantar','breakfast','lunch','dinner']);
@@ -19007,10 +19009,12 @@ function propostaTextoLivreV61(texto,file){
     const medidasDefs=[['pescoco',['pescoco','pescoço','neck']],['peito',['peito','chest']],['cintura',['cintura','barriga','waist','abdomen']],['quadril',['quadril','hip','hips']],['coxa',['coxa','thigh']],['panturrilha',['panturrilha','calf']],['braco',['braco','braço','arm']]];
     const medidas={};for(const [k,a] of medidasDefs){const e=extrairRotuloV61(t,a,['cm']);if(e?.valor>0)medidas[k]=e.valor;}
     if(Object.keys(medidas).length){const pesoMed=pesoE?.valor||numeroValido((appData.pesos||[]).find(x=>x.data===data)?.peso);if(pesoMed){p.itens.push({tipo:'medida',data,peso:pesoMed,...medidas,observacoes:'Importado de '+(file?.name||'imagem'),_fonte:file?.name||'',_confianca:'OCR'});}else p.avisos.push((file?.name||'Arquivo')+': encontrei medidas corporais, mas não havia peso na mesma data para criar o registro de Medidas com segurança.');}
-    if(nutritionContext&&!bodyContext){
+    const totalCaloriasPerdidasV91=extrairRotuloV61(t,['total de calorias perdidas','total calorias perdidas','calorias perdidas','total calories burned'],['kcal']);
+    if(!bodyContext&&totalCaloriasPerdidasV91?.valor>0){p.itens.push({tipo:'gasto',data,descricao:'Gasto Diário',calorias:totalCaloriasPerdidasV91.valor,observacoes:'Total de calorias perdidas importado de '+(file?.name||'imagem'),_fonte:file?.name||'',_confianca:'OCR'});}
+    if(nutritionContext&&!bodyContext&&!(totalCaloriasPerdidasV91?.valor>0)){
         const cal=extrairRotuloV61(t,['calorias','calories','energia','energy'],['kcal']);if(cal?.valor>0){const obs=construirObsNutricaoV61(t);p.itens.push({tipo:'refeicao',data,refeicao:nomeRefeicaoTextoV61(t),calorias:cal.valor,observacoes:obs?('Dados adicionais detectados: '+obs):('Importado de '+(file?.name||'imagem')),_fonte:file?.name||'',_confianca:'OCR'});}
     }
-    if(!bodyContext&&!nutritionContext){
+    if(!bodyContext&&!nutritionContext&&!(totalCaloriasPerdidasV91?.valor>0)){
         const calG=extrairRotuloV61(t,['calorias gastas','calories burned','energia gasta'],['kcal']);if(calG?.valor>0)p.itens.push({tipo:'gasto',data,descricao:textoTemV61(t,['exercicio','exercício','exercise','treino','workout'])?'Exercício':'Outros',calorias:calG.valor,observacoes:'Importado de '+(file?.name||'imagem'),_fonte:file?.name||'',_confianca:'OCR'});
         const dose=extrairRotuloV61(t,['dose','dosagem','dosage'],['mg']);if(dose?.valor!==null&&textoTemV61(t,['remedio','remédio','medicamento','medicine','medication'])){let nome='Medicamento';const linhas=linhasTextoV61(t);const ln=linhas.find(x=>textoTemV61(x,['remedio','remédio','medicamento','medicine','medication']));if(ln){const limpo=ln.replace(/rem[eé]dio|medicamento|medicine|medication/ig,'').replace(/[:\-]/g,' ').trim();if(limpo)nome=limpo.slice(0,120);}p.itens.push({tipo:'remedio',data,nome,mg:dose.valor,peso:pesoE?.valor||'',observacoes:'Importado de '+(file?.name||'imagem'),_fonte:file?.name||'',_confianca:'OCR'});}
     }
