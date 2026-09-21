@@ -23500,6 +23500,110 @@ resumoItemImportV60=function(item){
 };
 window.resumoItemImportV60=resumoItemImportV60;
 
+/* V93 — a conferência mostra peso e cada indicador corporal separadamente.
+   Na gravação, eles continuam no mesmo registro diário de peso para não criar
+   pesagens duplicadas. */
+const PL_SCHEMA_VERSION_V93=93;
+const PL_CAMPOS_COMPOSICAO_V93=[
+    ['musculoEsqueletico','Músculo esquelético','kg'],['massaGorda','Massa gorda','kg'],
+    ['aguaCorporalKg','Água corporal','kg'],['aguaCorporal','Água corporal','%'],
+    ['gorduraCorporalPercentual','Gordura corporal','%'],['imc','IMC',''],['tmb','TMB','kcal'],
+    ['gorduraVisceral','Gordura visceral',''],['massaMagra','Massa magra','kg'],
+    ['massaOssea','Massa óssea','kg'],['proteinaPercentual','Proteína corporal','%'],['idadeCorporal','Idade corporal','anos']
+];
+function campoOrigemBioV93(texto,chave,registro){
+    if(nImportV60(registro?.[chave])===null)return false;
+    if(chave==='aguaCorporal')return nImportV60(registro?.aguaCorporalKg)===null;
+    const aliases={massaMagra:['massa magra','lean mass','lean body mass','fat free mass'],massaOssea:['massa ossea','massa óssea','bone mass'],gorduraVisceral:['gordura visceral','visceral fat'],proteinaPercentual:['proteina corporal','proteína corporal','protein percent'],idadeCorporal:['idade corporal','body age','metabolic age']};
+    return !aliases[chave]||textoTemV61(texto,aliases[chave]);
+}
+const propostaTextoLivreAntesV93=propostaTextoLivreV61;
+propostaTextoLivreV61=function(texto,file){
+    const proposta=propostaTextoLivreAntesV93(texto,file),t=String(texto||''),itens=[];
+    for(const item of proposta.itens||[]){
+        if(item?.tipo!=='peso'){itens.push(item);continue;}
+        const campos=PL_CAMPOS_COMPOSICAO_V93.filter(([chave])=>campoOrigemBioV93(t,chave,item));
+        if(!campos.length){itens.push(item);continue;}
+        const peso={...item};for(const [chave] of PL_CAMPOS_COMPOSICAO_V93)delete peso[chave];itens.push(peso);
+        for(const [chave,nome,unidade] of campos)itens.push({tipo:'composicao',data:item.data,campo:chave,nome,unidade,valor:item[chave],peso:item.peso,_fonte:item._fonte||file?.name||'',_confianca:item._confianca||'OCR'});
+    }
+    proposta.itens=itens;return proposta;
+};
+window.propostaTextoLivreV61=propostaTextoLivreV61;
+
+const aplicarItemAntesV93=aplicarItemV60;
+aplicarItemV60=function(item,resultado){
+    if(item?.tipo!=='composicao')return aplicarItemAntesV93(item,resultado);
+    const campo=String(item.campo||''),valor=nImportV60(item.valor),peso=nImportV60(item.peso);
+    if(!PL_CAMPOS_COMPOSICAO_V93.some(([chave])=>chave===campo)||valor===null||valor<0||!dataISOValida(item.data)){resultado.invalidos++;return;}
+    const registro=(appData.pesos||[]).find(x=>x.data===item.data);
+    if(!registro){resultado.invalidos++;return;}
+    registro[campo]=valor;if(peso!==null&&peso>0)registro.peso=peso;completarBioimpedanciaV92(registro);resultado.importados++;
+};
+window.aplicarItemV60=aplicarItemV60;
+
+const resumoItemImportAntesV93=resumoItemImportV60;
+resumoItemImportV60=function(item){
+    if(item?.tipo!=='composicao')return resumoItemImportAntesV93(item);
+    const unidade=item.unidade?' '+item.unidade:'';return [item.nome||'Composição corporal',item.data,formatBR(nImportV60(item.valor))+unidade];
+};
+window.resumoItemImportV60=resumoItemImportV60;
+const renderPropostaAntesV93=renderPropostaV60;
+renderPropostaV60=function(){
+    const retorno=renderPropostaAntesV93(),p=importacaoAtualV60?.proposta,box=document.getElementById('contagens-importacao-v60');if(!p||!box)return retorno;
+    const tipos=[['peso','Pesos'],['composicao','Composição corporal'],['medida','Medidas'],['refeicao','Refeições'],['gasto','Gastos'],['remedio','Remédios'],['evento','Eventos']];
+    box.innerHTML=tipos.map(([tipo,nome])=>[nome,p.itens.filter(item=>item.tipo===tipo).length]).filter(([,quantidade])=>quantidade).map(([nome,quantidade])=>'<div class="import-count-v60"><b>'+quantidade+'</b><span>'+nome+'</span></div>').join('')||'<div class="import-count-v60"><b>0</b><span>Lançamentos</span></div>';
+    return retorno;
+};
+window.renderPropostaV60=renderPropostaV60;
+
+/* V94 — refeições do Samsung Health: identifica a caloria principal e os
+   três macronutrientes mesmo quando o OCR lê o painel como uma grade. */
+const PL_SCHEMA_VERSION_V94=94;
+function numerosLinhaV94(texto){return (String(texto||'').match(/-?\d{1,4}(?:[.,]\d{1,3})?/g)||[]).map(numeroTextoV61).filter(valor=>valor!==null);}
+function caloriasRefeicaoSamsungV94(texto){
+    const linhas=linhasTextoV61(texto),diretas=[];
+    for(let i=0;i<linhas.length;i++){
+        const atual=linhas[i],normal=chaveImportV60(atual);
+        if(normal==='kcal'||/^kcal\b/i.test(atual.trim())){const anteriores=numerosLinhaV94(linhas[i-1]);if(anteriores.length)return anteriores[0];}
+        const m=atual.match(/^\s*(\d{1,4}(?:[.,]\d{1,3})?)\s*kcal\b/i);if(m){const valor=numeroTextoV61(m[1]);if(valor!==null)diretas.push(valor);}
+    }
+    const moderadas=diretas.filter(valor=>valor>0&&valor<1000);return moderadas[0]??diretas[0]??null;
+}
+function macrosRefeicaoSamsungV94(texto,calorias){
+    const linhas=linhasTextoV61(texto);
+    for(let i=0;i<linhas.length;i++){
+        const cabecalho=chaveImportV60(linhas[i]);
+        if(!(cabecalho.includes('carboidr')&&cabecalho.includes('gord')&&cabecalho.includes('proteina')))continue;
+        const valores=numerosLinhaV94([linhas[i+1],linhas[i+2],linhas[i+3]].join(' '));
+        if(valores.length<3)continue;
+        const opcoes=valores.slice(0,3).map(valor=>Number.isInteger(valor)&&valor>=10&&valor<=99?[valor,valor/10]:[valor]);
+        let melhor=null;
+        for(const carboidratosG of opcoes[0])for(const gorduraG of opcoes[1])for(const proteinaG of opcoes[2]){
+            const diferenca=calorias===null?0:Math.abs(calorias-(carboidratosG*4+gorduraG*9+proteinaG*4));
+            if(!melhor||diferenca<melhor.diferenca)melhor={carboidratosG,gorduraG,proteinaG,diferenca};
+        }
+        if(melhor)return melhor;
+    }
+    return {
+        carboidratosG:extrairBioSamsungV92(texto,['carboidratos','carboidrato','carboidr','carbs','carbohydrate'],['g']),
+        gorduraG:extrairBioSamsungV92(texto,['gordura','gord','fat','total fat'],['g']),
+        proteinaG:extrairBioSamsungV92(texto,['proteina','proteína','protein'],['g'])
+    };
+}
+const propostaTextoLivreAntesV94=propostaTextoLivreV61;
+propostaTextoLivreV61=function(texto,file){
+    const proposta=propostaTextoLivreAntesV94(texto,file),t=String(texto||''),contextoRefeicao=textoTemV61(t,['refeicao','refeição','refeicado','meal','nutric']);
+    if(!contextoRefeicao)return proposta;
+    const calorias=caloriasRefeicaoSamsungV94(t);if(calorias===null||calorias<=0)return proposta;
+    const macros=macrosRefeicaoSamsungV94(t,calorias),data=extrairDataTextoV61(t,file);
+    let refeicao=(proposta.itens||[]).find(item=>item?.tipo==='refeicao'&&item.data===data);
+    if(!refeicao){refeicao={tipo:'refeicao',data,refeicao:'Refeição',calorias,observacoes:'Importado de '+(file?.name||'imagem'),_fonte:file?.name||'',_confianca:'OCR'};proposta.itens.push(refeicao);}else refeicao.calorias=calorias;
+    for(const campo of ['proteinaG','carboidratosG','gorduraG']){const valor=nImportV60(macros[campo]);if(valor!==null&&valor>=0)refeicao[campo]=valor;}
+    return proposta;
+};
+window.propostaTextoLivreV61=propostaTextoLivreV61;
+
 </script>
 
 </body>

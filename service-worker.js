@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v92-biopedancia-completa';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v92-biopedancia-completa';
+const CACHE_VERSION = 'projeto-leve-v94-importacao-completa';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v94-importacao-completa';
 const APP_SHELL = [
   './',
   './index.html',
