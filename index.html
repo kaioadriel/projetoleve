@@ -23604,6 +23604,36 @@ propostaTextoLivreV61=function(texto,file){
 };
 window.propostaTextoLivreV61=propostaTextoLivreV61;
 
+/* V95 — tela inicial do CalFix. Usa o lançamento manual, não as metas
+   exibidas nos cartões de calorias e de macronutrientes. */
+const PL_SCHEMA_VERSION_V95=95;
+function caloriasCalFixV95(texto){
+    for(const linha of linhasTextoV61(texto)){
+        const m=linha.match(/\b(\d{1,4}(?:[.,]\d{1,3})?)\s*(?:calorias?|kcal)\b/i);
+        if(m){const valor=numeroTextoV61(m[1]);if(valor!==null&&valor>0&&valor<1000)return valor;}
+    }
+    return null;
+}
+function macrosCalFixV95(texto){
+    return {
+        proteinaG:extrairBioSamsungV92(texto,['proteina','proteína','protein'],['g']),
+        carboidratosG:extrairBioSamsungV92(texto,['carboidratos','carboidrato','carboidr','carbs','carbohydrate'],['g']),
+        gorduraG:extrairBioSamsungV92(texto,['gordura','gord','fat','total fat'],['g'])
+    };
+}
+const propostaTextoLivreAntesV95=propostaTextoLivreV61;
+propostaTextoLivreV61=function(texto,file){
+    const proposta=propostaTextoLivreAntesV95(texto,file),t=String(texto||'');
+    if(!textoTemV61(t,['calfix']))return proposta;
+    const calorias=caloriasCalFixV95(t);if(calorias===null)return proposta;
+    const data=extrairDataTextoV61(t,file),macros=macrosCalFixV95(t);
+    let refeicao=(proposta.itens||[]).find(item=>item?.tipo==='refeicao'&&item.data===data);
+    if(!refeicao){refeicao={tipo:'refeicao',data,refeicao:'Registro manual',calorias,observacoes:'Importado do CalFix ('+(file?.name||'imagem')+')',_fonte:file?.name||'',_confianca:'OCR'};proposta.itens.push(refeicao);}else{refeicao.calorias=calorias;refeicao.refeicao='Registro manual';refeicao.observacoes='Importado do CalFix ('+(file?.name||'imagem')+')';}
+    for(const campo of ['proteinaG','carboidratosG','gorduraG']){const valor=nImportV60(macros[campo]);if(valor!==null&&valor>=0)refeicao[campo]=valor;}
+    return proposta;
+};
+window.propostaTextoLivreV61=propostaTextoLivreV61;
+
 </script>
 
 </body>
