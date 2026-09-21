@@ -23634,6 +23634,34 @@ propostaTextoLivreV61=function(texto,file){
 };
 window.propostaTextoLivreV61=propostaTextoLivreV61;
 
+/* V96 — CalFix: leitura exclusiva dos cartões e do registro manual.
+   Metas, calorias restantes, exercício e leituras corporais não viram dados. */
+const PL_SCHEMA_VERSION_V96=96;
+function macroCartaoCalFixV96(texto,rotulo){
+    const linhas=linhasTextoV61(texto),alvo=chaveImportV60(rotulo);
+    for(let i=0;i<linhas.length;i++){
+        if(!chaveImportV60(linhas[i]).includes(alvo))continue;
+        const bloco=linhas.slice(i,Math.min(linhas.length,i+4)).join(' ');
+        const m=bloco.match(/(\d{1,4}(?:[.,]\d{1,3})?)\s*\/\s*\d{1,4}(?:[.,]\d{1,3})?\s*g\b/i);
+        if(m){const valor=numeroTextoV61(m[1]);if(valor!==null&&valor>=0)return valor;}
+    }
+    return null;
+}
+function macrosCalFixSegurosV96(texto){return {proteinaG:macroCartaoCalFixV96(texto,'proteina'),carboidratosG:macroCartaoCalFixV96(texto,'carboidr'),gorduraG:macroCartaoCalFixV96(texto,'gordura')};}
+const propostaTextoLivreAntesV96=propostaTextoLivreV61;
+propostaTextoLivreV61=function(texto,file){
+    const proposta=propostaTextoLivreAntesV96(texto,file),t=String(texto||'');
+    if(!textoTemV61(t,['calfix']))return proposta;
+    const calorias=caloriasCalFixV95(t),data=extrairDataTextoV61(t,file);if(calorias===null||calorias<=0)return proposta;
+    let refeicao=(proposta.itens||[]).find(item=>item?.tipo==='refeicao'&&item.data===data);
+    if(!refeicao)refeicao={tipo:'refeicao',data,refeicao:'Registro manual',calorias,observacoes:'Importado do CalFix ('+(file?.name||'imagem')+')',_fonte:file?.name||'',_confianca:'OCR'};
+    refeicao.refeicao='Registro manual';refeicao.calorias=calorias;refeicao.observacoes='Importado do CalFix ('+(file?.name||'imagem')+')';
+    delete refeicao.proteinaG;delete refeicao.carboidratosG;delete refeicao.gorduraG;
+    const macros=macrosCalFixSegurosV96(t);for(const campo of ['proteinaG','carboidratosG','gorduraG']){const valor=nImportV60(macros[campo]);if(valor!==null&&valor>=0)refeicao[campo]=valor;}
+    proposta.itens=[refeicao];return proposta;
+};
+window.propostaTextoLivreV61=propostaTextoLivreV61;
+
 </script>
 
 </body>

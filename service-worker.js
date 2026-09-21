@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v95-importacao-calfix';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v95-importacao-calfix';
+const CACHE_VERSION = 'projeto-leve-v96-calfix-seguro';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v96-calfix-seguro';
 const APP_SHELL = [
   './',
   './index.html',
