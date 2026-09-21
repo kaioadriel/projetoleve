@@ -1626,7 +1626,7 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                         <div class="pl68-kicker label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6l6 6 4-4 8 10M15 18h6v-6"/></svg>Pelo ritmo</div>
                         <div class="value" id="dash-previsao">—</div>
                         <div class="pl68-rate" id="dash-media-dia">—</div>
-                        <button class="pl68-explain" type="button" onclick="abrirExplicacaoPainelV68('ritmo')">Últimos 7 dias <span aria-hidden="true">›</span></button>
+                        <button class="pl68-explain" type="button" onclick="abrirExplicacaoPainelV68('ritmo')">Desde o início do ciclo <span aria-hidden="true">›</span></button>
                     </div>
                 </div>
                 <div class="pl68-insight neutral" id="painel-diferenca-v68" role="status">As previsões aparecerão com os dados do ciclo.</div>
@@ -20931,22 +20931,23 @@ function inicializarPainelV68(){
 window.addEventListener('load',inicializarPainelV68);
 
 
-/* V69 — correção pontual sobre a V68: ritmo do Painel = média dos últimos 7 dias;
-   Perfil contém somente dados pessoais e o ícone ao lado volta a ser Configurações. */
+/* V69 — o Ritmo do Painel usa a média de todo o ciclo atualmente selecionado. */
 function dadosRitmoUltimos7DiasPainelV69() {
+    const ciclo = typeof obterCicloAtivoV48 === 'function' ? obterCicloAtivoV48() : null;
     const hoje = hojeISO();
-    const inicioJanela = addDiasISO(hoje, -7);
-    const inicioCiclo = dataISOValida(appData.config?.dataInicial) ? appData.config.dataInicial : inicioJanela;
-    const inicio = inicioCiclo > inicioJanela ? inicioCiclo : inicioJanela;
+    const inicio = dataISOValida(ciclo?.dataInicio)
+        ? ciclo.dataInicio
+        : (dataISOValida(appData.config?.dataInicial) ? appData.config.dataInicial : hoje);
+    const fim = dataISOValida(ciclo?.dataFim) && ciclo.dataFim < hoje ? ciclo.dataFim : hoje;
     const porData = new Map();
 
-    const pesoInicial = numeroValido(appData.config?.pesoInicial);
-    if (Number.isFinite(pesoInicial) && dataISOValida(inicioCiclo) && inicioCiclo >= inicio && inicioCiclo <= hoje) {
-        porData.set(inicioCiclo, { data: inicioCiclo, peso: pesoInicial, origem: 'inicial' });
+    const pesoInicial = numeroValido(ciclo?.pesoInicial ?? appData.config?.pesoInicial);
+    if (Number.isFinite(pesoInicial) && inicio <= fim) {
+        porData.set(inicio, { data: inicio, peso: pesoInicial, origem: 'ciclo' });
     }
 
     for (const registro of obterPesosValidosParaCalculo()) {
-        if (!dataISOValida(registro.data) || registro.data < inicio || registro.data > hoje) continue;
+        if (!dataISOValida(registro.data) || registro.data < inicio || registro.data > fim) continue;
         const peso = numeroValido(registro.peso);
         if (!Number.isFinite(peso) || peso <= 0) continue;
         // Se houver mais de uma pesagem no mesmo dia, a última cadastrada prevalece.
@@ -20954,14 +20955,14 @@ function dadosRitmoUltimos7DiasPainelV69() {
     }
 
     const pontos = [...porData.values()].sort((a, b) => a.data.localeCompare(b.data));
-    if (pontos.length < 2) return { ritmo: NaN, pontos, inicio, hoje, dias: 0 };
+    if (pontos.length < 2) return { ritmo: NaN, pontos, inicio, fim, hoje: fim, dias: 0, ciclo };
     const primeiro = pontos[0];
     const ultimo = pontos[pontos.length - 1];
     const dias = diffDays(ultimo.data, primeiro.data);
-    if (dias <= 0) return { ritmo: NaN, pontos, primeiro, ultimo, inicio, hoje, dias: 0 };
+    if (dias <= 0) return { ritmo: NaN, pontos, primeiro, ultimo, inicio, fim, hoje: fim, dias: 0, ciclo };
     return {
         ritmo: (ultimo.peso - primeiro.peso) / dias,
-        pontos, primeiro, ultimo, inicio, hoje, dias
+        pontos, primeiro, ultimo, inicio, fim, hoje: fim, dias, ciclo
     };
 }
 
@@ -20978,14 +20979,15 @@ renderExplicacaoPainelV68 = function() {
         return;
     }
     const ref = referenciaPesoPainelV68();
-    const cfg = appData.config;
+    const cfg = appData.config || {};
     const resumo = dadosRitmoUltimos7DiasPainelV69();
     const ritmo = resumo.ritmo;
     const intervalo = resumo.dias || 0;
     const periodo = resumo.primeiro && resumo.ultimo
         ? formatDateBR(resumo.primeiro.data) + ' a ' + formatDateBR(resumo.ultimo.data)
-        : formatDateBR(resumo.inicio) + ' a ' + formatDateBR(resumo.hoje);
-    out.innerHTML = '<h4>Pela meta do ciclo</h4><dl><dt>Início do ciclo</dt><dd>' + formatDateBR(cfg.dataInicial) + '</dd><dt>Peso inicial</dt><dd>' + formatBR(cfg.pesoInicial) + ' kg</dd><dt>Meta final</dt><dd>' + formatBR(cfg.pesoMeta) + ' kg</dd><dt>Meta diária</dt><dd>' + textoRitmoPainelV68(numeroValido(cfg.metaKgPorDia)) + '</dd></dl><p>A data planejada usa o percurso completo desde o início do ciclo. Novas pesagens não mudam esse plano.</p><h4>Pelo ritmo observado</h4><dl><dt>Janela analisada</dt><dd>Últimos 7 dias</dd><dt>Período usado</dt><dd>' + periodo + '</dd><dt>Pontos de peso usados</dt><dd>' + resumo.pontos.length + '</dd><dt>Intervalo real</dt><dd>' + intervalo + ' dia' + (intervalo === 1 ? '' : 's') + '</dd><dt>Ritmo/dia</dt><dd>' + textoRitmoPainelV68(ritmo) + '</dd><dt>Última pesagem</dt><dd>' + (ref.registrado ? formatDateBR(ref.data) : 'Sem registro') + '</dd></dl><p>O ritmo/dia é a variação entre o primeiro e o último peso disponíveis na janela dos últimos 7 dias, dividida pelo número real de dias entre eles. Se houver mais de uma pesagem no mesmo dia, vale a última.</p><p>A previsão parte da última pesagem registrada e projeta esse ritmo recente até a meta.</p>';
+        : formatDateBR(resumo.inicio) + ' a ' + formatDateBR(resumo.fim || resumo.hoje);
+    const nomeCiclo = resumo.ciclo?.nome || 'Ciclo atual';
+    out.innerHTML = '<h4>Pela meta do ciclo</h4><dl><dt>Ciclo analisado</dt><dd>' + escapeHtml(nomeCiclo) + '</dd><dt>Início do ciclo</dt><dd>' + formatDateBR(resumo.inicio) + '</dd><dt>Peso inicial</dt><dd>' + formatBR(cfg.pesoInicial) + ' kg</dd><dt>Meta final</dt><dd>' + formatBR(cfg.pesoMeta) + ' kg</dd><dt>Meta diária</dt><dd>' + textoRitmoPainelV68(numeroValido(cfg.metaKgPorDia)) + '</dd></dl><p>A data planejada usa o percurso completo desde o início do ciclo. Novas pesagens não mudam esse plano.</p><h4>Pelo ritmo observado</h4><dl><dt>Período usado</dt><dd>' + periodo + '</dd><dt>Pontos de peso usados</dt><dd>' + resumo.pontos.length + '</dd><dt>Intervalo real</dt><dd>' + intervalo + ' dia' + (intervalo === 1 ? '' : 's') + '</dd><dt>Ritmo/dia</dt><dd>' + textoRitmoPainelV68(ritmo) + '</dd><dt>Última pesagem</dt><dd>' + (ref.registrado ? formatDateBR(ref.data) : 'Sem registro') + '</dd></dl><p>O ritmo/dia é a variação entre o peso inicial do ciclo e a última pesagem válida, dividida pelo número real de dias desde o início do ciclo. Se houver mais de uma pesagem no mesmo dia, vale a última.</p><p>A previsão parte da última pesagem registrada e projeta esse ritmo até a meta.</p>';
 };
 
 // Campos pessoais adicionais persistem dentro de config e também entram normalmente nos backups.
@@ -23339,6 +23341,93 @@ function instalarArrasteDivisorComparacaoV88() {
 }
 
 instalarArrasteDivisorComparacaoV88();
+
+/* V89 — o Ritmo e a previsão "Pelo ritmo" usam todo o ciclo selecionado.
+   A média diária é a diferença entre o peso inicial do ciclo e a última
+   pesagem válida, dividida pelo número real de dias transcorridos. */
+const PL_SCHEMA_VERSION_V89 = 89;
+
+function dadosRitmoCicloAtualPainelV89() {
+    const ciclo = typeof obterCicloAtivoV48 === 'function' ? obterCicloAtivoV48() : null;
+    const hoje = hojeISO();
+    const inicio = dataISOValida(ciclo?.dataInicio)
+        ? ciclo.dataInicio
+        : (dataISOValida(appData.config?.dataInicial) ? appData.config.dataInicial : hoje);
+    const fim = dataISOValida(ciclo?.dataFim) && ciclo.dataFim < hoje ? ciclo.dataFim : hoje;
+    const porData = new Map();
+    const pesoInicial = numeroValido(ciclo?.pesoInicial ?? appData.config?.pesoInicial);
+
+    if (Number.isFinite(pesoInicial) && dataISOValida(inicio) && inicio <= fim) {
+        porData.set(inicio, { data: inicio, peso: pesoInicial, origem: 'ciclo' });
+    }
+
+    const registros = typeof obterPesosValidosParaCalculo === 'function'
+        ? obterPesosValidosParaCalculo()
+        : (appData.pesos || []);
+    for (const registro of registros) {
+        if (!dataISOValida(registro?.data) || registro.data < inicio || registro.data > fim) continue;
+        const peso = numeroValido(registro.peso);
+        if (!Number.isFinite(peso) || peso <= 0) continue;
+        // Se houver mais de uma pesagem no mesmo dia, a última cadastrada prevalece.
+        porData.set(registro.data, { data: registro.data, peso, origem: 'pesagem' });
+    }
+
+    const pontos = [...porData.values()].sort((a, b) => a.data.localeCompare(b.data));
+    if (pontos.length < 2) {
+        return { ritmo: NaN, pontos, inicio, hoje: fim, fim, dias: 0, ciclo };
+    }
+    const primeiro = pontos[0];
+    const ultimo = pontos[pontos.length - 1];
+    const dias = diffDays(ultimo.data, primeiro.data);
+    if (dias <= 0) {
+        return { ritmo: NaN, pontos, primeiro, ultimo, inicio, hoje: fim, fim, dias: 0, ciclo };
+    }
+    return {
+        ritmo: (ultimo.peso - primeiro.peso) / dias,
+        pontos, primeiro, ultimo, inicio, hoje: fim, fim, dias, ciclo
+    };
+}
+
+// Mantém os nomes usados pelas previsões existentes, mas troca a janela de 7 dias
+// pelo período completo do ciclo atualmente selecionado.
+dadosRitmoUltimos7DiasPainelV69 = dadosRitmoCicloAtualPainelV89;
+calcularMediaUltimos7DiasPainelV69 = function() {
+    return dadosRitmoCicloAtualPainelV89().ritmo;
+};
+
+renderExplicacaoPainelV68 = function() {
+    const out = document.getElementById('painel-calculo-conteudo-v68');
+    if (!out) return;
+    if (!temConfigCalculo()) {
+        out.innerHTML = '<p>Abra Ciclos e configure o peso inicial, a meta final e a meta diária.</p>';
+        return;
+    }
+    const ref = referenciaPesoPainelV68();
+    const cfg = appData.config || {};
+    const resumo = dadosRitmoCicloAtualPainelV89();
+    const ritmo = resumo.ritmo;
+    const intervalo = resumo.dias || 0;
+    const periodo = resumo.primeiro && resumo.ultimo
+        ? formatDateBR(resumo.primeiro.data) + ' a ' + formatDateBR(resumo.ultimo.data)
+        : formatDateBR(resumo.inicio) + ' a ' + formatDateBR(resumo.fim || resumo.hoje);
+    const inicio = resumo.inicio || cfg.dataInicial;
+    const nomeCiclo = resumo.ciclo?.nome || 'Ciclo atual';
+    out.innerHTML = '<h4>Pela meta do ciclo</h4><dl><dt>Ciclo analisado</dt><dd>' + escapeHtml(nomeCiclo) + '</dd><dt>Início do ciclo</dt><dd>' + formatDateBR(inicio) + '</dd><dt>Peso inicial</dt><dd>' + formatBR(cfg.pesoInicial) + ' kg</dd><dt>Meta final</dt><dd>' + formatBR(cfg.pesoMeta) + ' kg</dd><dt>Meta diária</dt><dd>' + textoRitmoPainelV68(numeroValido(cfg.metaKgPorDia)) + '</dd></dl><p>A data planejada usa o percurso completo desde o início do ciclo. Novas pesagens não mudam esse plano.</p><h4>Pelo ritmo observado</h4><dl><dt>Período usado</dt><dd>' + periodo + '</dd><dt>Pesagens do ciclo</dt><dd>' + resumo.pontos.length + '</dd><dt>Intervalo real</dt><dd>' + intervalo + ' dia' + (intervalo === 1 ? '' : 's') + '</dd><dt>Ritmo/dia</dt><dd>' + textoRitmoPainelV68(ritmo) + '</dd><dt>Última pesagem</dt><dd>' + (ref.registrado ? formatDateBR(ref.data) : 'Sem registro') + '</dd></dl><p>O ritmo/dia é a variação entre o peso inicial do ciclo e a última pesagem válida, dividida pelo número real de dias desde o início do ciclo. Se houver mais de uma pesagem no mesmo dia, vale a última.</p><p>A previsão parte da última pesagem registrada e projeta esse ritmo até a meta.</p>';
+};
+
+function atualizarRotuloRitmoCicloV89() {
+    const botao = document.querySelector('.pl68-forecast.pl68-actual .pl68-explain');
+    if (botao) botao.innerHTML = 'Desde o início do ciclo <span aria-hidden="true">›</span>';
+}
+const renderPainelAntesV89 = renderPainelV68;
+renderPainelV68 = function(...args) {
+    const retorno = renderPainelAntesV89(...args);
+    atualizarRotuloRitmoCicloV89();
+    return retorno;
+};
+window.renderPainelV68 = renderPainelV68;
+window.dadosRitmoCicloAtualPainelV89 = dadosRitmoCicloAtualPainelV89;
+window.addEventListener('load', () => setTimeout(atualizarRotuloRitmoCicloV89, 1200));
 
 </script>
 
