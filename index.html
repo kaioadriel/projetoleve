@@ -23433,6 +23433,73 @@ window.renderPainelV68 = renderPainelV68;
 window.dadosRitmoCicloAtualPainelV89 = dadosRitmoCicloAtualPainelV89;
 window.addEventListener('load', () => setTimeout(atualizarRotuloRitmoCicloV89, 1200));
 
+/* V92 — leitura robusta de bioimpedância em capturas do Samsung Health.
+   Capturas de tela estreitas são ampliadas antes do OCR e os rótulos abreviados
+   (como “Músc. esquelét.”) passam a ser compreendidos. */
+const PL_SCHEMA_VERSION_V92 = 92;
+
+const prepararImagemOCRAntesV92 = prepararImagemOCRV61;
+prepararImagemOCRV61 = async function(file){
+    try{
+        const bmp=await createImageBitmap(file);
+        const larguraMinima=1000,escalaDesejada=Math.max(1,larguraMinima/bmp.width),maxEscala=3.5,maxPixels=6500000;
+        const escalaPorPixels=Math.sqrt(maxPixels/(bmp.width*bmp.height));
+        const escala=Math.min(Math.max(1,escalaDesejada),maxEscala,escalaPorPixels);
+        const c=document.createElement('canvas');c.width=Math.max(1,Math.round(bmp.width*escala));c.height=Math.max(1,Math.round(bmp.height*escala));
+        const ctx=c.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(bmp,0,0,c.width,c.height);bmp.close?.();return c;
+    }catch{return prepararImagemOCRAntesV92(file);}
+};
+
+function extrairBioSamsungV92(texto,aliases,unidades=[]){
+    const e=extrairRotuloV61(texto,aliases,unidades);return e?.valor!==null&&e?.valor!==undefined?e.valor:null;
+}
+function completarBioimpedanciaV92(registro){
+    const peso=nImportV60(registro?.peso),massa=nImportV60(registro?.massaGorda),gordura=nImportV60(registro?.gorduraCorporalPercentual),aguaKg=nImportV60(registro?.aguaCorporalKg),aguaPct=nImportV60(registro?.aguaCorporal);
+    if(peso===null||peso<=0)return registro;
+    if(massa===null&&gordura!==null)registro.massaGorda=peso*gordura/100;
+    if(gordura===null&&massa!==null)registro.gorduraCorporalPercentual=massa/peso*100;
+    if(aguaPct===null&&aguaKg!==null)registro.aguaCorporal=aguaKg/peso*100;
+    if(aguaKg===null&&aguaPct!==null)registro.aguaCorporalKg=peso*aguaPct/100;
+    if(nImportV60(registro.massaMagra)===null&&nImportV60(registro.massaGorda)!==null)registro.massaMagra=Math.max(0,peso-nImportV60(registro.massaGorda));
+    return registro;
+}
+const propostaTextoLivreAntesV92=propostaTextoLivreV61;
+propostaTextoLivreV61=function(texto,file){
+    const proposta=propostaTextoLivreAntesV92(texto,file),t=String(texto||'');
+    const data=extrairDataTextoV61(t,file);
+    const peso=extrairBioSamsungV92(t,['peso','body weight','weight'],['kg']);
+    if(peso===null||peso<=0)return proposta;
+    const campos={
+        musculoEsqueletico:[['musculo esqueletico','músculo esquelético','musc esquelet','músc esquel','misc esquelet','skeletal muscle','skeletal muscle mass','muscle mass'],['kg']],
+        massaGorda:[['massa gorda','fat mass','body fat mass'],['kg']],
+        aguaCorporalKg:[['agua corporal','água corporal','body water','water mass'],['kg']],
+        gorduraCorporalPercentual:[['gordura corporal','body fat','body fat percentage','fat percentage'],['%']],
+        imc:[['imc','bmi'],[]],
+        tmb:[['taxa de metabolismo basal','taxa metabolismo basal','metabolismo basal','tmb','bmr','basal metabolic rate'],['kcal']],
+        gorduraVisceral:[['gordura visceral','visceral fat'],[]],
+        massaMagra:[['massa magra','lean mass','lean body mass','fat free mass'],['kg']],
+        massaOssea:[['massa ossea','massa óssea','bone mass'],['kg']],
+        proteinaPercentual:[['proteina corporal','proteína corporal','protein percent','protein percentage'],['%']],
+        idadeCorporal:[['idade corporal','body age','metabolic age'],[]]
+    };
+    let registro=(proposta.itens||[]).find(item=>item?.tipo==='peso'&&item.data===data);
+    if(!registro){registro={tipo:'peso',data,peso,observacoes:'Importado de '+(file?.name||'imagem'),_fonte:file?.name||'',_confianca:'OCR'};proposta.itens.push(registro);}else registro.peso=peso;
+    for(const [chave,[aliases,unidades]] of Object.entries(campos)){const valor=extrairBioSamsungV92(t,aliases,unidades);if(valor!==null&&valor>=0)registro[chave]=valor;}
+    completarBioimpedanciaV92(registro);
+    return proposta;
+};
+window.prepararImagemOCRV61=prepararImagemOCRV61;
+window.propostaTextoLivreV61=propostaTextoLivreV61;
+
+const resumoItemImportAntesV92=resumoItemImportV60;
+resumoItemImportV60=function(item){
+    const resumo=resumoItemImportAntesV92(item);if(item?.tipo!=='peso')return resumo;
+    const extras=[['Músculo esquelético',item.musculoEsqueletico,' kg'],['Massa gorda',item.massaGorda,' kg'],['Água corporal',item.aguaCorporalKg,' kg'],['Água corporal',item.aguaCorporal,' %'],['Gordura corporal',item.gorduraCorporalPercentual,' %'],['IMC',item.imc,''],['TMB',item.tmb,' kcal']].filter(([,valor])=>nImportV60(valor)!==null).map(([nome,valor,unidade])=>nome+' '+formatBR(nImportV60(valor))+unidade);
+    if(extras.length)resumo[2]='Peso '+formatBR(nImportV60(item.peso))+' kg • '+extras.join(' • ');
+    return resumo;
+};
+window.resumoItemImportV60=resumoItemImportV60;
+
 </script>
 
 </body>

@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v91-importar-calorias-perdidas';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v91-importar-calorias-perdidas';
+const CACHE_VERSION = 'projeto-leve-v92-biopedancia-completa';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v92-biopedancia-completa';
 const APP_SHELL = [
   './',
   './index.html',
