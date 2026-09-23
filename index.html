@@ -23728,6 +23728,46 @@ const ocrImagemAntesV98=ocrImagemV61;
 async function lerCabecalhoBalancaV98(file,onProgress){
     const url=URL.createObjectURL(file);try{const img=await new Promise((ok,erro)=>{const x=new Image();x.onload=()=>ok(x);x.onerror=erro;x.src=url;});const tela=document.createElement('canvas');tela.width=img.naturalWidth*4;tela.height=Math.round(img.naturalHeight*.12*4);const ctx=tela.getContext('2d');ctx.drawImage(img,0,img.naturalHeight*.045,img.naturalWidth,img.naturalHeight*.12,0,0,tela.width,tela.height);const blob=await new Promise(ok=>tela.toBlob(ok,'image/png'));const T=await obterTesseractV61();const resultado=await T.recognize(blob,'por+eng',{logger:onProgress||(()=>{})});return resultado?.data?.text||'';}catch{return '';}finally{URL.revokeObjectURL(url);}}
 ocrImagemV61=async function(file,onProgress){const texto=await ocrImagemAntesV98(file,onProgress);if(/\b(?:19|20)\d{2}\s*[\/.\-]\s*\d{1,2}\s*[\/.\-]\s*\d{1,2}\b/.test(texto)||!/relat.{0,5}rio/i.test(texto))return texto;const topo=await lerCabecalhoBalancaV98(file,onProgress);return topo?topo+'\n'+texto:texto;};
+
+/* V99 — migração completa de backups anteriores ao padrão de balança V98.
+   Um backup pode conter as mesmas metas em configuração, ciclos e registros
+   congelados; todos os três pontos precisam ser convertidos juntos. */
+const PL_SCHEMA_VERSION_V99=99;
+let migracaoPendenteV99=false;
+function pesoReferenciaMigracaoV99(origem={},alternativo=null){
+    for(const valor of [origem?.pesoMeta,origem?.pesoInicial,alternativo]){const n=numeroValido(valor);if(n!==null&&n>0)return n;}
+    return null;
+}
+function migrarMetasComposicaoV99(origem={},pesoReferencia=null){
+    const fonte=origem&&typeof origem==='object'?origem:{},saida=metasComposicaoV98(fonte),peso=pesoReferenciaMigracaoV99(fonte,pesoReferencia);
+    const copiar=(destino,...fontes)=>{if(numeroValido(saida[destino])!==null)return;for(const chave of fontes){const v=numeroValido(fonte[chave]);if(v!==null){saida[destino]=v;return;}}};
+    /* Campos que já existiam mantêm a faixa registrada no backup. */
+    copiar('imcMin','imcMin');copiar('imcMax','imcMax');copiar('gorduraMin','gorduraMin');copiar('gorduraMax','gorduraMax');copiar('aguaMin','aguaMin');copiar('aguaMax','aguaMax');copiar('tmbMin','tmbMin');copiar('tmbMax','tmbMax');copiar('visceralMin','visceralMin');copiar('visceralMax','visceralMax');copiar('massaMagraMin','massaMagraMin');copiar('massaMagraMax','massaMagraMax');copiar('massaGordaMin','massaGordaMin');copiar('massaGordaMax','massaGordaMax');copiar('massaOsseaMin','massaOsseaMin');copiar('massaOsseaMax','massaOsseaMax');copiar('idadeCorporalMin','idadeCorporalMin');copiar('idadeCorporalMax','idadeCorporalMax');copiar('proteinaMin','proteinaMin');copiar('proteinaMax','proteinaMax');
+    /* “Músculo esquelético” das versões antigas era a faixa em kg. */
+    copiar('massaMuscularMin','massaMuscularMin','musculoMin');copiar('massaMuscularMax','massaMuscularMax','musculoMax');
+    copiar('massaMuscularPercentualMin','massaMuscularPercentualMin');copiar('massaMuscularPercentualMax','massaMuscularPercentualMax');copiar('massaOsseaPercentualMin','massaOsseaPercentualMin');copiar('massaOsseaPercentualMax','massaOsseaPercentualMax');
+    if(peso){
+        if(numeroValido(saida.massaMuscularPercentualMin)===null&&numeroValido(saida.massaMuscularMin)!==null)saida.massaMuscularPercentualMin=numeroValido(saida.massaMuscularMin)/peso*100;
+        if(numeroValido(saida.massaMuscularPercentualMax)===null&&numeroValido(saida.massaMuscularMax)!==null)saida.massaMuscularPercentualMax=numeroValido(saida.massaMuscularMax)/peso*100;
+        if(numeroValido(saida.massaOsseaPercentualMin)===null&&numeroValido(saida.massaOsseaMin)!==null)saida.massaOsseaPercentualMin=numeroValido(saida.massaOsseaMin)/peso*100;
+        if(numeroValido(saida.massaOsseaPercentualMax)===null&&numeroValido(saida.massaOsseaMax)!==null)saida.massaOsseaPercentualMax=numeroValido(saida.massaOsseaMax)/peso*100;
+    }
+    return metasComposicaoV98(saida);
+}
+const normalizarDadosAntesV99=normalizarDados;
+normalizarDados=function(raw){
+    const origem=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{},versaoOrigem=Number(origem.schemaVersion)||0,dados=normalizarDadosAntesV99(origem),cfgFonte=origem.config||{},padraoFonte=cfgFonte.metasPadrao||cfgFonte,pesoPadrao=pesoReferenciaMigracaoV99(padraoFonte,cfgFonte.pesoMeta);
+    dados.config=dados.config||{};
+    const metasPadrao=migrarMetasComposicaoV99(padraoFonte,pesoPadrao);
+    dados.config.metasPadrao={...(dados.config.metasPadrao||{}),metasComposicao:metasPadrao};
+    dados.ciclos=(dados.ciclos||[]).map(ciclo=>{const fonte=(origem.ciclos||[]).find(x=>String(x?.id)===String(ciclo?.id))||ciclo,peso=pesoReferenciaMigracaoV99(fonte,pesoPadrao);return {...ciclo,metasComposicao:migrarMetasComposicaoV99(fonte?.metasComposicao||ciclo?.metasComposicao,peso)};});
+    const cicloAtivo=(dados.ciclos||[]).find(c=>String(c.id)===String(dados.config.cicloAtivoId));
+    dados.config.metasComposicao=cicloAtivo?migrarMetasComposicaoV99(cicloAtivo.metasComposicao,pesoReferenciaMigracaoV99(cicloAtivo,pesoPadrao)):metasPadrao;
+    const fontesPeso=new Map((origem.pesos||[]).filter(x=>x?.id).map(x=>[String(x.id),x]));
+    dados.pesos=(dados.pesos||[]).map(registro=>{const fonte=fontesPeso.get(String(registro.id))||registro,peso=pesoReferenciaMigracaoV99(fonte,pesoPadrao),referencias=fonte?.referenciasCicloV58&&typeof fonte.referenciasCicloV58==='object'?{...fonte.referenciasCicloV58,metasComposicao:migrarMetasComposicaoV99(fonte.referenciasCicloV58.metasComposicao,peso)}:registro.referenciasCicloV58;return {...registro,metasComposicaoUsadas:migrarMetasComposicaoV99(fonte?.metasComposicaoUsadas||registro?.metasComposicaoUsadas,peso),...(referencias?{referenciasCicloV58:referencias}:{})};});
+    dados.schemaVersion=Math.max(Number(dados.schemaVersion)||0,PL_SCHEMA_VERSION_V99);if(versaoOrigem<PL_SCHEMA_VERSION_V99)migracaoPendenteV99=true;return dados;
+};
+window.addEventListener('load',()=>setTimeout(()=>{if(!migracaoPendenteV99)return;migracaoPendenteV99=false;try{salvarDados(true,true);}catch(erro){console.warn('A migração será salva na próxima alteração.',erro);}},1200));
 instalarCamposExtrasCorpoV97();window.addEventListener('load',()=>setTimeout(instalarCamposExtrasCorpoV97,800));
 
 const propostaTextoLivreAntesV97=propostaTextoLivreV61;

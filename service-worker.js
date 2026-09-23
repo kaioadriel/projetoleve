@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v98-padrao-balanca';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v98-padrao-balanca';
+const CACHE_VERSION = 'projeto-leve-v99-migracao-backup';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v99-migracao-backup';
 const APP_SHELL = [
   './',
   './index.html',
