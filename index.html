@@ -266,9 +266,21 @@
         .medicine-col-date { width: 19%; }
         .medicine-col-name { width: 21%; }
         .medicine-col-dose { width: 11%; text-align: right; }
-        .medicine-col-weight { width: 14%; text-align: right; }
+        .medicine-col-weight { width: 20%; text-align: right; }
         .medicine-col-photo { width: 13%; text-align: center; }
-        .medicine-col-actions { width: 22%; text-align: center; }
+        .medicine-col-actions { width: 19%; text-align: center; }
+        .medicine-weight-value-v97 { font-weight: 800; }
+        .medicine-weight-change-v97 {
+            margin-top: 3px;
+            font-size: 9px;
+            line-height: 1.2;
+            font-weight: 800;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+        .medicine-weight-change-v97.positive { color: var(--success); }
+        .medicine-weight-change-v97.negative { color: var(--danger); }
+        .medicine-weight-change-v97.neutral { color: var(--text-secondary); }
         .medicine-history-table .actions-cell {
             display: table-cell;
             overflow: visible;
@@ -1460,7 +1472,7 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
 /* V69: somente acabamento dos novos dados pessoais. */
 #perfil-bio{min-height:96px;resize:vertical;}
 </style>
-<meta name="application-version" content="68.0-Painel">
+<meta name="application-version" content="97.0-Remedios">
 
 
 <!-- V72 — calendário compacto + filtros de gráficos persistentes -->
@@ -1900,6 +1912,10 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                             <label>Peso (kg)</label>
                             <input type="number" min="0" step="0.1" id="remedio-peso" required>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="remedio-observacoes">Observações</label>
+                        <textarea id="remedio-observacoes" rows="3" maxlength="20000" placeholder="Sintomas, efeitos ou outras informações"></textarea>
                     </div>
                     <div id="cadastro-rapido-remedio-v67" class="medicine-quick-box-v67 hidden">
                         <div class="medicine-quick-title-v67">Cadastro rápido</div>
@@ -4210,6 +4226,47 @@ function renderResumoRemedioAtual() {
     `;
 }
 
+function chaveRemedioHistoricoV97(nome) {
+    return String(nome || 'Remédio').trim().toLocaleLowerCase('pt-BR').replace(/\s+/g, ' ');
+}
+
+function ordenarRemediosHistoricoV97(registros) {
+    return [...(registros || [])].sort((a, b) => {
+        const porData = String(a?.data || '').localeCompare(String(b?.data || ''));
+        return porData || (Number(a?.ordemCadastro) || 0) - (Number(b?.ordemCadastro) || 0);
+    });
+}
+
+function variacaoPesoEntreDosesV97(item, registros) {
+    const chave = chaveRemedioHistoricoV97(item?.nome);
+    const ordenados = ordenarRemediosHistoricoV97(registros)
+        .filter(registro => chaveRemedioHistoricoV97(registro?.nome) === chave);
+    const indice = ordenados.findIndex(registro => String(registro?.id) === String(item?.id));
+    const anterior = indice > 0 ? ordenados[indice - 1] : null;
+    const pesoAtual = numeroValido(item?.peso);
+    const pesoAnterior = numeroValido(anterior?.peso);
+
+    if (pesoAtual === null || pesoAtual <= 0) {
+        return { texto: 'Peso não informado', classe: 'neutral', titulo: 'Este lançamento não tem peso válido.' };
+    }
+    if (!anterior) {
+        return { texto: 'Primeira dose', classe: 'neutral', titulo: 'Não existe uma dose anterior deste remédio para comparação.' };
+    }
+    if (pesoAnterior === null || pesoAnterior <= 0) {
+        return { texto: 'Sem peso anterior', classe: 'neutral', titulo: 'A dose anterior deste remédio não tem peso válido.' };
+    }
+
+    const diferenca = pesoAtual - pesoAnterior;
+    if (Math.abs(diferenca) < 0.005) {
+        return { texto: 'Sem alteração', classe: 'neutral', titulo: 'Peso igual ao da dose anterior.' };
+    }
+    const quantidade = formatBR(Math.abs(diferenca)) + ' kg';
+    if (diferenca < 0) {
+        return { texto: '− ' + quantidade + ' perdidos', classe: 'positive', titulo: 'Peso perdido desde a dose anterior: ' + quantidade + '.' };
+    }
+    return { texto: '+ ' + quantidade + ' ganhos', classe: 'negative', titulo: 'Peso ganho desde a dose anterior: ' + quantidade + '.' };
+}
+
 function renderRemedios() {
     const datalist = document.getElementById('lista-nomes-remedios');
     if (datalist) {
@@ -4227,13 +4284,14 @@ function renderRemedios() {
     });
 
     if (!remedios.length) {
-        lista.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-secondary);">Nenhum remédio lançado ainda.</td></tr>';
+        lista.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-secondary);">Nenhum remédio lançado ainda.</td></tr>';
         return;
     }
 
     lista.innerHTML = remedios.map(item => {
         const temFoto = temFotoRemedio(item);
         const quantidadeFotos = obterFotosRegistro(item).length;
+        const variacaoPeso = variacaoPesoEntreDosesV97(item, appData.remedios || []);
         const foto = temFoto
             ? `<button type="button" class="photo-history-icon" title="Abrir ${quantidadeFotos} foto(s) local(is)" aria-label="Abrir ${quantidadeFotos} foto(s) local(is)" onclick="abrirCarrosselFotos('${item.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg>${quantidadeFotos > 1 ? `<span class="photo-count-badge">${quantidadeFotos}</span>` : ''}</button>`
             : '<span aria-label="Sem foto">—</span>';
@@ -4242,7 +4300,7 @@ function renderRemedios() {
                 <td class="medicine-col-date" title="${formatDateBR(item.data)}">${formatDateCurtaBR(item.data)}</td>
                 <td class="medicine-col-name" title="${escapeHtml(item.nome || '')}">${escapeHtml(item.nome || '')}</td>
                 <td class="medicine-col-dose" title="${formatBR(item.mg)} mg">${formatBR(item.mg)}</td>
-                <td class="medicine-col-weight" title="${formatBR(item.peso)} kg">${formatBR(item.peso)}</td>
+                <td class="medicine-col-weight" title="${formatBR(item.peso)} kg"><div class="medicine-weight-value-v97">${formatBR(item.peso)} kg</div><div class="medicine-weight-change-v97 ${variacaoPeso.classe}" title="${escapeHtml(variacaoPeso.titulo)}">${escapeHtml(variacaoPeso.texto)}</div></td>
                 <td class="medicine-col-photo">${foto}</td>
                 <td class="medicine-col-actions actions-cell">
                     <div class="medicine-action-buttons">
@@ -4915,6 +4973,7 @@ function editarRemedio(id) {
     document.getElementById('remedio-nome').value = item.nome || '';
     document.getElementById('remedio-mg').value = Number.isFinite(Number(item.mg)) ? item.mg : '';
     document.getElementById('remedio-peso').value = Number.isFinite(Number(item.peso)) ? item.peso : '';
+    document.getElementById('remedio-observacoes').value = item.observacoes || '';
     const fotoNome = document.getElementById('remedio-foto-nome');
     const quantidadeFotos = obterFotosRegistro(item).length;
     if (fotoNome) fotoNome.innerText = quantidadeFotos
@@ -5414,6 +5473,7 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
     const nome = document.getElementById('remedio-nome')?.value.trim() || '';
     const mg = numeroValido(document.getElementById('remedio-mg')?.value);
     const peso = numeroValido(document.getElementById('remedio-peso')?.value);
+    const observacoes = document.getElementById('remedio-observacoes')?.value || '';
     const arquivosFoto = Array.from(inputFotoRemedio?.files || []);
 
     if (!dataISOValida(data) || !nome || !Number.isFinite(mg) || mg <= 0 || !Number.isFinite(peso) || peso <= 0) {
@@ -5446,6 +5506,7 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
             nome,
             mg,
             peso,
+            observacoes,
             ordemCadastro: registroAnterior?.ordemCadastro || Math.max(0, ...(appData.remedios || []).map(item => Number(item.ordemCadastro) || 0)) + 1,
             fotos: [...fotosAnteriores, ...(fotoPreparada?.fotos || [])]
         };
@@ -14018,7 +14079,7 @@ function camposMedidaAuditoriaV47(r) {
     for (const k of ['pescoco','peito','cintura','quadril','coxa','panturrilha','braco']) c[k] = valorNumericoAuditV47(r?.[k]);
     return c;
 }
-function camposRemedioAuditoriaV47(r) { return { data:r?.data||'', nome:textoSeguro(r?.nome||'',300), mg:valorNumericoAuditV47(r?.mg), peso:valorNumericoAuditV47(r?.peso), fotosResumo:resumoFotosAuditoriaV47(r) }; }
+function camposRemedioAuditoriaV47(r) { return { data:r?.data||'', nome:textoSeguro(r?.nome||'',300), mg:valorNumericoAuditV47(r?.mg), peso:valorNumericoAuditV47(r?.peso), observacoes:textoSeguro(r?.observacoes || ''), fotosResumo:resumoFotosAuditoriaV47(r) }; }
 function camposCaloriaAuditoriaV47(r) { return { data:r?.data||'', metaCaloriasUsada:valorNumericoAuditV47(metaCaloriasUsadaV21(r || {})) }; }
 function camposRefeicaoAuditoriaV47(r, dia) { return { data:dia?.data||'', tipo:textoSeguro(r?.tipo||'',300), calorias:valorNumericoAuditV47(r?.calorias), observacoes:textoSeguro(r?.observacoes||'') }; }
 function camposGastoAuditoriaV47(r, dia) { return { data:dia?.data||'', descricao:textoSeguro(r?.descricao||'',300), calorias:valorNumericoAuditV47(r?.calorias), observacoes:textoSeguro(r?.observacoes||'') }; }
@@ -23662,286 +23723,41 @@ propostaTextoLivreV61=function(texto,file){
 };
 window.propostaTextoLivreV61=propostaTextoLivreV61;
 
-/* V97 — relatório detalhado de balança: inclui todos os indicadores do
-   relatório e cria os campos de massa muscular e massa óssea percentuais. */
-const PL_SCHEMA_VERSION_V97=97;
-const PL_CAMPOS_EXTRAS_CORPO_V97=[
-    ['massaMuscular','Massa muscular','kg'],['massaMuscularPercentual','Massa muscular','%'],['massaOsseaPercentual','Massa óssea','%']
-];
-for(const campo of PL_CAMPOS_EXTRAS_CORPO_V97){if(!PL_CAMPOS_COMPOSICAO_V93.some(([chave])=>chave===campo[0]))PL_CAMPOS_COMPOSICAO_V93.push(campo);}
-for(const campo of PL_CAMPOS_EXTRAS_CORPO_V97){if(!PL_COMPARADOR_CORPO_V41.some(item=>item.key===campo[0]))PL_COMPARADOR_CORPO_V41.push({label:campo[1],key:campo[0],unit:campo[2],diffUnit:campo[2]==='%'?' p.p.':undefined});}
-
-function valoresNoBlocoRelatorioV97(bloco,unidade=''){
-    const escape=unidade.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-    const fimUnidade=unidade==='%'?'':'\\b';
-    const rx=unidade?new RegExp('(-?\\d{1,4}(?:[.,]\\d{1,3})?)\\s*'+escape+fimUnidade,'gi'):/-?\d{1,4}(?:[.,]\d{1,3})?/g;
-    const valores=[];let m;while((m=rx.exec(bloco))){const n=numeroTextoV61(m[1]??m[0]);if(n!==null)valores.push(n);}return valores;
-}
-function valorCardRelatorioV97(texto,aliases,unidade='',indice=0){
-    const linhas=linhasTextoV61(texto),nomes=aliases.map(chaveImportV60);
-    for(let i=0;i<linhas.length;i++){
-        const cabecalho=linhas.slice(i,Math.min(linhas.length,i+2)).join(' '),normal=chaveImportV60(linhas[i]);
-        if(!nomes.some(nome=>normal.includes(nome)))continue;
-        const bloco=linhas.slice(i,Math.min(linhas.length,i+3)).join(' ');
-        const valores=valoresNoBlocoRelatorioV97(bloco,unidade);if(valores.length)return valores[Math.min(indice,valores.length-1)];
-    }
-    const e=extrairRotuloV61(texto,aliases,unidade?[unidade]:[]);return e?.valor??null;
-}
-function instalarCamposExtrasCorpoV97(){
-    const grade=document.querySelector('#form-peso .grid-2');if(!grade||document.getElementById('peso-massa-muscular'))return;
-    const defs=[['peso-massa-muscular','Massa muscular (kg)','Ex: 54,30'],['peso-massa-muscular-percentual','Massa muscular (%)','Ex: 65,90'],['peso-massa-ossea-percentual','Massa óssea (%)','Ex: 3,50']];
-    for(const [id,rotulo,placeholder] of defs){const grupo=document.createElement('div');grupo.className='form-group';grupo.innerHTML='<label>'+rotulo+'</label><input type="text" inputmode="decimal" id="'+id+'" placeholder="'+placeholder+'">';grade.appendChild(grupo);const input=grupo.querySelector('input');input.addEventListener('blur',()=>{const n=numeroValido(input.value);if(n!==null)input.value=formatBR(n);});}
-}
-function atualizarCamposExtrasNoRegistroV97(registro){
-    if(!registro)return;const mapa={massaMuscular:'peso-massa-muscular',massaMuscularPercentual:'peso-massa-muscular-percentual',massaOsseaPercentual:'peso-massa-ossea-percentual'};
-    for(const [campo,id] of Object.entries(mapa)){const el=document.getElementById(id);if(el)el.value=numeroValido(registro[campo])===null?'':formatBR(registro[campo]);}
-}
-const editarPesoAntesV97=editarPeso;
-editarPeso=function(id){const retorno=editarPesoAntesV97(id);atualizarCamposExtrasNoRegistroV97((appData.pesos||[]).find(item=>String(item.id)===String(id)));return retorno;};
-window.editarPeso=editarPeso;
-const limparComposicaoAntesV97=limparComposicaoForm;
-limparComposicaoForm=function(){limparComposicaoAntesV97();for(const id of ['peso-massa-muscular','peso-massa-muscular-percentual','peso-massa-ossea-percentual']){const el=document.getElementById(id);if(el)el.value='';}};
-const formPesoAntesV97=document.getElementById('form-peso').onsubmit;
-document.getElementById('form-peso').onsubmit=async function(evento){
-    const data=document.getElementById('peso-data')?.value||'',extras={massaMuscular:numeroValido(document.getElementById('peso-massa-muscular')?.value),massaMuscularPercentual:numeroValido(document.getElementById('peso-massa-muscular-percentual')?.value),massaOsseaPercentual:numeroValido(document.getElementById('peso-massa-ossea-percentual')?.value)},antes=JSON.stringify(appData.pesos||[]);
-    await formPesoAntesV97.call(this,evento);if(JSON.stringify(appData.pesos||[])===antes)return;
-    const registro=(appData.pesos||[]).find(item=>item.data===data);if(!registro)return;let alterou=false;
-    for(const [campo,valor] of Object.entries(extras)){if(valor!==null&&valor>=0&&registro[campo]!==valor){registro[campo]=valor;alterou=true;}}
-    if(alterou)salvarDados(true,true);
+/* V97 — histórico de peso entre doses e observações dos lançamentos. */
+const PL_SCHEMA_VERSION_V97 = 97;
+const normalizarDadosAntesV97 = normalizarDados;
+normalizarDados = function(raw) {
+    const dados = normalizarDadosAntesV97(raw);
+    dados.remedios = (dados.remedios || []).map(registro => ({
+        ...registro,
+        observacoes: textoSeguro(registro?.observacoes || '')
+    }));
+    dados.schemaVersion = Math.max(Number(dados.schemaVersion) || 0, PL_SCHEMA_VERSION_V97);
+    return dados;
 };
 
-/* Comparador, detalhes e ciclos passam a usar a mesma lista de 13 indicadores. */
-PL_COMPARADOR_CORPO_V41.splice(0,PL_COMPARADOR_CORPO_V41.length,{label:'Peso',key:'peso',unit:' kg',type:'peso'},...PL_COMPOSICAO_PADRAO_V98.map(def=>({label:def.label,key:def.key,unit:def.unit?' '+def.unit:'',diffUnit:def.percent?' p.p.':undefined,range:def.key,integer:!!def.integer})));
-const visualizarRegistroAntesV98=visualizarRegistro;
-visualizarRegistro=function(tipo,id){
-    if(tipo!=='peso')return visualizarRegistroAntesV98(tipo,id);
-    const item=(appData.pesos||[]).find(x=>String(x.id)===String(id));if(!item)return alert('Registro não encontrado.');
-    registroVisualizado={tipo,id:item.id};const anterior=[...(appData.pesos||[])].filter(x=>x.data<item.data).sort((a,b)=>b.data.localeCompare(a.data))[0],blocos=[valorDetalhe('Data',formatDateBR(item.data)),valorDetalhe('Peso',formatBR(item.peso)+' kg')],metas=metasRegistroV98(item);
-    for(const def of PL_COMPOSICAO_PADRAO_V98){const valor=numeroValido(item[def.key]),antes=numeroValido(anterior?.[def.key]),status=estadoFaixaV98(def,valor,metas),comparacao=valor===null||antes===null?'Sem comparação':formatBR(valor-antes)+(def.percent?' p.p.':def.unit?' '+def.unit:'')+' vs. anterior';blocos.push(`<div class="detail-field"><div class="label">${def.label}</div><div class="detail-value ${status.classe==='good'?'good':status.classe==='bad'?'bad':''}">${formatarLeituraCorpoV98(def,valor)}</div><div class="small">${comparacao}<br>${status.texto}</div></div>`);}
-    const fotos=obterFotosRegistro(item);blocos.push(valorDetalhe('Fotos',fotos.length));abrirModalDetalhes('Registro de Peso','<div class="detail-grid">'+blocos.join('')+'<div class="detail-field wide"><div class="label">Observações</div><div class="detail-value">'+escapeHtml(item.observacoes||'--')+'</div></div></div>');
-};window.visualizarRegistro=visualizarRegistro;
-
-calcularMetasComposicaoCicloV78=function(){const perfil=dadosPerfilCalculoV78({sexoObrigatorio:true});if(!perfil)return;const peso=numeroValido(document.getElementById('ciclo-peso-meta-v48')?.value)||numeroValido(document.getElementById('ciclo-peso-inicial-v48')?.value)||pesoMaisRecenteV78();if(!peso||peso<=0)return alert('Informe o peso-meta ou o peso inicial do ciclo.');const faixas=faixaIdealV98(perfil.sexo,perfil.idade,perfil.altura,peso);for(const def of PL_COMPOSICAO_PADRAO_V98){const faixa=faixas[def.key],cfg=camposComposicaoCicloV98()[def.key];if(!faixa||!cfg)continue;escreverNumeroCampoV78(cfg.minId,faixa[0],def.integer?0:2);escreverNumeroCampoV78(cfg.maxId,faixa[1],def.integer?0:2);}preencherInfoV78('calculo-composicao-ciclo-info-v78','Metas calculadas pelo perfil, altura e peso-meta do ciclo. Revise antes de salvar.');};window.calcularMetasComposicaoCicloV78=calcularMetasComposicaoCicloV78;
-
-/* Quando a data clara do topo não sair na primeira leitura, relê somente o cabeçalho ampliado. */
-const ocrImagemAntesV98=ocrImagemV61;
-async function lerCabecalhoBalancaV98(file,onProgress){
-    const url=URL.createObjectURL(file);try{const img=await new Promise((ok,erro)=>{const x=new Image();x.onload=()=>ok(x);x.onerror=erro;x.src=url;});const tela=document.createElement('canvas');tela.width=img.naturalWidth*4;tela.height=Math.round(img.naturalHeight*.12*4);const ctx=tela.getContext('2d');ctx.drawImage(img,0,img.naturalHeight*.045,img.naturalWidth,img.naturalHeight*.12,0,0,tela.width,tela.height);const blob=await new Promise(ok=>tela.toBlob(ok,'image/png'));const T=await obterTesseractV61();const resultado=await T.recognize(blob,'por+eng',{logger:onProgress||(()=>{})});return resultado?.data?.text||'';}catch{return '';}finally{URL.revokeObjectURL(url);}}
-ocrImagemV61=async function(file,onProgress){const texto=await ocrImagemAntesV98(file,onProgress);if(/\b(?:19|20)\d{2}\s*[\/.\-]\s*\d{1,2}\s*[\/.\-]\s*\d{1,2}\b/.test(texto)||!/relat.{0,5}rio/i.test(texto))return texto;const topo=await lerCabecalhoBalancaV98(file,onProgress);return topo?topo+'\n'+texto:texto;};
-
-/* V99 — migração completa de backups anteriores ao padrão de balança V98.
-   Um backup pode conter as mesmas metas em configuração, ciclos e registros
-   congelados; todos os três pontos precisam ser convertidos juntos. */
-const PL_SCHEMA_VERSION_V99=99;
-let migracaoPendenteV99=false;
-function pesoReferenciaMigracaoV99(origem={},alternativo=null){
-    for(const valor of [origem?.pesoMeta,origem?.pesoInicial,alternativo]){const n=numeroValido(valor);if(n!==null&&n>0)return n;}
-    return null;
-}
-function migrarMetasComposicaoV99(origem={},pesoReferencia=null){
-    const fonte=origem&&typeof origem==='object'?origem:{},saida=metasComposicaoV98(fonte),peso=pesoReferenciaMigracaoV99(fonte,pesoReferencia);
-    const copiar=(destino,...fontes)=>{if(numeroValido(saida[destino])!==null)return;for(const chave of fontes){const v=numeroValido(fonte[chave]);if(v!==null){saida[destino]=v;return;}}};
-    /* Campos que já existiam mantêm a faixa registrada no backup. */
-    copiar('imcMin','imcMin');copiar('imcMax','imcMax');copiar('gorduraMin','gorduraMin');copiar('gorduraMax','gorduraMax');copiar('aguaMin','aguaMin');copiar('aguaMax','aguaMax');copiar('tmbMin','tmbMin');copiar('tmbMax','tmbMax');copiar('visceralMin','visceralMin');copiar('visceralMax','visceralMax');copiar('massaMagraMin','massaMagraMin');copiar('massaMagraMax','massaMagraMax');copiar('massaGordaMin','massaGordaMin');copiar('massaGordaMax','massaGordaMax');copiar('massaOsseaMin','massaOsseaMin');copiar('massaOsseaMax','massaOsseaMax');copiar('idadeCorporalMin','idadeCorporalMin');copiar('idadeCorporalMax','idadeCorporalMax');copiar('proteinaMin','proteinaMin');copiar('proteinaMax','proteinaMax');
-    /* “Músculo esquelético” das versões antigas era a faixa em kg. */
-    copiar('massaMuscularMin','massaMuscularMin','musculoMin');copiar('massaMuscularMax','massaMuscularMax','musculoMax');
-    copiar('massaMuscularPercentualMin','massaMuscularPercentualMin');copiar('massaMuscularPercentualMax','massaMuscularPercentualMax');copiar('massaOsseaPercentualMin','massaOsseaPercentualMin');copiar('massaOsseaPercentualMax','massaOsseaPercentualMax');
-    if(peso){
-        if(numeroValido(saida.massaMuscularPercentualMin)===null&&numeroValido(saida.massaMuscularMin)!==null)saida.massaMuscularPercentualMin=numeroValido(saida.massaMuscularMin)/peso*100;
-        if(numeroValido(saida.massaMuscularPercentualMax)===null&&numeroValido(saida.massaMuscularMax)!==null)saida.massaMuscularPercentualMax=numeroValido(saida.massaMuscularMax)/peso*100;
-        if(numeroValido(saida.massaOsseaPercentualMin)===null&&numeroValido(saida.massaOsseaMin)!==null)saida.massaOsseaPercentualMin=numeroValido(saida.massaOsseaMin)/peso*100;
-        if(numeroValido(saida.massaOsseaPercentualMax)===null&&numeroValido(saida.massaOsseaMax)!==null)saida.massaOsseaPercentualMax=numeroValido(saida.massaOsseaMax)/peso*100;
-    }
-    return metasComposicaoV98(saida);
-}
-const normalizarDadosAntesV99=normalizarDados;
-normalizarDados=function(raw){
-    const origem=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{},versaoOrigem=Number(origem.schemaVersion)||0,dados=normalizarDadosAntesV99(origem),cfgFonte=origem.config||{},padraoFonte=cfgFonte.metasPadrao||cfgFonte,pesoPadrao=pesoReferenciaMigracaoV99(padraoFonte,cfgFonte.pesoMeta);
-    dados.config=dados.config||{};
-    const metasPadrao=migrarMetasComposicaoV99(padraoFonte,pesoPadrao);
-    dados.config.metasPadrao={...(dados.config.metasPadrao||{}),metasComposicao:metasPadrao};
-    dados.ciclos=(dados.ciclos||[]).map(ciclo=>{const fonte=(origem.ciclos||[]).find(x=>String(x?.id)===String(ciclo?.id))||ciclo,peso=pesoReferenciaMigracaoV99(fonte,pesoPadrao);return {...ciclo,metasComposicao:migrarMetasComposicaoV99(fonte?.metasComposicao||ciclo?.metasComposicao,peso)};});
-    const cicloAtivo=(dados.ciclos||[]).find(c=>String(c.id)===String(dados.config.cicloAtivoId));
-    dados.config.metasComposicao=cicloAtivo?migrarMetasComposicaoV99(cicloAtivo.metasComposicao,pesoReferenciaMigracaoV99(cicloAtivo,pesoPadrao)):metasPadrao;
-    const fontesPeso=new Map((origem.pesos||[]).filter(x=>x?.id).map(x=>[String(x.id),x]));
-    dados.pesos=(dados.pesos||[]).map(registro=>{const fonte=fontesPeso.get(String(registro.id))||registro,peso=pesoReferenciaMigracaoV99(fonte,pesoPadrao),referencias=fonte?.referenciasCicloV58&&typeof fonte.referenciasCicloV58==='object'?{...fonte.referenciasCicloV58,metasComposicao:migrarMetasComposicaoV99(fonte.referenciasCicloV58.metasComposicao,peso)}:registro.referenciasCicloV58;return {...registro,metasComposicaoUsadas:migrarMetasComposicaoV99(fonte?.metasComposicaoUsadas||registro?.metasComposicaoUsadas,peso),...(referencias?{referenciasCicloV58:referencias}:{})};});
-    dados.schemaVersion=Math.max(Number(dados.schemaVersion)||0,PL_SCHEMA_VERSION_V99);if(versaoOrigem<PL_SCHEMA_VERSION_V99)migracaoPendenteV99=true;return dados;
+const visualizarRegistroAntesV97 = visualizarRegistro;
+visualizarRegistro = function(tipo, id) {
+    if (tipo !== 'remedio') return visualizarRegistroAntesV97(tipo, id);
+    const registro = (appData.remedios || []).find(item => String(item.id) === String(id));
+    if (!registro) return alert('Registro não encontrado.');
+    const variacao = variacaoPesoEntreDosesV97(registro, appData.remedios || []);
+    registroVisualizado = { tipo, id: registro.id };
+    const observacoes = registro.observacoes
+        ? '<div class="detail-field wide"><div class="label">Observações</div><div class="detail-value">' + escapeHtml(registro.observacoes) + '</div></div>'
+        : '';
+    return abrirModalDetalhes(
+        'Lançamento de Remédio',
+        '<div class="detail-grid">' +
+            valorDetalhe('Data', formatDateBR(registro.data)) +
+            valorDetalhe('Remédio', escapeHtml(registro.nome)) +
+            valorDetalhe('Dose', formatBR(registro.mg) + ' mg') +
+            valorDetalhe('Peso', formatBR(registro.peso) + ' kg') +
+            valorDetalhe('Variação de peso', escapeHtml(variacao.texto), variacao.classe) +
+        '</div>' + observacoes
+    );
 };
-window.addEventListener('load',()=>setTimeout(()=>{if(!migracaoPendenteV99)return;migracaoPendenteV99=false;try{salvarDados(true,true);}catch(erro){console.warn('A migração será salva na próxima alteração.',erro);}},1200));
-instalarCamposExtrasCorpoV97();window.addEventListener('load',()=>setTimeout(instalarCamposExtrasCorpoV97,800));
-
-const propostaTextoLivreAntesV97=propostaTextoLivreV61;
-propostaTextoLivreV61=function(texto,file){
-    const proposta=propostaTextoLivreAntesV97(texto,file),t=String(texto||'');
-    if(!textoTemV61(t,['relatorios detalhados','relatórios detalhados','gordura visceral','massa de gordura corporal']))return proposta;
-    const data=extrairDataTextoV61(t,file);
-    const defs=[
-        ['peso',['peso','weight'],'kg',0],['imc',['imc','bmi'],'',1],
-        ['gorduraCorporalPercentual',['gordura corporal','body fat'],'%',0],['aguaCorporal',['agua','água','body water'],'%',1],
-        ['massaMuscularPercentual',['massa muscular','muscle mass'],'%',0],['massaOsseaPercentual',['massa ossea','massa óssea','bone mass'],'%',1],
-        ['tmb',['tmb','taxa metabolica basal','taxa metabólica basal','bmr'],'kcal',0],['gorduraVisceral',['gordura visceral','visceral fat'],'',1],
-        ['massaMagra',['massa magra','lean mass'],'kg',0],['massaGorda',['massa de gordura corporal','massa gordura corporal','massa gorda','body fat mass'],'kg',1],
-        ['massaOssea',['massa ossea','massa óssea','bone mass'],'kg',0],['massaMuscular',['massa muscular','muscle mass'],'kg',1],
-        ['idadeCorporal',['idade do corpo','idade corporal','body age'],'',0],['proteinaPercentual',['proteina','proteína','protein'],'%',1]
-    ];
-    const dados={tipo:'peso',data,observacoes:'Importado de '+(file?.name||'imagem'),_fonte:file?.name||'',_confianca:'OCR'};
-    for(const [campo,aliases,unidade,indice] of defs){const valor=valorCardRelatorioV97(t,aliases,unidade,indice);if(valor!==null&&valor>=0)dados[campo]=valor;}
-    if(nImportV60(dados.peso)===null||dados.peso<=0)return proposta;
-    const peso={...dados};for(const [campo] of PL_CAMPOS_COMPOSICAO_V93)delete peso[campo];
-    const itens=[peso];for(const [campo,nome,unidade] of PL_CAMPOS_COMPOSICAO_V93){const valor=nImportV60(dados[campo]);if(valor!==null&&valor>=0)itens.push({tipo:'composicao',data,campo,nome,unidade,valor,peso:dados.peso,_fonte:dados._fonte,_confianca:'OCR'});}proposta.itens=itens;
-    return proposta;
-};
-window.propostaTextoLivreV61=propostaTextoLivreV61;
-
-const normalizarDadosAntesV97=normalizarDados;
-normalizarDados=function(raw){
-    const dados=normalizarDadosAntesV97(raw);dados.schemaVersion=Math.max(Number(dados.schemaVersion)||0,PL_SCHEMA_VERSION_V97);
-    dados.pesos=(dados.pesos||[]).map((peso,indice)=>{const origem=raw?.pesos?.[indice]||peso,saida={...peso};for(const [campo] of PL_CAMPOS_EXTRAS_CORPO_V97){const valor=numeroValido(origem?.[campo]);if(valor!==null&&valor>=0)saida[campo]=valor;}return saida;});return dados;
-};
-
-/* V98 — padrão único de composição corporal do relatório detalhado da balança.
-   Os indicadores são mantidos em todos os pontos do app (registro, metas e ciclos). */
-const PL_SCHEMA_VERSION_V98=98;
-const PL_COMPOSICAO_PADRAO_V98=[
-    {key:'imc',label:'IMC',unit:'',min:'imcMin',max:'imcMax'},
-    {key:'gorduraCorporalPercentual',label:'Gordura corporal',unit:'%',min:'gorduraMin',max:'gorduraMax',percent:true},
-    {key:'aguaCorporal',label:'Água corporal',unit:'%',min:'aguaMin',max:'aguaMax',percent:true},
-    {key:'massaMuscularPercentual',label:'Massa muscular',unit:'%',min:'massaMuscularPercentualMin',max:'massaMuscularPercentualMax',percent:true},
-    {key:'massaOsseaPercentual',label:'Massa óssea',unit:'%',min:'massaOsseaPercentualMin',max:'massaOsseaPercentualMax',percent:true},
-    {key:'tmb',label:'TMB',unit:'kcal',min:'tmbMin',max:'tmbMax',integer:true},
-    {key:'gorduraVisceral',label:'Gordura visceral',unit:'',min:'visceralMin',max:'visceralMax'},
-    {key:'massaMagra',label:'Massa magra',unit:'kg',min:'massaMagraMin',max:'massaMagraMax'},
-    {key:'massaGorda',label:'Massa de gordura corporal',unit:'kg',min:'massaGordaMin',max:'massaGordaMax'},
-    {key:'massaOssea',label:'Massa óssea',unit:'kg',min:'massaOsseaMin',max:'massaOsseaMax'},
-    {key:'massaMuscular',label:'Massa muscular',unit:'kg',min:'massaMuscularMin',max:'massaMuscularMax'},
-    {key:'idadeCorporal',label:'Idade do corpo',unit:'anos',min:'idadeCorporalMin',max:'idadeCorporalMax',integer:true},
-    {key:'proteinaPercentual',label:'Proteína',unit:'%',min:'proteinaMin',max:'proteinaMax',percent:true}
-];
-const PL_CAMPOS_COMPOSICAO_V98=Object.fromEntries(PL_COMPOSICAO_PADRAO_V98.map(def=>[def.key,def]));
-
-function camposComposicaoCicloV98(){
-    return Object.fromEntries(PL_COMPOSICAO_PADRAO_V98.map(def=>[def.key,{min:def.min,max:def.max,minId:'cfg-meta-'+def.key+'-min-v98',maxId:'cfg-meta-'+def.key+'-max-v98',unidade:def.unit?' '+def.unit:'',inteiro:!!def.integer}]));
-}
-camposComposicaoCicloV51=camposComposicaoCicloV98;
-
-function formatarLeituraCorpoV98(def,valor){
-    const n=numeroValido(valor);if(n===null)return '--';
-    return (def.integer?String(Math.round(n)):formatBR(n))+(def.unit?' '+def.unit:'');
-}
-function valorCampoV98(id){return numeroValido(document.getElementById(id)?.value);}
-function montarCamposCorpoV98(){
-    return PL_COMPOSICAO_PADRAO_V98.map(def=>`<div class="form-group"><label>${def.label}${def.unit?' ('+def.unit+')':''}</label><input type="text" inputmode="decimal" id="peso-${def.key}-v98" placeholder="Ex: ${def.integer?'30':'30,50'}"></div>`).join('');
-}
-function montarMetasCorpoV98(){
-    return PL_COMPOSICAO_PADRAO_V98.map(def=>`<div class="composition-range-group"><div class="composition-range-title">${def.label}${def.unit?' ('+def.unit+')':''}</div><div class="grid-2"><div class="form-group"><label>Mínimo</label><input type="text" inputmode="decimal" id="cfg-meta-${def.key}-min-v98"></div><div class="form-group"><label>Máximo</label><input type="text" inputmode="decimal" id="cfg-meta-${def.key}-max-v98"></div></div></div>`).join('');
-}
-function instalarPadraoComposicaoV98(){
-    const titulo=[...document.querySelectorAll('#form-peso .form-section-title')].find(el=>/composi/i.test(el.textContent||''));
-    const grade=titulo?.nextElementSibling;
-    if(grade?.classList?.contains('grid-2')){grade.id='peso-composicao-v98';grade.innerHTML=montarCamposCorpoV98();}
-    const caixa=document.querySelector('#btn-calcular-metas-composicao-v29')?.previousElementSibling;
-    if(caixa?.classList?.contains('composition-range-settings')){caixa.id='metas-composicao-v98';caixa.innerHTML=montarMetasCorpoV98();}
-}
-instalarPadraoComposicaoV98();window.addEventListener('load',instalarPadraoComposicaoV98);
-
-function metasComposicaoV98(origem){
-    const fonte=origem||appData.config?.metasComposicao||{};const saida={};
-    for(const def of PL_COMPOSICAO_PADRAO_V98){saida[def.min]=numeroOuVazio(fonte[def.min]);saida[def.max]=numeroOuVazio(fonte[def.max]);}
-    return saida;
-}
-metasComposicaoV25=metasComposicaoV98;metasComposicaoV23=metasComposicaoV98;
-metasDoRegistroV23=registro=>metasComposicaoV98(registro?.metasComposicaoUsadas);
-validarFaixasComposicaoV25=function(metas){for(const def of PL_COMPOSICAO_PADRAO_V98){const a=numeroValido(metas?.[def.min]),b=numeroValido(metas?.[def.max]);if(a!==null&&b!==null&&a>b)throw new Error('Na faixa de '+def.label+', o mínimo não pode ser maior que o máximo.');}};
-lerMetasComposicaoCamposV25=function(){const metas={};for(const def of PL_COMPOSICAO_PADRAO_V98){metas[def.min]=numeroOuVazio(document.getElementById('cfg-meta-'+def.key+'-min-v98')?.value);metas[def.max]=numeroOuVazio(document.getElementById('cfg-meta-'+def.key+'-max-v98')?.value);}validarFaixasComposicaoV25(metas);return metas;};
-snapshotMetasComposicao=()=>({...metasComposicaoV98(appData.config?.metasComposicao)});
-aplicarCamposMetasComposicao=function(snapshot){const metas=metasComposicaoV98(snapshot);for(const def of PL_COMPOSICAO_PADRAO_V98){for(const chave of [def.min,def.max]){const el=document.getElementById('cfg-meta-'+def.key+'-'+(chave===def.min?'min':'max')+'-v98'),v=numeroValido(metas[chave]);if(el)el.value=v===null?'':(def.integer?String(Math.round(v)):formatBR(v));}}};
-limparMetasComposicao=function(){pushHistoricoMetasComposicao();for(const def of PL_COMPOSICAO_PADRAO_V98)for(const lado of ['min','max']){const el=document.getElementById('cfg-meta-'+def.key+'-'+lado+'-v98');if(el)el.value='';}salvarAjustesAutomaticamente();};
-
-const preencherCamposConfigAntesV98=preencherCamposConfig;
-preencherCamposConfig=function(){instalarPadraoComposicaoV98();preencherCamposConfigAntesV98();aplicarCamposMetasComposicao(appData.config?.metasPadrao?.metasComposicao||appData.config?.metasComposicao);};
-
-function faixaIdealV98(sexo,idade,altura,peso){
-    const gordura=faixaGorduraPorIdadeV29(sexo,idade),musculoPct=faixaMusculoPercentualV29(sexo,idade),ossea=faixaMassaOsseaV29(sexo,peso),tmb=(10*peso)+(6.25*altura)-(5*idade)+(sexo==='masculino'?5:-161);
-    return {
-        imc:[18.5,24.9],gorduraCorporalPercentual:[gordura.min,gordura.max],aguaCorporal:sexo==='masculino'?[50,65]:[45,60],massaMuscularPercentual:[musculoPct.min,musculoPct.max],massaOsseaPercentual:[ossea.min/peso*100,ossea.max/peso*100],tmb:[tmb*.9,tmb*1.1],gorduraVisceral:[1,9],massaMagra:[peso*(1-gordura.max/100),peso*(1-gordura.min/100)],massaGorda:[peso*gordura.min/100,peso*gordura.max/100],massaOssea:[ossea.min,ossea.max],massaMuscular:[peso*musculoPct.min/100,peso*musculoPct.max/100],idadeCorporal:[18,idade],proteinaPercentual:[16,20]
-    };
-}
-calcularMetasComposicaoV29=function(){const idade=idadePerfilV29(),sexo=sexoPerfilV29(),altura=alturaCmPerfilV29(),peso=pesoReferenciaV29(altura);if(!idade||!sexo||!altura||!peso)return alert('Para calcular, preencha Data de nascimento, Gênero, Altura e Peso Meta no perfil/metas.');pushHistoricoMetasComposicao();const faixas=faixaIdealV98(sexo,idade,altura,peso);for(const def of PL_COMPOSICAO_PADRAO_V98){const [min,max]=faixas[def.key]||[];const a=document.getElementById('cfg-meta-'+def.key+'-min-v98'),b=document.getElementById('cfg-meta-'+def.key+'-max-v98');if(a)a.value=def.integer?String(Math.round(min)):formatBR(min);if(b)b.value=def.integer?String(Math.round(max)):formatBR(max);}const info=document.getElementById('calculo-metas-composicao-info-v29');if(info)info.textContent='Metas calculadas pelo perfil '+(sexo==='masculino'?'masculino':'feminino')+', '+idade+' anos, '+formatBR(altura/100)+' m e peso-meta de '+formatBR(peso)+' kg. Revise e salve.';};window.calcularMetasComposicaoV29=calcularMetasComposicaoV29;
-
-function metasRegistroV98(registro){return metasComposicaoV98(registro?.metasComposicaoUsadas||appData.config?.metasComposicao);}
-function estadoFaixaV98(def,valor,metas){const n=numeroValido(valor),a=numeroValido(metas?.[def.min]),b=numeroValido(metas?.[def.max]);if(n===null||a===null||b===null)return {texto:'Sem meta',classe:'neutral'};if(n<a)return {texto:'Meta: '+formatarLeituraCorpoV98(def,a)+' a '+formatarLeituraCorpoV98(def,b),classe:'bad'};if(n>b)return {texto:'Meta: '+formatarLeituraCorpoV98(def,a)+' a '+formatarLeituraCorpoV98(def,b),classe:'bad'};return {texto:'Dentro da meta',classe:'good'};}
-renderResumoComposicao=function(){const box=document.getElementById('resumo-composicao-corporal');if(!box)return;const registros=[...(appData.pesos||[])].sort((a,b)=>String(b.data).localeCompare(String(a.data)));const atual=registros[0];if(!atual){box.innerHTML='';return;}const anterior=registros.slice(1).find(x=>x.data<=atual.data)||null,metas=metasRegistroV98(atual);box.innerHTML=PL_COMPOSICAO_PADRAO_V98.map(def=>{const valor=numeroValido(atual[def.key]),antes=numeroValido(anterior?.[def.key]),status=estadoFaixaV98(def,valor,metas),delta=valor===null||antes===null?'Sem comparação':(formatBR(valor-antes)+(def.percent?' p.p.':def.unit?' '+def.unit:'' )+' vs. anterior');return `<div class="card composition-summary-card record-summary-card"><div class="label">${def.label}</div><div class="value ${status.classe==='good'?'good':status.classe==='bad'?'bad':''}">${formatarLeituraCorpoV98(def,valor)}</div><div class="metric-delta neutral">${delta}</div><div class="small metric-target ${status.classe}">${status.texto}</div></div>`;}).join('');};
-
-const editarPesoAntesV98=editarPeso;
-editarPeso=function(id){editarPesoAntesV98(id);instalarPadraoComposicaoV98();const registro=(appData.pesos||[]).find(x=>String(x.id)===String(id));if(!registro)return;for(const def of PL_COMPOSICAO_PADRAO_V98){const el=document.getElementById('peso-'+def.key+'-v98'),v=numeroValido(registro[def.key]);if(el)el.value=v===null?'':(def.integer?String(Math.round(v)):formatBR(v));}};window.editarPeso=editarPeso;
-const limparComposicaoAntesV98=limparComposicaoForm;
-limparComposicaoForm=function(){limparComposicaoAntesV98();for(const def of PL_COMPOSICAO_PADRAO_V98){const el=document.getElementById('peso-'+def.key+'-v98');if(el)el.value='';}};
-
-/* A imagem usa AAAA/MM/DD. Esta regra antecede qualquer tentativa de DD/MM/AAAA. */
-const extrairDataTextoAntesV98=extrairDataTextoV61;
-extrairDataTextoV61=function(texto,file){const t=String(texto||'');const m=t.match(/\b((?:19|20)\d{2})\s*[\/.\-]\s*(0?[1-9]|1[0-2])\s*[\/.\-]\s*([0-2]?\d|3[01])\b/);if(m){const iso=isoPartesV61(m[1],m[2],m[3]);if(iso)return iso;}return extrairDataTextoAntesV98(texto,file);};
-
-function paresRelatorioBalancaV98(texto){
-    const linhas=linhasTextoV61(texto),pares=[];for(const linha of linhas){const limpo=linha.replace(/([.,])[Il](?=\s*(?:kg|g|kcal|%))/gi,(_,separador)=>separador+'1').replace(/(?<=\d)\](?=\s*(?:kcal|kat))/gi,'1').replace(/(?<=\d)[Il](?=\s*(?:kg|kcal|%))/gi,'1').replace(/(?<!\d)[Ss](?=\d)/g,'5');const valores=[...limpo.matchAll(/-?\d{1,4}(?:[.,]\d{1,3})?/g)].map(m=>Number(String(m[0]).replace(',','.'))).filter(n=>Number.isFinite(n));if(valores.length===2&&!(valores[0]>=1900&&valores[0]<=2100&&valores[1]<=31))pares.push(valores);}return pares.slice(-7);
-}
-const propostaTextoLivreAntesV98=propostaTextoLivreV61;
-propostaTextoLivreV61=function(texto,file){
-    const proposta=propostaTextoLivreAntesV98(texto,file),t=String(texto||''),normal=chaveImportV60(t);
-    if(!(/relat.{0,4}rio.{0,4}detalhad/i.test(normal)||(/\btmb\b/i.test(t)&&paresRelatorioBalancaV98(t).length>=7)))return proposta;
-    const pares=paresRelatorioBalancaV98(t);if(pares.length<7)return proposta;
-    const valores=[pares[0][0],pares[0][1],pares[1][0],pares[1][1],pares[2][0],pares[2][1],pares[3][0],pares[3][1],pares[4][0],pares[4][1],pares[5][0],pares[5][1],pares[6][0],pares[6][1]];
-    if(valores[6]>100&&valores[6]<500)valores[6]*=10; /* TMB: OCR pode perder o último dígito perto de “kcal”. */
-    if(valores[10]>10)valores[10]/=100; /* massa óssea costuma aparecer como 291g quando “2,91 kg”. */
-    if(valores[11]>100)valores[11]/=10; /* massa muscular: “54,3” pode ser lido como 543. */
-    const chaves=['peso','imc','gorduraCorporalPercentual','aguaCorporal','massaMuscularPercentual','massaOsseaPercentual','tmb','gorduraVisceral','massaMagra','massaGorda','massaOssea','massaMuscular','idadeCorporal','proteinaPercentual'];
-    const dados={tipo:'peso',data:extrairDataTextoV61(t,file),observacoes:'Importado de '+(file?.name||'imagem'),_fonte:file?.name||'',_confianca:'OCR'};chaves.forEach((chave,i)=>{const bruto=numeroValido(valores[i]),valor=chave==='tmb'&&bruto!==null?Math.round(bruto):bruto===null?null:Math.round(bruto*10)/10;if(valor!==null&&valor>=0)dados[chave]=valor;});
-    if(numeroValido(dados.peso)===null||dados.peso<=0)return proposta;
-    const peso={...dados};for(const def of PL_COMPOSICAO_PADRAO_V98)delete peso[def.key];proposta.itens=[peso,...PL_COMPOSICAO_PADRAO_V98.filter(def=>numeroValido(dados[def.key])!==null).map(def=>({tipo:'composicao',data:dados.data,campo:def.key,nome:def.label,unidade:def.unit,valor:dados[def.key],peso:dados.peso,_fonte:dados._fonte,_confianca:'OCR'}))];return proposta;
-};window.propostaTextoLivreV61=propostaTextoLivreV61;
-
-const normalizarDadosAntesV98=normalizarDados;
-normalizarDados=function(raw){const dados=normalizarDadosAntesV98(raw);dados.schemaVersion=Math.max(Number(dados.schemaVersion)||0,PL_SCHEMA_VERSION_V98);const metas=metasComposicaoV98(raw?.config?.metasComposicao||dados.config?.metasComposicao);dados.config.metasComposicao=metas;dados.pesos=(dados.pesos||[]).map((p,i)=>{const origem=raw?.pesos?.[i]||p,saida={...p,metasComposicaoUsadas:metasComposicaoV98(origem?.metasComposicaoUsadas||metas)};for(const def of PL_COMPOSICAO_PADRAO_V98){const v=numeroValido(origem?.[def.key]);if(v!==null&&v>=0)saida[def.key]=v;}return saida;});return dados;};
-
-/* Salva exatamente os campos do novo padrão, sem derivar ou misturar indicadores. */
-document.getElementById('form-peso').onsubmit=async function(evento){
-    evento.preventDefault();const editId=document.getElementById('edit-peso-id')?.value||'',data=document.getElementById('peso-data')?.value||'',peso=numeroValido(document.getElementById('peso-valor')?.value),meta=numeroOuVazio(document.getElementById('peso-meta')?.value),arquivos=Array.from(document.getElementById('peso-foto')?.files||[]);
-    if(!dataISOValida(data)||peso===null||peso<=0)return alert('Preencha a data e o peso com valores válidos.');
-    let indice=editId?(appData.pesos||[]).findIndex(x=>String(x.id)===String(editId)):(appData.pesos||[]).findIndex(x=>x.data===data);
-    if(!editId&&indice>-1&&!confirm('Já existe um peso nesta data. Deseja atualizar esse registro?'))return;
-    const anterior=indice>-1?appData.pesos[indice]:null,id=anterior?.id||crypto.randomUUID?.()||String(Date.now()),botao=document.getElementById('btn-salvar-peso');if(botao)botao.disabled=true;
-    try{
-        const preparada=arquivos.length?await prepararFotosRegistro(arquivos,`peso_${id}`):null;
-        const novas=(preparada?.fotos||[]).map((f,i)=>({...f,fotoCategoria:normalizarCategoriaFotoV37(categoriasFotosPesoSelecionadas[i]||'outros')}));
-        const registro={...(anterior||{}),id,data,peso,meta,metaPesoUsada:meta,observacoes:document.getElementById('peso-obs')?.value||'',fotos:[...obterFotosRegistro(anterior||{}),...novas],metasComposicaoUsadas:anterior?.metasComposicaoUsadas?metasComposicaoV98(anterior.metasComposicaoUsadas):metasComposicaoV98(appData.config?.metasComposicao)};
-        for(const def of PL_COMPOSICAO_PADRAO_V98){const valor=valorCampoV98('peso-'+def.key+'-v98');if(valor!==null&&valor>=0)registro[def.key]=valor;else delete registro[def.key];}
-        if(indice>-1)appData.pesos[indice]=registro;else appData.pesos.push(registro);
-        salvarDados(true,true);redefinirFormularioPeso();showView('historico',document.querySelector('[data-view="historico"]'));
-    }catch(erro){alert('Não foi possível salvar: '+traduzirErroApp(erro));}finally{if(botao){botao.disabled=false;botao.innerText='Salvar';}}
-};
-
-/* V100 — aplica o padrão de balança depois de toda a inicialização antiga.
-   Isso impede que telas já construídas mostrem cartões ou campos legados. */
-const PL_SCHEMA_VERSION_V100=100;
-PL_ROTULOS_FAIXAS_V29={...(PL_ROTULOS_FAIXAS_V29||{}),imc:'IMC',gorduraCorporalPercentual:'Gordura corporal',aguaCorporal:'Água corporal',massaMuscularPercentual:'Massa muscular (%)',massaOsseaPercentual:'Massa óssea (%)',tmb:'TMB',gorduraVisceral:'Gordura visceral',massaMagra:'Massa magra',massaGorda:'Massa de gordura corporal',massaOssea:'Massa óssea (kg)',massaMuscular:'Massa muscular (kg)',idadeCorporal:'Idade do corpo',proteinaPercentual:'Proteína'};
-rotuloComposicaoCicloV58=chave=>PL_ROTULOS_FAIXAS_V29?.[chave]||PL_CAMPOS_COMPOSICAO_V98?.[chave]?.label||chave;
-function htmlCartoesCicloV100(){return PL_COMPOSICAO_PADRAO_V98.map(def=>`<div class="cycle-range-card-v58"><strong>${def.label}${def.unit?' ('+def.unit+')':''}</strong><div class="grid-2"><div class="form-group"><label>Mínimo</label><input type="text" inputmode="decimal" id="${idCampoComposicaoCicloV58(def.key,'min')}"></div><div class="form-group"><label>Máximo</label><input type="text" inputmode="decimal" id="${idCampoComposicaoCicloV58(def.key,'max')}"></div></div></div>`).join('');}
-function substituirComposicaoCicloV100(){const box=document.getElementById('ciclo-metas-detalhadas-v58');if(!box)return;const titulo=[...box.querySelectorAll('h4')].find(el=>/metas de composi/i.test(el.textContent||''));const grade=titulo?.nextElementSibling;if(grade?.classList?.contains('cycle-range-grid-v58'))grade.innerHTML=htmlCartoesCicloV100();}
-function ligarMetasV100(){for(const def of PL_COMPOSICAO_PADRAO_V98)for(const lado of ['min','max']){const el=document.getElementById('cfg-meta-'+def.key+'-'+lado+'-v98');if(!el||el.dataset.v100)return;el.dataset.v100='1';el.addEventListener('input',agendarSalvarAjustes);el.addEventListener('change',agendarSalvarAjustes);el.addEventListener('blur',()=>{const v=numeroValido(el.value);if(v!==null)el.value=def.integer?String(Math.round(v)):formatBR(v);});}}
-function aplicarPadraoBalancaV100(){
-    const titulo=[...document.querySelectorAll('#form-peso .form-section-title')].find(el=>/composi/i.test(el.textContent||''));const grade=titulo?.nextElementSibling;
-    if(grade?.classList?.contains('grid-2')){grade.id='peso-composicao-v100';grade.innerHTML=montarCamposCorpoV98();}
-    const metas=document.querySelector('#view-configs .composition-range-settings');if(metas){metas.id='metas-composicao-v100';metas.innerHTML=montarMetasCorpoV98();}
-    ligarMetasV100();substituirComposicaoCicloV100();renderResumoComposicao();
-}
-const montarCamposDetalhadosCicloAntesV100=montarCamposDetalhadosCicloV58;
-montarCamposDetalhadosCicloV58=function(...args){const retorno=montarCamposDetalhadosCicloAntesV100(...args);substituirComposicaoCicloV100();return retorno;};
-const reformarViewCiclosAntesV100=reformarViewCiclosV58;
-reformarViewCiclosV58=function(...args){const retorno=reformarViewCiclosAntesV100(...args);setTimeout(substituirComposicaoCicloV100,0);return retorno;};
-
-/* Mantém a migração V99 como a última normalização, inclusive ao abrir um app zerado. */
-const normalizarDadosAntesV100=normalizarDados;
-normalizarDados=function(raw){const origem=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{},dados=normalizarDadosAntesV100(origem),cfg=origem.config||{},padrao=cfg.metasPadrao||cfg,referencia=pesoReferenciaMigracaoV99(padrao,cfg.pesoMeta),metasPadrao=migrarMetasComposicaoV99(padrao.metasComposicao||padrao,referencia);dados.config=dados.config||{};dados.config.metasPadrao={...(dados.config.metasPadrao||{}),metasComposicao:metasPadrao};dados.ciclos=(dados.ciclos||[]).map(c=>{const fonte=(origem.ciclos||[]).find(x=>String(x?.id)===String(c?.id))||c;return {...c,metasComposicao:migrarMetasComposicaoV99(fonte.metasComposicao||c.metasComposicao,pesoReferenciaMigracaoV99(fonte,referencia))};});const ativo=(dados.ciclos||[]).find(c=>String(c.id)===String(dados.config.cicloAtivoId));dados.config.metasComposicao=ativo?ativo.metasComposicao:metasPadrao;dados.pesos=(dados.pesos||[]).map((p,i)=>{const fonte=origem.pesos?.[i]||p,ref=pesoReferenciaMigracaoV99(fonte,referencia),refs=fonte.referenciasCicloV58?{...fonte.referenciasCicloV58,metasComposicao:migrarMetasComposicaoV99(fonte.referenciasCicloV58.metasComposicao,ref)}:p.referenciasCicloV58;return {...p,metasComposicaoUsadas:migrarMetasComposicaoV99(fonte.metasComposicaoUsadas||p.metasComposicaoUsadas,ref),...(refs?{referenciasCicloV58:refs}:{})};});dados.schemaVersion=Math.max(Number(dados.schemaVersion)||0,PL_SCHEMA_VERSION_V100);return dados;};
-aplicarPadraoBalancaV100();window.addEventListener('load',()=>setTimeout(aplicarPadraoBalancaV100,1600));
+window.visualizarRegistro = visualizarRegistro;
 
 </script>
 

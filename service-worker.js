@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v100-padrao-definitivo';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v100-padrao-definitivo';
+const CACHE_VERSION = 'projeto-leve-v97-remedios-observacoes';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v97-remedios-observacoes';
 const APP_SHELL = [
   './',
   './index.html',
