@@ -1472,7 +1472,7 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
 /* V69: somente acabamento dos novos dados pessoais. */
 #perfil-bio{min-height:96px;resize:vertical;}
 </style>
-<meta name="application-version" content="97.0-Remedios">
+<meta name="application-version" content="98.0-Cores-Historicos">
 
 
 <!-- V72 — calendário compacto + filtros de gráficos persistentes -->
@@ -4262,9 +4262,9 @@ function variacaoPesoEntreDosesV97(item, registros) {
     }
     const quantidade = formatBR(Math.abs(diferenca)) + ' kg';
     if (diferenca < 0) {
-        return { texto: '− ' + quantidade + ' perdidos', classe: 'positive', titulo: 'Peso perdido desde a dose anterior: ' + quantidade + '.' };
+        return { texto: '− ' + quantidade + ' perdidos', classe: 'negative', titulo: 'Peso perdido desde a dose anterior: ' + quantidade + '.' };
     }
-    return { texto: '+ ' + quantidade + ' ganhos', classe: 'negative', titulo: 'Peso ganho desde a dose anterior: ' + quantidade + '.' };
+    return { texto: '+ ' + quantidade + ' ganhos', classe: 'positive', titulo: 'Peso ganho desde a dose anterior: ' + quantidade + '.' };
 }
 
 function renderRemedios() {
@@ -8143,7 +8143,7 @@ const formPesoAnteriorV23=document.getElementById('form-peso').onsubmit;
 document.getElementById('form-peso').onsubmit=async function(e){const id=document.getElementById('edit-peso-id').value||'',data=document.getElementById('peso-data').value;await formPesoAnteriorV23.call(this,e);const registro=(appData.pesos||[]).find(p=>id?String(p.id)===String(id):p.data===data);if(registro&&!registro.metasComposicaoUsadas){registro.metasComposicaoUsadas=metasComposicaoV23();salvarDados(true,true);}};
 renderResumoComposicao=function(){const c=document.getElementById('resumo-composicao-corporal');if(!c)return;const itens=[['Músculo esquelético','musculoEsqueletico',' kg'],['Massa gorda','massaGorda',' kg'],['Água corporal','aguaCorporal',' %'],['Gordura corporal','gorduraCorporalPercentual',' %'],['IMC','imc',''],['TMB','tmb',' kcal',true]];c.innerHTML=itens.map(([nome,chave,unidade,inteiro])=>{const l=atualEAnteriorV21(appData.pesos,chave),m=metasDoRegistroV23(l.atual),meta=textoMetaV23(chave,l.valor,m,inteiro),da=distanciaMetaV23(chave,l.valor,m),db=distanciaMetaV23(chave,l.valorAnterior,m),cmp=comparacaoV21(l.valor,l.valorAnterior,unidade,(a,b)=>da===null||db===null?null:da<db,inteiro);const ex=l.valor===null?'--':(inteiro?Math.round(l.valor):formatBR(l.valor))+unidade;return `<div class="card composition-summary-card"><div class="label">${nome}</div><div class="value">${ex}</div><div class="metric-delta ${cmp.classe}">${cmp.texto}</div><div class="small metric-target ${meta.classe}">${meta.texto}</div></div>`;}).join('');};
 const renderHistoricoPesoAnteriorV23=renderHistoricoPeso;
-renderHistoricoPeso=function(){renderHistoricoPesoAnteriorV23();const ordem=[...(appData.pesos||[])].sort((a,b)=>String(b.data).localeCompare(String(a.data)));document.querySelectorAll('#lista-historico tr').forEach((tr,i)=>{const a=ordem[i],b=ordem[i+1],cel=tr.querySelector('.weight-col-value');if(!a||!cel)return;const av=numeroValido(a.peso),bv=numeroValido(b?.peso),meta=metaPesoUsadaV21(a),bom=av!==null&&bv!==null&&meta!==null?Math.abs(av-meta)<Math.abs(bv-meta):null,cmp=comparacaoV21(av,bv,' kg',()=>bom);cel.insertAdjacentHTML('beforeend',`<div class="small ${cmp.classe}" style="font-size:10px;white-space:nowrap">${cmp.texto.replace('vs anterior','')}</div>`);});};
+renderHistoricoPeso=function(){renderHistoricoPesoAnteriorV23();const ordem=[...(appData.pesos||[])].sort((a,b)=>String(b.data).localeCompare(String(a.data)));document.querySelectorAll('#lista-historico tr').forEach((tr,i)=>{const a=ordem[i],b=ordem[i+1],cel=tr.querySelector('.weight-col-value');if(!a||!cel)return;const av=numeroValido(a.peso),bv=numeroValido(b?.peso),delta=av!==null&&bv!==null?av-bv:null,classeVariacao=delta===null||Math.abs(delta)<0.005?'neutral':delta<0?'negative':'positive',cmp=comparacaoV21(av,bv,' kg',()=>null);cel.insertAdjacentHTML('beforeend',`<div class="small ${classeVariacao}" style="font-size:10px;white-space:nowrap">${cmp.texto.replace('vs anterior','')}</div>`);});};
 const visualizarRegistroAnteriorV23=visualizarRegistro;
 visualizarRegistro=function(tipo,id){if(tipo==='remedio'){const r=(appData.remedios||[]).find(x=>String(x.id)===String(id));if(!r)return alert('Registro não encontrado.');registroVisualizado={tipo,id:r.id};return abrirModalDetalhes('Lançamento de Remédio',`<div class="detail-grid">${valorDetalhe('Data',formatDateBR(r.data))}${valorDetalhe('Remédio',escapeHtml(r.nome))}${valorDetalhe('Dose',formatBR(r.mg)+' mg')}${valorDetalhe('Peso',formatBR(r.peso)+' kg')}</div>`);}return visualizarRegistroAnteriorV23(tipo,id);};
 const renderRemediosAnteriorV23=renderRemedios;
