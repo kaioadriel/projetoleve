@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'projeto-leve-v98-cores-historicos';
-const RUNTIME_CACHE = 'projeto-leve-runtime-v98-cores-historicos';
+const CACHE_VERSION = 'projeto-leve-v96-calfix-seguro';
+const RUNTIME_CACHE = 'projeto-leve-runtime-v96-calfix-seguro';
 const APP_SHELL = [
   './',
   './index.html',

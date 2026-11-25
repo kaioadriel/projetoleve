@@ -266,21 +266,9 @@
         .medicine-col-date { width: 19%; }
         .medicine-col-name { width: 21%; }
         .medicine-col-dose { width: 11%; text-align: right; }
-        .medicine-col-weight { width: 20%; text-align: right; }
+        .medicine-col-weight { width: 14%; text-align: right; }
         .medicine-col-photo { width: 13%; text-align: center; }
-        .medicine-col-actions { width: 19%; text-align: center; }
-        .medicine-weight-value-v97 { font-weight: 800; }
-        .medicine-weight-change-v97 {
-            margin-top: 3px;
-            font-size: 9px;
-            line-height: 1.2;
-            font-weight: 800;
-            white-space: normal;
-            overflow-wrap: anywhere;
-        }
-        .medicine-weight-change-v97.positive { color: var(--success); }
-        .medicine-weight-change-v97.negative { color: var(--danger); }
-        .medicine-weight-change-v97.neutral { color: var(--text-secondary); }
+        .medicine-col-actions { width: 22%; text-align: center; }
         .medicine-history-table .actions-cell {
             display: table-cell;
             overflow: visible;
@@ -1472,7 +1460,7 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
 /* V69: somente acabamento dos novos dados pessoais. */
 #perfil-bio{min-height:96px;resize:vertical;}
 </style>
-<meta name="application-version" content="98.0-Cores-Historicos">
+<meta name="application-version" content="68.0-Painel">
 
 
 <!-- V72 — calendário compacto + filtros de gráficos persistentes -->
@@ -1897,6 +1885,13 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                         </div>
                         <div class="form-group">
                             <div class="medicine-name-head-v67">
+                                <label for="remedio-tipo">Tipo de Remédio</label>
+                                <button type="button" class="btn btn-outline medicine-quick-add-v67" onclick="cadastrarTipoRemedio()" title="Cadastrar tipo" aria-label="Cadastrar tipo">+</button>
+                            </div>
+                            <select id="remedio-tipo" required><option value="">Selecione</option></select>
+                        </div>
+                        <div class="form-group">
+                            <div class="medicine-name-head-v67">
                                 <label for="remedio-nome">Nome do Remédio</label>
                                 <button type="button" class="btn btn-outline medicine-quick-add-v67" onclick="abrirCadastroRapidoV67()" title="Cadastrar remédio rapidamente" aria-label="Cadastrar remédio rapidamente">+</button>
                             </div>
@@ -1912,10 +1907,6 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                             <label>Peso (kg)</label>
                             <input type="number" min="0" step="0.1" id="remedio-peso" required>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="remedio-observacoes">Observações</label>
-                        <textarea id="remedio-observacoes" rows="3" maxlength="20000" placeholder="Sintomas, efeitos ou outras informações"></textarea>
                     </div>
                     <div id="cadastro-rapido-remedio-v67" class="medicine-quick-box-v67 hidden">
                         <div class="medicine-quick-title-v67">Cadastro rápido</div>
@@ -4226,47 +4217,6 @@ function renderResumoRemedioAtual() {
     `;
 }
 
-function chaveRemedioHistoricoV97(nome) {
-    return String(nome || 'Remédio').trim().toLocaleLowerCase('pt-BR').replace(/\s+/g, ' ');
-}
-
-function ordenarRemediosHistoricoV97(registros) {
-    return [...(registros || [])].sort((a, b) => {
-        const porData = String(a?.data || '').localeCompare(String(b?.data || ''));
-        return porData || (Number(a?.ordemCadastro) || 0) - (Number(b?.ordemCadastro) || 0);
-    });
-}
-
-function variacaoPesoEntreDosesV97(item, registros) {
-    const chave = chaveRemedioHistoricoV97(item?.nome);
-    const ordenados = ordenarRemediosHistoricoV97(registros)
-        .filter(registro => chaveRemedioHistoricoV97(registro?.nome) === chave);
-    const indice = ordenados.findIndex(registro => String(registro?.id) === String(item?.id));
-    const anterior = indice > 0 ? ordenados[indice - 1] : null;
-    const pesoAtual = numeroValido(item?.peso);
-    const pesoAnterior = numeroValido(anterior?.peso);
-
-    if (pesoAtual === null || pesoAtual <= 0) {
-        return { texto: 'Peso não informado', classe: 'neutral', titulo: 'Este lançamento não tem peso válido.' };
-    }
-    if (!anterior) {
-        return { texto: 'Primeira dose', classe: 'neutral', titulo: 'Não existe uma dose anterior deste remédio para comparação.' };
-    }
-    if (pesoAnterior === null || pesoAnterior <= 0) {
-        return { texto: 'Sem peso anterior', classe: 'neutral', titulo: 'A dose anterior deste remédio não tem peso válido.' };
-    }
-
-    const diferenca = pesoAtual - pesoAnterior;
-    if (Math.abs(diferenca) < 0.005) {
-        return { texto: 'Sem alteração', classe: 'neutral', titulo: 'Peso igual ao da dose anterior.' };
-    }
-    const quantidade = formatBR(Math.abs(diferenca)) + ' kg';
-    if (diferenca < 0) {
-        return { texto: '− ' + quantidade + ' perdidos', classe: 'negative', titulo: 'Peso perdido desde a dose anterior: ' + quantidade + '.' };
-    }
-    return { texto: '+ ' + quantidade + ' ganhos', classe: 'positive', titulo: 'Peso ganho desde a dose anterior: ' + quantidade + '.' };
-}
-
 function renderRemedios() {
     const datalist = document.getElementById('lista-nomes-remedios');
     if (datalist) {
@@ -4284,14 +4234,13 @@ function renderRemedios() {
     });
 
     if (!remedios.length) {
-        lista.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-secondary);">Nenhum remédio lançado ainda.</td></tr>';
+        lista.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-secondary);">Nenhum remédio lançado ainda.</td></tr>';
         return;
     }
 
     lista.innerHTML = remedios.map(item => {
         const temFoto = temFotoRemedio(item);
         const quantidadeFotos = obterFotosRegistro(item).length;
-        const variacaoPeso = variacaoPesoEntreDosesV97(item, appData.remedios || []);
         const foto = temFoto
             ? `<button type="button" class="photo-history-icon" title="Abrir ${quantidadeFotos} foto(s) local(is)" aria-label="Abrir ${quantidadeFotos} foto(s) local(is)" onclick="abrirCarrosselFotos('${item.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.5 4h-5L7.7 6H5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2.7z"></path><circle cx="12" cy="13" r="4"></circle></svg>${quantidadeFotos > 1 ? `<span class="photo-count-badge">${quantidadeFotos}</span>` : ''}</button>`
             : '<span aria-label="Sem foto">—</span>';
@@ -4300,7 +4249,7 @@ function renderRemedios() {
                 <td class="medicine-col-date" title="${formatDateBR(item.data)}">${formatDateCurtaBR(item.data)}</td>
                 <td class="medicine-col-name" title="${escapeHtml(item.nome || '')}">${escapeHtml(item.nome || '')}</td>
                 <td class="medicine-col-dose" title="${formatBR(item.mg)} mg">${formatBR(item.mg)}</td>
-                <td class="medicine-col-weight" title="${formatBR(item.peso)} kg"><div class="medicine-weight-value-v97">${formatBR(item.peso)} kg</div><div class="medicine-weight-change-v97 ${variacaoPeso.classe}" title="${escapeHtml(variacaoPeso.titulo)}">${escapeHtml(variacaoPeso.texto)}</div></td>
+                <td class="medicine-col-weight" title="${formatBR(item.peso)} kg">${formatBR(item.peso)}</td>
                 <td class="medicine-col-photo">${foto}</td>
                 <td class="medicine-col-actions actions-cell">
                     <div class="medicine-action-buttons">
@@ -4973,7 +4922,6 @@ function editarRemedio(id) {
     document.getElementById('remedio-nome').value = item.nome || '';
     document.getElementById('remedio-mg').value = Number.isFinite(Number(item.mg)) ? item.mg : '';
     document.getElementById('remedio-peso').value = Number.isFinite(Number(item.peso)) ? item.peso : '';
-    document.getElementById('remedio-observacoes').value = item.observacoes || '';
     const fotoNome = document.getElementById('remedio-foto-nome');
     const quantidadeFotos = obterFotosRegistro(item).length;
     if (fotoNome) fotoNome.innerText = quantidadeFotos
@@ -5473,7 +5421,6 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
     const nome = document.getElementById('remedio-nome')?.value.trim() || '';
     const mg = numeroValido(document.getElementById('remedio-mg')?.value);
     const peso = numeroValido(document.getElementById('remedio-peso')?.value);
-    const observacoes = document.getElementById('remedio-observacoes')?.value || '';
     const arquivosFoto = Array.from(inputFotoRemedio?.files || []);
 
     if (!dataISOValida(data) || !nome || !Number.isFinite(mg) || mg <= 0 || !Number.isFinite(peso) || peso <= 0) {
@@ -5504,9 +5451,9 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
             id,
             data,
             nome,
+            tipo: document.getElementById('remedio-tipo')?.value || registroAnterior?.tipo || '',
             mg,
             peso,
-            observacoes,
             ordemCadastro: registroAnterior?.ordemCadastro || Math.max(0, ...(appData.remedios || []).map(item => Number(item.ordemCadastro) || 0)) + 1,
             fotos: [...fotosAnteriores, ...(fotoPreparada?.fotos || [])]
         };
@@ -8143,7 +8090,7 @@ const formPesoAnteriorV23=document.getElementById('form-peso').onsubmit;
 document.getElementById('form-peso').onsubmit=async function(e){const id=document.getElementById('edit-peso-id').value||'',data=document.getElementById('peso-data').value;await formPesoAnteriorV23.call(this,e);const registro=(appData.pesos||[]).find(p=>id?String(p.id)===String(id):p.data===data);if(registro&&!registro.metasComposicaoUsadas){registro.metasComposicaoUsadas=metasComposicaoV23();salvarDados(true,true);}};
 renderResumoComposicao=function(){const c=document.getElementById('resumo-composicao-corporal');if(!c)return;const itens=[['Músculo esquelético','musculoEsqueletico',' kg'],['Massa gorda','massaGorda',' kg'],['Água corporal','aguaCorporal',' %'],['Gordura corporal','gorduraCorporalPercentual',' %'],['IMC','imc',''],['TMB','tmb',' kcal',true]];c.innerHTML=itens.map(([nome,chave,unidade,inteiro])=>{const l=atualEAnteriorV21(appData.pesos,chave),m=metasDoRegistroV23(l.atual),meta=textoMetaV23(chave,l.valor,m,inteiro),da=distanciaMetaV23(chave,l.valor,m),db=distanciaMetaV23(chave,l.valorAnterior,m),cmp=comparacaoV21(l.valor,l.valorAnterior,unidade,(a,b)=>da===null||db===null?null:da<db,inteiro);const ex=l.valor===null?'--':(inteiro?Math.round(l.valor):formatBR(l.valor))+unidade;return `<div class="card composition-summary-card"><div class="label">${nome}</div><div class="value">${ex}</div><div class="metric-delta ${cmp.classe}">${cmp.texto}</div><div class="small metric-target ${meta.classe}">${meta.texto}</div></div>`;}).join('');};
 const renderHistoricoPesoAnteriorV23=renderHistoricoPeso;
-renderHistoricoPeso=function(){renderHistoricoPesoAnteriorV23();const ordem=[...(appData.pesos||[])].sort((a,b)=>String(b.data).localeCompare(String(a.data)));document.querySelectorAll('#lista-historico tr').forEach((tr,i)=>{const a=ordem[i],b=ordem[i+1],cel=tr.querySelector('.weight-col-value');if(!a||!cel)return;const av=numeroValido(a.peso),bv=numeroValido(b?.peso),delta=av!==null&&bv!==null?av-bv:null,classeVariacao=delta===null||Math.abs(delta)<0.005?'neutral':delta<0?'negative':'positive',cmp=comparacaoV21(av,bv,' kg',()=>null);cel.insertAdjacentHTML('beforeend',`<div class="small ${classeVariacao}" style="font-size:10px;white-space:nowrap">${cmp.texto.replace('vs anterior','')}</div>`);});};
+renderHistoricoPeso=function(){renderHistoricoPesoAnteriorV23();const ordem=[...(appData.pesos||[])].sort((a,b)=>String(b.data).localeCompare(String(a.data)));document.querySelectorAll('#lista-historico tr').forEach((tr,i)=>{const a=ordem[i],b=ordem[i+1],cel=tr.querySelector('.weight-col-value');if(!a||!cel)return;const av=numeroValido(a.peso),bv=numeroValido(b?.peso),meta=metaPesoUsadaV21(a),bom=av!==null&&bv!==null&&meta!==null?Math.abs(av-meta)<Math.abs(bv-meta):null,cmp=comparacaoV21(av,bv,' kg',()=>bom);cel.insertAdjacentHTML('beforeend',`<div class="small ${cmp.classe}" style="font-size:10px;white-space:nowrap">${cmp.texto.replace('vs anterior','')}</div>`);});};
 const visualizarRegistroAnteriorV23=visualizarRegistro;
 visualizarRegistro=function(tipo,id){if(tipo==='remedio'){const r=(appData.remedios||[]).find(x=>String(x.id)===String(id));if(!r)return alert('Registro não encontrado.');registroVisualizado={tipo,id:r.id};return abrirModalDetalhes('Lançamento de Remédio',`<div class="detail-grid">${valorDetalhe('Data',formatDateBR(r.data))}${valorDetalhe('Remédio',escapeHtml(r.nome))}${valorDetalhe('Dose',formatBR(r.mg)+' mg')}${valorDetalhe('Peso',formatBR(r.peso)+' kg')}</div>`);}return visualizarRegistroAnteriorV23(tipo,id);};
 const renderRemediosAnteriorV23=renderRemedios;
@@ -14079,7 +14026,7 @@ function camposMedidaAuditoriaV47(r) {
     for (const k of ['pescoco','peito','cintura','quadril','coxa','panturrilha','braco']) c[k] = valorNumericoAuditV47(r?.[k]);
     return c;
 }
-function camposRemedioAuditoriaV47(r) { return { data:r?.data||'', nome:textoSeguro(r?.nome||'',300), mg:valorNumericoAuditV47(r?.mg), peso:valorNumericoAuditV47(r?.peso), observacoes:textoSeguro(r?.observacoes || ''), fotosResumo:resumoFotosAuditoriaV47(r) }; }
+function camposRemedioAuditoriaV47(r) { return { data:r?.data||'', nome:textoSeguro(r?.nome||'',300), mg:valorNumericoAuditV47(r?.mg), peso:valorNumericoAuditV47(r?.peso), fotosResumo:resumoFotosAuditoriaV47(r) }; }
 function camposCaloriaAuditoriaV47(r) { return { data:r?.data||'', metaCaloriasUsada:valorNumericoAuditV47(metaCaloriasUsadaV21(r || {})) }; }
 function camposRefeicaoAuditoriaV47(r, dia) { return { data:dia?.data||'', tipo:textoSeguro(r?.tipo||'',300), calorias:valorNumericoAuditV47(r?.calorias), observacoes:textoSeguro(r?.observacoes||'') }; }
 function camposGastoAuditoriaV47(r, dia) { return { data:dia?.data||'', descricao:textoSeguro(r?.descricao||'',300), calorias:valorNumericoAuditV47(r?.calorias), observacoes:textoSeguro(r?.observacoes||'') }; }
@@ -23723,43 +23670,52 @@ propostaTextoLivreV61=function(texto,file){
 };
 window.propostaTextoLivreV61=propostaTextoLivreV61;
 
-/* V97 — histórico de peso entre doses e observações dos lançamentos. */
-const PL_SCHEMA_VERSION_V97 = 97;
-const normalizarDadosAntesV97 = normalizarDados;
-normalizarDados = function(raw) {
-    const dados = normalizarDadosAntesV97(raw);
-    dados.remedios = (dados.remedios || []).map(registro => ({
-        ...registro,
-        observacoes: textoSeguro(registro?.observacoes || '')
-    }));
-    dados.schemaVersion = Math.max(Number(dados.schemaVersion) || 0, PL_SCHEMA_VERSION_V97);
-    return dados;
-};
-
-const visualizarRegistroAntesV97 = visualizarRegistro;
-visualizarRegistro = function(tipo, id) {
-    if (tipo !== 'remedio') return visualizarRegistroAntesV97(tipo, id);
-    const registro = (appData.remedios || []).find(item => String(item.id) === String(id));
-    if (!registro) return alert('Registro não encontrado.');
-    const variacao = variacaoPesoEntreDosesV97(registro, appData.remedios || []);
-    registroVisualizado = { tipo, id: registro.id };
-    const observacoes = registro.observacoes
-        ? '<div class="detail-field wide"><div class="label">Observações</div><div class="detail-value">' + escapeHtml(registro.observacoes) + '</div></div>'
-        : '';
-    return abrirModalDetalhes(
-        'Lançamento de Remédio',
-        '<div class="detail-grid">' +
-            valorDetalhe('Data', formatDateBR(registro.data)) +
-            valorDetalhe('Remédio', escapeHtml(registro.nome)) +
-            valorDetalhe('Dose', formatBR(registro.mg) + ' mg') +
-            valorDetalhe('Peso', formatBR(registro.peso) + ' kg') +
-            valorDetalhe('Variação de peso', escapeHtml(variacao.texto), variacao.classe) +
-        '</div>' + observacoes
-    );
-};
-window.visualizarRegistro = visualizarRegistro;
-
 </script>
 
+
+<script>
+function cadastrarTipoRemedio(){
+ const v=prompt('Nome do Tipo de Remédio:'); if(!v||!v.trim())return;
+ appData.tiposRemedios=Array.isArray(appData.tiposRemedios)?appData.tiposRemedios:[];
+ if(!appData.tiposRemedios.some(x=>String(x).toLowerCase()===v.trim().toLowerCase()))appData.tiposRemedios.push(v.trim());
+ renderTiposRemedios(); salvarDados(true,true);
+}
+function renderTiposRemedios(valor=''){
+ const s=document.getElementById('remedio-tipo');if(!s)return;
+ appData.tiposRemedios=Array.isArray(appData.tiposRemedios)?appData.tiposRemedios:[];
+ const prev=valor||s.value;
+ const tipos=[...new Set([...appData.tiposRemedios,...(appData.remedios||[]).map(r=>r.tipo).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+ s.innerHTML='<option value="">Selecione</option>'+tipos.map(t=>'<option value="'+escapeHtml(t)+'">'+escapeHtml(t)+'</option>').join('');
+ if(tipos.includes(prev))s.value=prev;
+}
+function tratamentoTiposDashboard(){
+ const hoje=hojeISO(), grupos=new Map();
+ (appData.remedios||[]).filter(r=>r&&dataISOValida(r.data)&&r.data<=hoje&&r.tipo).forEach(r=>{
+  const k=String(r.tipo).trim().toLocaleLowerCase('pt-BR');
+  if(!grupos.has(k))grupos.set(k,{tipo:r.tipo,registros:[]});grupos.get(k).registros.push(r);
+ });
+ return [...grupos.values()].map(g=>{
+  g.registros.sort((a,b)=>String(a.data).localeCompare(String(b.data))||(Number(a.ordemCadastro)||0)-(Number(b.ordemCadastro)||0));
+  const ultima=g.registros[g.registros.length-1];const diff=Math.floor((Date.parse(hoje+'T00:00:00Z')-Date.parse(ultima.data+'T00:00:00Z'))/86400000);
+  if(diff>20)return null;
+  const primeira=g.registros[0],dias=Math.floor((Date.parse(hoje+'T00:00:00Z')-Date.parse(primeira.data+'T00:00:00Z'))/86400000)+1;
+  return {tipo:g.tipo,primeira,dias};
+ }).filter(Boolean).sort((a,b)=>String(a.primeira.data).localeCompare(String(b.primeira.data)));
+}
+const renderCardsDashboardTiposAntes=renderCardsDashboardV67;
+renderCardsDashboardV67=function(){
+ renderCardsDashboardTiposAntes();
+ const dv=document.getElementById('dash-dias-remedio-v67'),di=document.getElementById('dash-dias-remedio-info-v67');
+ const tr=tratamentoTiposDashboard();
+ if(dv){dv.textContent=tr.length?tr.map(x=>x.dias+' dia'+(x.dias===1?'':'s')).join(' • '):'Não há dados';}
+ if(di)di.textContent=tr.length?tr.map(x=>x.tipo+' • desde '+formatDateBR(x.primeira.data)).join(' | '):'Nenhum tratamento em andamento';
+};
+window.addEventListener('load',()=>setTimeout(()=>renderTiposRemedios(),1000));
+const showViewTipoAntes=showView;
+showView=function(viewId,navEl){const r=showViewTipoAntes(viewId,navEl);if(viewId==='remedio')renderTiposRemedios();return r;};
+const editarTipoAntes=editarRemedio;
+editarRemedio=function(id){const item=(appData.remedios||[]).find(x=>String(x.id)===String(id));const r=editarTipoAntes(id);renderTiposRemedios(item?.tipo||'');return r;};
+window.cadastrarTipoRemedio=cadastrarTipoRemedio;
+</script>
 </body>
 </html>
