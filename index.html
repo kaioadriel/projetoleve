@@ -23745,3 +23745,28 @@ function cadastrarTipoRemedio(){
 
 </body>
 </html>
+<script>
+// Cadastro visual e gerenciamento do catálogo de tipos de remédio.
+(function(){
+ function tipos(){ if(!Array.isArray(appData.tiposRemedios)) appData.tiposRemedios=[]; return appData.tiposRemedios; }
+ function salvarTipos(){ appData.tiposRemedios=tipos(); try{salvarDados(true,true);}catch(e){console.error(e);} }
+ window.abrirCadastroTipoRemedio=function(){
+  let box=document.getElementById('cadastro-rapido-tipo-v97');
+  if(!box){box=document.createElement('div');box.id='cadastro-rapido-tipo-v97';box.className='medicine-quick-box-v67 hidden';box.innerHTML='<div class="medicine-quick-title-v67">Cadastro rápido</div><div class="form-group"><label>Nome</label><input type="text" id="quick-tipo-nome-v97" maxlength="100" placeholder="Ex: GLP-1"></div><div class="grid-2" style="margin-top:10px"><button type="button" class="btn btn-outline" onclick="fecharCadastroTipoRemedioV97()">Cancelar</button><button type="button" class="btn btn-primary" onclick="salvarCadastroTipoRemedioV97()">Cadastrar</button></div>';document.getElementById('remedio-tipo')?.closest('.form-group')?.appendChild(box);}
+  box.classList.remove('hidden');document.getElementById('quick-tipo-nome-v97')?.focus();
+ };
+ window.fecharCadastroTipoRemedioV97=function(){document.getElementById('cadastro-rapido-tipo-v97')?.classList.add('hidden');};
+ window.salvarCadastroTipoRemedioV97=function(){
+  const inp=document.getElementById('quick-tipo-nome-v97'),nome=(inp?.value||'').trim();if(!nome){alert('Informe o nome do tipo de remédio.');return;}
+  const arr=tipos();if(arr.some(x=>String(x).trim().toLocaleLowerCase('pt-BR')===nome.toLocaleLowerCase('pt-BR'))){alert('Este tipo já está cadastrado.');return;}
+  arr.push(nome);appData.tiposRemedios=arr;salvarTipos();renderTiposRemedios(nome);renderListaTiposGerenciarV97();if(inp)inp.value='';window.fecharCadastroTipoRemedioV97();
+ };
+ window.excluirTipoRemedioV97=function(nome){if(!confirm('Excluir o tipo "'+nome+'" do catálogo? Os lançamentos antigos serão preservados.'))return;appData.tiposRemedios=tipos().filter(x=>String(x)!==String(nome));salvarTipos();renderTiposRemedios();renderListaTiposGerenciarV97();};
+ window.renderListaTiposGerenciarV97=function(){const el=document.getElementById('lista-tipos-remedios-v97');if(!el)return;const arr=[...new Set(tipos().map(x=>String(x).trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));el.innerHTML=arr.length?arr.map(n=>'<div class="medicine-registry-row-v67"><div class="medicine-registry-head-v67"><div class="medicine-registry-name-v67">'+escapeHtml(n)+'</div><button type="button" class="btn btn-clear-outline" onclick="excluirTipoRemedioV97('+JSON.stringify(n).replace(/</g,'\\u003c')+')">Excluir</button></div></div>').join(''):'<div class="small">Nenhum tipo cadastrado.</div>';};
+ const oldEnsure=garantirViewCadastroMedicamentosV67;
+ garantirViewCadastroMedicamentosV67=function(){oldEnsure();const sec=document.getElementById('view-tratamentos-v49');if(!sec||document.getElementById('gerenciar-tipos-remedios-v97'))return;const add=document.createElement('div');add.id='gerenciar-tipos-remedios-v97';add.className='card';add.innerHTML='<h3>Tipos de remédios</h3><div class="small">Cadastre e organize os tipos usados nos lançamentos.</div><button type="button" class="btn btn-primary" style="margin-top:10px" onclick="abrirCadastroTipoRemedio()">Cadastrar Tipo</button><div id="lista-tipos-remedios-v97" class="medicine-registry-list-v67" style="margin-top:12px"></div>';sec.appendChild(add);};
+ const oldRender=renderCadastroMedicamentosV67;renderCadastroMedicamentosV67=function(){oldRender();renderListaTiposGerenciarV97();};
+ // Use painel inline no +, em vez de prompt do sistema.
+ window.cadastrarTipoRemedio=window.abrirCadastroTipoRemedio;
+})();
+</script>
