@@ -3243,6 +3243,7 @@ function normalizarDados(raw) {
             if (nome === 'medidas') for (const campo of Object.keys(medidasIdeais)) registro[campo] = numeroOuVazio(item[campo]);
             if (nome === 'remedios') {
                 registro.nome = textoSeguro(item.nome, 300).trim();
+                registro.tipo = textoSeguro(item.tipo, 300).trim();
                 registro.mg = numeroOuVazio(item.mg);
                 registro.ordemCadastro = Number.isSafeInteger(item.ordemCadastro) && item.ordemCadastro > 0 ? item.ordemCadastro : indice + 1;
             }
@@ -3266,6 +3267,7 @@ function normalizarDados(raw) {
         },
         pesos: registros('pesos'), medidas: registros('medidas'), remedios,
         nomesRemedios: nomesRemedios.sort((a, b) => a.localeCompare(b, 'pt-BR')),
+        tiposRemedios: [...new Set((Array.isArray(origem.tiposRemedios) ? origem.tiposRemedios : []).map(x => textoSeguro(x, 300).trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR')),
         metasPersonalizadas: (Array.isArray(origem.metasPersonalizadas) ? origem.metasPersonalizadas : [])
             .filter(item => item && typeof item === 'object')
             .map(item => ({
