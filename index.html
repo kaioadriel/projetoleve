@@ -20579,7 +20579,7 @@ function garantirViewCadastroMedicamentosV67(){
     const sec=document.getElementById('view-tratamentos-v49');if(!sec||sec.dataset.v67Registry==='1')return;
     sec.dataset.v67Registry='1';
     sec.innerHTML=`
-      <div class="card"><div class="v49-head"><div><h3>Cadastro de Remédios</h3><div class="small">Inclua, edite ou exclua medicamentos. Cada novo uso pode ter seu próprio período.</div></div><div class="v49-actions"><button type="button" class="btn btn-primary" onclick="novoMedicamentoV67()">+ Cadastrar remédio</button><button type="button" class="btn btn-outline" onclick="showView('remedio',document.querySelector('[data-view=remedio]'))">Voltar</button></div></div><button type="button" class="btn btn-primary" style="width:100%;margin-top:10px" onclick="novoTipoV97()">+ Cadastrar tipo</button></div>
+      <div class="card"><div class="v49-head"><div><h3>Cadastro de Remédios</h3><div class="small">Inclua, edite ou exclua medicamentos. Cada novo uso pode ter seu próprio período.</div></div><div class="v49-actions"><button type="button" class="btn btn-primary" onclick="novoMedicamentoV67()">+ Cadastrar remédio</button><button type="button" class="btn btn-primary" onclick="novoTipoV97()">+ Cadastrar tipo</button><button type="button" class="btn btn-outline" onclick="showView('remedio',document.querySelector('[data-view=remedio]'))">Voltar</button></div></div></div>
       <div id="form-cadastro-tipo-card-v97" class="card hidden"><h3 id="form-cadastro-tipo-title-v97">Cadastrar tipo</h3><form id="form-cadastro-tipo-v97" onsubmit="salvarCadastroTipoV97(event)"><input type="hidden" id="cadastro-tipo-original-v97"><div class="form-group"><label>Tipo de remédio</label><input type="text" id="cadastro-tipo-nome-v97" maxlength="300" required placeholder="Ex: Caneta emagrecedora"></div><div class="grid-2"><button type="button" class="btn btn-outline" onclick="cancelarCadastroTipoV97()">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div></form></div>
       <div id="form-cadastro-medicamento-card-v67" class="card hidden"><h3 id="form-cadastro-medicamento-title-v67">Cadastrar remédio</h3><form id="form-cadastro-medicamento-v67" onsubmit="salvarCadastroMedicamentoV67(event)"><input type="hidden" id="cadastro-medicamento-id-v67"><div class="grid-2"><div class="form-group"><label>Nome do remédio</label><input type="text" id="cadastro-medicamento-nome-v67" maxlength="300" required placeholder="Ex: Ozivy"></div><div class="form-group"><label>Data inicial</label><input type="date" id="cadastro-medicamento-inicio-v67" required></div><div class="form-group"><label>Data final (opcional)</label><input type="date" id="cadastro-medicamento-fim-v67"></div></div><div class="registry-note-v67">A data final é o primeiro dia em que o medicamento deixa de ser considerado ativo. Deixe em branco enquanto o tratamento estiver em andamento.</div><div class="grid-2"><button type="button" class="btn btn-outline" onclick="cancelarCadastroMedicamentoV67()">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div></form></div>
       <div class="card"><div class="v49-head"><div><h3>Remédios cadastrados</h3><div class="small">Períodos anteriores são preservados. Ao iniciar novamente o mesmo remédio, a contagem recomeça na primeira dose do novo período.</div></div></div><div id="lista-cadastro-remedios-v67" class="medicine-registry-list-v67"></div></div>
@@ -23899,6 +23899,30 @@ renderCadastroMedicamentosV67 = function(...args) {
     return r;
 };
 Object.assign(window, { novoTipoV97, editarTipoV97, cancelarCadastroTipoV97, salvarCadastroTipoV97, excluirTipoV97 });
+
+
+/* V97 — Histórico de Remédio: diferença de peso abaixo do peso, comparando com o lançamento
+   anterior do mesmo remédio (pelo nome). Verde = perdeu, vermelho = ganhou. */
+const renderRemediosAntesDeltaV97 = renderRemedios;
+renderRemedios = function(...args) {
+    const r = renderRemediosAntesDeltaV97(...args);
+    const ordem = [...(appData.remedios || [])].sort((a, b) =>
+        String(b.data || '').localeCompare(String(a.data || '')) || (Number(b.ordemCadastro) || 0) - (Number(a.ordemCadastro) || 0));
+    const linhas = document.querySelectorAll('#lista-remedios tr');
+    if (linhas.length === ordem.length) {
+        linhas.forEach((tr, i) => {
+            const atual = ordem[i], cel = tr.querySelector('.medicine-col-weight');
+            if (!atual || !cel || cel.querySelector('.medicine-weight-delta-v97')) return;
+            const chave = chaveMedicamentoV67(atual.nome);
+            const anterior = ordem.slice(i + 1).find(x => chaveMedicamentoV67(x.nome) === chave && numeroValido(x.peso) !== null);
+            const cmp = comparacaoV21(numeroValido(atual.peso), numeroValido(anterior?.peso), ' kg', (a, b, delta) => delta < 0);
+            if (!anterior) return;
+            const texto = cmp.texto.replace('vs anterior', '').replace(/\s*kg\s*/gi, '').trim();
+            cel.insertAdjacentHTML('beforeend', '<div class="small medicine-weight-delta-v97 ' + cmp.classe + '" style="font-size:10px;white-space:nowrap">' + escapeHtml(texto) + '</div>');
+        });
+    }
+    return r;
+};
 
 </script>
 
