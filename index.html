@@ -20579,9 +20579,11 @@ function garantirViewCadastroMedicamentosV67(){
     const sec=document.getElementById('view-tratamentos-v49');if(!sec||sec.dataset.v67Registry==='1')return;
     sec.dataset.v67Registry='1';
     sec.innerHTML=`
-      <div class="card"><div class="v49-head"><div><h3>Cadastro de Remédios</h3><div class="small">Inclua, edite ou exclua medicamentos. Cada novo uso pode ter seu próprio período.</div></div><div class="v49-actions"><button type="button" class="btn btn-primary" onclick="novoMedicamentoV67()">+ Cadastrar remédio</button><button type="button" class="btn btn-outline" onclick="showView('remedio',document.querySelector('[data-view=remedio]'))">Voltar</button></div></div></div>
+      <div class="card"><div class="v49-head"><div><h3>Cadastro de Remédios</h3><div class="small">Inclua, edite ou exclua medicamentos. Cada novo uso pode ter seu próprio período.</div></div><div class="v49-actions"><button type="button" class="btn btn-primary" onclick="novoMedicamentoV67()">+ Cadastrar remédio</button><button type="button" class="btn btn-outline" onclick="showView('remedio',document.querySelector('[data-view=remedio]'))">Voltar</button></div></div><button type="button" class="btn btn-primary" style="width:100%;margin-top:10px" onclick="novoTipoV97()">+ Cadastrar tipo</button></div>
+      <div id="form-cadastro-tipo-card-v97" class="card hidden"><h3 id="form-cadastro-tipo-title-v97">Cadastrar tipo</h3><form id="form-cadastro-tipo-v97" onsubmit="salvarCadastroTipoV97(event)"><input type="hidden" id="cadastro-tipo-original-v97"><div class="form-group"><label>Tipo de remédio</label><input type="text" id="cadastro-tipo-nome-v97" maxlength="300" required placeholder="Ex: Caneta emagrecedora"></div><div class="grid-2"><button type="button" class="btn btn-outline" onclick="cancelarCadastroTipoV97()">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div></form></div>
       <div id="form-cadastro-medicamento-card-v67" class="card hidden"><h3 id="form-cadastro-medicamento-title-v67">Cadastrar remédio</h3><form id="form-cadastro-medicamento-v67" onsubmit="salvarCadastroMedicamentoV67(event)"><input type="hidden" id="cadastro-medicamento-id-v67"><div class="grid-2"><div class="form-group"><label>Nome do remédio</label><input type="text" id="cadastro-medicamento-nome-v67" maxlength="300" required placeholder="Ex: Ozivy"></div><div class="form-group"><label>Data inicial</label><input type="date" id="cadastro-medicamento-inicio-v67" required></div><div class="form-group"><label>Data final (opcional)</label><input type="date" id="cadastro-medicamento-fim-v67"></div></div><div class="registry-note-v67">A data final é o primeiro dia em que o medicamento deixa de ser considerado ativo. Deixe em branco enquanto o tratamento estiver em andamento.</div><div class="grid-2"><button type="button" class="btn btn-outline" onclick="cancelarCadastroMedicamentoV67()">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div></form></div>
       <div class="card"><div class="v49-head"><div><h3>Remédios cadastrados</h3><div class="small">Períodos anteriores são preservados. Ao iniciar novamente o mesmo remédio, a contagem recomeça na primeira dose do novo período.</div></div></div><div id="lista-cadastro-remedios-v67" class="medicine-registry-list-v67"></div></div>
+      <div class="card"><div class="v49-head"><div><h3>Tipos cadastrados</h3><div class="small">Ao excluir um tipo, os lançamentos continuam no histórico, apenas sem tipo.</div></div></div><div id="lista-cadastro-tipos-v97" class="medicine-registry-list-v67"></div></div>
       <div class="app-footer-note">© 2026 Kaio Adriel<br>Todos os direitos reservados.</div>`;
 }
 function renderResumoCadastroMedicamentosV67(){
@@ -23829,6 +23831,74 @@ renderCardsDashboardV67 = function(...args) {
     return r;
 };
 window.addEventListener('load', () => setTimeout(() => { renderSeletorTiposV97(); renderCardsDashboardV67(); }, 1200));
+
+
+/* V97 — Gerenciar tipos de remédio (cadastrar, editar, excluir). */
+function contarLancamentosTipoV97(tipo) {
+    const chave = chaveMedicamentoV67(tipo);
+    return (appData.remedios || []).filter(r => chaveMedicamentoV67(r.tipo) === chave).length;
+}
+function renderListaTiposV97() {
+    const el = document.getElementById('lista-cadastro-tipos-v97');
+    if (!el) return;
+    const tipos = listaTiposRemediosV97();
+    if (!tipos.length) { el.innerHTML = '<div class="small">Nenhum tipo cadastrado. Toque em “Cadastrar tipo” para começar.</div>'; return; }
+    el.innerHTML = tipos.map(t => {
+        const n = contarLancamentosTipoV97(t);
+        return '<div class="medicine-registry-row-v67"><div class="medicine-registry-head-v67"><div><div class="medicine-registry-name-v67">' + escapeHtml(t) + '</div><div class="medicine-registry-meta-v67">' + n + ' lançamento' + (n === 1 ? '' : 's') + '</div></div></div>' +
+            '<div class="medicine-registry-actions-v67" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button type="button" class="btn btn-outline" data-tipo="' + escapeHtml(t) + '" onclick="editarTipoV97(this.dataset.tipo)">Editar</button><button type="button" class="btn btn-clear-outline" data-tipo="' + escapeHtml(t) + '" onclick="excluirTipoV97(this.dataset.tipo)">Excluir</button></div></div>';
+    }).join('');
+}
+function abrirFormTipoV97(original = '') {
+    garantirViewCadastroMedicamentosV67();
+    document.getElementById('form-cadastro-tipo-card-v97')?.classList.remove('hidden');
+    document.getElementById('cadastro-tipo-original-v97').value = original;
+    document.getElementById('cadastro-tipo-nome-v97').value = original;
+    document.getElementById('form-cadastro-tipo-title-v97').textContent = original ? 'Editar tipo' : 'Cadastrar tipo';
+    document.getElementById('form-cadastro-tipo-card-v97').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('cadastro-tipo-nome-v97').focus();
+}
+function novoTipoV97() { abrirFormTipoV97(''); }
+function editarTipoV97(tipo) { abrirFormTipoV97(tipo); }
+function cancelarCadastroTipoV97() { document.getElementById('form-cadastro-tipo-card-v97')?.classList.add('hidden'); }
+function persistirTiposV97(motivo, selecionar = '') {
+    motivoProximaCopia = motivo;
+    salvarDados(true, true);
+    renderSeletorTiposV97(selecionar);
+    renderListaTiposV97();
+    renderCardsDashboardV67();
+}
+function salvarCadastroTipoV97(evento) {
+    evento?.preventDefault?.();
+    const original = document.getElementById('cadastro-tipo-original-v97')?.value || '';
+    const nome = (document.getElementById('cadastro-tipo-nome-v97')?.value || '').trim().replace(/\s+/g, ' ');
+    if (!nome) return alert('Informe o nome do tipo de remédio.');
+    const chaveNova = chaveMedicamentoV67(nome), chaveOriginal = chaveMedicamentoV67(original);
+    if (listaTiposRemediosV97().some(t => chaveMedicamentoV67(t) === chaveNova && chaveNova !== chaveOriginal)) return alert('Já existe um tipo com esse nome.');
+    appData.tiposRemedios = Array.isArray(appData.tiposRemedios) ? appData.tiposRemedios : [];
+    if (original) {
+        appData.tiposRemedios = appData.tiposRemedios.filter(t => chaveMedicamentoV67(t) !== chaveOriginal);
+        for (const r of appData.remedios || []) if (chaveMedicamentoV67(r.tipo) === chaveOriginal) r.tipo = nome;
+    }
+    adicionarTipoRemedioAoCatalogoV97(nome);
+    cancelarCadastroTipoV97();
+    persistirTiposV97(original ? 'Antes de editar tipo de remédio' : 'Antes de cadastrar tipo de remédio', nome);
+}
+function excluirTipoV97(tipo) {
+    const n = contarLancamentosTipoV97(tipo);
+    if (!confirm('Excluir o tipo “' + tipo + '”?' + (n ? ' ' + n + ' lançamento(s) continuarão no histórico, mas ficarão sem tipo.' : ''))) return;
+    const chave = chaveMedicamentoV67(tipo);
+    appData.tiposRemedios = (appData.tiposRemedios || []).filter(t => chaveMedicamentoV67(t) !== chave);
+    for (const r of appData.remedios || []) if (chaveMedicamentoV67(r.tipo) === chave) r.tipo = '';
+    persistirTiposV97('Antes de excluir tipo de remédio');
+}
+const renderCadastroMedicamentosAntesV97 = renderCadastroMedicamentosV67;
+renderCadastroMedicamentosV67 = function(...args) {
+    const r = renderCadastroMedicamentosAntesV97(...args);
+    renderListaTiposV97();
+    return r;
+};
+Object.assign(window, { novoTipoV97, editarTipoV97, cancelarCadastroTipoV97, salvarCadastroTipoV97, excluirTipoV97 });
 
 </script>
 
