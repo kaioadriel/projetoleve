@@ -3243,7 +3243,6 @@ function normalizarDados(raw) {
             if (nome === 'medidas') for (const campo of Object.keys(medidasIdeais)) registro[campo] = numeroOuVazio(item[campo]);
             if (nome === 'remedios') {
                 registro.nome = textoSeguro(item.nome, 300).trim();
-                registro.tipo = textoSeguro(item.tipo, 300).trim();
                 registro.mg = numeroOuVazio(item.mg);
                 registro.ordemCadastro = Number.isSafeInteger(item.ordemCadastro) && item.ordemCadastro > 0 ? item.ordemCadastro : indice + 1;
             }
@@ -3267,7 +3266,6 @@ function normalizarDados(raw) {
         },
         pesos: registros('pesos'), medidas: registros('medidas'), remedios,
         nomesRemedios: nomesRemedios.sort((a, b) => a.localeCompare(b, 'pt-BR')),
-        tiposRemedios: [...new Set((Array.isArray(origem.tiposRemedios) ? origem.tiposRemedios : []).map(x => textoSeguro(x, 300).trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR')),
         metasPersonalizadas: (Array.isArray(origem.metasPersonalizadas) ? origem.metasPersonalizadas : [])
             .filter(item => item && typeof item === 'object')
             .map(item => ({
@@ -23719,5 +23717,31 @@ const editarTipoAntes=editarRemedio;
 editarRemedio=function(id){const item=(appData.remedios||[]).find(x=>String(x.id)===String(id));const r=editarTipoAntes(id);renderTiposRemedios(item?.tipo||'');return r;};
 window.cadastrarTipoRemedio=cadastrarTipoRemedio;
 </script>
+
+<script>
+// Preservar tipos de medicamentos durante a normalizacao e salvamento.
+(function(){
+ const normalizarTiposAntes=normalizarDados;
+ normalizarDados=function(raw){
+   const origem=raw&&typeof raw==='object'?raw:{};
+   const dados=normalizarTiposAntes(raw);
+   dados.tiposRemedios=Array.isArray(origem.tiposRemedios)?origem.tiposRemedios.map(x=>String(x||'').trim()).filter(Boolean):[];
+   if(Array.isArray(origem.remedios)){
+     const tiposPorId=new Map(origem.remedios.map(r=>[String(r?.id),String(r?.tipo||'').trim()]));
+     dados.remedios=dados.remedios.map(r=>({...r,tipo:tiposPorId.get(String(r.id))||String(origem.remedios.find(x=>String(x?.data)===String(r.data)&&String(x?.nome)===String(r.nome))?.tipo||'').trim()}));
+   }
+   return dados;
+ };
+})();
+function cadastrarTipoRemedio(){
+ const v=prompt('Nome do Tipo de Remédio:'); if(!v||!v.trim())return;
+ const nome=v.trim();
+ appData.tiposRemedios=Array.isArray(appData.tiposRemedios)?appData.tiposRemedios:[];
+ if(!appData.tiposRemedios.some(x=>String(x).trim().toLocaleLowerCase('pt-BR')===nome.toLocaleLowerCase('pt-BR')))appData.tiposRemedios.push(nome);
+ renderTiposRemedios(nome);
+ salvarDados(true,true).then(()=>renderTiposRemedios(nome));
+}
+</script>
+
 </body>
 </html>
