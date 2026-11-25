@@ -1652,7 +1652,7 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                 </div>
                 <div class="grid-2 dashboard-extra-v67" id="dashboard-extra-v67">
                     <div class="card"><div class="label">Média Calorias</div><div class="value neutral" id="dash-media-calorias-v67">Não há dados</div><div class="small" id="dash-media-calorias-info-v67">Últimos 7 dias</div></div>
-                    <div class="card"><div class="label">Dias de Remédio</div><div class="value neutral" id="dash-dias-remedio-v67">Não há dados</div><div class="small" id="dash-dias-remedio-info-v67">Nenhum tratamento em andamento</div></div>
+                    <div class="card" id="card-dias-remedio-v97"><div class="label">Dias de Remédio</div><div class="value neutral" id="dash-dias-remedio-v67">Não há dados</div><div class="small" id="dash-dias-remedio-info-v67">Nenhum tratamento em andamento</div></div>
                 </div>
                 <details id="painel-calculo-v68" class="card pl68-details"><summary>Entender as previsões</summary><div id="painel-calculo-conteudo-v68"></div></details>
             </div>
@@ -1886,9 +1886,11 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                         <div class="form-group">
                             <div class="medicine-name-head-v67">
                                 <label for="remedio-tipo">Tipo de Remédio</label>
-                                <button type="button" class="btn btn-outline medicine-quick-add-v67" onclick="cadastrarTipoRemedio()" title="Cadastrar tipo" aria-label="Cadastrar tipo">+</button>
+                                <button type="button" class="btn btn-outline medicine-quick-add-v67" onclick="abrirCadastroRapidoTipoV97()" title="Cadastrar tipo de remédio" aria-label="Cadastrar tipo de remédio">+</button>
                             </div>
-                            <select id="remedio-tipo" required><option value="">Selecione</option></select>
+                            <select id="remedio-tipo" required>
+                                <option value="">Selecione</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <div class="medicine-name-head-v67">
@@ -1906,6 +1908,14 @@ body[data-painel-view="dashboard"] #page-title,body[data-painel-view="dashboard"
                         <div class="form-group">
                             <label>Peso (kg)</label>
                             <input type="number" min="0" step="0.1" id="remedio-peso" required>
+                        </div>
+                    </div>
+                    <div id="cadastro-rapido-tipo-v97" class="medicine-quick-box-v67 hidden">
+                        <div class="medicine-quick-title-v67">Cadastro rápido de tipo</div>
+                        <div class="form-group"><label>Tipo de Remédio</label><input type="text" id="quick-tipo-nome-v97" maxlength="300" placeholder="Ex: Caneta emagrecedora"></div>
+                        <div class="grid-2" style="margin-top:10px">
+                            <button type="button" class="btn btn-outline" onclick="fecharCadastroRapidoTipoV97()">Cancelar</button>
+                            <button type="button" class="btn btn-primary" onclick="salvarCadastroRapidoTipoV97()">Cadastrar</button>
                         </div>
                     </div>
                     <div id="cadastro-rapido-remedio-v67" class="medicine-quick-box-v67 hidden">
@@ -5418,13 +5428,14 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
     e.preventDefault();
     const editId = document.getElementById('edit-remedio-id')?.value || '';
     const data = document.getElementById('remedio-data')?.value || '';
+    const tipo = document.getElementById('remedio-tipo')?.value.trim() || '';
     const nome = document.getElementById('remedio-nome')?.value.trim() || '';
     const mg = numeroValido(document.getElementById('remedio-mg')?.value);
     const peso = numeroValido(document.getElementById('remedio-peso')?.value);
     const arquivosFoto = Array.from(inputFotoRemedio?.files || []);
 
-    if (!dataISOValida(data) || !nome || !Number.isFinite(mg) || mg <= 0 || !Number.isFinite(peso) || peso <= 0) {
-        return alert('Preencha data, nome do remédio, dose em mg e peso.');
+    if (!dataISOValida(data) || !tipo || !nome || !Number.isFinite(mg) || mg <= 0 || !Number.isFinite(peso) || peso <= 0) {
+        return alert('Preencha data, tipo e nome do remédio, dose em mg e peso.');
     }
 
     const botaoSalvar = document.getElementById('btn-salvar-remedio');
@@ -5450,8 +5461,8 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
             ...(registroAnterior || {}),
             id,
             data,
+            tipo,
             nome,
-            tipo: document.getElementById('remedio-tipo')?.value || registroAnterior?.tipo || '',
             mg,
             peso,
             ordemCadastro: registroAnterior?.ordemCadastro || Math.max(0, ...(appData.remedios || []).map(item => Number(item.ordemCadastro) || 0)) + 1,
@@ -5461,6 +5472,7 @@ if (formRemedio) formRemedio.onsubmit = async function(e) {
         if (indiceExistente > -1) appData.remedios[indiceExistente] = registro;
         else appData.remedios.push(registro);
         adicionarNomeRemedioAoCatalogo(nome);
+        adicionarTipoRemedioAoCatalogoV97(tipo);
         salvarDados(true, true);
         fecharLancamentoRemedio();
     } catch (error) {
@@ -23670,103 +23682,155 @@ propostaTextoLivreV61=function(texto,file){
 };
 window.propostaTextoLivreV61=propostaTextoLivreV61;
 
-</script>
 
+/* =========================================================
+   V97 — Tipo de Remédio + Dias de Remédio por tipo (aba Início)
+   ========================================================= */
+const DIAS_ENCERRAR_TRATAMENTO_V97 = 20;
 
-<script>
-function cadastrarTipoRemedio(){
- const v=prompt('Nome do Tipo de Remédio:'); if(!v||!v.trim())return;
- appData.tiposRemedios=Array.isArray(appData.tiposRemedios)?appData.tiposRemedios:[];
- if(!appData.tiposRemedios.some(x=>String(x).toLowerCase()===v.trim().toLowerCase()))appData.tiposRemedios.push(v.trim());
- renderTiposRemedios(); salvarDados(true,true);
-}
-function renderTiposRemedios(valor=''){
- const s=document.getElementById('remedio-tipo');if(!s)return;
- appData.tiposRemedios=Array.isArray(appData.tiposRemedios)?appData.tiposRemedios:[];
- const prev=valor||s.value;
- const tipos=[...new Set([...appData.tiposRemedios,...(appData.remedios||[]).map(r=>r.tipo).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'pt-BR'));
- s.innerHTML='<option value="">Selecione</option>'+tipos.map(t=>'<option value="'+escapeHtml(t)+'">'+escapeHtml(t)+'</option>').join('');
- if(tipos.includes(prev))s.value=prev;
-}
-function tratamentoTiposDashboard(){
- const hoje=hojeISO(), grupos=new Map();
- (appData.remedios||[]).filter(r=>r&&dataISOValida(r.data)&&r.data<=hoje&&r.tipo).forEach(r=>{
-  const k=String(r.tipo).trim().toLocaleLowerCase('pt-BR');
-  if(!grupos.has(k))grupos.set(k,{tipo:r.tipo,registros:[]});grupos.get(k).registros.push(r);
- });
- return [...grupos.values()].map(g=>{
-  g.registros.sort((a,b)=>String(a.data).localeCompare(String(b.data))||(Number(a.ordemCadastro)||0)-(Number(b.ordemCadastro)||0));
-  const ultima=g.registros[g.registros.length-1];const diff=Math.floor((Date.parse(hoje+'T00:00:00Z')-Date.parse(ultima.data+'T00:00:00Z'))/86400000);
-  if(diff>20)return null;
-  const primeira=g.registros[0],dias=Math.floor((Date.parse(hoje+'T00:00:00Z')-Date.parse(primeira.data+'T00:00:00Z'))/86400000)+1;
-  return {tipo:g.tipo,primeira,dias};
- }).filter(Boolean).sort((a,b)=>String(a.primeira.data).localeCompare(String(b.primeira.data)));
-}
-const renderCardsDashboardTiposAntes=renderCardsDashboardV67;
-renderCardsDashboardV67=function(){
- renderCardsDashboardTiposAntes();
- const dv=document.getElementById('dash-dias-remedio-v67'),di=document.getElementById('dash-dias-remedio-info-v67');
- const tr=tratamentoTiposDashboard();
- if(dv){dv.textContent=tr.length?tr.map(x=>x.dias+' dia'+(x.dias===1?'':'s')).join(' • '):'Não há dados';}
- if(di)di.textContent=tr.length?tr.map(x=>x.tipo+' • desde '+formatDateBR(x.primeira.data)).join(' | '):'Nenhum tratamento em andamento';
+const normalizarDadosAntesV97 = normalizarDados;
+normalizarDados = function(raw) {
+    const dados = normalizarDadosAntesV97(raw);
+    const origem = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+    const brutos = new Map((Array.isArray(origem.remedios) ? origem.remedios : []).filter(r => r?.id).map(r => [String(r.id), r]));
+    const tipos = [];
+    const incluir = valor => {
+        const limpo = textoSeguro(valor || '', 300).trim().replace(/\s+/g, ' ');
+        if (limpo && !tipos.some(t => chaveMedicamentoV67(t) === chaveMedicamentoV67(limpo))) tipos.push(limpo);
+    };
+    (Array.isArray(origem.tiposRemedios) ? origem.tiposRemedios : []).forEach(incluir);
+    for (const r of dados.remedios || []) {
+        r.tipo = textoSeguro(brutos.get(String(r.id))?.tipo || '', 300).trim();
+        incluir(r.tipo);
+    }
+    dados.tiposRemedios = tipos.sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    return dados;
 };
-window.addEventListener('load',()=>setTimeout(()=>renderTiposRemedios(),1000));
-const showViewTipoAntes=showView;
-showView=function(viewId,navEl){const r=showViewTipoAntes(viewId,navEl);if(viewId==='remedio')renderTiposRemedios();return r;};
-const editarTipoAntes=editarRemedio;
-editarRemedio=function(id){const item=(appData.remedios||[]).find(x=>String(x.id)===String(id));const r=editarTipoAntes(id);renderTiposRemedios(item?.tipo||'');return r;};
-window.cadastrarTipoRemedio=cadastrarTipoRemedio;
-</script>
 
-<script>
-// Preservar tipos de medicamentos durante a normalizacao e salvamento.
-(function(){
- const normalizarTiposAntes=normalizarDados;
- normalizarDados=function(raw){
-   const origem=raw&&typeof raw==='object'?raw:{};
-   const dados=normalizarTiposAntes(raw);
-   dados.tiposRemedios=Array.isArray(origem.tiposRemedios)?origem.tiposRemedios.map(x=>String(x||'').trim()).filter(Boolean):[];
-   if(Array.isArray(origem.remedios)){
-     const tiposPorId=new Map(origem.remedios.map(r=>[String(r?.id),String(r?.tipo||'').trim()]));
-     dados.remedios=dados.remedios.map(r=>({...r,tipo:tiposPorId.get(String(r.id))||String(origem.remedios.find(x=>String(x?.data)===String(r.data)&&String(x?.nome)===String(r.nome))?.tipo||'').trim()}));
-   }
-   return dados;
- };
-})();
-function cadastrarTipoRemedio(){
- const v=prompt('Nome do Tipo de Remédio:'); if(!v||!v.trim())return;
- const nome=v.trim();
- appData.tiposRemedios=Array.isArray(appData.tiposRemedios)?appData.tiposRemedios:[];
- if(!appData.tiposRemedios.some(x=>String(x).trim().toLocaleLowerCase('pt-BR')===nome.toLocaleLowerCase('pt-BR')))appData.tiposRemedios.push(nome);
- renderTiposRemedios(nome);
- salvarDados(true,true).then(()=>renderTiposRemedios(nome));
+function listaTiposRemediosV97() {
+    const mapa = new Map();
+    for (const t of [...(Array.isArray(appData?.tiposRemedios) ? appData.tiposRemedios : []), ...(appData?.remedios || []).map(r => r.tipo)]) {
+        const limpo = String(t || '').trim().replace(/\s+/g, ' ');
+        if (limpo && !mapa.has(chaveMedicamentoV67(limpo))) mapa.set(chaveMedicamentoV67(limpo), limpo);
+    }
+    return [...mapa.values()].sort((a, b) => a.localeCompare(b, 'pt-BR'));
 }
+function renderSeletorTiposV97(preferido = '') {
+    const select = document.getElementById('remedio-tipo');
+    if (!select) return;
+    const valor = preferido || select.value || '';
+    const tipos = listaTiposRemediosV97();
+    select.innerHTML = '<option value="">Selecione</option>' + tipos.map(t => '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>').join('');
+    const escolhido = tipos.find(t => chaveMedicamentoV67(t) === chaveMedicamentoV67(valor));
+    if (escolhido) select.value = escolhido;
+}
+function adicionarTipoRemedioAoCatalogoV97(tipo) {
+    const limpo = String(tipo || '').trim().replace(/\s+/g, ' ');
+    if (!limpo) return;
+    appData.tiposRemedios = Array.isArray(appData.tiposRemedios) ? appData.tiposRemedios : [];
+    if (!appData.tiposRemedios.some(t => chaveMedicamentoV67(t) === chaveMedicamentoV67(limpo))) appData.tiposRemedios.push(limpo);
+}
+function abrirCadastroRapidoTipoV97() {
+    const caixa = document.getElementById('cadastro-rapido-tipo-v97');
+    if (!caixa) return;
+    caixa.classList.toggle('hidden');
+    if (!caixa.classList.contains('hidden')) document.getElementById('quick-tipo-nome-v97')?.focus();
+}
+function fecharCadastroRapidoTipoV97() {
+    document.getElementById('cadastro-rapido-tipo-v97')?.classList.add('hidden');
+    const campo = document.getElementById('quick-tipo-nome-v97');
+    if (campo) campo.value = '';
+}
+function salvarCadastroRapidoTipoV97() {
+    const nome = (document.getElementById('quick-tipo-nome-v97')?.value || '').trim().replace(/\s+/g, ' ');
+    if (!nome) return alert('Informe o nome do tipo de remédio.');
+    adicionarTipoRemedioAoCatalogoV97(nome);
+    motivoProximaCopia = 'Antes de cadastrar tipo de remédio';
+    salvarDados(true, true);
+    renderSeletorTiposV97(nome);
+    fecharCadastroRapidoTipoV97();
+}
+
+const renderRemediosAntesV97 = renderRemedios;
+renderRemedios = function(...args) {
+    const valor = document.getElementById('remedio-tipo')?.value || '';
+    const r = renderRemediosAntesV97(...args);
+    renderSeletorTiposV97(valor);
+    return r;
+};
+const editarRemedioAntesV97 = editarRemedio;
+editarRemedio = function(id) {
+    const r = editarRemedioAntesV97(id);
+    const item = (appData.remedios || []).find(x => String(x.id) === String(id));
+    renderSeletorTiposV97(item?.tipo || '');
+    const select = document.getElementById('remedio-tipo');
+    if (select && !item?.tipo) select.value = '';
+    return r;
+};
+window.editarRemedio = editarRemedio;
+const limparFormularioRemedioAntesV97 = limparFormularioRemedio;
+limparFormularioRemedio = function(...args) {
+    const r = limparFormularioRemedioAntesV97(...args);
+    const select = document.getElementById('remedio-tipo');
+    if (select) select.value = '';
+    fecharCadastroRapidoTipoV97();
+    return r;
+};
+window.limparFormularioRemedio = limparFormularioRemedio;
+window.abrirCadastroRapidoTipoV97 = abrirCadastroRapidoTipoV97;
+window.fecharCadastroRapidoTipoV97 = fecharCadastroRapidoTipoV97;
+window.salvarCadastroRapidoTipoV97 = salvarCadastroRapidoTipoV97;
+
+/* Dias de Remédio: um cálculo por Tipo (lançamentos antigos sem tipo usam o nome como tipo).
+   O início é o primeiro registro da sequência atual do tipo; uma pausa maior que 20 dias
+   sem registro encerra o tratamento (não aparece na aba Início). */
+function diasEntreDatasV97(a, b) {
+    return Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 86400000);
+}
+function tratamentosPorTipoV97() {
+    const hoje = hojeISO(), grupos = new Map();
+    for (const r of appData.remedios || []) {
+        if (!dataISOValida(String(r?.data || '')) || r.data > hoje) continue;
+        const chave = chaveMedicamentoV67(r.tipo || r.nome);
+        if (!chave) continue;
+        if (!grupos.has(chave)) grupos.set(chave, []);
+        grupos.get(chave).push(r);
+    }
+    const lista = [];
+    for (const regs of grupos.values()) {
+        regs.sort((a, b) => String(a.data).localeCompare(String(b.data)) || (Number(a.ordemCadastro) || 0) - (Number(b.ordemCadastro) || 0));
+        let inicio = regs[0];
+        for (let i = 1; i < regs.length; i++) {
+            if (diasEntreDatasV97(regs[i - 1].data, regs[i].data) > DIAS_ENCERRAR_TRATAMENTO_V97) inicio = regs[i];
+        }
+        const ultimo = regs[regs.length - 1];
+        if (diasEntreDatasV97(ultimo.data, hoje) > DIAS_ENCERRAR_TRATAMENTO_V97) continue;
+        const rotulo = ultimo.tipo ? (ultimo.tipo + (ultimo.nome ? ' • ' + ultimo.nome : '')) : (ultimo.nome || 'Remédio');
+        lista.push({ inicio: inicio.data, dias: diasEntreInclusivoV67(inicio.data, hoje), rotulo });
+    }
+    return lista.sort((a, b) => a.inicio.localeCompare(b.inicio));
+}
+function renderDiasRemedioPorTipoV97() {
+    const card = document.getElementById('card-dias-remedio-v97');
+    if (!card) return;
+    const itens = tratamentosPorTipoV97();
+    if (!itens.length) {
+        card.innerHTML = '<div class="label">Dias de Remédio</div><div class="value neutral" id="dash-dias-remedio-v67">Não há dados</div><div class="small" id="dash-dias-remedio-info-v67">Nenhum tratamento em andamento</div>';
+        return;
+    }
+    card.innerHTML = '<div class="label">Dias de Remédio</div>' + itens.map((t, i) =>
+        '<div' + (i ? ' style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"' : '') + '><div class="value neutral">' +
+        t.dias + ' dia' + (t.dias === 1 ? '' : 's') + '</div><div class="small">' + escapeHtml(t.rotulo) + ' • desde ' + formatDateBR(t.inicio) + '</div></div>').join('');
+}
+const renderCardsDashboardAntesV97 = renderCardsDashboardV67;
+renderCardsDashboardV67 = function(...args) {
+    const r = renderCardsDashboardAntesV97(...args);
+    renderDiasRemedioPorTipoV97();
+    return r;
+};
+window.addEventListener('load', () => setTimeout(() => { renderSeletorTiposV97(); renderCardsDashboardV67(); }, 1200));
+
 </script>
 
 </body>
 </html>
-<script>
-// Cadastro visual e gerenciamento do catálogo de tipos de remédio.
-(function(){
- function tipos(){ if(!Array.isArray(appData.tiposRemedios)) appData.tiposRemedios=[]; return appData.tiposRemedios; }
- function salvarTipos(){ appData.tiposRemedios=tipos(); try{salvarDados(true,true);}catch(e){console.error(e);} }
- window.abrirCadastroTipoRemedio=function(){
-  let box=document.getElementById('cadastro-rapido-tipo-v97');
-  if(!box){box=document.createElement('div');box.id='cadastro-rapido-tipo-v97';box.className='medicine-quick-box-v67 hidden';box.innerHTML='<div class="medicine-quick-title-v67">Cadastro rápido</div><div class="form-group"><label>Nome</label><input type="text" id="quick-tipo-nome-v97" maxlength="100" placeholder="Ex: GLP-1"></div><div class="grid-2" style="margin-top:10px"><button type="button" class="btn btn-outline" onclick="fecharCadastroTipoRemedioV97()">Cancelar</button><button type="button" class="btn btn-primary" onclick="salvarCadastroTipoRemedioV97()">Cadastrar</button></div>';document.getElementById('remedio-tipo')?.closest('.form-group')?.appendChild(box);}
-  box.classList.remove('hidden');document.getElementById('quick-tipo-nome-v97')?.focus();
- };
- window.fecharCadastroTipoRemedioV97=function(){document.getElementById('cadastro-rapido-tipo-v97')?.classList.add('hidden');};
- window.salvarCadastroTipoRemedioV97=function(){
-  const inp=document.getElementById('quick-tipo-nome-v97'),nome=(inp?.value||'').trim();if(!nome){alert('Informe o nome do tipo de remédio.');return;}
-  const arr=tipos();if(arr.some(x=>String(x).trim().toLocaleLowerCase('pt-BR')===nome.toLocaleLowerCase('pt-BR'))){alert('Este tipo já está cadastrado.');return;}
-  arr.push(nome);appData.tiposRemedios=arr;salvarTipos();renderTiposRemedios(nome);renderListaTiposGerenciarV97();if(inp)inp.value='';window.fecharCadastroTipoRemedioV97();
- };
- window.excluirTipoRemedioV97=function(nome){if(!confirm('Excluir o tipo "'+nome+'" do catálogo? Os lançamentos antigos serão preservados.'))return;appData.tiposRemedios=tipos().filter(x=>String(x)!==String(nome));salvarTipos();renderTiposRemedios();renderListaTiposGerenciarV97();};
- window.renderListaTiposGerenciarV97=function(){const el=document.getElementById('lista-tipos-remedios-v97');if(!el)return;const arr=[...new Set(tipos().map(x=>String(x).trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));el.innerHTML=arr.length?arr.map(n=>'<div class="medicine-registry-row-v67"><div class="medicine-registry-head-v67"><div class="medicine-registry-name-v67">'+escapeHtml(n)+'</div><button type="button" class="btn btn-clear-outline" onclick="excluirTipoRemedioV97('+JSON.stringify(n).replace(/</g,'\\u003c')+')">Excluir</button></div></div>').join(''):'<div class="small">Nenhum tipo cadastrado.</div>';};
- const oldEnsure=garantirViewCadastroMedicamentosV67;
- garantirViewCadastroMedicamentosV67=function(){oldEnsure();const sec=document.getElementById('view-tratamentos-v49');if(!sec||document.getElementById('gerenciar-tipos-remedios-v97'))return;const add=document.createElement('div');add.id='gerenciar-tipos-remedios-v97';add.className='card';add.innerHTML='<h3>Tipos de remédios</h3><div class="small">Cadastre e organize os tipos usados nos lançamentos.</div><button type="button" class="btn btn-primary" style="margin-top:10px" onclick="abrirCadastroTipoRemedio()">Cadastrar Tipo</button><div id="lista-tipos-remedios-v97" class="medicine-registry-list-v67" style="margin-top:12px"></div>';sec.appendChild(add);};
- const oldRender=renderCadastroMedicamentosV67;renderCadastroMedicamentosV67=function(){oldRender();renderListaTiposGerenciarV97();};
- // Use painel inline no +, em vez de prompt do sistema.
- window.cadastrarTipoRemedio=window.abrirCadastroTipoRemedio;
-})();
-</script>
